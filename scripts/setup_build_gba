@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+project=`pwd`
+buildDir="build/gba"
+
+mkdir -p $buildDir
+pushd $buildDir
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE=cmake/Modules/GBA.cmake -DWOMBAT_BUILD_TYPE=GBA $project
+popd

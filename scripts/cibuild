@@ -1,0 +1,8 @@
+BRANCH=$1
+./scripts/setup_build
+make -j4 -C build/sdl clean wombat
+rm -rf wombat wombat-*-*.tar.gz
+mkdir wombat
+git rev-parse HEAD > wombat/revision.txt
+cp -pr wombat_path build/sdl/src/wombat/wombat wombat
+tar -cvzf wombat-${BRANCH}-`date "+%y%m%d%H%M"`.tar.gz wombat

@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+project=`pwd`
+buildDir="build/sdl_debug"
+
+mkdir -p $buildDir
+pushd $buildDir
+cmake -DUSE_ASAN=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug $project
+popd

@@ -1,29 +1,37 @@
+DEVENV=devenv-$(shell pwd | sed 's/\//-/g')
+
 make:
-	make -j -C build
+	docker exec ${DEVENV} make -j -C build
 preinstall:
-	make -j -C build ARGS="preinstall"
+	docker exec ${DEVENV} make -j -C build ARGS="preinstall"
 install:
-	make -j -C build ARGS="install"
+	docker exec ${DEVENV} make -j -C build ARGS="install"
 clean:
-	make -j -C build ARGS="clean"
+	docker exec ${DEVENV} make -j -C build ARGS="clean"
 test:
-	make -j -C build ARGS="test"
+	docker exec ${DEVENV} make -j -C build ARGS="test"
 run: make
 	./build/current/src/wombat/wombat -debug
 debug: make
 	gdb ./build/current/src/wombat/wombat
+devenv:
+	docker pull wombatant/devenv
+	docker rm -f ${DEVENV}
+	docker run -d -v $(shell pwd):/usr/src/project -e LOCAL_USER_ID=$(shell id -u ${USER}) --name ${DEVENV} -t wombatant/devenv bash
+devenv-destroy:
+	docker rm -f ${DEVENV}
 
 sdl:
-	./scripts/setup_build
+	docker exec ${DEVENV} ./scripts/setup_build
 	rm -f build/current
 	ln -s sdl build/current
 
 sdl_debug:
-	./scripts/setup_build_debug
+	docker exec ${DEVENV} ./scripts/setup_build_debug
 	rm -f build/current
 	ln -s sdl_debug build/current
 
 gba:
-	./scripts/setup_build_gba
+	docker exec ${DEVENV} ./scripts/setup_build_gba
 	rm -f build/current
-	ln -s sdl_gba build/current
+	ln -s gba build/current

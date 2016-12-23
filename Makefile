@@ -1,5 +1,7 @@
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
-ENV_RUN=docker exec --user $(shell id -u ${USER}) ${DEVENV}
+ifeq ($(shell docker inspect --format="{{.State.Status}}" ${DEVENV} 2>&1),running)
+	ENV_RUN=docker exec --user $(shell id -u ${USER}) ${DEVENV}
+endif
 
 make:
 	${ENV_RUN} make -j -C build
@@ -17,7 +19,9 @@ debug: make
 	gdb ./build/current/src/wombat/wombat
 devenv:
 	docker pull wombatant/devenv
-	docker run -d -v $(shell pwd):/usr/src/project -e LOCAL_USER_ID=$(shell id -u ${USER}) --name ${DEVENV} -t wombatant/devenv bash
+	docker run -d -v $(shell pwd):/usr/src/project \
+		-e LOCAL_USER_ID=$(shell id -u ${USER}) \
+		--name ${DEVENV} -t wombatant/devenv bash
 devenv-destroy:
 	docker rm -f ${DEVENV}
 

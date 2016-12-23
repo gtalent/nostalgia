@@ -7,13 +7,16 @@ set(WOMBAT_BUILD_TYPE "Native" CACHE STRING "The type of build to produce(Native
 add_executable(
 	nostalgia
 		main.cpp
-		${OBJS}
 )
 
-#target_link_libraries(wombat ${LIBS})
-set_target_properties(nostalgia
-	PROPERTIES
-	LINK_FLAGS ${LINKER_FLAGS}
-	COMPILER_FLAGS "-mthumb -mthumb-interwork"
-)
-objcopy_file(nostalgia)
+if(COMMAND objcopy_file)
+	set_target_properties(nostalgia
+		PROPERTIES
+		LINK_FLAGS ${LINKER_FLAGS}
+		COMPILER_FLAGS "-mthumb -mthumb-interwork"
+	)
+
+	objcopy_file(nostalgia)
+endif()
+
+target_link_libraries(nostalgia NostalgiaCore)

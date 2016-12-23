@@ -1,3 +1,4 @@
+build/current
 build/gba
-build/sdl
-build/sdl_debug
+build/*-release
+build/*-debug

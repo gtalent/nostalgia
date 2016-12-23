@@ -1,14 +1,12 @@
 /*
  * Copyright 2016 gtalent2@gmail.com
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 #ifndef NOSTALGIA_CORE_TYPES_HPP
 #define NOSTALGIA_CORE_TYPES_HPP
-
-#include <cstdint>
 
 namespace nostalgia {
 namespace core {
@@ -22,6 +20,8 @@ typedef unsigned int       uint32_t;
 typedef unsigned           uint_t;
 typedef long long          int64_t;
 typedef unsigned long long uint64_t;
+
+typedef uint32_t Error;
 
 #ifdef _LP64
 typedef uint64_t size_t;

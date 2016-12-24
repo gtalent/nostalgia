@@ -30,8 +30,6 @@ devenv:
 		--name ${DEVENV} -t wombatant/devenv bash
 devenv-destroy:
 	docker rm -f ${DEVENV}
-devenv-shell:
-	docker exec -i --user $(shell id -u ${USER}) ${DEVENV} ls /usr/bin/x86_64-w64-mingw32-g++
 
 release:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-release

@@ -21,6 +21,9 @@ if(WOMBAT_BUILD_TYPE STREQUAL "Native")
 elseif(WOMBAT_BUILD_TYPE STREQUAL "GBA")
 endif()
 
+find_package(Ox REQUIRED)
+include_directories(${Ox_INCLUDE_DIRS})
+set(LIBS ${LIBS} ${Ox_LIBRARY})
 
 #project packages
 

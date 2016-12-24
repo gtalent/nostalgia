@@ -11,7 +11,7 @@
 namespace nostalgia {
 namespace core {
 
-Error init();
+ox::std::Error init();
 
 }
 }

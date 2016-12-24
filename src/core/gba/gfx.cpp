@@ -6,13 +6,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <ox/std/types.hpp>
 #include "registers.hpp"
-#include "../types.hpp"
 
 namespace nostalgia {
 namespace core {
 
-Error initGfx() {
+ox::std::Error initGfx() {
 	/* Sprite Mode ----\ */
 	/*             ---\| */
 	/* Background 2 -\|| */

@@ -6,12 +6,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "types.hpp"
+#include <ox/std/types.hpp>
 
 namespace nostalgia {
 namespace core {
 
-Error initGfx();
+ox::std::Error initGfx();
 
 }
 }

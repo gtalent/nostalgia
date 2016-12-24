@@ -8,13 +8,13 @@ gba_build:
 	fi
 
 native_build:
-	@if [ -d ${TARGET}-release ]; then \
-		${MAKE} -C ${TARGET}-release ${ARGS}; \
+	@if [ -d ${HOST_ENV}-release ]; then \
+		${MAKE} -C ${HOST_ENV}-release ${ARGS}; \
 	fi
 
 native_debug_build:
-	@if [ -d ${TARGET}-debug ]; then \
-		${MAKE} -C ${TARGET}-debug ${ARGS}; \
+	@if [ -d ${HOST_ENV}-debug ]; then \
+		${MAKE} -C ${HOST_ENV}-debug ${ARGS}; \
 	fi
 
 windows_release:

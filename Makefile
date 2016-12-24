@@ -1,26 +1,28 @@
 OS=$(shell uname | tr [:upper:] [:lower:])
-TARGET=${OS}-$(shell uname -m)
+HOST_ENV=${OS}-$(shell uname -m)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 ifeq ($(shell docker inspect --format="{{.State.Status}}" ${DEVENV} 2>&1),running)
 	ENV_RUN=docker exec --user $(shell id -u ${USER}) ${DEVENV}
 endif
 
 make:
-	${ENV_RUN} make -j -C build TARGET=${TARGET}
+	${ENV_RUN} make -j -C build HOST_ENV=${HOST_ENV}
 preinstall:
-	${ENV_RUN} make -j -C build ARGS="preinstall" TARGET=${TARGET}
+	${ENV_RUN} make -j -C build ARGS="preinstall" HOST_ENV=${HOST_ENV}
 install:
-	${ENV_RUN} make -j -C build ARGS="install" TARGET=${TARGET}
+	${ENV_RUN} make -j -C build ARGS="install" HOST_ENV=${HOST_ENV}
 clean:
-	${ENV_RUN} make -j -C build ARGS="clean" TARGET=${TARGET}
+	${ENV_RUN} make -j -C build ARGS="clean" HOST_ENV=${HOST_ENV}
 purge:
 	${ENV_RUN} rm -rf $(shell find build -mindepth 1 -maxdepth 1 -type d)
 test:
-	${ENV_RUN} make -j -C build ARGS="test" TARGET=${TARGET}
+	${ENV_RUN} make -j -C build ARGS="test" HOST_ENV=${HOST_ENV}
+
 run: make
 	./build/current/src/wombat/wombat -debug
 gdb: make
 	gdb ./build/current/src/wombat/wombat
+
 devenv:
 	docker pull wombatant/devenv
 	docker run -d -v $(shell pwd):/usr/src/project \
@@ -32,16 +34,16 @@ devenv-shell:
 	docker exec -i --user $(shell id -u ${USER}) ${DEVENV} ls /usr/bin/x86_64-w64-mingw32-g++
 
 release:
-	${ENV_RUN} rm -rf build/${TARGET}-release
-	${ENV_RUN} ./scripts/setup_build ${TARGET}
+	${ENV_RUN} rm -rf build/${HOST_ENV}-release
+	${ENV_RUN} ./scripts/setup_build ${HOST_ENV}
 	${ENV_RUN} rm -f build/current
-	${ENV_RUN} ln -s ${TARGET}-release build/current
+	${ENV_RUN} ln -s ${HOST_ENV}-release build/current
 
 debug:
-	${ENV_RUN} rm -rf build/${TARGET}-debug
-	${ENV_RUN} ./scripts/setup_build ${TARGET} debug
+	${ENV_RUN} rm -rf build/${HOST_ENV}-debug
+	${ENV_RUN} ./scripts/setup_build ${HOST_ENV} debug
 	${ENV_RUN} rm -f build/current
-	${ENV_RUN} ln -s ${TARGET}-debug build/current
+	${ENV_RUN} ln -s ${HOST_ENV}-debug build/current
 
 windows:
 	${ENV_RUN} rm -rf build/windows

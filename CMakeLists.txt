@@ -20,10 +20,15 @@ add_definitions(
 	-fno-rtti
 	#-g
 	#-fcolor-diagnostics
-	-Werror
 	#--analyze
 	#-Os # GCC size optimization flag
 )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+	add_definitions(
+		-Werror
+	)
+endif()
 
 enable_testing()
 

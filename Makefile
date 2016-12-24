@@ -62,3 +62,9 @@ gba:
 	${ENV_RUN} ./scripts/setup_build gba
 	${ENV_RUN} rm -f build/current
 	${ENV_RUN} ln -s gba-release build/current
+
+gba-debug:
+	${ENV_RUN} rm -rf build/gba-debug
+	${ENV_RUN} ./scripts/setup_build gba debug
+	${ENV_RUN} rm -f build/current
+	${ENV_RUN} ln -s gba-debug build/current

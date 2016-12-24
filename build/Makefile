@@ -1,10 +1,15 @@
-all: gba_build native_build native_debug_build windows_release windows_debug
+all: gba_build gba_debug_build native_build native_debug_build windows_release windows_debug
 
 MAKE=make -j
 
 gba_build:
 	@if [ -d gba-release ]; then \
 		${MAKE} -C gba-release ${ARGS}; \
+	fi
+
+gba_debug_build:
+	@if [ -d gba-debug ]; then \
+		${MAKE} -C gba-debug ${ARGS}; \
 	fi
 
 native_build:

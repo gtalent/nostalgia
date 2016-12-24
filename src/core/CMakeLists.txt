@@ -10,8 +10,8 @@ elseif(WOMBAT_BUILD_TYPE STREQUAL "Native")
 endif()
 
 add_library(NostalgiaCore
-   ${CPP}
-   core.cpp
+	${CPP}
+	core.cpp
 )
 
 install(

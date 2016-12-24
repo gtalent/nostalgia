@@ -23,7 +23,7 @@ endif()
 
 find_package(Ox REQUIRED)
 include_directories(${Ox_INCLUDE_DIRS})
-set(LIBS ${LIBS} ${Ox_LIBRARY})
+set(LIBS ${LIBS} ${OxFs_LIBRARY})
 
 #project packages
 

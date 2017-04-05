@@ -23,12 +23,12 @@
 #define REG_BG0HOFS *((volatile unsigned int*) 0x04000010)
 #define REG_BG1HOFS *((volatile unsigned int*) 0x04000014)
 #define REG_BG2HOFS *((volatile unsigned int*) 0x04000018)
-#define REG_BG3HOFS *((volatile unsigned int*) 0x0400001a)
+#define REG_BG3HOFS *((volatile unsigned int*) 0x0400001c)
 
 // vertical scrolling registers
 #define REG_BG0VOFS *((volatile unsigned int*) 0x04000012)
 #define REG_BG1VOFS *((volatile unsigned int*) 0x04000016)
 #define REG_BG2VOFS *((volatile unsigned int*) 0x0400001a)
-#define REG_BG3VOFS *((volatile unsigned int*) 0x0400001c)
+#define REG_BG3VOFS *((volatile unsigned int*) 0x0400001e)
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 gtalent2@gmail.com
+ * Copyright 2016-2017 gtalent2@gmail.com
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12,10 +12,5 @@ using namespace nostalgia;
 
 int main() {
 	core::init();
-
-	((unsigned short*)0x06000000)[120+80*240] = 0x001F;
-	((unsigned short*)0x06000000)[136+80*240] = 0x03E0;
-	((unsigned short*)0x06000000)[120+96*240] = 0x7C00;
-
 	return 0;
 }

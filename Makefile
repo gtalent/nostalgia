@@ -15,12 +15,14 @@ install:
 clean:
 	${ENV_RUN} make -j -C build ARGS="clean" HOST_ENV=${HOST_ENV}
 purge:
-	${ENV_RUN} rm -rf $(shell find build -mindepth 1 -maxdepth 1 -type d)
+	${ENV_RUN} rm -rf $$(find build -mindepth 1 -maxdepth 1 -type d)
 test:
 	${ENV_RUN} make -j -C build ARGS="test" HOST_ENV=${HOST_ENV}
 
 run: make
-	./build/current/src/wombat/wombat -debug
+	./build/current/src/player/nostalgia -debug
+gba-run: make
+	${ENV_RUN} mgba-qt build/current/src/player/nostalgia.bin
 gdb: make
 	gdb ./build/current/src/wombat/wombat
 
@@ -28,7 +30,13 @@ devenv:
 	docker pull ${DEVENV_IMAGE}
 	docker run -d -v $(shell pwd):/usr/src/project \
 		-e LOCAL_USER_ID=$(shell id -u ${USER}) \
-		--restart=always --name ${DEVENV} \
+		-e DISPLAY=$(DISPLAY) \
+		-e QT_AUTO_SCREEN_SCALE_FACTOR=1 \
+		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		-v /run/dbus/:/run/dbus/ \
+		-v /dev/shm:/dev/shm \
+		--restart=always \
+		--name ${DEVENV} \
 		-t ${DEVENV_IMAGE} bash
 devenv-destroy:
 	docker rm -f ${DEVENV}

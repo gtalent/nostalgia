@@ -5,6 +5,7 @@ if(WOMBAT_BUILD_TYPE STREQUAL "GBA")
 	set(
 		CPP
 			gba/gfx.cpp
+			gba/dirt.s
 	)
 elseif(WOMBAT_BUILD_TYPE STREQUAL "Native")
 endif()
@@ -16,6 +17,8 @@ add_library(NostalgiaCore
 
 install(
 	FILES
+		core.hpp
+		gfx.hpp
 	DESTINATION
 		include/nostalgia/core
 )

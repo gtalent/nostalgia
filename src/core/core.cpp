@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 gtalent2@gmail.com
+ * Copyright 2016-2017 gtalent2@gmail.com
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12,7 +12,7 @@ namespace nostalgia {
 namespace core {
 
 ox::std::Error init() {
-   auto err = initGfx();
+	auto err = initGfx();
 	return err;
 }
 

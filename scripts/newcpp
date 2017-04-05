@@ -7,9 +7,8 @@ if len(sys.argv) < 3:
 
 pkg = sys.argv[1]
 name = sys.argv[2]
-ifdef = "WOMBAT_%s_%s_HPP" % (pkg.upper(), name.upper())
 namespace = "namespace wombat {\nnamespace %s {\n\n}\n}" % pkg
-hpp = "#ifndef %s\n#define %s\n\n%s\n\n#endif" % (ifdef, ifdef, namespace)
+hpp = "#pragma once\n"
 cpp = "#include \"%s.hpp\"\n\n%s" % (name, namespace)
 
 open("src/%s/%s.hpp" % (pkg, name), "w").write(hpp)

@@ -17,4 +17,8 @@ if(COMMAND objcopy_file)
 	objcopy_file(nostalgia)
 endif()
 
-target_link_libraries(nostalgia NostalgiaCore)
+target_link_libraries(
+	nostalgia
+		NostalgiaCore
+		${OxStd_LIBRARY}
+)

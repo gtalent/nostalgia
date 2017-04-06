@@ -10,9 +10,10 @@ if(WOMBAT_BUILD_TYPE STREQUAL "GBA")
 elseif(WOMBAT_BUILD_TYPE STREQUAL "Native")
 endif()
 
-add_library(NostalgiaCore
-	${CPP}
-	core.cpp
+add_library(
+	NostalgiaCore
+		${CPP}
+		core.cpp
 )
 
 install(

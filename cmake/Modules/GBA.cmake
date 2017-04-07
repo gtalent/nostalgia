@@ -13,6 +13,8 @@ endif()
 set(CMAKE_C_COMPILER ${DEVKITARM}/bin/arm-none-eabi-gcc)
 set(CMAKE_CXX_COMPILER ${DEVKITARM}/bin/arm-none-eabi-g++)
 set(CMAKE_OBJCOPY ${DEVKITARM}/bin/arm-none-eabi-objcopy)
+set(CMAKE_PADBIN ${DEVKITARM}/bin/padbin)
+set(CMAKE_GBAFIX ${DEVKITARM}/bin/gbafix)
 set(CMAKE_FIND_ROOT_PATH ${DEVKITARM})
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
@@ -38,18 +40,21 @@ macro(OBJCOPY_FILE EXE_NAME)
 	set(FO ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}.bin)
 	set(FI ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME})
 	message(STATUS ${FO})
+
+	# run objcopy
 	add_custom_command(
 		OUTPUT "${FO}"
 		COMMAND ${CMAKE_OBJCOPY}
 		ARGS -O binary ${FI} ${FO}
-		DEPENDS ${FI}
+		DEPENDS "${FI}"
 	)
+
 	get_filename_component(TGT "${EXE_NAME}" NAME)
 	add_custom_target("TargetObjCopy_${TGT}" ALL DEPENDS ${FO} VERBATIM)
 	get_directory_property(extra_clean_files ADDITIONAL_MAKE_CLEAN_FILES)
 	set_directory_properties(
 		PROPERTIES
-		ADDITIONAL_MAKE_CLEAN_FILES "${extra_clean_files};${FO}"
+		ADDITIONAL_MAKE_CLEAN_FILES "${extra_clean_files};${FO};"
 	)
 	set_source_files_properties("${FO}" PROPERTIES GENERATED TRUE)
 endmacro(OBJCOPY_FILE)

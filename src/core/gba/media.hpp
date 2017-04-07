@@ -6,12 +6,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "core/core.hpp"
+#pragma once
 
-using namespace nostalgia;
+#include <ox/std/types.hpp>
 
-int main() {
-	core::init();
-	while (1);
-	return 0;
+namespace nostalgia {
+namespace core {
+
+uint8_t *findMedia();
+
+}
 }

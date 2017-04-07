@@ -2,3 +2,4 @@ build/current
 build/gba
 build/*-release
 build/*-debug
+tags

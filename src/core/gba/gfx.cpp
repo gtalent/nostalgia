@@ -6,13 +6,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <ox/std/types.hpp>
-#include "registers.hpp"
+#include <ox/fs/filesystem.hpp>
+#include <ox/std/std.hpp>
+#include "addresses.hpp"
+#include "media.hpp"
 #include "dirt.h"
 
 namespace nostalgia {
 namespace core {
 
+using namespace ox::fs;
 using namespace ox::std;
 
 typedef struct { uint32_t data[8]; } Tile, Tile4;
@@ -26,12 +29,6 @@ typedef Tile8 CharBlock8[256];
 #define TILE_ADDR  ((CharBlock*) 0x06000000)
 #define TILE8_ADDR ((CharBlock8*) 0x06000000)
 
-#define PALLETE_BG     ((unsigned short*) 0x05000000)
-#define PALLETE_SPRITE ((unsigned short*) 0x05000200)
-
-typedef uint16_t BgMapTile[1024];
-#define BG_MAP ((BgMapTile*) 0x06000000)
-
 ox::std::Error initGfx() {
 	/* Sprite Mode ----\ */
 	/*             ---\| */
@@ -43,11 +40,22 @@ ox::std::Error initGfx() {
 	TILE_ADDR[0][1] = *(Tile*) dirtTiles;
 
 	for (auto i = 0; i < (dirtPalLen / 2); i++) {
-		PALLETE_BG[i] = dirtPal[i];
+		(&MEM_PALLETE_BG)[i] = dirtPal[i];
 	}
 
-	BG_MAP[28][52] = 1;
+	auto fs = (FileStore32*) findMedia();
 	REG_BG0CNT = (28 << 8) | 1;
+	MEM_BG_MAP[28][106] = 1;
+	MEM_BG_MAP[28][107] = 1;
+	if (fs) {
+		char out[6];
+		FileStore32::FsSize_t outSize = 0;
+		fs->read(3, out, &outSize);
+		if (outSize == 5 && ox_strcmp(out, "narf") == 0) {
+			MEM_BG_MAP[28][138] = 1;
+			MEM_BG_MAP[28][139] = 1;
+		}
+	}
 
 	return 0;
 }

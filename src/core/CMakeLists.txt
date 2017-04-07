@@ -5,6 +5,7 @@ if(WOMBAT_BUILD_TYPE STREQUAL "GBA")
 	set(
 		CPP
 			gba/gfx.cpp
+			gba/media.cpp
 			gba/dirt.s
 	)
 elseif(WOMBAT_BUILD_TYPE STREQUAL "Native")

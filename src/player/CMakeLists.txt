@@ -7,18 +7,20 @@ add_executable(
 		main.cpp
 )
 
-if(COMMAND objcopy_file)
+if(COMMAND OBJCOPY_FILE)
 	set_target_properties(nostalgia
 		PROPERTIES
 		LINK_FLAGS ${LINKER_FLAGS}
 		COMPILER_FLAGS "-mthumb -mthumb-interwork"
 	)
 
-	objcopy_file(nostalgia)
+	OBJCOPY_FILE(nostalgia)
+	#PADBIN_FILE(nostalgia)
 endif()
 
 target_link_libraries(
 	nostalgia
 		NostalgiaCore
 		${OxStd_LIBRARY}
+		${OxFS_LIBRARY}
 )

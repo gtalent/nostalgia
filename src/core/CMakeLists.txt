@@ -9,6 +9,10 @@ if(WOMBAT_BUILD_TYPE STREQUAL "GBA")
 			gba/dirt.s
 	)
 elseif(WOMBAT_BUILD_TYPE STREQUAL "Native")
+	set(
+		CPP
+			qt/gfx.cpp
+	)
 endif()
 
 add_library(

@@ -51,7 +51,7 @@ ox::std::Error initGfx() {
 		char out[6];
 		FileStore32::FsSize_t outSize = 0;
 		fs->read(3, out, &outSize);
-		if (outSize == 5 && ox_strcmp(out, "narf") == 0) {
+		if (outSize == 5) {
 			MEM_BG_MAP[28][138] = 1;
 			MEM_BG_MAP[28][139] = 1;
 		}

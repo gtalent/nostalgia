@@ -12,7 +12,7 @@
 namespace nostalgia {
 namespace core {
 
-ox::std::Error initGfx();
+ox::Error initGfx();
 
 }
 }

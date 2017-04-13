@@ -7,7 +7,7 @@
  */
 #include "point.hpp"
 
-namespace wombat {
+namespace nostalgia {
 namespace common {
 
 Point::Point() {

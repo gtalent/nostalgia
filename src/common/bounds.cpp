@@ -7,7 +7,7 @@
  */
 #include "bounds.hpp"
 
-namespace wombat {
+namespace nostalgia {
 namespace common {
 
 Bounds::Bounds() {

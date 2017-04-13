@@ -10,26 +10,18 @@
 #include <ox/std/std.hpp>
 #include "addresses.hpp"
 #include "media.hpp"
+#include "gba.hpp"
 #include "dirt.h"
 
 namespace nostalgia {
 namespace core {
 
 using namespace ox::fs;
-using namespace ox::std;
-
-typedef struct { uint32_t data[8]; } Tile, Tile4;
-// d-tile: double-sized tile (8bpp)
-typedef struct { uint32_t data[16]; } Tile8;
-// tile block: 32x16 tiles, 16x16 d-tiles
-typedef struct { unsigned short data[256]; } Pallete;
-typedef Tile  CharBlock[512];
-typedef Tile8 CharBlock8[256];
 
 #define TILE_ADDR  ((CharBlock*) 0x06000000)
 #define TILE8_ADDR ((CharBlock8*) 0x06000000)
 
-ox::std::Error initGfx() {
+ox::Error initGfx() {
 	/* Sprite Mode ----\ */
 	/*             ---\| */
 	/* Background 0 -\|| */

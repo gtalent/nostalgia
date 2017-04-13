@@ -5,10 +5,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-#ifndef NOSTALGIA_COMMON_POINT_HPP
-#define NOSTALGIA_COMMON_POINT_HPP
+#pragma once
 
-namespace wombat {
+namespace nostalgia {
 namespace common {
 
 class Point {
@@ -58,5 +57,3 @@ class Point {
 
 }
 }
-
-#endif

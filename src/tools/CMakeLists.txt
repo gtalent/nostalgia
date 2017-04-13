@@ -10,10 +10,11 @@ add_executable(nost-pack pack.cpp)
 target_link_libraries(
 	nost-pack
 		Qt5::Widgets
-		NostalgiaCore
-		${OxStd_LIBRARY}
 		${OxClArgs_LIBRARY}
 		${OxFS_LIBRARY}
+		${OxStd_LIBRARY}
+		NostalgiaCommon
+		NostalgiaCore
 )
 
 set(CMAKE_INCLUDE_CURRENT_DIR OFF)

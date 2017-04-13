@@ -11,7 +11,7 @@
 namespace nostalgia {
 namespace core {
 
-ox::std::Error init() {
+ox::Error init() {
 	auto err = initGfx();
 	return err;
 }

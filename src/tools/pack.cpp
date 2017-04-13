@@ -59,17 +59,18 @@ int pointToIdx(int w, int x, int y) {
 
 int run(ClArgs args) {
 	Error err = 0;
-	QString inPath = args.getString("img").c_str();
-	QString fsPath = args.getString("fs").c_str();
-	auto compact = args.getBool("c");
-	QMap<QRgb, int> colors;
-	QImage src(inPath);
-	const auto imgDataBuffSize = sizeof(Pallete) - 1 + src.width() * src.height();
-	uint8_t imgDataBuff[imgDataBuffSize];
-	GbaImageData *id = (GbaImageData*) imgDataBuff;
-	int colorId = 0;
+	QString argInPath = args.getString("img").c_str();
+	QString argFsPath = args.getString("fs").c_str();
+	auto argCompact = args.getBool("c");
+
+	QImage src(argInPath);
 
 	if (!src.isNull()) {
+		QMap<QRgb, int> colors;
+		const auto imgDataBuffSize = sizeof(Pallete) - 1 + src.width() * src.height();
+		uint8_t imgDataBuff[imgDataBuffSize];
+		GbaImageData *id = (GbaImageData*) imgDataBuff;
+		int colorId = 0;
 
 		// copy pixels as color ids
 		for (int x = 0; x < src.colorCount(); x++) {
@@ -92,7 +93,7 @@ int run(ClArgs args) {
 
 
 		size_t fsBuffSize;
-		auto fsBuff = loadFileBuff(fsPath, &fsBuffSize);
+		auto fsBuff = loadFileBuff(argFsPath, &fsBuffSize);
 		if (fsBuff && !err) {
 			auto fs = createFileSystem(fsBuff, fsBuffSize);
 
@@ -101,11 +102,11 @@ int run(ClArgs args) {
 				fsBuff = fs->buff(); // update fsBuff pointer in case there is a new buff
 				err |= fs->write(1, imgDataBuff, imgDataBuffSize);
 
-				if (compact) {
+				if (argCompact) {
 					fs->resize();
 				}
 
-				auto fsFile = fopen(fsPath.toUtf8(), "wb");
+				auto fsFile = fopen(argFsPath.toUtf8(), "wb");
 				if (fsFile) {
 					err = fwrite(fsBuff, fs->size(), 1, fsFile) != 1;
 					err |= fclose(fsFile);

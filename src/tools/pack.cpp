@@ -67,7 +67,7 @@ int run(ClArgs args) {
 
 	if (!src.isNull()) {
 		QMap<QRgb, int> colors;
-		const auto imgDataBuffSize = sizeof(Pallete) - 1 + src.width() * src.height();
+		const auto imgDataBuffSize = sizeof(Pallete) + src.width() * src.height();
 		uint8_t imgDataBuff[imgDataBuffSize];
 		GbaImageData *id = (GbaImageData*) imgDataBuff;
 		int colorId = 0;

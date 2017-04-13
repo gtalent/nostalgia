@@ -17,6 +17,13 @@ target_link_libraries(
 		NostalgiaCore
 )
 
+install(
+	TARGETS
+		nost-pack
+	RUNTIME DESTINATION
+		bin
+)
+
 set(CMAKE_INCLUDE_CURRENT_DIR OFF)
 set(CMAKE_AUTOMOC OFF)
 

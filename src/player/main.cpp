@@ -13,7 +13,8 @@ using namespace nostalgia;
 int main() {
 	core::init();
 	core::initConsole();
-	core::puts(296, "HELLO, WORLD!");
+	core::puts(9 * 32 + 8, "HELLO, WORLD!");
+	core::puts(10 * 32 + 8, "01234 56789");
 	while (1);
 	return 0;
 }

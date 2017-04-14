@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <ox/std/types.hpp>
+
 namespace nostalgia {
 namespace core {
 
@@ -15,7 +17,7 @@ typedef struct { uint32_t data[8]; } Tile, Tile4;
 // d-tile: double-sized tile (8bpp)
 typedef struct { uint32_t data[16]; } Tile8;
 // tile block: 32x16 tiles, 16x16 d-tiles
-typedef unsigned short Pallete[256];
+typedef uint16_t Pallete[256];
 typedef Tile  CharBlock[512];
 typedef Tile8 CharBlock8[256];
 

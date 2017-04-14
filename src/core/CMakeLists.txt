@@ -6,7 +6,6 @@ if(WOMBAT_BUILD_TYPE STREQUAL "GBA")
 		CPP
 			gba/gfx.cpp
 			gba/media.cpp
-			gba/dirt.s
 	)
 elseif(WOMBAT_BUILD_TYPE STREQUAL "Native")
 	set(
@@ -25,6 +24,7 @@ install(
 	FILES
 		core.hpp
 		gfx.hpp
+		gba/gba.hpp
 	DESTINATION
 		include/nostalgia/core
 )

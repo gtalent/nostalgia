@@ -1,7 +1,7 @@
 OS=$(shell uname | tr [:upper:] [:lower:])
 HOST_ENV=${OS}-$(shell uname -m)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
-DEVENV_IMAGE=wombatant/nostalgia-devenv
+DEVENV_IMAGE=nostalgia-devenv
 ifneq ($(shell which docker),)
 	ifeq ($(shell docker inspect --format="{{.State.Status}}" ${DEVENV} 2>&1),running)
 		ENV_RUN=docker exec -i -t --user $(shell id -u ${USER}) ${DEVENV}
@@ -28,8 +28,9 @@ gba-run: make
 gdb: make
 	gdb ./build/current/src/wombat/wombat
 
+devenv-build:
+	docker build --no-cache . -t ${DEVENV_IMAGE}
 devenv:
-	docker pull ${DEVENV_IMAGE}
 	docker run -d -v $(shell pwd):/usr/src/project \
 		-e LOCAL_USER_ID=$(shell id -u ${USER}) \
 		-e DISPLAY=$(DISPLAY) \

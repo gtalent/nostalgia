@@ -11,7 +11,6 @@
 #include "addresses.hpp"
 #include "media.hpp"
 #include "gba.hpp"
-#include "dirt.h"
 
 namespace nostalgia {
 namespace core {
@@ -29,25 +28,17 @@ ox::Error initGfx() {
 	/*              |||| */
 	REG_DISPCNT = 0x1100;
 
-	TILE_ADDR[0][1] = *(Tile*) dirtTiles;
-
-	for (auto i = 0; i < (dirtPalLen / 2); i++) {
-		(&MEM_PALLETE_BG)[i] = dirtPal[i];
-	}
-
 	auto fs = (FileStore32*) findMedia();
 	REG_BG0CNT = (28 << 8) | 1;
+	REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
+	if (fs) {
+		FileStore32::FsSize_t readSize = 0;
+		fs->read(1, 511, 8 * 64 * 36, &TILE8_ADDR[0][1], nullptr);
+		fs->read(1, 0, 512, &MEM_PALLETE_BG[0], &readSize);
+	}
+
 	MEM_BG_MAP[28][106] = 1;
 	MEM_BG_MAP[28][107] = 1;
-	if (fs) {
-		char out[6];
-		FileStore32::FsSize_t outSize = 0;
-		fs->read(3, out, &outSize);
-		if (outSize == 5) {
-			MEM_BG_MAP[28][138] = 1;
-			MEM_BG_MAP[28][139] = 1;
-		}
-	}
 
 	return 0;
 }

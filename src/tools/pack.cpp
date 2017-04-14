@@ -59,6 +59,7 @@ int pointToIdx(int w, int x, int y) {
 
 int run(ClArgs args) {
 	Error err = 0;
+	int argInode = args.getInt("inode");
 	QString argInPath = args.getString("img").c_str();
 	QString argFsPath = args.getString("fs").c_str();
 	auto argCompact = args.getBool("c");
@@ -100,7 +101,7 @@ int run(ClArgs args) {
 			if (fs) {
 				fs = expandCopyCleanup(fs, fs->size() + fs->spaceNeeded(imgDataBuffSize));
 				fsBuff = fs->buff(); // update fsBuff pointer in case there is a new buff
-				err |= fs->write(1, imgDataBuff, imgDataBuffSize);
+				err |= fs->write(argInode, imgDataBuff, imgDataBuffSize);
 
 				if (argCompact) {
 					fs->resize();

@@ -15,5 +15,11 @@ ox::Error initGfx() {
 	return 0;
 }
 
+void initConsole() {
+}
+
+void puts(int loc, const char *str) {
+}
+
 }
 }

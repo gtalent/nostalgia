@@ -12,6 +12,8 @@ using namespace nostalgia;
 
 int main() {
 	core::init();
+	core::initConsole();
+	core::puts(296, "HELLO, WORLD!");
 	while (1);
 	return 0;
 }

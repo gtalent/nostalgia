@@ -14,5 +14,9 @@ namespace core {
 
 ox::Error initGfx();
 
+void initConsole();
+
+void puts(int loc, const char *str);
+
 }
 }

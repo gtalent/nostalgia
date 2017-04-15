@@ -63,26 +63,35 @@ int run(ClArgs args) {
 	QString argInPath = args.getString("img").c_str();
 	QString argFsPath = args.getString("fs").c_str();
 	auto argCompact = args.getBool("c");
+	auto argTiles = args.getInt("tiles");
 
 	QImage src(argInPath);
 
 	if (!src.isNull()) {
+		if (argTiles == 0) {
+			argTiles = (src.width() * src.height()) / 64;
+		}
+
 		QMap<QRgb, int> colors;
-		const auto imgDataBuffSize = sizeof(Pallete) + src.width() * src.height();
+		const auto imgDataBuffSize = sizeof(Pallete) + argTiles * 64;
 		uint8_t imgDataBuff[imgDataBuffSize];
 		GbaImageData *id = (GbaImageData*) imgDataBuff;
+		id->bpp = 8;
+		id->tileCount = argTiles;
 		int colorId = 0;
 
 		// copy pixels as color ids
 		for (int x = 0; x < src.colorCount(); x++) {
 			for (int y = 0; y < src.colorCount(); y++) {
 				auto destI = pointToIdx(src.width(), x, y);
-				auto c = src.pixel(x, y);
-				if (!colors.contains(c)) {
-					colors[c] = colorId;
-					colorId++;
+				if (destI <= argTiles * 64) {
+					auto c = src.pixel(x, y);
+					if (!colors.contains(c)) {
+						colors[c] = colorId;
+						colorId++;
+					}
+					((uint8_t*) &id->tiles)[destI] = colors[c];
 				}
-				((uint8_t*) &id->tiles)[destI] = colors[c];
 			}
 		}
 

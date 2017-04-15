@@ -71,16 +71,16 @@ static char charMap[128] = {
 	0,
 	0,
 	0,
-	27,
-	28,
-	29,
-	30,
-	31,
-	32,
-	33,
-	34,
-	35,
-	36,
+	27, // 0
+	28, // 1
+	29, // 2
+	30, // 3
+	31, // 4
+	32, // 5
+	33, // 6
+	34, // 7
+	35, // 8
+	36, // 9
 	0,
 	0,
 	0,
@@ -133,7 +133,7 @@ void initConsole() {
 	REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
 	if (fs) {
 		FileStore32::FsSize_t readSize = 0;
-		fs->read(1, 512, 8 * 64 * 36, &TILE8_ADDR[0][1], nullptr);
+		fs->read(1, 516, 64 * 38, &TILE8_ADDR[0][1], nullptr);
 		fs->read(1, 0, 512, &MEM_PALLETE_BG[0], &readSize);
 	}
 }

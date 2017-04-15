@@ -23,6 +23,8 @@ typedef Tile8 CharBlock8[256];
 
 struct GbaImageData {
 	Pallete pal;
+	uint16_t tileCount;
+	uint8_t bpp;
 	uint8_t tiles[1];
 };
 

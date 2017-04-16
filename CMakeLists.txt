@@ -18,10 +18,6 @@ add_definitions(
 	-nostdlib
 	-fno-exceptions
 	-fno-rtti
-	#-g
-	#-fcolor-diagnostics
-	#--analyze
-	#-Os # GCC size optimization flag
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")

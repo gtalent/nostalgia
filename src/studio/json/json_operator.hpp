@@ -6,15 +6,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "core/core.hpp"
+#pragma once
 
-using namespace nostalgia;
+#include <QString>
+#include <ox/std/types.hpp>
 
-int main() {
-	core::init();
-	core::initConsole();
-	core::puts(9 * 32 + 8, "HELLO,WORLD!");
-	core::puts(10 * 32 + 8, "01234 56789");
-	while (1);
-	return 0;
+namespace nostalgia {
+namespace studio {
+
+}
 }

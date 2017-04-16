@@ -7,7 +7,7 @@ if len(sys.argv) < 3:
 
 pkg = sys.argv[1]
 name = sys.argv[2]
-namespace = "namespace wombat {\nnamespace %s {\n\n}\n}" % pkg
+namespace = "namespace nostalgia {\nnamespace %s {\n\n}\n}" % pkg
 hpp = "#pragma once\n"
 cpp = "#include \"%s.hpp\"\n\n%s" % (name, namespace)
 

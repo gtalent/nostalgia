@@ -6,15 +6,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "core/core.hpp"
+#include <QApplication>
+#include "studio/mainwindow.hpp"
 
-using namespace nostalgia;
+using namespace nostalgia::studio;
 
-int main() {
-	core::init();
-	core::initConsole();
-	core::puts(9 * 32 + 8, "HELLO,WORLD!");
-	core::puts(10 * 32 + 8, "01234 56789");
-	while (1);
-	return 0;
+int main(int argc, char **argv) {
+	QApplication app(argc, argv);
+
+	MainWindow w;
+	w.show();
+
+	return app.exec();
 }

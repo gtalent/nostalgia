@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 2.8.11)
 
 #setup libraries
 
@@ -20,4 +20,5 @@ add_subdirectory(player)
 
 if(NOT WOMBAT_BUILD_TYPE STREQUAL "GBA")
 	add_subdirectory(tools)
+	add_subdirectory(studio)
 endif()

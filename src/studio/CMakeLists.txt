@@ -1,25 +1,33 @@
 cmake_minimum_required(VERSION 2.8.11)
 
-project(nost-pack)
+project(nostalgia-studio)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-add_executable(nost-pack pack.cpp)
+add_executable(
+	nostalgia-studio
+		main.cpp
+		mainwindow.cpp
+)
 
 target_link_libraries(
-	nost-pack
+	nostalgia-studio
+		Qt5::Core
 		Qt5::Widgets
 		${OxClArgs_LIBRARY}
 		${OxFS_LIBRARY}
 		${OxStd_LIBRARY}
 		NostalgiaCommon
 		NostalgiaCore
+		NostalgiaStudioJson
 )
 
 install(
 	TARGETS
-		nost-pack
+		nostalgia-studio
 	RUNTIME DESTINATION
 		bin
 )
+
+add_subdirectory(json)

@@ -7,14 +7,33 @@
  */
 
 #include <QApplication>
-#include "studio/mainwindow.hpp"
+#include <QFile>
+#include <QTextStream>
+#include <ox/clargs/clargs.hpp>
+#include "json/json.hpp"
+#include "mainwindow.hpp"
 
 using namespace nostalgia::studio;
+using namespace ox::clargs;
 
-int main(int argc, char **argv) {
-	QApplication app(argc, argv);
+int main(int argc, char **args) {
+	ClArgs clargs(argc, (const char**) args);
+	QString argProfilePath = clargs.getString("profile").c_str();
 
-	MainWindow w;
+	NostalgiaStudioProfile config;
+
+	// load in config file
+	QFile file(argProfilePath);
+	if (file.exists()) {
+		file.open(QIODevice::ReadOnly);
+		QTextStream in(&file);
+		read(in.readAll(), &config);
+	}
+
+	QApplication app(argc, args);
+	app.setApplicationName(config.app_name);
+
+	MainWindow w(config);
 	w.show();
 
 	return app.exec();

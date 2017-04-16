@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <ox/std/types.hpp>
 #include <QModelIndex>
 #include <QMainWindow>
 #include <QPoint>
@@ -14,6 +15,18 @@
 
 namespace nostalgia {
 namespace studio {
+
+struct NostalgiaStudioProfile {
+	QString app_name;
+};
+
+template<typename T>
+int ioOp(T *io, NostalgiaStudioProfile *obj) {
+	ox::Error err = 0;
+	err |= io->op("app_name", &obj->app_name);
+	return err;
+}
+
 
 class MainWindow: public QMainWindow {
 	Q_OBJECT
@@ -25,7 +38,7 @@ class MainWindow: public QMainWindow {
 		QString m_projectPath;
 
 	public:
-		explicit MainWindow(QWidget *parent = 0);
+		MainWindow(NostalgiaStudioProfile config, QWidget *parent = 0);
 		virtual ~MainWindow();
 
 		void openProject(QString);

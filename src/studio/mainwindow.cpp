@@ -8,21 +8,21 @@
 
 #include <QApplication>
 #include <QDesktopWidget>
-#include "studio/mainwindow.hpp"
+#include "mainwindow.hpp"
 
 namespace nostalgia {
 namespace studio {
 
-MainWindow::MainWindow(QWidget *parent) {
+MainWindow::MainWindow(NostalgiaStudioProfile config, QWidget *parent) {
 	auto screenSize = QApplication::desktop()->screenGeometry();
 
-	// set window to 70% of screen width, and center it
+	// set window to 70% of screen width, and center NostalgiaStudioProfile
 	auto sizePct = 0.7;
 	resize(screenSize.width() * sizePct, screenSize.height() * sizePct);
 	move(-x(), -y());
 	move(screenSize.width() * (1 - sizePct) / 2, screenSize.height() * (1 - sizePct) / 2);
 
-	setWindowTitle("Nostalgia Studio");
+	setWindowTitle(config.app_name);
 }
 
 MainWindow::~MainWindow() {

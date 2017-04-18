@@ -22,7 +22,7 @@ uint8_t *findMedia() {
 	const static auto headerP1Len = 15;
 	const static auto headerP2Len = 16;
 	const static auto headerLen = headerP1Len + headerP2Len + 1;
-	
+
 	for (auto current = &MEM_ROM; current < ((uint8_t*) 0x0a000000); current += headerLen) {
 		if (ox_memcmp(current, headerP1, headerP1Len) == 0 &&
 		    ox_memcmp(current + headerP1Len, headerP2, headerP2Len) == 0) {

@@ -73,8 +73,9 @@ int run(ClArgs args) {
 		}
 
 		QMap<QRgb, int> colors;
-		const auto imgDataBuffSize = sizeof(Pallete) + argTiles * 64;
+		const auto imgDataBuffSize = sizeof(GbaImageData) + 1 + argTiles * 64;
 		uint8_t imgDataBuff[imgDataBuffSize];
+		memset(&imgDataBuff, 0, imgDataBuffSize);
 		GbaImageData *id = (GbaImageData*) imgDataBuff;
 		id->bpp = 8;
 		id->tileCount = argTiles;
@@ -90,7 +91,7 @@ int run(ClArgs args) {
 						colors[c] = colorId;
 						colorId++;
 					}
-					((uint8_t*) &id->tiles)[destI] = colors[c];
+					id->tiles[destI] = colors[c];
 				}
 			}
 		}

@@ -10,6 +10,9 @@ endif
 
 make:
 	${ENV_RUN} make -j -C build HOST_ENV=${HOST_ENV}
+build_rom:
+	${ENV_RUN} make -j -C build HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ./build_rom.sh
 preinstall:
 	${ENV_RUN} make -j -C build ARGS="preinstall" HOST_ENV=${HOST_ENV}
 install:
@@ -31,12 +34,13 @@ gdb: make
 devenv-build:
 	docker build --no-cache . -t ${DEVENV_IMAGE}
 devenv:
-	docker run -d -v $(shell pwd):/usr/src/project \
+	docker run -d \
 		-e LOCAL_USER_ID=$(shell id -u ${USER}) \
 		-e DISPLAY=$(DISPLAY) \
 		-e QT_AUTO_SCREEN_SCALE_FACTOR=1 \
 		-v /tmp/.X11-unix:/tmp/.X11-unix \
 		-v /run/dbus/:/run/dbus/ \
+		-v $(shell pwd):/usr/src/project \
 		-v /dev/shm:/dev/shm \
 		--restart=always \
 		--name ${DEVENV} \

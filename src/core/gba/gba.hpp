@@ -13,15 +13,15 @@
 namespace nostalgia {
 namespace core {
 
-typedef struct { uint32_t data[8]; } Tile, Tile4;
+typedef struct { uint32_t data[8]; } __attribute__((aligned(4))) Tile, Tile4;
 // d-tile: double-sized tile (8bpp)
-typedef struct { uint32_t data[16]; } Tile8;
+typedef struct { uint32_t data[16]; }  __attribute__((aligned(4))) Tile8;
 // tile block: 32x16 tiles, 16x16 d-tiles
 typedef uint16_t Pallete[256];
 typedef Tile  CharBlock[512];
 typedef Tile8 CharBlock8[256];
 
-struct GbaImageData {
+struct __attribute__((packed)) GbaImageData {
 	Pallete pal;
 	uint16_t tileCount;
 	uint8_t bpp;

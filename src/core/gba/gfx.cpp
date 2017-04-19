@@ -133,7 +133,7 @@ void initConsole() {
 	REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
 	if (fs) {
 		FileStore32::FsSize_t readSize = 0;
-		fs->read(2, __builtin_offsetof(GbaImageData, tiles), 64 * 38, &TILE8_ADDR[0][1], nullptr);
+		fs->read(1, __builtin_offsetof(GbaImageData, tiles), 64 * 38, &TILE8_ADDR[0][1], nullptr);
 		fs->read(1, 0, 512, &MEM_PALLETE_BG[0], &readSize);
 	}
 }

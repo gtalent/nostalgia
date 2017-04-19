@@ -5,6 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 #pragma once
 
 #include <ox/std/types.hpp>
@@ -12,6 +13,8 @@
 #include <QMainWindow>
 #include <QPoint>
 #include <QString>
+#include <QVector>
+#include <functional>
 
 namespace nostalgia {
 namespace studio {
@@ -36,6 +39,7 @@ class MainWindow: public QMainWindow {
 
 	private:
 		QString m_projectPath;
+		QVector<std::function<void()>> m_cleanupTasks;
 
 	public:
 		MainWindow(NostalgiaStudioProfile config, QWidget *parent = 0);
@@ -45,10 +49,21 @@ class MainWindow: public QMainWindow {
 
 	private:
 		void setupDockWidgets();
+
+		void setupMenu();
+
+		void addAction(QMenu *menu, QString text, QString toolTip,
+		               QKeySequence::StandardKey key, const QObject *tgt, const char *cb);
+
+		void addAction(QMenu *menu, QString text, QString toolTip,
+		               QKeySequence::StandardKey key, void (*cb)());
+
 		int readSettings(QString path);
+
 		int writeSettings(QString path);
 
-	public slots:
+	private slots:
+		void showNewDialog();
 };
 
 }

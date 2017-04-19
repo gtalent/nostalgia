@@ -16,7 +16,7 @@
 using namespace nostalgia::studio;
 using namespace ox::clargs;
 
-int main(int argc, char **args) {
+int run(int argc, char **args) {
 	ClArgs clargs(argc, (const char**) args);
 	QString argProfilePath = clargs.getString("profile").c_str();
 
@@ -37,4 +37,8 @@ int main(int argc, char **args) {
 	w.show();
 
 	return app.exec();
+}
+
+int main(int argc, char **args) {
+	return run(argc, args);
 }

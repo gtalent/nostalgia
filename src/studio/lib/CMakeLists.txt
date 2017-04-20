@@ -9,17 +9,21 @@ add_library(
 	NostalgiaStudio
 	SHARED
 		newwizard.cpp
+		project.cpp
 )
 
 target_link_libraries(
 	NostalgiaStudio
 		Qt5::Core
 		Qt5::Widgets
+		${OxFS_LIBRARY}
+		${OxStd_LIBRARY}
 )
 
 install(
 	FILES
 		newwizard.hpp
+		project.hpp
 	DESTINATION
 		include/nostalgia/studio/lib
 )

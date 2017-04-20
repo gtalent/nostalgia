@@ -9,7 +9,9 @@
 #pragma once
 
 #include <functional>
+#include <QDir>
 #include <QGridLayout>
+#include <QLabel>
 #include <QListWidget>
 #include <QMap>
 #include <QVector>
@@ -30,40 +32,53 @@ class WizardSelect: public QWizardPage {
 	public:
 		WizardSelect();
 
-		void initializePage();
-
 		void addOption(QString name, std::function<QWizardPage*()> makePage);
 
-		bool isComplete() const;
+		void initializePage() override;
 
-		bool isFinalPage() const;
+		bool isComplete() const override;
 
-		int nextId() const;
+		int nextId() const override;
 
 	private slots:
-		void itemSelected(const QModelIndex &idx);
+		void itemSelected(int row);
+};
+
+class WizardFormPage: public QWizardPage {
+	Q_OBJECT
+	private:
+		struct Field {
+			QString defaultValue = "";
+			QString value = "";
+			QLineEdit *lineEdit = nullptr;
+			std::function<int(QString)> validator;
+		};
+		QLabel *m_errorMsg = nullptr;
+		QGridLayout *m_layout = nullptr;
+		QVector<QLayout*> m_subLayout;
+		QMap<QString, Field> m_fields;
+		int m_currentLine = 0;
+		int m_validFields = 0;
+
+	public:
+		WizardFormPage();
+
+		~WizardFormPage();
+
+		void initializePage() override;
+
+		bool validatePage() override;
+
+		void addLineEdit(QString displayName, QString fieldName, QString defaultVal = "");
+
+		void addDirBrowse(QString displayName, QString fieldName, QString defaultVal = QDir::homePath());
+
+		void showValidationError(QString msg);
 };
 
 
 class Wizard: public QWizard {
 	Q_OBJECT
-
-	public:
-		class FormPage: public QWizardPage {
-			private:
-				QGridLayout *m_layout = nullptr;
-				QVector<QLayout*> m_subLayout;
-				int currentLine = 0;
-
-			public:
-				FormPage();
-
-				~FormPage();
-
-				void addLineEdit(QString displayName, QString fieldName);
-
-				void addFileBrowse(QString displayName, QString fieldName, QString defaultVal = "");
-		};
 
 	public:
 		Wizard(QWidget *parent = 0);

@@ -6,7 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <iostream>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDialog>
@@ -19,8 +18,6 @@
 
 namespace nostalgia {
 namespace studio {
-
-using namespace std;
 
 MainWindow::MainWindow(NostalgiaStudioProfile config, QWidget *parent) {
 	auto screenSize = QApplication::desktop()->screenGeometry();
@@ -93,9 +90,9 @@ void MainWindow::showNewWizard() {
 	auto ws = new WizardSelect();
 	wizard.addPage(ws);
 	ws->addOption(tr("Project"), []() {
-			auto pg = new Wizard::FormPage();
-			pg->addLineEdit(tr("Project &Name"), "projectName");
-			pg->addFileBrowse(tr("Project &Path"), "projectPath");
+			auto pg = new WizardFormPage();
+			pg->addLineEdit(tr("Project &Name:"), "projectName*");
+			pg->addDirBrowse(tr("Project &Path:"), "projectPath*");
 			return pg;
 		}
 	);

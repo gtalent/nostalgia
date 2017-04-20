@@ -20,6 +20,7 @@ target_link_libraries(
 		${OxStd_LIBRARY}
 		NostalgiaCommon
 		NostalgiaCore
+		NostalgiaStudio
 		NostalgiaStudioJson
 )
 
@@ -30,4 +31,5 @@ install(
 		bin
 )
 
+add_subdirectory(lib)
 add_subdirectory(json)

@@ -63,7 +63,7 @@ class MainWindow: public QMainWindow {
 		int writeSettings(QString path);
 
 	private slots:
-		void showNewDialog();
+		void showNewWizard();
 };
 
 }

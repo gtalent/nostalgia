@@ -10,7 +10,11 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDialog>
+#include <QGridLayout>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMenuBar>
+#include "lib/newwizard.hpp"
 #include "mainwindow.hpp"
 
 namespace nostalgia {
@@ -21,8 +25,8 @@ using namespace std;
 MainWindow::MainWindow(NostalgiaStudioProfile config, QWidget *parent) {
 	auto screenSize = QApplication::desktop()->screenGeometry();
 
-	// set window to 70% of screen width, and center NostalgiaStudioProfile
-	auto sizePct = 0.7;
+	// set window to 75% of screen width, and center NostalgiaStudioProfile
+	auto sizePct = 0.75;
 	resize(screenSize.width() * sizePct, screenSize.height() * sizePct);
 	move(-x(), -y());
 	move(screenSize.width() * (1 - sizePct) / 2, screenSize.height() * (1 - sizePct) / 2);
@@ -49,7 +53,7 @@ void MainWindow::setupMenu() {
 		tr(""),
 		QKeySequence::New,
 		this,
-		SLOT(showNewDialog())
+		SLOT(showNewWizard())
 	);
 
 	// Exit
@@ -84,10 +88,19 @@ void MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 	});
 }
 
-void MainWindow::showNewDialog() {
-	QDialog dialog;
-	dialog.show();
-	dialog.exec();
+void MainWindow::showNewWizard() {
+	Wizard wizard;
+	auto ws = new WizardSelect();
+	wizard.addPage(ws);
+	ws->addOption(tr("Project"), []() {
+			auto pg = new Wizard::FormPage();
+			pg->addLineEdit(tr("Project &Name"), "projectName");
+			pg->addFileBrowse(tr("Project &Path"), "projectPath");
+			return pg;
+		}
+	);
+	wizard.show();
+	wizard.exec();
 }
 
 }

@@ -14,6 +14,7 @@
 #include <QLineEdit>
 #include <QMenuBar>
 #include "lib/newwizard.hpp"
+#include "lib/project.hpp"
 #include "mainwindow.hpp"
 
 namespace nostalgia {
@@ -86,14 +87,23 @@ void MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 }
 
 void MainWindow::showNewWizard() {
+	const QString PROJECT_NAME = "projectName";
+	const QString PROJECT_PATH = "projectPath";
 	Wizard wizard;
 	auto ws = new WizardSelect();
 	wizard.addPage(ws);
-	ws->addOption(tr("Project"), []() {
+	ws->addOption(tr("Project"), [PROJECT_NAME, PROJECT_PATH]() {
 			auto pg = new WizardFormPage();
-			pg->addLineEdit(tr("Project &Name:"), "projectName*");
-			pg->addDirBrowse(tr("Project &Path:"), "projectPath*");
+			pg->addLineEdit(tr("Project &Name:"), PROJECT_NAME + "*");
+			pg->addDirBrowse(tr("Project &Path:"), PROJECT_PATH + "*");
 			return pg;
+		}
+	);
+	wizard.setAccept([&wizard, PROJECT_NAME, PROJECT_PATH]() {
+			auto projectName = wizard.field(PROJECT_NAME).toString();
+			auto projectPath = wizard.field(PROJECT_PATH).toString();
+			auto path = projectPath + "/" + projectName;
+			Project(path).create();
 		}
 	);
 	wizard.show();

@@ -220,5 +220,14 @@ Wizard::Wizard(QWidget *parent): QWizard(parent) {
 	setModal(true);
 }
 
+void Wizard::setAccept(std::function<void()> acceptFunc) {
+	m_acceptFunc = acceptFunc;
+}
+
+void Wizard::accept() {
+	m_acceptFunc();
+	QDialog::accept();
+}
+
 }
 }

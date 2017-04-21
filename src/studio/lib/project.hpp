@@ -15,10 +15,13 @@ class Project: public QObject {
 	Q_OBJECT
 
 	private:
+		QString m_path = "";
 		QByteArray *m_romBuff = nullptr;
 
 	public:
-		void create(QString path);
+		Project(QString path);
+
+		void create();
 };
 
 }

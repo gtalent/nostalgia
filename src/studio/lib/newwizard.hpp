@@ -80,8 +80,15 @@ class WizardFormPage: public QWizardPage {
 class Wizard: public QWizard {
 	Q_OBJECT
 
+	private:
+		std::function<void()> m_acceptFunc;
+
 	public:
 		Wizard(QWidget *parent = 0);
+
+		void setAccept(std::function<void()> acceptFunc);
+
+		void accept();
 };
 
 }

@@ -16,14 +16,18 @@ namespace studio {
 
 using namespace ox::fs;
 
-void Project::create(QString path) {
-	QDir().mkpath(path);
+Project::Project(QString path) {
+	m_path = path;
+}
+
+void Project::create() {
+	QDir().mkpath(m_path);
 
 	size_t buffLen = 1024;
 	m_romBuff = new QByteArray(buffLen, 0);
 	FileSystem32::format(m_romBuff->data(), buffLen, true);
 
-	QFile file(path + "/ROM.oxfs");
+	QFile file(m_path + "/ROM.oxfs");
 	file.open(QIODevice::WriteOnly);
 	file.write(*m_romBuff);
 	file.close();

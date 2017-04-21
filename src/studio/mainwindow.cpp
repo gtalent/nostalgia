@@ -102,10 +102,13 @@ void MainWindow::showNewWizard() {
 	wizard.setAccept([&wizard, PROJECT_NAME, PROJECT_PATH]() {
 			auto projectName = wizard.field(PROJECT_NAME).toString();
 			auto projectPath = wizard.field(PROJECT_PATH).toString();
-			auto path = projectPath + "/" + projectName;
-			Project(path).create();
+			if (QDir(projectPath).exists()) {
+				auto path = projectPath + "/" + projectName;
+				Project(path).create();
+			}
 		}
 	);
+	wizard.resize(width() / 3, height() / 3);
 	wizard.show();
 	wizard.exec();
 }

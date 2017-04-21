@@ -32,7 +32,7 @@ gdb: make
 	gdb ./build/current/src/wombat/wombat
 
 devenv-build:
-	docker build --no-cache . -t ${DEVENV_IMAGE}
+	docker build . -t ${DEVENV_IMAGE}
 devenv:
 	docker run -d \
 		-e LOCAL_USER_ID=$(shell id -u ${USER}) \

@@ -23,14 +23,18 @@ Project::Project(QString path) {
 void Project::create() {
 	QDir().mkpath(m_path);
 
-	size_t buffLen = 1024;
-	m_romBuff = new QByteArray(buffLen, 0);
-	FileSystem32::format(m_romBuff->data(), buffLen, true);
+	m_romBuff = new QByteArray(1024, 0);
+	FileSystem32::format(m_romBuff->data(), m_romBuff->size(), true);
+	auto fs = ox::fs::createFileSystem(m_romBuff->data(), m_romBuff->size());
+
+	fs->mkdir("/Tilesets");
 
 	QFile file(m_path + "/ROM.oxfs");
 	file.open(QIODevice::WriteOnly);
 	file.write(*m_romBuff);
 	file.close();
+
+	delete fs;
 }
 
 }

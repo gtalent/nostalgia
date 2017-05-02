@@ -20,7 +20,7 @@ target_link_libraries(
 		${OxStd_LIBRARY}
 		NostalgiaCommon
 		NostalgiaCore
-		NostalgiaStudio
+		NostalgiaStudioStatic
 		NostalgiaStudioJson
 )
 

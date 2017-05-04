@@ -110,7 +110,7 @@ void MainWindow::showNewWizard() {
 			);
 			pg->addDirBrowse(tr("Project &Path:"), PROJECT_PATH + "*");
 			pgs.push_back(pg);
-			pgs.push_back(new WizardConclusionPage(tr("Creating project: %1/%2"), {PROJECT_PATH, PROJECT_NAME}));
+			pgs.push_back(new WizardConclusionPage(tr("Creating project: ") + "%1/%2", {PROJECT_PATH, PROJECT_NAME}));
 
 			return pgs;
 		}

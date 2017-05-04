@@ -81,6 +81,7 @@ class WizardConclusionPage: public QWizardPage {
 	Q_OBJECT
 	private:
 		QString m_baseMsg = "";
+		QLabel *m_text = nullptr;
 		QVector<QString> m_fields;
 
 	public:

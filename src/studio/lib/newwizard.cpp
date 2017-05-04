@@ -74,6 +74,7 @@ void WizardSelect::itemSelected(int row) {
 WizardConclusionPage::WizardConclusionPage(QString msg, QVector<QString> fields) {
 	m_baseMsg = msg;
 	m_fields = fields;
+	setLayout(new QVBoxLayout(this));
 }
 
 WizardConclusionPage::~WizardConclusionPage() {
@@ -84,10 +85,15 @@ void WizardConclusionPage::initializePage() {
 	for (auto field : m_fields) {
 		msg = msg.arg(this->field(field).toString());
 	}
+
 	auto text = new QLabel(msg, this);
-	auto layout = new QVBoxLayout(this);
-	layout->addWidget(text);
-	setLayout(layout);
+	if (m_text) {
+		layout()->replaceWidget(m_text, text);
+		delete m_text;
+	} else {
+		layout()->addWidget(text);
+	}
+	m_text = text;
 }
 
 

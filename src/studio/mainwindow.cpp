@@ -13,6 +13,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
+#include <QVector>
 #include "lib/newwizard.hpp"
 #include "lib/project.hpp"
 #include "mainwindow.hpp"
@@ -92,14 +93,29 @@ void MainWindow::showNewWizard() {
 	Wizard wizard;
 	auto ws = new WizardSelect();
 	wizard.addPage(ws);
-	ws->addOption(tr("Project"), [PROJECT_NAME, PROJECT_PATH]() {
+	ws->addOption(tr("Project"),
+			[&wizard, PROJECT_NAME, PROJECT_PATH]() {
+			QVector<QWizardPage*> pgs;
 			auto pg = new WizardFormPage();
-			pg->addLineEdit(tr("Project &Name:"), PROJECT_NAME + "*");
+			pg->addLineEdit(tr("Project &Name:"), PROJECT_NAME + "*", "", [PROJECT_PATH, pg, &wizard](QString projectName) {
+					auto projectPath = wizard.field(PROJECT_PATH).toString();
+					auto path = projectPath + "/" + projectName;
+					if (!QDir(path).exists()) {
+						return 0;
+					} else {
+						pg->showValidationError(tr("This project directory already exists."));
+						return 1;
+					}
+				}
+			);
 			pg->addDirBrowse(tr("Project &Path:"), PROJECT_PATH + "*");
-			return pg;
+			pgs.push_back(pg);
+			pgs.push_back(new WizardConclusionPage(tr("Creating project: %1/%2"), {PROJECT_PATH, PROJECT_NAME}));
+
+			return pgs;
 		}
 	);
-	wizard.setAccept([&wizard, PROJECT_NAME, PROJECT_PATH]() {
+	wizard.setAccept([&wizard, ws, PROJECT_NAME, PROJECT_PATH]() {
 			auto projectName = wizard.field(PROJECT_NAME).toString();
 			auto projectPath = wizard.field(PROJECT_PATH).toString();
 			if (QDir(projectPath).exists()) {

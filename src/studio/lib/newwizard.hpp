@@ -24,21 +24,18 @@ class WizardSelect: public QWizardPage {
 	Q_OBJECT
 
 	private:
-		QMap<QString, std::function<QWizardPage*()>> m_options;
+		QMap<QString, std::function<QVector<QWizardPage*>()>> m_options;
 		QListWidget *m_listWidget = nullptr;
 		bool m_complete = false;
-		int m_nextId = -1;
 
 	public:
 		WizardSelect();
 
-		void addOption(QString name, std::function<QWizardPage*()> makePage);
+		void addOption(QString name, std::function<QVector<QWizardPage*>()> makePage);
 
 		void initializePage() override;
 
 		bool isComplete() const override;
-
-		int nextId() const override;
 
 	private slots:
 		void itemSelected(int row);
@@ -83,11 +80,15 @@ class WizardFormPage: public QWizardPage {
 class WizardConclusionPage: public QWizardPage {
 	Q_OBJECT
 	private:
+		QString m_baseMsg = "";
+		QVector<QString> m_fields;
 
 	public:
-		WizardConclusionPage(QString msg);
+		WizardConclusionPage(QString msg, QVector<QString> field);
 
 		virtual ~WizardConclusionPage();
+
+		void initializePage() override;
 };
 
 

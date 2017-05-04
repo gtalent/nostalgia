@@ -39,11 +39,10 @@ WizardSelect::WizardSelect() {
 }
 
 void WizardSelect::initializePage() {
-	m_nextId = -1;
 	emit completeChanged();
 }
 
-void WizardSelect::addOption(QString name, std::function<QWizardPage*()> makePage) {
+void WizardSelect::addOption(QString name, function<QVector<QWizardPage*>()> makePage) {
 	m_options[name] = makePage;
 	m_listWidget->addItem(name);
 }
@@ -52,38 +51,43 @@ bool WizardSelect::isComplete() const {
 	return m_complete;
 }
 
-int WizardSelect::nextId() const {
-	return m_nextId;
-}
-
 void WizardSelect::itemSelected(int row) {
 	if (row > -1) {
 		auto w = wizard();
 
 		if (nextId() > -1) {
 			w->removePage(nextId());
-			m_nextId = -1;
 		}
 
 		auto selected = m_listWidget->currentItem()->text();
 		if (m_options.contains(selected)) {
-			m_nextId = w->addPage(m_options[selected]());
+			for (auto p : m_options[selected]()) {
+				w->addPage(p);
+			}
 			// for some reason the continue button only appears correctly after remove runs
-			w->removePage(nextId());
-			m_nextId = w->addPage(m_options[selected]());
+			w->removePage(w->addPage(new QWizardPage()));
 		}
 	}
 }
 
 
-WizardConclusionPage::WizardConclusionPage(QString msg) {
+WizardConclusionPage::WizardConclusionPage(QString msg, QVector<QString> fields) {
+	m_baseMsg = msg;
+	m_fields = fields;
+}
+
+WizardConclusionPage::~WizardConclusionPage() {
+}
+
+void WizardConclusionPage::initializePage() {
+	QString msg = m_baseMsg;
+	for (auto field : m_fields) {
+		msg = msg.arg(this->field(field).toString());
+	}
 	auto text = new QLabel(msg, this);
 	auto layout = new QVBoxLayout(this);
 	layout->addWidget(text);
 	setLayout(layout);
-}
-
-WizardConclusionPage::~WizardConclusionPage() {
 }
 
 

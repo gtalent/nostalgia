@@ -9,15 +9,17 @@ include(address_sanitizer)
 
 if (WOMBAT_BUILD_TYPE STREQUAL "GBA")
 	include(GBA)
+	add_definitions(
+		-nostdlib
+		-fno-exceptions
+		-fno-rtti
+	)
 endif()
 
 add_definitions(
 	-std=c++11
 	-Wall
 	-Wsign-compare
-	-nostdlib
-	-fno-exceptions
-	-fno-rtti
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")

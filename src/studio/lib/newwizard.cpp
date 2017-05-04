@@ -18,6 +18,8 @@
 namespace nostalgia {
 namespace studio {
 
+using std::function;
+
 WizardSelect::WizardSelect() {
 	m_listWidget = new QListWidget(this);
 	auto layout = new QVBoxLayout(this);
@@ -74,6 +76,17 @@ void WizardSelect::itemSelected(int row) {
 }
 
 
+WizardConclusionPage::WizardConclusionPage(QString msg) {
+	auto text = new QLabel(msg, this);
+	auto layout = new QVBoxLayout(this);
+	layout->addWidget(text);
+	setLayout(layout);
+}
+
+WizardConclusionPage::~WizardConclusionPage() {
+}
+
+
 WizardFormPage::WizardFormPage() {
 	m_layout = new QGridLayout(this);
 	m_layout->setColumnMinimumWidth(0, 20);
@@ -118,7 +131,7 @@ bool WizardFormPage::validatePage() {
 	return retval;
 }
 
-void WizardFormPage::addLineEdit(QString displayName, QString fieldName, QString defaultVal) {
+void WizardFormPage::addLineEdit(QString displayName, QString fieldName, QString defaultVal, function<int(QString)> validator) {
 	auto lbl = new QLabel(displayName, this);
 	auto le = new QLineEdit(this);
 	lbl->setBuddy(le);
@@ -126,18 +139,21 @@ void WizardFormPage::addLineEdit(QString displayName, QString fieldName, QString
 	m_layout->addWidget(lbl, m_currentLine, 0);
 	m_layout->addWidget(le, m_currentLine, 1);
 
-	m_fields[fieldName].defaultValue = defaultVal;
-	m_fields[fieldName].lineEdit = le;
+	auto field = &m_fields[fieldName];
+
+	field->defaultValue = defaultVal;
+	field->lineEdit = le;
+	field->validator = validator;
 
 	registerField(fieldName, le);
 
-	connect(le, &QLineEdit::textChanged, [this, fieldName, le](QString txt) {
-			if (m_fields[fieldName].value == "" && txt != "") {
+	connect(le, &QLineEdit::textChanged, [this, fieldName, le, field](QString txt) {
+			if (field->value == "" && txt != "") {
 				m_validFields++;
-			} else if (m_fields[fieldName].value != "" && txt == "") {
+			} else if (field->value != "" && txt == "") {
 				m_validFields--;
 			}
-			m_fields[fieldName].value = txt;
+			field->value = txt;
 			emit completeChanged();
 		}
 	);

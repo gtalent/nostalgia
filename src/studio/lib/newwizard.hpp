@@ -44,6 +44,7 @@ class WizardSelect: public QWizardPage {
 		void itemSelected(int row);
 };
 
+
 class WizardFormPage: public QWizardPage {
 	Q_OBJECT
 	private:
@@ -69,11 +70,24 @@ class WizardFormPage: public QWizardPage {
 
 		bool validatePage() override;
 
-		void addLineEdit(QString displayName, QString fieldName, QString defaultVal = "");
+		void addLineEdit(QString displayName, QString fieldName,
+                       QString defaultVal = "",
+							  std::function<int(QString)> validator = [](QString) { return 0; });
 
 		void addDirBrowse(QString displayName, QString fieldName, QString defaultVal = QDir::homePath());
 
 		void showValidationError(QString msg);
+};
+
+
+class WizardConclusionPage: public QWizardPage {
+	Q_OBJECT
+	private:
+
+	public:
+		WizardConclusionPage(QString msg);
+
+		virtual ~WizardConclusionPage();
 };
 
 

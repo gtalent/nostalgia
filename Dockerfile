@@ -10,7 +10,7 @@ RUN dnf install -y qt5-devel llvm libasan
 
 RUN git clone https://github.com/wombatant/ox.git /usr/local/src/ox && \
     cd /usr/local/src/ox && \
-	 git checkout -b install 796241cda614d232b09e571e625005562150a4fc
+	 git checkout -b install a5166e03bbaea2f200cfc730c69579c3d50ae2a7
 
 	 # setup build dirs
 RUN mkdir -p \

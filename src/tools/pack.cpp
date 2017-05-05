@@ -64,6 +64,7 @@ int run(ClArgs args) {
 	QString argFsPath = args.getString("fs").c_str();
 	auto argCompact = args.getBool("c");
 	auto argTiles = args.getInt("tiles");
+	auto argBpp = args.getInt("bpp");
 
 	QImage src(argInPath);
 
@@ -71,13 +72,16 @@ int run(ClArgs args) {
 		if (argTiles == 0) {
 			argTiles = (src.width() * src.height()) / 64;
 		}
+		if (argBpp != 4 && argBpp != 8) {
+			argBpp = 8;
+		}
 
 		QMap<QRgb, int> colors;
 		const auto imgDataBuffSize = sizeof(GbaImageData) + 1 + argTiles * 64;
 		uint8_t imgDataBuff[imgDataBuffSize];
 		memset(&imgDataBuff, 0, imgDataBuffSize);
 		GbaImageData *id = (GbaImageData*) imgDataBuff;
-		id->bpp = 8;
+		id->bpp = argBpp;
 		id->tileCount = argTiles;
 		int colorId = 0;
 
@@ -87,11 +91,21 @@ int run(ClArgs args) {
 				auto destI = pointToIdx(src.width(), x, y);
 				if (destI <= argTiles * 64) {
 					auto c = src.pixel(x, y);
+					// assign color a color id for the palette
 					if (!colors.contains(c)) {
 						colors[c] = colorId;
 						colorId++;
 					}
-					id->tiles[destI] = colors[c];
+					// set pixel color
+					if (argBpp == 4) {
+						if (destI % 2) { // is odd number pixel
+							id->tiles[destI / 2] |= colors[c] << 4;
+						} else {
+							id->tiles[destI / 2] |= colors[c];
+						}
+					} else {
+						id->tiles[destI] = colors[c];
+					}
 				}
 			}
 		}

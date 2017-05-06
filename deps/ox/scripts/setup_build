@@ -1,0 +1,30 @@
+#! /usr/bin/env bash
+
+set -e
+
+project=$(pwd)/
+
+TARGET=$1
+BUILD_TYPE=$2
+
+if [[ $TARGET == windows ]]; then
+	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/Mingw.cmake"
+elif [[ $TARGET == gba ]]; then
+	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/GBA.cmake -DOX_USE_STDLIB=OFF -DCMAKE_INSTALL_PREFIX=$DEVKITARM"
+fi
+
+if [[ $BUILD_TYPE == debug ]]; then
+	buildTypeArgs="-DUSE_ASAN=ON -DCMAKE_BUILD_TYPE=Debug"
+	buildDir="build/${TARGET}-debug"
+else
+	buildTypeArgs="-DCMAKE_BUILD_TYPE=Release"
+	buildDir="build/${TARGET}-release"
+fi
+
+mkdir -p $buildDir
+pushd $buildDir
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+      $buildTypeArgs \
+		$toolchain \
+		$project
+popd

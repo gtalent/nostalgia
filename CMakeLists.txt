@@ -30,4 +30,7 @@ endif()
 
 enable_testing()
 
+add_subdirectory(deps/ox)
+include_directories(deps/ox/src)
+
 add_subdirectory(src)

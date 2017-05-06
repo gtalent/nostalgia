@@ -10,9 +10,9 @@ add_executable(nost-pack pack.cpp)
 target_link_libraries(
 	nost-pack
 		Qt5::Widgets
-		${OxClArgs_LIBRARY}
-		${OxFS_LIBRARY}
-		${OxStd_LIBRARY}
+		OxClArgs
+		OxFS
+		OxStd
 		NostalgiaCommon
 		NostalgiaCore
 )

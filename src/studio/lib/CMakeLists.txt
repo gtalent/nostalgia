@@ -22,8 +22,8 @@ target_link_libraries(
 	NostalgiaStudioStatic
 		Qt5::Core
 		Qt5::Widgets
-		${OxFS_LIBRARY}
-		${OxStd_LIBRARY}
+		OxFS
+		OxStd
 )
 
 add_library(
@@ -36,8 +36,8 @@ target_link_libraries(
 		Qt5::Core
 		Qt5::Widgets
 		NostalgiaStudioStatic
-		${OxFS_LIBRARY}
-		${OxStd_LIBRARY}
+		OxFS
+		OxStd
 )
 
 install(

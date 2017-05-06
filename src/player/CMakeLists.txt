@@ -21,6 +21,6 @@ endif()
 target_link_libraries(
 	nostalgia
 		NostalgiaCore
-		${OxStd_LIBRARY}
-		${OxFS_LIBRARY}
+		OxStd
+		OxFS
 )

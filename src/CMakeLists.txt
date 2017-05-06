@@ -6,10 +6,6 @@ if(NOT WOMBAT_BUILD_TYPE STREQUAL "GBA")
 	find_package(Qt5Widgets)
 endif()
 
-find_package(Ox REQUIRED)
-include_directories(${Ox_INCLUDE_DIRS})
-
-
 #project packages
 
 include_directories(".")

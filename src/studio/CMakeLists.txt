@@ -15,9 +15,9 @@ target_link_libraries(
 	nostalgia-studio
 		Qt5::Core
 		Qt5::Widgets
-		${OxClArgs_LIBRARY}
-		${OxFS_LIBRARY}
-		${OxStd_LIBRARY}
+		OxClArgs
+		OxFS
+		OxStd
 		NostalgiaCommon
 		NostalgiaCore
 		NostalgiaStudioStatic

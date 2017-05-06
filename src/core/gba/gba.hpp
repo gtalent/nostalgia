@@ -21,7 +21,7 @@ typedef uint16_t Pallete[256];
 typedef Tile  CharBlock[512];
 typedef Tile8 CharBlock8[256];
 
-struct __attribute__((aligned(4))) GbaImageData {
+struct __attribute__((packed)) GbaImageData {
 	Pallete pal;
 	uint16_t tileCount;
 	uint8_t bpp;

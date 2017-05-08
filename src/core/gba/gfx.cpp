@@ -130,18 +130,23 @@ ox::Error initGfx() {
 void initConsole() {
 	auto fs = (FileStore32*) findMedia();
 
-	GbaImageData imgData;
-	fs->read(101, __builtin_offsetof(GbaImageData, tileCount),
-	         sizeof(imgData.tileCount) + sizeof(imgData.bpp),
-	         &imgData.tileCount, nullptr);
+	GbaImageDataHeader imgData;
+	fs->read(101, 0, sizeof(imgData), &imgData, nullptr);
 
 	REG_BG0CNT = (28 << 8) | 1;
-	if (imgData.bpp == 8) {
-		REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
-	}
 	if (fs) {
-		fs->read(101, __builtin_offsetof(GbaImageData, tiles), 64 * 38, &TILE8_ADDR[0][1], nullptr);
-		fs->read(101, __builtin_offsetof(GbaImageData, pal), 512, &MEM_PALLETE_BG[0], nullptr);
+		// load palette
+		fs->read(101, sizeof(GbaImageDataHeader),
+					512, (uint16_t*) &MEM_PALLETE_BG[0], nullptr);
+
+		if (imgData.bpp == 4) {
+			fs->read(101, __builtin_offsetof(GbaImageData, tiles),
+			         sizeof(Tile) * imgData.tileCount, (uint16_t*) &TILE_ADDR[0][1], nullptr);
+		} else {
+			REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
+			fs->read(101, __builtin_offsetof(GbaImageData, tiles),
+			         sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
+		}
 	}
 }
 

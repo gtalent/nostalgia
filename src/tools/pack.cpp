@@ -81,8 +81,8 @@ int run(ClArgs args) {
 		uint8_t imgDataBuff[imgDataBuffSize];
 		memset(&imgDataBuff, 0, imgDataBuffSize);
 		GbaImageData *id = (GbaImageData*) imgDataBuff;
-		id->bpp = argBpp;
-		id->tileCount = argTiles;
+		id->header.bpp = argBpp;
+		id->header.tileCount = argTiles;
 		int colorId = 0;
 
 		// copy pixels as color ids

@@ -17,14 +17,18 @@ typedef struct { uint32_t data[8]; } __attribute__((aligned(4))) Tile, Tile4;
 // d-tile: double-sized tile (8bpp)
 typedef struct { uint32_t data[16]; }  __attribute__((aligned(4))) Tile8;
 // tile block: 32x16 tiles, 16x16 d-tiles
-typedef uint16_t Pallete[256];
+typedef uint16_t Palette[256];
 typedef Tile  CharBlock[512];
 typedef Tile8 CharBlock8[256];
 
-struct __attribute__((packed)) GbaImageData {
-	Pallete pal;
-	uint16_t tileCount;
+struct __attribute__((packed)) GbaImageDataHeader {
 	uint8_t bpp;
+	uint16_t tileCount;
+};
+
+struct __attribute__((packed)) GbaImageData {
+	GbaImageDataHeader header;
+	Palette __attribute__((packed)) pal;
 	uint8_t tiles[1];
 };
 

@@ -1,5 +1,0 @@
-build/current
-build/gba
-build/*-debug
-build/*-release
-tags

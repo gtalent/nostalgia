@@ -647,9 +647,13 @@ int FileStore<Header>::read(Inode *inode, typename Header::FsSize_t readStart,
 	}
 
 	readSize /= sizeof(T);
-	T *it = (T*) &(inode->getData()[readStart]);
+	uint8_t *it = &(inode->getData()[readStart]);
 	for (typename Header::FsSize_t i = 0; i < readSize; i++) {
-		*(data++) = *(it++);
+		T val;
+		for (size_t i = 0; i < sizeof(T); i++) {
+			((uint8_t*) (&val))[i] = *(it++);
+		}
+		*(data++) = val;
 	}
 	return 0;
 }

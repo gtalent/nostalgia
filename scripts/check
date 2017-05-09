@@ -1,0 +1,1 @@
+clang-check `find . | grep "\.cpp" | grep -v CMakeFiles | grep -v editormodels\.cpp`

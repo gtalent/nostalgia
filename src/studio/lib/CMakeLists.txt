@@ -8,6 +8,7 @@ set(CMAKE_AUTOMOC ON)
 add_library(
 	NostalgiaStudioStatic
 		newwizard.cpp
+		oxfstreeview.cpp
 		project.cpp
 )
 
@@ -29,13 +30,15 @@ target_link_libraries(
 add_library(
 	NostalgiaStudio
 	SHARED
+		newwizard.cpp
+		oxfstreeview.cpp
+		project.cpp
 )
 
 target_link_libraries(
 	NostalgiaStudio
 		Qt5::Core
 		Qt5::Widgets
-		NostalgiaStudioStatic
 		OxFS
 		OxStd
 )
@@ -43,6 +46,7 @@ target_link_libraries(
 install(
 	FILES
 		newwizard.hpp
+		oxfstreeview.hpp
 		project.hpp
 	DESTINATION
 		include/nostalgia/studio/lib

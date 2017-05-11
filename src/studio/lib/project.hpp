@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <QSharedPointer>
+
 #include <ox/fs/filesystem.hpp>
 
 namespace nostalgia {
@@ -20,8 +22,8 @@ class Project: public QObject {
 		static QString ROM_FILE;
 
 		QString m_path = "";
-		QByteArray *m_romBuff = nullptr;
-		ox::fs::FileSystem *m_fs = nullptr;
+		QSharedPointer<QByteArray> m_romBuff;
+		QSharedPointer<ox::fs::FileSystem> m_fs;
 
 	public:
 		Project(QString path);

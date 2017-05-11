@@ -3,3 +3,7 @@ build/gba
 build/*-release
 build/*-debug
 tags
+nostalgia.gba
+nostalgia.sav
+nostalgia_media.oxfs
+media_header.txt

@@ -14,7 +14,9 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
+#include <QTabBar>
 #include <QVector>
+
 #include "lib/newwizard.hpp"
 #include "lib/project.hpp"
 #include "mainwindow.hpp"
@@ -31,9 +33,13 @@ MainWindow::MainWindow(NostalgiaStudioProfile config, QWidget *parent) {
 	move(-x(), -y());
 	move(screenSize.width() * (1 - sizePct) / 2, screenSize.height() * (1 - sizePct) / 2);
 
-	setWindowTitle(config.app_name);
+	setWindowTitle(config.appName);
+
+	auto tabbar = new QTabBar(this);
+	setCentralWidget(tabbar);
 
 	setupMenu();
+	setupProjectExplorer();
 }
 
 MainWindow::~MainWindow() {
@@ -45,6 +51,7 @@ MainWindow::~MainWindow() {
 void MainWindow::setupMenu() {
 	auto menu = menuBar();
 	auto fileMenu = menu->addMenu(tr("&File"));
+	m_viewMenu = menu->addMenu(tr("&View"));
 
 	// New...
 	addAction(
@@ -56,6 +63,16 @@ void MainWindow::setupMenu() {
 		SLOT(showNewWizard())
 	);
 
+	// Open Project
+	addAction(
+		fileMenu,
+		tr("&Open Project"),
+		tr(""),
+		QKeySequence::Open,
+		this,
+		SLOT(openProject())
+	);
+
 	// Exit
 	addAction(
 		fileMenu,
@@ -64,16 +81,22 @@ void MainWindow::setupMenu() {
 		QKeySequence::Quit,
 		QApplication::quit
 	);
+}
 
+void MainWindow::setupProjectExplorer() {
+	// setup dock
+	auto dock = new QDockWidget(tr("&Project"), this);
+	dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	addDockWidget(Qt::LeftDockWidgetArea, dock);
+	resizeDocks({dock}, {(int) (width() * 0.25)}, Qt::Horizontal);
 
-	addAction(
-		fileMenu,
-		tr("Open &Project"),
-		tr(""),
-		QKeySequence::Open,
-		this,
-		SLOT(openProject())
-	);
+	// setup tree view
+}
+
+void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockWidget) {
+	QMainWindow::addDockWidget(area, dockWidget);
+	m_viewMenu->addAction(dockWidget->toggleViewAction());
+	m_dockWidgets.push_back(dockWidget);
 }
 
 void MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
@@ -100,9 +123,11 @@ void MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 
 void MainWindow::openProject() {
 	auto p = QFileDialog::getExistingDirectory(this, tr("Select Project Directory..."), QDir::homePath());
-	auto project = new Project(p);
-	project->open();
-	m_project = project;
+	auto project = QSharedPointer<Project>(new Project(p));
+	auto err = project->open();
+	if (err == 0) {
+		m_project = project;
+	}
 }
 
 void MainWindow::showNewWizard() {

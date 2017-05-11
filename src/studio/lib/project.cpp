@@ -22,22 +22,14 @@ Project::Project(QString path) {
 }
 
 Project::~Project() {
-	if (m_fs) {
-		delete m_fs;
-		m_fs = nullptr;
-	}
-	if (m_romBuff) {
-		delete m_romBuff;
-		m_romBuff = nullptr;
-	}
 }
 
 void Project::create() {
 	QDir().mkpath(m_path);
 
-	m_romBuff = new QByteArray(1024, 0);
+	m_romBuff = QSharedPointer<QByteArray>(new QByteArray(1024, 0));
 	FileSystem32::format(m_romBuff->data(), m_romBuff->size(), true);
-	m_fs = createFileSystem(m_romBuff->data(), m_romBuff->size());
+	m_fs = QSharedPointer<FileSystem>(createFileSystem(m_romBuff->data(), m_romBuff->size()));
 
 	m_fs->mkdir("/Tilesets");
 
@@ -49,13 +41,17 @@ void Project::create() {
 
 int Project::open() {
 	QFile file(m_path + ROM_FILE);
-	m_romBuff = new QByteArray(file.size(), 0);
-	file.open(QIODevice::ReadOnly);
-	if (file.read(m_romBuff->data(), file.size()) > 0) {
-		m_fs = createFileSystem(m_romBuff->data(), m_romBuff->size());
-		return 0;
+	m_romBuff = QSharedPointer<QByteArray>(new QByteArray(file.size(), 0));
+	if (file.exists()) {
+		file.open(QIODevice::ReadOnly);
+		if (file.read(m_romBuff->data(), file.size()) > 0) {
+			m_fs = QSharedPointer<FileSystem>(createFileSystem(m_romBuff->data(), m_romBuff->size()));
+			return 0;
+		} else {
+			return 1;
+		}
 	} else {
-		return 1;
+		return 2;
 	}
 }
 

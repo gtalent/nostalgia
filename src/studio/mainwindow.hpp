@@ -8,9 +8,12 @@
 
 #pragma once
 
-#include <QModelIndex>
+#include <QDockWidget>
 #include <QMainWindow>
+#include <QModelIndex>
 #include <QPoint>
+#include <QPointer>
+#include <QSharedPointer>
 #include <QString>
 #include <QVector>
 #include <functional>
@@ -22,14 +25,26 @@
 namespace nostalgia {
 namespace studio {
 
+struct NostalgiaStudioState {
+	QString currentProjectPath;
+};
+
+template<typename T>
+int ioOp(T *io, NostalgiaStudioState *obj) {
+	ox::Error err = 0;
+	err |= io->op("current_project_path", &obj->currentProjectPath);
+	return err;
+}
+
+
 struct NostalgiaStudioProfile {
-	QString app_name;
+	QString appName;
 };
 
 template<typename T>
 int ioOp(T *io, NostalgiaStudioProfile *obj) {
 	ox::Error err = 0;
-	err |= io->op("app_name", &obj->app_name);
+	err |= io->op("app_name", &obj->appName);
 	return err;
 }
 
@@ -41,11 +56,14 @@ class MainWindow: public QMainWindow {
 		static const QString AppTitle;
 
 	private:
-		Project *m_project = nullptr;
+		QSharedPointer<Project> m_project;
+		QPointer<QMenu> m_viewMenu;
 		QVector<std::function<void()>> m_cleanupTasks;
+		QVector<QPointer<QDockWidget>> m_dockWidgets;
 
 	public:
 		MainWindow(NostalgiaStudioProfile config, QWidget *parent = 0);
+
 		virtual ~MainWindow();
 
 		void openProject(QString);
@@ -54,6 +72,10 @@ class MainWindow: public QMainWindow {
 		void setupDockWidgets();
 
 		void setupMenu();
+
+		void setupProjectExplorer();
+
+		void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget);
 
 		void addAction(QMenu *menu, QString text, QString toolTip,
 		               QKeySequence::StandardKey key, const QObject *tgt, const char *cb);

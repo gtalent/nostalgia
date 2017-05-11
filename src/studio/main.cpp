@@ -31,7 +31,7 @@ int run(int argc, char **args) {
 	}
 
 	QApplication app(argc, args);
-	app.setApplicationName(config.app_name);
+	app.setApplicationName(config.appName);
 
 	MainWindow w(config);
 	w.show();

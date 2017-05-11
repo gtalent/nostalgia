@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <ox/fs/filesystem.hpp>
+
 namespace nostalgia {
 namespace studio {
 
@@ -15,13 +17,22 @@ class Project: public QObject {
 	Q_OBJECT
 
 	private:
+		static QString ROM_FILE;
+
 		QString m_path = "";
 		QByteArray *m_romBuff = nullptr;
+		ox::fs::FileSystem *m_fs = nullptr;
 
 	public:
 		Project(QString path);
 
+		~Project();
+
 		void create();
+
+		int open();
+
+		void save();
 };
 
 }

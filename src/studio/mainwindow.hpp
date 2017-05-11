@@ -8,13 +8,16 @@
 
 #pragma once
 
-#include <ox/std/types.hpp>
 #include <QModelIndex>
 #include <QMainWindow>
 #include <QPoint>
 #include <QString>
 #include <QVector>
 #include <functional>
+
+#include <ox/std/types.hpp>
+
+#include "lib/project.hpp"
 
 namespace nostalgia {
 namespace studio {
@@ -38,7 +41,7 @@ class MainWindow: public QMainWindow {
 		static const QString AppTitle;
 
 	private:
-		QString m_projectPath;
+		Project *m_project = nullptr;
 		QVector<std::function<void()>> m_cleanupTasks;
 
 	public:
@@ -63,6 +66,8 @@ class MainWindow: public QMainWindow {
 		int writeSettings(QString path);
 
 	private slots:
+		void openProject();
+
 		void showNewWizard();
 };
 

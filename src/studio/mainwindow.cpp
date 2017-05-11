@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDialog>
+#include <QFileDialog>
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -63,6 +64,16 @@ void MainWindow::setupMenu() {
 		QKeySequence::Quit,
 		QApplication::quit
 	);
+
+
+	addAction(
+		fileMenu,
+		tr("Open &Project"),
+		tr(""),
+		QKeySequence::Open,
+		this,
+		SLOT(openProject())
+	);
 }
 
 void MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
@@ -85,6 +96,13 @@ void MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 	m_cleanupTasks.push_back([this, conn]() {
 		QObject::disconnect(conn);
 	});
+}
+
+void MainWindow::openProject() {
+	auto p = QFileDialog::getExistingDirectory(this, tr("Select Project Directory..."), QDir::homePath());
+	auto project = new Project(p);
+	project->open();
+	m_project = project;
 }
 
 void MainWindow::showNewWizard() {

@@ -10,7 +10,6 @@
 #include "clargs.hpp"
 
 namespace ox {
-namespace clargs {
 
 using namespace ::std;
 
@@ -51,5 +50,4 @@ int ClArgs::getInt(const char *arg) {
 	return m_ints[arg];
 }
 
-}
 }

@@ -11,8 +11,6 @@
 #include "types.hpp"
 
 namespace ox {
-namespace std {
-
 
 inline int16_t byteSwap(int16_t i) {
 	return (i << 8) | (i >> 8);
@@ -140,6 +138,4 @@ inline uint64_t bigEndianAdapt(uint64_t i) {
 #endif
 }
 
-
-}
 }

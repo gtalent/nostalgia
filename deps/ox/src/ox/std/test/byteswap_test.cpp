@@ -10,7 +10,7 @@
 #include <ox/std/std.hpp>
 
 using namespace std;
-using namespace ox::std;
+using namespace ox;
 
 template<typename T>
 int testBigEndianAdapt(string str) {

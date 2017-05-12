@@ -16,7 +16,7 @@
 #include <ox/std/std.hpp>
 
 using namespace std;
-using namespace ox::fs;
+using namespace ox;
 
 map<string, int(*)(string)> tests = {
 	{
@@ -283,6 +283,40 @@ map<string, int(*)(string)> tests = {
 				retval |= !(ox_strcmp(dataIn, dataOut) == 0);
 				retval |= !(fs->stat("/usr").inode == 0);
 				retval |= !(fs->stat("/usr/share").inode == 0);
+
+				delete fs;
+				delete []buff;
+				delete []dataOut;
+
+				return retval;
+			}
+		},
+		{
+			"FileSystem32::ls",
+			[](string) {
+				int retval = 0;
+				auto dataIn = "test string";
+				auto dataOutLen = ox_strlen(dataIn) + 1;
+				auto dataOut = new char[dataOutLen];
+				vector<uint64_t> inodes;
+				vector<DirectoryListing<string>> files;
+
+				const auto size = 1024 * 1024;
+				auto buff = new uint8_t[size];
+				FileSystem32::format(buff, (FileStore32::FsSize_t) size, true);
+				auto fs = (FileSystem32*) createFileSystem(buff, size);
+
+				retval |= fs->mkdir("/usr");
+				retval |= fs->mkdir("/usr/share");
+				retval |= fs->write("/usr/share/a.txt", (void*) dataIn, ox_strlen(dataIn) + 1);
+				retval |= fs->write("/usr/share/b.txt", (void*) dataIn, ox_strlen(dataIn) + 1);
+				retval |= fs->write("/usr/share/c.txt", (void*) dataIn, ox_strlen(dataIn) + 1);
+
+				fs->ls("/usr/share/", &files);
+
+				retval |= !(files[0].name == "a.txt");
+				retval |= !(files[1].name == "b.txt");
+				retval |= !(files[2].name == "c.txt");
 
 				delete fs;
 				delete []buff;

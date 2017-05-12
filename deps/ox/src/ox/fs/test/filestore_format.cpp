@@ -7,7 +7,7 @@
  */
 #include <ox/fs/filestore.hpp>
 
-using namespace ox::fs;
+using namespace ox;
 
 int main() {
 	const auto size = 65535;

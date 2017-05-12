@@ -8,8 +8,7 @@
 
 #include <ox/fs/filesystem.hpp>
 
-using namespace ox::fs;
-using namespace ox::std;
+using namespace ox;
 
 template<typename FileSystem>
 int test() {

@@ -62,7 +62,7 @@ int MetalClawWriter::op(const char*, ox::bstring<L> *val) {
 		// write the length
 		typedef uint32_t StringLength;
 		if (m_buffIt + sizeof(StringLength) + val->size() < m_buffLen) {
-			*((StringLength*) &m_buff[m_buffIt]) = ox::std::bigEndianAdapt((StringLength) val->size());
+			*((StringLength*) &m_buff[m_buffIt]) = ox::bigEndianAdapt((StringLength) val->size());
 			m_buffIt += sizeof(StringLength);
 
 			// write the string
@@ -99,7 +99,7 @@ int MetalClawWriter::appendInteger(I val) {
 	bool fieldSet = false;
 	if (val) {
 		if (m_buffIt + sizeof(I) < m_buffLen) {
-			*((I*) &m_buff[m_buffIt]) = ox::std::bigEndianAdapt(val);
+			*((I*) &m_buff[m_buffIt]) = ox::bigEndianAdapt(val);
 			fieldSet = true;
 			m_buffIt += sizeof(I);
 		} else {
@@ -120,7 +120,7 @@ int MetalClawWriter::op(const char*, T *val, size_t len) {
 		// write the length
 		typedef uint32_t ArrayLength;
 		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
-			*((T*) &m_buff[m_buffIt]) = ox::std::bigEndianAdapt((ArrayLength) len);
+			*((T*) &m_buff[m_buffIt]) = ox::bigEndianAdapt((ArrayLength) len);
 			m_buffIt += sizeof(ArrayLength);
 		} else {
 			err = MC_BUFFENDED;

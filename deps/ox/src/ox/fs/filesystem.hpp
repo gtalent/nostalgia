@@ -12,7 +12,6 @@
 #include "filestore.hpp"
 
 namespace ox {
-namespace fs {
 
 enum FsType {
 	OxFS_16 = 1,
@@ -21,8 +20,8 @@ enum FsType {
 };
 
 enum FileType {
-	NormalFile = 1,
-	Directory  = 2
+	FileType_NormalFile = 1,
+	FileType_Directory  = 2
 };
 
 struct FileStat {
@@ -31,6 +30,167 @@ struct FileStat {
 	uint8_t  fileType;
 };
 
+template<typename String>
+struct DirectoryListing {
+	String name;
+	FileStat stat;
+
+	DirectoryListing(const char *name) {
+		this->name = name;
+	}
+};
+
+template<typename InodeId_t>
+struct __attribute__((packed)) DirectoryEntry {
+	InodeId_t inode;
+
+	char *getName() {
+		return (char*) (this + 1);
+	}
+
+	void setName(const char *name) {
+		auto data = getName();
+		auto nameLen = ox_strlen(name);
+		ox_memcpy(data, name, nameLen);
+		data[nameLen] = 0;
+	}
+
+	static uint64_t spaceNeeded(const char *fileName) {
+		return sizeof(DirectoryEntry) + ox_strlen(fileName) + 1;
+	}
+
+	/**
+	 * The size in bytes.
+	 */
+	uint64_t size() {
+		return spaceNeeded(getName());
+	}
+};
+
+template<typename InodeId_t, typename FsSize_t>
+struct __attribute__((packed)) Directory {
+	/**
+	 * Number of bytes after this Directory struct.
+	 */
+	FsSize_t size = 0;
+	FsSize_t children = 0;
+
+	DirectoryEntry<InodeId_t> *files() {
+		return size ? (DirectoryEntry<InodeId_t>*) (this + 1) : nullptr;
+	}
+
+	uint64_t getFileInode(const char *name, uint64_t buffSize);
+
+	int getChildrenInodes(InodeId_t *inodes, size_t inodesLen);
+
+	int rmFile(const char *name);
+
+	int copy(Directory<uint64_t, uint64_t> *dirOut);
+
+	template<typename List>
+	int ls(List *list);
+};
+
+template<typename InodeId_t, typename FsSize_t>
+uint64_t Directory<InodeId_t, FsSize_t>::getFileInode(const char *name, uint64_t buffSize) {
+	uint64_t inode = 0;
+	auto current = files();
+	if (current) {
+		for (uint64_t i = 0; ox_strcmp(current->getName(), name) != 0;) {
+			i += current->size();
+			if (i < this->size) {
+				current = (DirectoryEntry<InodeId_t>*) (((uint8_t*) current) + current->size());
+			} else {
+				current = nullptr;
+				break;
+			}
+		}
+		if (current) {
+			inode = current->inode;
+		}
+	}
+	return inode;
+}
+
+template<typename InodeId_t, typename FsSize_t>
+int Directory<InodeId_t, FsSize_t>::getChildrenInodes(InodeId_t *inodes, size_t inodesLen) {
+	if (inodesLen >= this->children) {
+		auto current = files();
+		if (current) {
+			for (uint64_t i = 0; i < this->children; i++) {
+				inodes[i] = current->inode;
+				current = (DirectoryEntry<InodeId_t>*) (((uint8_t*) current) + current->size());
+			}
+			return 0;
+		} else {
+			return 1;
+		}
+	} else {
+		return 2;
+	}
+}
+
+template<typename InodeId_t, typename FsSize_t>
+int Directory<InodeId_t, FsSize_t>::rmFile(const char *name) {
+	int err = 1;
+	auto current = files();
+	if (current) {
+		for (uint64_t i = 0; i < this->size;) {
+			i += current->size();
+			if (ox_strcmp(current->getName(), name) == 0) {
+				auto dest = (uint8_t*) current;
+				auto src = dest + current->size();
+				ox_memcpy(dest, src, this->size - i);
+				this->size -= current->size();
+				this->children--;
+				err = 0;
+				break;
+			}
+			current = (DirectoryEntry<InodeId_t>*) (((uint8_t*) current) + current->size());
+		}
+	}
+	return err;
+}
+
+template<typename InodeId_t, typename FsSize_t>
+int Directory<InodeId_t, FsSize_t>::copy(Directory<uint64_t, uint64_t> *dirOut) {
+	auto current = files();
+	auto dirBuff = (uint8_t*) dirOut;
+	dirBuff += sizeof(Directory<uint64_t, uint64_t>);
+	dirOut->size = this->size;
+	dirOut->children = this->children;
+	if (current) {
+		for (uint64_t i = 0; i < this->children; i++) {
+			auto entry = (DirectoryEntry<uint64_t>*) dirBuff;
+			entry->inode = current->inode;
+			entry->setName(current->getName());
+
+			current = (DirectoryEntry<InodeId_t>*) (((uint8_t*) current) + current->size());
+			dirBuff += entry->size();
+		}
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+template<typename InodeId_t, typename FsSize_t>
+template<typename List>
+int Directory<InodeId_t, FsSize_t>::ls(List *list) {
+	auto current = files();
+	if (current) {
+		for (uint64_t i = 0; i < this->children; i++) {
+			list->push_back(current->getName());
+			list->at(i).stat.inode = current->inode;
+			current = (DirectoryEntry<InodeId_t>*) (((uint8_t*) current) + current->size());
+		}
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+
 class FileSystem {
 	public:
 		virtual ~FileSystem() {};
@@ -38,6 +198,9 @@ class FileSystem {
 		virtual int stripDirectories() = 0;
 
 		virtual int mkdir(const char *path) = 0;
+
+		template<typename List>
+		int ls(const char *path, List *list);
 
 		virtual int read(const char *path, void *buffer, size_t buffSize) = 0;
 
@@ -53,11 +216,13 @@ class FileSystem {
 
 		virtual void resize(uint64_t size = 0) = 0;
 
-		virtual int write(const char *path, void *buffer, uint64_t size, uint8_t fileType = NormalFile) = 0;
+		virtual int write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) = 0;
 
-		virtual int write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = NormalFile) = 0;
+		virtual int write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) = 0;
 
 		virtual FileStat stat(uint64_t inode) = 0;
+
+		virtual FileStat stat(const char *path) = 0;
 
 		virtual uint64_t spaceNeeded(uint64_t size) = 0;
 
@@ -66,7 +231,20 @@ class FileSystem {
 		virtual uint64_t size() = 0;
 
 		virtual uint8_t *buff() = 0;
+
+	protected:
+		virtual int readDirectory(const char *path, Directory<uint64_t, uint64_t> *dirOut) = 0;
 };
+
+template<typename List>
+int FileSystem::ls(const char *path, List *list) {
+	auto s = stat(path);
+	uint8_t dirBuff[s.size * 4];
+	auto dir = (Directory<uint64_t, uint64_t>*) dirBuff;
+	auto err = readDirectory(path, dir);
+	dir->ls(list);
+	return err;
+}
 
 FileSystem *createFileSystem(void *buff, size_t buffSize);
 
@@ -85,50 +263,6 @@ template<typename FileStore, FsType FS_TYPE>
 class FileSystemTemplate: public FileSystem {
 
 	private:
-		struct __attribute__((packed)) DirectoryEntry {
-			typename FileStore::InodeId_t inode;
-
-			char *getName() {
-				return (char*) (this + 1);
-			}
-
-			void setName(const char *name) {
-				auto data = getName();
-				auto nameLen = ox_strlen(name);
-				ox_memcpy(data, name, nameLen);
-				data[nameLen] = 0;
-			}
-
-			static uint64_t spaceNeeded(const char *fileName) {
-				return sizeof(DirectoryEntry) + ox_strlen(fileName) + 1;
-			}
-
-			/**
-			 * The size in bytes.
-			 */
-			uint64_t size() {
-				return spaceNeeded(getName());
-			}
-		};
-
-		struct __attribute__((packed)) Directory {
-			/**
-			 * Number of bytes after this Directory struct.
-			 */
-			typename FileStore::FsSize_t size = 0;
-			typename FileStore::FsSize_t children = 0;
-
-			DirectoryEntry *files() {
-				return size ? (DirectoryEntry*) (this + 1) : nullptr;
-			}
-
-			uint64_t getFileInode(const char *name, uint64_t buffSize);
-
-			int getChildrenInodes(typename FileStore::InodeId_t *inodes, size_t inodesLen);
-
-			int rmFile(const char *name);
-		};
-
 		FileStore *m_store = nullptr;
 
 	public:
@@ -140,6 +274,9 @@ class FileSystemTemplate: public FileSystem {
 		explicit FileSystemTemplate(void *buff);
 
 		int stripDirectories() override;
+
+		template<typename List>
+		int ls(const char *path, List *list);
 
 		int mkdir(const char *path) override;
 
@@ -157,11 +294,11 @@ class FileSystemTemplate: public FileSystem {
 
 		int remove(const char *path, bool recursive = false) override;
 
-		int write(const char *path, void *buffer, uint64_t size, uint8_t fileType = NormalFile) override;
+		int write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
 
-		int write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = NormalFile) override;
+		int write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
 
-		FileStat stat(const char *path);
+		FileStat stat(const char *path) override;
 
 		FileStat stat(uint64_t inode) override;
 
@@ -189,6 +326,9 @@ class FileSystemTemplate: public FileSystem {
 
 		static uint8_t *format(void *buffer, typename FileStore::FsSize_t size, bool useDirectories);
 
+	protected:
+		int readDirectory(const char *path, Directory<uint64_t, uint64_t> *dirOut) override;
+
 	private:
 		uint64_t generateInodeId();
 
@@ -211,13 +351,37 @@ typename FileStore::InodeId_t FileSystemTemplate<FileStore, FS_TYPE>::INODE_RESE
 
 template<typename FileStore, FsType FS_TYPE>
 int FileSystemTemplate<FileStore, FS_TYPE>::stripDirectories() {
-	return m_store->removeAllType(FileType::Directory);
+	return m_store->removeAllType(FileType::FileType_Directory);
+}
+
+template<typename FileStore, FsType FS_TYPE>
+template<typename List>
+int FileSystemTemplate<FileStore, FS_TYPE>::ls(const char *path, List *list) {
+	int err = 0;
+	auto inode = findInodeOf(path);
+	auto dirStat = stat(inode);
+	auto dirBuffLen = dirStat.size;
+	uint8_t dirBuff[dirBuffLen];
+	auto dir = (Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t>*) dirBuff;
+
+	err = read(dirStat.inode, dirBuff, dirBuffLen);
+	if (!err) {
+		dir->ls(list);
+
+		for (auto &i : *list) {
+			i.stat = stat(i.stat.inode);
+		}
+
+		return 0;
+	} else {
+		return 1;
+	}
 }
 
 template<typename FileStore, FsType FS_TYPE>
 int FileSystemTemplate<FileStore, FS_TYPE>::mkdir(const char *path) {
-	Directory dir;
-	return write(path, &dir, sizeof(dir), FileType::Directory);
+	Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t> dir;
+	return write(path, &dir, sizeof(dir), FileType::FileType_Directory);
 }
 
 template<typename FileStore, FsType FS_TYPE>
@@ -336,14 +500,14 @@ int FileSystemTemplate<FileStore, FS_TYPE>::remove(const char *path, bool recurs
 template<typename FileStore, FsType FS_TYPE>
 int FileSystemTemplate<FileStore, FS_TYPE>::remove(uint64_t inode, bool recursive) {
 	auto fileType = stat(inode).fileType;
-	if (fileType != FileType::Directory) {
+	if (fileType != FileType::FileType_Directory) {
 		return m_store->remove(inode);
-	} else if (fileType == FileType::Directory && recursive) {
+	} else if (fileType == FileType::FileType_Directory && recursive) {
 		int err = 0;
 		auto dirStat = stat(inode);
 		auto dirBuffLen = dirStat.size;
 		uint8_t dirBuff[dirBuffLen];
-		auto dir = (Directory*) dirBuff;
+		auto dir = (Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t>*) dirBuff;
 
 		err = read(dirStat.inode, dirBuff, dirBuffLen);
 		if (err) {
@@ -425,11 +589,11 @@ uint64_t FileSystemTemplate<FileStore, FS_TYPE>::findInodeOf(const char *path) {
 	uint64_t inode = INODE_ROOT_DIR;
 	while (it.hasNext()) {
 		auto dirStat = stat(inode);
-		if (dirStat.inode && dirStat.size >= sizeof(Directory)) {
+		if (dirStat.inode && dirStat.size >= sizeof(Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t>)) {
 			uint8_t dirBuffer[dirStat.size];
-			auto dir = (Directory*) dirBuffer;
+			auto dir = (Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t>*) dirBuffer;
 			if (read(inode, dirBuffer, dirStat.size) == 0) {
-				if (dirStat.fileType == FileType::Directory && it.next(fileName, pathLen) == 0) {
+				if (dirStat.fileType == FileType::FileType_Directory && it.next(fileName, pathLen) == 0) {
 					inode = dir->getFileInode(fileName, dirStat.size);
 				} else {
 					inode = 0; // null out inode and break
@@ -483,9 +647,9 @@ uint8_t *FileSystemTemplate<FileStore, FS_TYPE>::format(void *buffer, typename F
 	buffer = FileStore::format((uint8_t*) buffer, size, (uint16_t) FS_TYPE);
 
 	if (buffer && useDirectories) {
-		Directory dir;
+		Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t> dir;
 		FileSystemTemplate<FileStore, FS_TYPE> fs(buffer);
-		fs.write(INODE_ROOT_DIR, &dir, sizeof(dir), FileType::Directory);
+		fs.write(INODE_ROOT_DIR, &dir, sizeof(dir), FileType::FileType_Directory);
 	}
 
 	return (uint8_t*) buffer;
@@ -524,19 +688,19 @@ template<typename FileStore, FsType FS_TYPE>
 int FileSystemTemplate<FileStore, FS_TYPE>::insertDirectoryEntry(const char *dirPath, const char *fileName, uint64_t inode) {
 	auto s = stat(dirPath);
 	if (s.inode) {
-		auto spaceNeeded = DirectoryEntry::spaceNeeded(fileName);
+		auto spaceNeeded = DirectoryEntry<typename FileStore::InodeId_t>::spaceNeeded(fileName);
 		size_t dirBuffSize = s.size + spaceNeeded;
 		uint8_t dirBuff[dirBuffSize];
 		int err = read(s.inode, dirBuff, dirBuffSize);
 
 		if (!err) {
-			auto dir = (Directory*) dirBuff;
+			auto dir = (Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t>*) dirBuff;
 			dir->size += spaceNeeded;
 			dir->children++;
-			auto entry = (DirectoryEntry*) &dirBuff[s.size];
+			auto entry = (DirectoryEntry<typename FileStore::InodeId_t>*) &dirBuff[s.size];
 			entry->inode = inode;
 			entry->setName(fileName);
-			return write(s.inode, dirBuff, dirBuffSize, FileType::Directory);
+			return write(s.inode, dirBuff, dirBuffSize, FileType::FileType_Directory);
 		} else {
 			return 1;
 		}
@@ -612,85 +776,38 @@ int FileSystemTemplate<FileStore, FS_TYPE>::rmDirectoryEntry(const char *path) {
 		return err;
 	}
 
-	auto dir = (Directory*) dirBuff;
+	auto dir = (Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t>*) dirBuff;
 	err = dir->rmFile(fileName);
 
 	if (err) {
 		return err;
 	}
 
-	err = write(dirStat.inode, dirBuff, dirBuffLen - DirectoryEntry::spaceNeeded(fileName));
+	err = write(dirStat.inode, dirBuff, dirBuffLen - DirectoryEntry<typename FileStore::InodeId_t>::spaceNeeded(fileName));
 
 	return err;
 }
 
-
-// Directory
-
 template<typename FileStore, FsType FS_TYPE>
-uint64_t FileSystemTemplate<FileStore, FS_TYPE>::Directory::getFileInode(const char *name, uint64_t buffSize) {
-	uint64_t inode = 0;
-	auto current = files();
-	if (current) {
-		for (uint64_t i = 0; ox_strcmp(current->getName(), name) != 0;) {
-			i += current->size();
-			if (i < this->size) {
-				current = (DirectoryEntry*) (((uint8_t*) current) + current->size());
-			} else {
-				current = nullptr;
-				break;
-			}
-		}
-		if (current) {
-			inode = current->inode;
-		}
-	}
-	return inode;
-}
+int FileSystemTemplate<FileStore, FS_TYPE>::readDirectory(const char *path, Directory<uint64_t, uint64_t> *dirOut) {
+	int err = 0;
+	auto inode = findInodeOf(path);
+	auto dirStat = stat(inode);
+	auto dirBuffLen = dirStat.size;
+	uint8_t dirBuff[dirBuffLen];
+	auto dir = (Directory<uint64_t, uint64_t>*) dirBuff;
 
-template<typename FileStore, FsType FS_TYPE>
-int FileSystemTemplate<FileStore, FS_TYPE>::Directory::getChildrenInodes(typename FileStore::InodeId_t *inodes, size_t inodesLen) {
-	if (inodesLen >= this->children) {
-		auto current = files();
-		if (current) {
-			for (uint64_t i = 0; i < this->children; i++) {
-				inodes[i] = current->inode;
-				current = (DirectoryEntry*) (((uint8_t*) current) + current->size());
-			}
-			return 0;
-		} else {
-			return 1;
-		}
+	err = read(dirStat.inode, dirBuff, dirBuffLen);
+	if (!err) {
+		return dir->copy(dirOut);
 	} else {
-		return 2;
+		return 1;
 	}
 }
 
-template<typename FileStore, FsType FS_TYPE>
-int FileSystemTemplate<FileStore, FS_TYPE>::Directory::rmFile(const char *name) {
-	int err = 1;
-	auto current = files();
-	if (current) {
-		for (uint64_t i = 0; i < this->size;) {
-			i += current->size();
-			if (ox_strcmp(current->getName(), name) == 0) {
-				auto dest = (uint8_t*) current;
-				auto src = dest + current->size();
-				ox_memcpy(dest, src, this->size - i);
-				this->size -= current->size();
-				this->children--;
-				err = 0;
-				break;
-			}
-			current = (DirectoryEntry*) (((uint8_t*) current) + current->size());
-		}
-	}
-	return err;
-}
 
 typedef FileSystemTemplate<FileStore16, OxFS_16> FileSystem16;
 typedef FileSystemTemplate<FileStore32, OxFS_32> FileSystem32;
 typedef FileSystemTemplate<FileStore64, OxFS_64> FileSystem64;
 
-}
 }

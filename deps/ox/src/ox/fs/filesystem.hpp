@@ -35,6 +35,8 @@ struct DirectoryListing {
 	String name;
 	FileStat stat;
 
+	DirectoryListing() = default;
+
 	DirectoryListing(const char *name) {
 		this->name = name;
 	}
@@ -181,7 +183,7 @@ int Directory<InodeId_t, FsSize_t>::ls(List *list) {
 	if (current) {
 		for (uint64_t i = 0; i < this->children; i++) {
 			list->push_back(current->getName());
-			list->at(i).stat.inode = current->inode;
+			(*list)[i].stat.inode = current->inode;
 			current = (DirectoryEntry<InodeId_t>*) (((uint8_t*) current) + current->size());
 		}
 		return 0;

@@ -157,18 +157,18 @@ int Directory<InodeId_t, FsSize_t>::rmFile(const char *name) {
 template<typename InodeId_t, typename FsSize_t>
 int Directory<InodeId_t, FsSize_t>::copy(Directory<uint64_t, uint64_t> *dirOut) {
 	auto current = files();
-	auto dirBuff = (uint8_t*) dirOut;
-	dirBuff += sizeof(Directory<uint64_t, uint64_t>);
+	auto dirOutBuff = (uint8_t*) dirOut;
+	dirOutBuff += sizeof(Directory<uint64_t, uint64_t>);
 	dirOut->size = this->size;
 	dirOut->children = this->children;
 	if (current) {
 		for (uint64_t i = 0; i < this->children; i++) {
-			auto entry = (DirectoryEntry<uint64_t>*) dirBuff;
+			auto entry = (DirectoryEntry<uint64_t>*) dirOutBuff;
 			entry->inode = current->inode;
 			entry->setName(current->getName());
 
 			current = (DirectoryEntry<InodeId_t>*) (((uint8_t*) current) + current->size());
-			dirBuff += entry->size();
+			dirOutBuff += entry->size();
 		}
 		return 0;
 	} else {
@@ -797,7 +797,7 @@ int FileSystemTemplate<FileStore, FS_TYPE>::readDirectory(const char *path, Dire
 	auto dirStat = stat(inode);
 	auto dirBuffLen = dirStat.size;
 	uint8_t dirBuff[dirBuffLen];
-	auto dir = (Directory<uint64_t, uint64_t>*) dirBuff;
+	auto dir = (Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t>*) dirBuff;
 
 	err = read(dirStat.inode, dirBuff, dirBuffLen);
 	if (!err) {

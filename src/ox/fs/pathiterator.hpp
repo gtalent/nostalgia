@@ -11,7 +11,6 @@
 #include <ox/std/types.hpp>
 
 namespace ox {
-namespace fs {
 
 class PathIterator {
 	private:
@@ -40,5 +39,4 @@ class PathIterator {
 		bool hasNext();
 };
 
-}
 }

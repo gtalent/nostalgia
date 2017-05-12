@@ -12,7 +12,6 @@
 #include <string>
 
 namespace ox {
-namespace clargs {
 
 class ClArgs {
 	private:
@@ -30,5 +29,4 @@ class ClArgs {
 		int getInt(const char *arg);
 };
 
-}
 }

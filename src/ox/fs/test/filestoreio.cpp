@@ -9,8 +9,7 @@
 #include <ox/std/std.hpp>
 #include <ox/fs/filestore.hpp>
 
-using namespace ox::fs;
-using namespace ox::std;
+using namespace ox;
 
 template<typename FileStore>
 int test() {

@@ -17,7 +17,7 @@
 #pragma warning(disable:4996)
 #endif
 
-using namespace ox::fs;
+using namespace ox;
 using namespace std;
 
 const static auto oxfstoolVersion = "1.3.0";
@@ -128,9 +128,9 @@ int format(int argc, char **args) {
 		delete []buff;
 
 		if (err == 0) {
-			cerr <<  "Created file system of type " << type << " " << path << endl;
-			cerr <<  "\ttype " << type << endl;
-			cerr <<  "\twrote " << size << " bytes\n";
+			cerr <<  "Created file system " << path << endl;
+			cerr <<  "        type " << type << endl;
+			cerr <<  "        wrote " << size << " bytes\n";
 		}
 	} else {
 		fprintf(stderr, "Insufficient arguments\n");

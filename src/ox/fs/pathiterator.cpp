@@ -11,7 +11,6 @@
 #include "pathiterator.hpp"
 
 namespace ox {
-namespace fs {
 
 PathIterator::PathIterator(const char *path, size_t maxSize) {
 	m_path = path;
@@ -96,5 +95,4 @@ bool PathIterator::hasNext() {
 	return size > 0;
 }
 
-}
 }

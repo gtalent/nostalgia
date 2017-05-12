@@ -11,7 +11,6 @@
 #include <ox/std/std.hpp>
 
 namespace ox {
-namespace fs {
 
 template<typename FsT, typename InodeId>
 struct __attribute__((packed)) FileStoreHeader {
@@ -46,52 +45,52 @@ struct __attribute__((packed)) FileStoreHeader {
 
 template<typename FsSize_t, typename InodeId_t>
 void FileStoreHeader<FsSize_t, InodeId_t>::setVersion(uint16_t version) {
-	m_version = std::bigEndianAdapt(version);
+	m_version = bigEndianAdapt(version);
 }
 
 template<typename FsSize_t, typename InodeId_t>
 uint16_t FileStoreHeader<FsSize_t, InodeId_t>::getVersion() {
-	return std::bigEndianAdapt(m_version);
+	return bigEndianAdapt(m_version);
 }
 
 template<typename FsSize_t, typename InodeId_t>
 void FileStoreHeader<FsSize_t, InodeId_t>::setFsType(uint16_t fsType) {
-	m_fsType = std::bigEndianAdapt(fsType);
+	m_fsType = bigEndianAdapt(fsType);
 }
 
 template<typename FsSize_t, typename InodeId_t>
 uint16_t FileStoreHeader<FsSize_t, InodeId_t>::getFsType() {
-	return std::bigEndianAdapt(m_fsType);
+	return bigEndianAdapt(m_fsType);
 }
 
 template<typename FsSize_t, typename InodeId_t>
 void FileStoreHeader<FsSize_t, InodeId_t>::setSize(FsSize_t size) {
-	m_size = std::bigEndianAdapt(size);
+	m_size = bigEndianAdapt(size);
 }
 
 template<typename FsSize_t, typename InodeId_t>
 FsSize_t FileStoreHeader<FsSize_t, InodeId_t>::getSize() {
-	return std::bigEndianAdapt(m_size);
+	return bigEndianAdapt(m_size);
 }
 
 template<typename FsSize_t, typename InodeId_t>
 void FileStoreHeader<FsSize_t, InodeId_t>::setMemUsed(FsSize_t memUsed) {
-	m_memUsed = std::bigEndianAdapt(memUsed);
+	m_memUsed = bigEndianAdapt(memUsed);
 }
 
 template<typename FsSize_t, typename InodeId_t>
 FsSize_t FileStoreHeader<FsSize_t, InodeId_t>::getMemUsed() {
-	return std::bigEndianAdapt(m_memUsed);
+	return bigEndianAdapt(m_memUsed);
 }
 
 template<typename FsSize_t, typename InodeId_t>
 void FileStoreHeader<FsSize_t, InodeId_t>::setRootInode(FsSize_t rootInode) {
-	m_rootInode = std::bigEndianAdapt(rootInode);
+	m_rootInode = bigEndianAdapt(rootInode);
 }
 
 template<typename FsSize_t, typename InodeId_t>
 FsSize_t FileStoreHeader<FsSize_t, InodeId_t>::getRootInode() {
-	return std::bigEndianAdapt(m_rootInode);
+	return bigEndianAdapt(m_rootInode);
 }
 
 template<typename Header>
@@ -368,72 +367,72 @@ typename Header::FsSize_t FileStore<Header>::Inode::size() {
 
 template<typename Header>
 void FileStore<Header>::Inode::setDataLen(typename Header::FsSize_t dataLen) {
-	this->m_dataLen = std::bigEndianAdapt(dataLen);
+	this->m_dataLen = bigEndianAdapt(dataLen);
 }
 
 template<typename Header>
 typename Header::FsSize_t FileStore<Header>::Inode::getDataLen() {
-	return std::bigEndianAdapt(m_dataLen);
+	return bigEndianAdapt(m_dataLen);
 }
 
 template<typename Header>
 void FileStore<Header>::Inode::setPrev(typename Header::FsSize_t prev) {
-	this->m_prev = std::bigEndianAdapt(prev);
+	this->m_prev = bigEndianAdapt(prev);
 }
 
 template<typename Header>
 typename Header::FsSize_t FileStore<Header>::Inode::getPrev() {
-	return std::bigEndianAdapt(m_prev);
+	return bigEndianAdapt(m_prev);
 }
 
 template<typename Header>
 void FileStore<Header>::Inode::setNext(typename Header::FsSize_t next) {
-	this->m_next = std::bigEndianAdapt(next);
+	this->m_next = bigEndianAdapt(next);
 }
 
 template<typename Header>
 typename Header::FsSize_t FileStore<Header>::Inode::getNext() {
-	return std::bigEndianAdapt(m_next);
+	return bigEndianAdapt(m_next);
 }
 
 template<typename Header>
 void FileStore<Header>::Inode::setId(InodeId_t id) {
-	this->m_id = std::bigEndianAdapt(id);
+	this->m_id = bigEndianAdapt(id);
 }
 
 template<typename Header>
 typename Header::InodeId_t FileStore<Header>::Inode::getId() {
-	return std::bigEndianAdapt(m_id);
+	return bigEndianAdapt(m_id);
 }
 
 template<typename Header>
 void FileStore<Header>::Inode::setFileType(uint8_t fileType) {
-	this->m_fileType = std::bigEndianAdapt(fileType);
+	this->m_fileType = bigEndianAdapt(fileType);
 }
 
 template<typename Header>
 uint8_t FileStore<Header>::Inode::getFileType() {
-	return std::bigEndianAdapt(m_fileType);
+	return bigEndianAdapt(m_fileType);
 }
 
 template<typename Header>
 void FileStore<Header>::Inode::setLeft(typename Header::FsSize_t left) {
-	this->m_left = std::bigEndianAdapt(left);
+	this->m_left = bigEndianAdapt(left);
 }
 
 template<typename Header>
 typename Header::FsSize_t FileStore<Header>::Inode::getLeft() {
-	return std::bigEndianAdapt(m_left);
+	return bigEndianAdapt(m_left);
 }
 
 template<typename Header>
 void FileStore<Header>::Inode::setRight(typename Header::FsSize_t right) {
-	this->m_right = std::bigEndianAdapt(right);
+	this->m_right = bigEndianAdapt(right);
 }
 
 template<typename Header>
 typename Header::FsSize_t FileStore<Header>::Inode::getRight() {
-	return std::bigEndianAdapt(m_right);
+	return bigEndianAdapt(m_right);
 }
 
 template<typename Header>
@@ -647,9 +646,13 @@ int FileStore<Header>::read(Inode *inode, typename Header::FsSize_t readStart,
 	}
 
 	readSize /= sizeof(T);
-	T *it = (T*) &(inode->getData()[readStart]);
+	uint8_t *it = &(inode->getData()[readStart]);
 	for (typename Header::FsSize_t i = 0; i < readSize; i++) {
-		*(data++) = *(it++);
+		T val;
+		for (size_t i = 0; i < sizeof(T); i++) {
+			((uint8_t*) (&val))[i] = *(it++);
+		}
+		*(data++) = val;
 	}
 	return 0;
 }
@@ -847,5 +850,4 @@ typedef FileStore<FileStoreHeader<uint16_t, uint16_t>> FileStore16;
 typedef FileStore<FileStoreHeader<uint32_t, uint64_t>> FileStore32;
 typedef FileStore<FileStoreHeader<uint64_t, uint64_t>> FileStore64;
 
-}
 }

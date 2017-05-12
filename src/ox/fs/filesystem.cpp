@@ -9,7 +9,6 @@
 #include "filesystem.hpp"
 
 namespace ox {
-namespace fs {
 
 FileSystem *createFileSystem(void *buff, size_t buffSize) {
 	auto version = ((FileStore16*) buff)->version();
@@ -19,13 +18,13 @@ FileSystem *createFileSystem(void *buff, size_t buffSize) {
 	switch (version) {
 		case 5:
 			switch (type) {
-				case ox::fs::OxFS_16:
+				case ox::OxFS_16:
 					fs = new FileSystem16(buff);
 					break;
-				case ox::fs::OxFS_32:
+				case ox::OxFS_32:
 					fs = new FileSystem32(buff);
 					break;
-				case ox::fs::OxFS_64:
+				case ox::OxFS_64:
 					fs = new FileSystem64(buff);
 					break;
 			}
@@ -71,5 +70,4 @@ FileSystem *expandCopyCleanup(FileSystem *fs, size_t size) {
 	return out;
 }
 
-}
 }

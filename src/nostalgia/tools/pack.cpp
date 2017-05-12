@@ -10,8 +10,8 @@
 #include <QColor>
 #include <QImage>
 #include <QMap>
-#include <core/gba/gba.hpp>
-#include <common/point.hpp>
+#include <nostalgia/core/gba/gba.hpp>
+#include <nostalgia/common/point.hpp>
 #include <ox/clargs/clargs.hpp>
 #include <ox/fs/filesystem.hpp>
 

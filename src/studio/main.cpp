@@ -14,7 +14,7 @@
 #include "mainwindow.hpp"
 
 using namespace nostalgia::studio;
-using namespace ox::clargs;
+using namespace ox;
 
 int run(int argc, char **args) {
 	ClArgs clargs(argc, (const char**) args);

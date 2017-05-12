@@ -13,7 +13,7 @@
 namespace nostalgia {
 namespace studio {
 
-using namespace ox::fs;
+using namespace ox;
 
 QString Project::ROM_FILE = "/ROM.oxfs";
 

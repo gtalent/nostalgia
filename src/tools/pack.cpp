@@ -17,8 +17,6 @@
 
 using namespace std;
 using namespace ox;
-using namespace ox::clargs;
-using namespace ox::fs;
 using namespace nostalgia::core;
 using namespace nostalgia::common;
 

@@ -11,6 +11,7 @@
 #include <QDialog>
 #include <QFileDialog>
 #include <QGridLayout>
+#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
@@ -18,6 +19,7 @@
 #include <QVector>
 
 #include "lib/newwizard.hpp"
+#include "lib/oxfstreeview.hpp"
 #include "lib/project.hpp"
 #include "mainwindow.hpp"
 
@@ -43,6 +45,9 @@ MainWindow::MainWindow(NostalgiaStudioProfile config, QWidget *parent) {
 }
 
 MainWindow::~MainWindow() {
+	if (m_projectExplorer->model()) {
+		delete m_projectExplorer->model();
+	}
 	for (auto f : m_cleanupTasks) {
 		f();
 	}
@@ -91,6 +96,9 @@ void MainWindow::setupProjectExplorer() {
 	resizeDocks({dock}, {(int) (width() * 0.25)}, Qt::Horizontal);
 
 	// setup tree view
+	m_projectExplorer = new QTreeView(dock);
+	m_projectExplorer->header()->hide();
+	dock->setWidget(m_projectExplorer);
 }
 
 void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockWidget) {
@@ -127,6 +135,7 @@ void MainWindow::openProject() {
 	auto err = project->open();
 	if (err == 0) {
 		m_project = project;
+		m_projectExplorer->setModel(new OxFSModel(m_project->romFS()));
 	}
 }
 

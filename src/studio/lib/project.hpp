@@ -23,7 +23,7 @@ class Project: public QObject {
 
 		QString m_path = "";
 		QSharedPointer<QByteArray> m_romBuff;
-		QSharedPointer<ox::FileSystem> m_fs;
+		ox::FileSystem *m_fs = nullptr;
 
 	public:
 		Project(QString path);
@@ -35,6 +35,8 @@ class Project: public QObject {
 		int open();
 
 		void save();
+
+		ox::FileSystem *romFS();
 };
 
 }

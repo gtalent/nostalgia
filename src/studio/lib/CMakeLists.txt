@@ -6,7 +6,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 add_library(
-	NostalgiaStudioStatic
+	NostalgiaStudio
 		newwizard.cpp
 		oxfstreeview.cpp
 		project.cpp
@@ -14,25 +14,9 @@ add_library(
 
 set_property(
 	TARGET
-		NostalgiaStudioStatic
+		NostalgiaStudio
 	PROPERTY
 		POSITION_INDEPENDENT_CODE ON
-)
-
-target_link_libraries(
-	NostalgiaStudioStatic
-		Qt5::Core
-		Qt5::Widgets
-		OxFS
-		OxStd
-)
-
-add_library(
-	NostalgiaStudio
-	SHARED
-		newwizard.cpp
-		oxfstreeview.cpp
-		project.cpp
 )
 
 target_link_libraries(

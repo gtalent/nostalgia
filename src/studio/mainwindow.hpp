@@ -15,6 +15,7 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QString>
+#include <QTreeView>
 #include <QVector>
 #include <functional>
 
@@ -60,6 +61,7 @@ class MainWindow: public QMainWindow {
 		QPointer<QMenu> m_viewMenu;
 		QVector<std::function<void()>> m_cleanupTasks;
 		QVector<QPointer<QDockWidget>> m_dockWidgets;
+		QTreeView *m_projectExplorer = nullptr;
 
 	public:
 		MainWindow(NostalgiaStudioProfile config, QWidget *parent = 0);

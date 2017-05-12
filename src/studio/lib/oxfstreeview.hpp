@@ -8,31 +8,71 @@
 
 #pragma once
 
-#include <QList>
+#include <QModelIndex>
+#include <QVector>
 #include <QVariant>
-#include <QVariant>
+
+#include <ox/fs/filesystem.hpp>
 
 namespace nostalgia {
 namespace studio {
 
 class OxFSFile {
 	private:
-		 QList<OxFSFile*> m_childItems;
-		 QList<QVariant> m_itemData;
-		 OxFSFile *m_parentItem;
+		ox::FileSystem *m_fs = nullptr;
+		OxFSFile *m_parentItem = nullptr;
+		QString m_path;
+		QVector<OxFSFile*> m_childItems;
 
 	public:
-		 explicit OxFSFile(const QList<QVariant> &data, OxFSFile *parentItem = 0);
-		 ~OxFSFile();
+		OxFSFile(ox::FileSystem *fs, QString path, OxFSFile *parentItem = nullptr);
 
-		 void appendChild(OxFSFile *child);
+		~OxFSFile();
 
-		 OxFSFile *child(int row);
-		 int childCount() const;
-		 int columnCount() const;
-		 QVariant data(int column) const;
-		 int row() const;
-		 OxFSFile *parentItem();
+		void appendChild(OxFSFile *child);
+
+		OxFSFile *child(int row);
+
+		int childCount() const;
+
+		int columnCount() const;
+
+		QVariant data(int column) const;
+
+		int row() const;
+
+		OxFSFile *parentItem();
+};
+
+class OxFSModel: public QAbstractItemModel {
+	Q_OBJECT
+
+	private:
+		OxFSFile *m_rootItem = nullptr;
+
+	public:
+		explicit OxFSModel(ox::FileSystem *fs, QObject *parent = 0);
+
+		~OxFSModel();
+
+		QVariant data(const QModelIndex &index, int role) const override;
+
+		Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+		QVariant headerData(int section, Qt::Orientation orientation,
+		                    int role = Qt::DisplayRole) const override;
+
+		QModelIndex index(int row, int column,
+		                  const QModelIndex &parent = QModelIndex()) const override;
+
+		QModelIndex parent(const QModelIndex &index) const override;
+
+		int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+		int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+
+	private:
+		void setupModelData(const QStringList &lines, OxFSFile *parent);
 };
 
 }

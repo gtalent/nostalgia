@@ -16,7 +16,7 @@
 namespace nostalgia {
 namespace core {
 
-using namespace ox::fs;
+using namespace ox;
 
 #define TILE_ADDR  ((CharBlock*) 0x06000000)
 #define TILE8_ADDR ((CharBlock8*) 0x06000000)

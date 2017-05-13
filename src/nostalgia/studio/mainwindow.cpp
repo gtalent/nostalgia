@@ -18,7 +18,7 @@
 #include <QTabBar>
 #include <QVector>
 
-#include "lib/newwizard.hpp"
+#include "lib/wizard.hpp"
 #include "lib/oxfstreeview.hpp"
 #include "lib/project.hpp"
 #include "mainwindow.hpp"
@@ -68,6 +68,16 @@ void MainWindow::setupMenu() {
 		SLOT(showNewWizard())
 	);
 
+	// Import...
+	m_importAction = addAction(
+		fileMenu,
+		tr("&Import..."),
+		tr(""),
+		this,
+		SLOT(showImportWizard())
+	);
+	m_importAction->setEnabled(false);
+
 	// Open Project
 	addAction(
 		fileMenu,
@@ -107,7 +117,17 @@ void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockWidget)
 	m_dockWidgets.push_back(dockWidget);
 }
 
-void MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
+QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip, const QObject *tgt, const char *cb) {
+	auto action = menu->addAction(text);
+	action->setStatusTip(toolTip);
+	auto conn = connect(action, SIGNAL(triggered()), tgt, cb);
+	m_cleanupTasks.push_back([this, conn]() {
+		QObject::disconnect(conn);
+	});
+	return action;
+}
+
+QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
                            QKeySequence::StandardKey key, const QObject *tgt, const char *cb) {
 	auto action = menu->addAction(text);
 	action->setShortcuts(key);
@@ -116,9 +136,10 @@ void MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 	m_cleanupTasks.push_back([this, conn]() {
 		QObject::disconnect(conn);
 	});
+	return action;
 }
 
-void MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
+QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
                            QKeySequence::StandardKey key, void (*cb)()) {
 	auto action = menu->addAction(text);
 	action->setShortcuts(key);
@@ -127,6 +148,7 @@ void MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 	m_cleanupTasks.push_back([this, conn]() {
 		QObject::disconnect(conn);
 	});
+	return action;
 }
 
 void MainWindow::openProject() {
@@ -136,13 +158,14 @@ void MainWindow::openProject() {
 	if (err == 0) {
 		m_project = project;
 		m_projectExplorer->setModel(new OxFSModel(m_project->romFS()));
+		m_importAction->setEnabled(true);
 	}
 }
 
 void MainWindow::showNewWizard() {
 	const QString PROJECT_NAME = "projectName";
 	const QString PROJECT_PATH = "projectPath";
-	Wizard wizard;
+	Wizard wizard(tr("New..."));
 	auto ws = new WizardSelect();
 	wizard.addPage(ws);
 	ws->addOption(tr("Project"),
@@ -178,6 +201,50 @@ void MainWindow::showNewWizard() {
 			}
 		}
 	);
+	wizard.show();
+	wizard.exec();
+}
+
+void MainWindow::showImportWizard() {
+	const QString TILESHEET_NAME = "projectName";
+	const QString IMPORT_PATH = "projectPath";
+	Wizard wizard(tr("Import..."));
+	auto ws = new WizardSelect();
+	wizard.addPage(ws);
+
+	ws->addOption(tr("Tile Sheet"),
+			[&wizard, TILESHEET_NAME, IMPORT_PATH]() {
+			QVector<QWizardPage*> pgs;
+			auto pg = new WizardFormPage();
+			pg->addLineEdit(tr("Tile Sheet &Name:"), TILESHEET_NAME + "*", "", [IMPORT_PATH, pg, &wizard](QString projectName) {
+					auto projectPath = wizard.field(IMPORT_PATH).toString();
+					auto path = projectPath + "/" + projectName;
+					if (!QDir(path).exists()) {
+						return 0;
+					} else {
+						pg->showValidationError(tr("This project directory already exists."));
+						return 1;
+					}
+				}
+			);
+			pg->addDirBrowse(tr("Project &Path:"), IMPORT_PATH + "*");
+			pgs.push_back(pg);
+			pgs.push_back(new WizardConclusionPage(tr("Importing tile sheet: ") + "%1/%2", {IMPORT_PATH}));
+			return pgs;
+		}
+	);
+
+	wizard.setAccept([&wizard, ws, TILESHEET_NAME, IMPORT_PATH]() {
+			auto projectName = wizard.field(TILESHEET_NAME).toString();
+			auto projectPath = wizard.field(IMPORT_PATH).toString();
+			if (QDir(projectPath).exists()) {
+				auto path = projectPath + "/" + projectName;
+				if (QDir(path).exists()) {
+				}
+			}
+		}
+	);
+
 	wizard.show();
 	wizard.exec();
 }

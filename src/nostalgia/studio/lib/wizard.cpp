@@ -13,7 +13,7 @@
 #include <QListWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
-#include "newwizard.hpp"
+#include "wizard.hpp"
 
 namespace nostalgia {
 namespace studio {
@@ -241,8 +241,8 @@ void WizardFormPage::showValidationError(QString msg) {
 }
 
 
-Wizard::Wizard(QWidget *parent): QWizard(parent) {
-	setWindowTitle(tr("New..."));
+Wizard::Wizard(QString windowTitle, QWidget *parent): QWizard(parent) {
+	setWindowTitle(windowTitle);
 	setModal(true);
 }
 

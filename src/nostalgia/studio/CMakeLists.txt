@@ -21,7 +21,6 @@ target_link_libraries(
 		NostalgiaCommon
 		NostalgiaCore
 		NostalgiaStudio
-		NostalgiaStudioJson
 )
 
 install(
@@ -32,4 +31,3 @@ install(
 )
 
 add_subdirectory(lib)
-add_subdirectory(json)

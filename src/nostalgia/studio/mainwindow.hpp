@@ -57,6 +57,7 @@ class MainWindow: public QMainWindow {
 		static const QString AppTitle;
 
 	private:
+		QAction *m_importAction = nullptr;
 		QSharedPointer<Project> m_project;
 		QPointer<QMenu> m_viewMenu;
 		QVector<std::function<void()>> m_cleanupTasks;
@@ -79,10 +80,12 @@ class MainWindow: public QMainWindow {
 
 		void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget);
 
-		void addAction(QMenu *menu, QString text, QString toolTip,
+		QAction *addAction(QMenu *menu, QString text, QString toolTip, const QObject *tgt, const char *cb);
+
+		QAction *addAction(QMenu *menu, QString text, QString toolTip,
 		               QKeySequence::StandardKey key, const QObject *tgt, const char *cb);
 
-		void addAction(QMenu *menu, QString text, QString toolTip,
+		QAction *addAction(QMenu *menu, QString text, QString toolTip,
 		               QKeySequence::StandardKey key, void (*cb)());
 
 		int readSettings(QString path);
@@ -93,6 +96,8 @@ class MainWindow: public QMainWindow {
 		void openProject();
 
 		void showNewWizard();
+
+		void showImportWizard();
 };
 
 }

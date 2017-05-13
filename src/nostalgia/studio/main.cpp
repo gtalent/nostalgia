@@ -10,7 +10,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <ox/clargs/clargs.hpp>
-#include "json/json.hpp"
+#include "lib/json.hpp"
 #include "mainwindow.hpp"
 
 using namespace nostalgia::studio;

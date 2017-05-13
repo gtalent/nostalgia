@@ -100,7 +100,7 @@ class Wizard: public QWizard {
 		std::function<void()> m_acceptFunc;
 
 	public:
-		Wizard(QWidget *parent = 0);
+		Wizard(QString windowTitle, QWidget *parent = 0);
 
 		void setAccept(std::function<void()> acceptFunc);
 

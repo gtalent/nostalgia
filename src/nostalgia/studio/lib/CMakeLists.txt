@@ -7,7 +7,9 @@ set(CMAKE_AUTOMOC ON)
 
 add_library(
 	NostalgiaStudio
-		newwizard.cpp
+		json_read.cpp
+		json_write.cpp
+		wizard.cpp
 		oxfstreeview.cpp
 		project.cpp
 )
@@ -29,9 +31,24 @@ target_link_libraries(
 
 install(
 	FILES
+		json.hpp
+		json_read.hpp
+		json_write.hpp
 		newwizard.hpp
 		oxfstreeview.hpp
 		project.hpp
 	DESTINATION
 		include/nostalgia/studio/lib
 )
+
+add_executable(
+	NostalgiaStudioJsonTest
+		json_test.cpp
+)
+
+target_link_libraries(
+	NostalgiaStudioJsonTest
+		NostalgiaStudio
+)
+
+add_test("Test\\ NostalgiaStudioJson" NostalgiaStudioJsonTest)

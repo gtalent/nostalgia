@@ -25,6 +25,8 @@ class JsonWriter {
 	public:
 		JsonWriter(QJsonObject &obj);
 
+		void setFields(int) {};
+
 		ox::Error op(QString fieldName, int *src);
 
 		ox::Error op(QString fieldName, bool *src);

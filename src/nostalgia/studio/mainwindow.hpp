@@ -27,13 +27,14 @@ namespace nostalgia {
 namespace studio {
 
 struct NostalgiaStudioState {
-	QString currentProjectPath;
+	QString projectPath;
 };
 
 template<typename T>
 int ioOp(T *io, NostalgiaStudioState *obj) {
 	ox::Error err = 0;
-	err |= io->op("current_project_path", &obj->currentProjectPath);
+	io->setFields(1);
+	err |= io->op("project_path", &obj->projectPath);
 	return err;
 }
 
@@ -45,6 +46,7 @@ struct NostalgiaStudioProfile {
 template<typename T>
 int ioOp(T *io, NostalgiaStudioProfile *obj) {
 	ox::Error err = 0;
+	io->setFields(1);
 	err |= io->op("app_name", &obj->appName);
 	return err;
 }

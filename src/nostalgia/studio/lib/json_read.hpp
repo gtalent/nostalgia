@@ -25,6 +25,8 @@ class JsonReader {
 	public:
 		JsonReader(QJsonObject &obj);
 
+		void setFields(int) {};
+
 		ox::Error op(QString fieldName, int *dest);
 
 		ox::Error op(QString fieldName, bool *dest);

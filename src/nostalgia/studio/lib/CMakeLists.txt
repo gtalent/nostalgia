@@ -32,6 +32,7 @@ target_link_libraries(
 install(
 	FILES
 		json.hpp
+		json_err.hpp
 		json_read.hpp
 		json_write.hpp
 		newwizard.hpp

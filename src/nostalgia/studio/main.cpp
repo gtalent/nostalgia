@@ -27,7 +27,7 @@ int run(int argc, char **args) {
 	if (file.exists()) {
 		file.open(QIODevice::ReadOnly);
 		QTextStream in(&file);
-		read(in.readAll(), &config);
+		readJson(in.readAll(), &config);
 	}
 
 	QApplication app(argc, args);

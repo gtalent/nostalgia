@@ -51,36 +51,37 @@ int ioOp(T *io, TestStruct *obj) {
 
 int main(int argc, char **args) {
 	int err = 0;
-	auto json = 
-		"{"
-		"	\"Bool\": true,"
-		"	\"Int\": 42,"
-		"	\"Double\": 42.42,"
-		"	\"String\": \"Test String\","
-		"	\"Struct\": {"
-		"		\"Bool\": true,"
-		"		\"Int\": 42,"
-		"		\"Double\": 42.42,"
-		"		\"String\": \"Test String\""
-		"	}"
-		"}";
-	TestStruct ts;
-	read(json, &ts);
+	QString json;
+	TestStruct ts = {
+		.Bool = true,
+		.Int = 42,
+		.Double = 42.42,
+		.String = "Test String",
+		.Struct = {
+			.Bool = true,
+			.Int = 42,
+			.Double = 42.42,
+			.String = "Test String"
+		}
+	};
+	TestStruct tsOut;
+	err |= writeJson(&json, &ts);
+	err |= readJson(json, &tsOut);
 
-	cout << ts.Bool << endl;
-	cout << ts.Int << endl;
-	cout << ts.Double << endl;
-	cout << ts.String.toStdString() << endl;
+	cout << tsOut.Bool << endl;
+	cout << tsOut.Int << endl;
+	cout << tsOut.Double << endl;
+	cout << tsOut.String.toStdString() << endl;
 
-	err |= !(ts.Bool) << 0;
-	err |= !(ts.Int == 42) << 1;
-	err |= !(ts.Double == 42.42) << 2;
-	err |= !(ts.String == "Test String") << 3;
+	err |= !(tsOut.Bool) << 0;
+	err |= !(tsOut.Int == 42) << 1;
+	err |= !(tsOut.Double == 42.42) << 2;
+	err |= !(tsOut.String == "Test String") << 3;
 
-	err |= !(ts.Struct.Bool) << 4;
-	err |= !(ts.Struct.Int == 42) << 5;
-	err |= !(ts.Struct.Double == 42.42) << 6;
-	err |= !(ts.Struct.String == "Test String") << 7;
+	err |= !(tsOut.Struct.Bool) << 4;
+	err |= !(tsOut.Struct.Int == 42) << 5;
+	err |= !(tsOut.Struct.Double == 42.42) << 6;
+	err |= !(tsOut.Struct.String == "Test String") << 7;
 
 	return err;
 }

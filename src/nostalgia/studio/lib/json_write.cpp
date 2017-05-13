@@ -11,6 +11,28 @@
 namespace nostalgia {
 namespace studio {
 
+JsonWriter::JsonWriter(QJsonObject &obj): m_dest(obj) {
+}
+
+ox::Error JsonWriter::op(QString fieldName, int *src) {
+	m_dest[fieldName] = *src;
+	return 0;
+}
+
+ox::Error JsonWriter::op(QString fieldName, bool *src) {
+	m_dest[fieldName] = *src;
+	return 0;
+}
+
+ox::Error JsonWriter::op(QString fieldName, double *src) {
+	m_dest[fieldName] = *src;
+	return 0;
+}
+
+ox::Error JsonWriter::op(QString fieldName, QString *src) {
+	m_dest[fieldName] = *src;
+	return 0;
+}
 
 }
 }

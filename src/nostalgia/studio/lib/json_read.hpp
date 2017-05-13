@@ -11,15 +11,11 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include "json_err.hpp"
 #include "json_operator.hpp"
 
 namespace nostalgia {
 namespace studio {
-
-enum {
-	JSON_ERR_FIELD_MISSING,
-	JSON_ERR_UNEXPECTED_TYPE,
-};
 
 class JsonReader {
 
@@ -73,7 +69,7 @@ ox::Error JsonReader::op(QString fieldName, QVector<T> *dest) {
 };
 
 template<typename T>
-int read(QString json, T *dest) {
+int readJson(QString json, T *dest) {
 	auto obj = QJsonDocument::fromJson(json.toUtf8()).object();
 	JsonReader rdr(obj);
 	return ioOp(&rdr, dest);

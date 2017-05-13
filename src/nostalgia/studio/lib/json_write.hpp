@@ -55,10 +55,11 @@ ox::Error JsonWriter::op(QString fieldName, T *src) {
 template<typename T>
 ox::Error JsonWriter::op(QString fieldName, QVector<T> *src) {
 	ox::Error err = 0;
-	auto &a = m_dest[fieldName] = QJsonArray();
+	QJsonArray a;
 	for (int i = 0; i < src->size(); i++) {
 		err |= op(a[i], &src->at(i));
 	}
+	m_dest[fieldName] = a;
 	return err;
 };
 

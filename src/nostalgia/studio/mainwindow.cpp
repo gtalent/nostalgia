@@ -16,8 +16,10 @@
 #include <QLineEdit>
 #include <QMenuBar>
 #include <QTabBar>
+#include <QTextStream>
 #include <QVector>
 
+#include "lib/json.hpp"
 #include "lib/wizard.hpp"
 #include "lib/oxfstreeview.hpp"
 #include "lib/project.hpp"
@@ -25,6 +27,8 @@
 
 namespace nostalgia {
 namespace studio {
+
+const QString MainWindow::StateFilePath = "studio_state.json";
 
 MainWindow::MainWindow(NostalgiaStudioProfile config, QWidget *parent) {
 	auto screenSize = QApplication::desktop()->screenGeometry();
@@ -42,6 +46,8 @@ MainWindow::MainWindow(NostalgiaStudioProfile config, QWidget *parent) {
 
 	setupMenu();
 	setupProjectExplorer();
+
+	readState();
 }
 
 MainWindow::~MainWindow() {
@@ -151,15 +157,48 @@ QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 	return action;
 }
 
-void MainWindow::openProject() {
-	auto p = QFileDialog::getExistingDirectory(this, tr("Select Project Directory..."), QDir::homePath());
-	auto project = QSharedPointer<Project>(new Project(p));
+int MainWindow::readState(QString path) {
+	int err = 0;
+	QString json;
+	QFile file(path);
+	err |= file.open(QIODevice::ReadOnly);
+	json = QTextStream(&file).readAll();
+	file.close();
+	err |= readJson(json, &m_state);
+	err |= openProject(m_state.projectPath);
+	return err;
+}
+
+int MainWindow::writeState(QString path) {
+	int err = 0;
+	QString json;
+	err |= writeJson(&json, &m_state);
+	QFile file(path);
+	err |= file.open(QIODevice::WriteOnly);
+	QTextStream(&file) << json;
+	file.close();
+	return err;
+}
+
+int MainWindow::openProject(QString projectPath) {
+	auto project = QSharedPointer<Project>(new Project(projectPath));
 	auto err = project->open();
 	if (err == 0) {
 		m_project = project;
 		m_projectExplorer->setModel(new OxFSModel(m_project->romFS()));
 		m_importAction->setEnabled(true);
+		m_state.projectPath = projectPath;
 	}
+	return err;
+}
+
+int MainWindow::openProject() {
+	auto projectPath = QFileDialog::getExistingDirectory(this, tr("Select Project Directory..."), QDir::homePath());
+	auto err = openProject(projectPath);
+	if (err == 0) {
+		writeState();
+	}
+	return err;
 }
 
 void MainWindow::showNewWizard() {

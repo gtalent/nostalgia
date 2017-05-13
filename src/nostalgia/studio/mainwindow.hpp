@@ -57,8 +57,10 @@ class MainWindow: public QMainWindow {
 	public:
 		static const QString EditorSettings;
 		static const QString AppTitle;
+		static const QString StateFilePath;
 
 	private:
+		NostalgiaStudioState m_state;
 		QAction *m_importAction = nullptr;
 		QSharedPointer<Project> m_project;
 		QPointer<QMenu> m_viewMenu;
@@ -70,8 +72,6 @@ class MainWindow: public QMainWindow {
 		MainWindow(NostalgiaStudioProfile config, QWidget *parent = 0);
 
 		virtual ~MainWindow();
-
-		void openProject(QString);
 
 	private:
 		void setupDockWidgets();
@@ -85,17 +85,19 @@ class MainWindow: public QMainWindow {
 		QAction *addAction(QMenu *menu, QString text, QString toolTip, const QObject *tgt, const char *cb);
 
 		QAction *addAction(QMenu *menu, QString text, QString toolTip,
-		               QKeySequence::StandardKey key, const QObject *tgt, const char *cb);
+		                   QKeySequence::StandardKey key, const QObject *tgt, const char *cb);
 
 		QAction *addAction(QMenu *menu, QString text, QString toolTip,
-		               QKeySequence::StandardKey key, void (*cb)());
+		                   QKeySequence::StandardKey key, void (*cb)());
 
-		int readSettings(QString path);
+		int readState(QString path = StateFilePath);
 
-		int writeSettings(QString path);
+		int writeState(QString path = StateFilePath);
+
+		int openProject(QString);
 
 	private slots:
-		void openProject();
+		int openProject();
 
 		void showNewWizard();
 

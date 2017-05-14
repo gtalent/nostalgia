@@ -277,9 +277,6 @@ class FileSystemTemplate: public FileSystem {
 
 		int stripDirectories() override;
 
-		template<typename List>
-		int ls(const char *path, List *list);
-
 		int mkdir(const char *path) override;
 
 		int read(const char *path, void *buffer, size_t buffSize) override;
@@ -354,30 +351,6 @@ typename FileStore::InodeId_t FileSystemTemplate<FileStore, FS_TYPE>::INODE_RESE
 template<typename FileStore, FsType FS_TYPE>
 int FileSystemTemplate<FileStore, FS_TYPE>::stripDirectories() {
 	return m_store->removeAllType(FileType::FileType_Directory);
-}
-
-template<typename FileStore, FsType FS_TYPE>
-template<typename List>
-int FileSystemTemplate<FileStore, FS_TYPE>::ls(const char *path, List *list) {
-	int err = 0;
-	auto inode = findInodeOf(path);
-	auto dirStat = stat(inode);
-	auto dirBuffLen = dirStat.size;
-	uint8_t dirBuff[dirBuffLen];
-	auto dir = (Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t>*) dirBuff;
-
-	err = read(dirStat.inode, dirBuff, dirBuffLen);
-	if (!err) {
-		dir->ls(list);
-
-		for (auto &i : *list) {
-			i.stat = stat(i.stat.inode);
-		}
-
-		return 0;
-	} else {
-		return 1;
-	}
 }
 
 template<typename FileStore, FsType FS_TYPE>

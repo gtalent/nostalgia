@@ -9,7 +9,9 @@
 #pragma once
 
 #include <functional>
+
 #include <QDir>
+#include <QFileDialog>
 #include <QGridLayout>
 #include <QLabel>
 #include <QListWidget>
@@ -48,8 +50,12 @@ class WizardFormPage: public QWizardPage {
 		struct Field {
 			QString defaultValue = "";
 			QString value = "";
-			QLineEdit *lineEdit = nullptr;
+			QWidget *valueControl = nullptr;
 			std::function<int(QString)> validator;
+
+			void setDisplayText(QString text);
+
+			QString getDisplayText();
 		};
 		QLabel *m_errorMsg = nullptr;
 		QGridLayout *m_layout = nullptr;
@@ -67,11 +73,14 @@ class WizardFormPage: public QWizardPage {
 
 		bool validatePage() override;
 
+		void addComboBox(QString displayName, QString fieldName, QVector<QString> options);
+
 		void addLineEdit(QString displayName, QString fieldName,
                        QString defaultVal = "",
 							  std::function<int(QString)> validator = [](QString) { return 0; });
 
-		void addDirBrowse(QString displayName, QString fieldName, QString defaultVal = QDir::homePath());
+		void addPathBrowse(QString displayName, QString fieldName, QString defaultVal = QDir::homePath(),
+                         QFileDialog::FileMode fileMode = QFileDialog::AnyFile);
 
 		void showValidationError(QString msg);
 };

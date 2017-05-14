@@ -51,9 +51,7 @@ MainWindow::MainWindow(NostalgiaStudioProfile config, QWidget *parent) {
 }
 
 MainWindow::~MainWindow() {
-	if (m_projectExplorer->model()) {
-		delete m_projectExplorer->model();
-	}
+	closeProject();
 	for (auto f : m_cleanupTasks) {
 		f();
 	}
@@ -161,7 +159,7 @@ int MainWindow::readState(QString path) {
 	int err = 0;
 	QString json;
 	QFile file(path);
-	err |= file.open(QIODevice::ReadOnly);
+	err |= !file.open(QIODevice::ReadOnly);
 	json = QTextStream(&file).readAll();
 	file.close();
 	err |= readJson(json, &m_state);
@@ -174,15 +172,16 @@ int MainWindow::writeState(QString path) {
 	QString json;
 	err |= writeJson(&json, &m_state);
 	QFile file(path);
-	err |= file.open(QIODevice::WriteOnly);
+	err |= !file.open(QIODevice::WriteOnly);
 	QTextStream(&file) << json;
 	file.close();
 	return err;
 }
 
 int MainWindow::openProject(QString projectPath) {
+	auto err = closeProject();
 	auto project = QSharedPointer<Project>(new Project(projectPath));
-	auto err = project->open();
+	err |= project->open();
 	if (err == 0) {
 		m_project = project;
 		m_projectExplorer->setModel(new OxFSModel(m_project->romFS()));
@@ -192,11 +191,31 @@ int MainWindow::openProject(QString projectPath) {
 	return err;
 }
 
+int MainWindow::closeProject() {
+	auto err = 0;
+	m_project = QSharedPointer<Project>(nullptr);
+	if (m_projectExplorer->model()) {
+		delete m_projectExplorer->model();
+	}
+	m_projectExplorer->setModel(nullptr);
+
+	m_importAction->setEnabled(false);
+
+	m_state.projectPath = "";
+	return err;
+}
+
+
+// private slots
+
 int MainWindow::openProject() {
 	auto projectPath = QFileDialog::getExistingDirectory(this, tr("Select Project Directory..."), QDir::homePath());
-	auto err = openProject(projectPath);
-	if (err == 0) {
-		writeState();
+	int err = 0;
+	if (projectPath != "") {
+		err |= openProject(projectPath);
+		if (err == 0) {
+			err |= writeState();
+		}
 	}
 	return err;
 }
@@ -208,7 +227,7 @@ void MainWindow::showNewWizard() {
 	auto ws = new WizardSelect();
 	wizard.addPage(ws);
 	ws->addOption(tr("Project"),
-			[&wizard, PROJECT_NAME, PROJECT_PATH]() {
+		[&wizard, PROJECT_NAME, PROJECT_PATH]() {
 			QVector<QWizardPage*> pgs;
 			auto pg = new WizardFormPage();
 			pg->addLineEdit(tr("Project &Name:"), PROJECT_NAME + "*", "", [PROJECT_PATH, pg, &wizard](QString projectName) {
@@ -222,7 +241,7 @@ void MainWindow::showNewWizard() {
 					}
 				}
 			);
-			pg->addDirBrowse(tr("Project &Path:"), PROJECT_PATH + "*");
+			pg->addPathBrowse(tr("Project &Path:"), PROJECT_PATH + "*", QDir::homePath(), QFileDialog::Directory);
 			pgs.push_back(pg);
 			pgs.push_back(new WizardConclusionPage(tr("Creating project: ") + "%1/%2", {PROJECT_PATH, PROJECT_NAME}));
 
@@ -247,12 +266,13 @@ void MainWindow::showNewWizard() {
 void MainWindow::showImportWizard() {
 	const QString TILESHEET_NAME = "projectName";
 	const QString IMPORT_PATH = "projectPath";
+	const QString BPP = "bpp";
 	Wizard wizard(tr("Import..."));
 	auto ws = new WizardSelect();
 	wizard.addPage(ws);
 
 	ws->addOption(tr("Tile Sheet"),
-			[&wizard, TILESHEET_NAME, IMPORT_PATH]() {
+			[&wizard, TILESHEET_NAME, IMPORT_PATH, BPP]() {
 			QVector<QWizardPage*> pgs;
 			auto pg = new WizardFormPage();
 			pg->addLineEdit(tr("Tile Sheet &Name:"), TILESHEET_NAME + "*", "", [IMPORT_PATH, pg, &wizard](QString projectName) {
@@ -266,20 +286,18 @@ void MainWindow::showImportWizard() {
 					}
 				}
 			);
-			pg->addDirBrowse(tr("Project &Path:"), IMPORT_PATH + "*");
+			pg->addPathBrowse(tr("Tile Sheet &Path:"), IMPORT_PATH + "*", QDir::homePath(), QFileDialog::ExistingFile);
+			pg->addComboBox(tr("Bits Per Pixe&l:"), BPP, {"4", "8"});
 			pgs.push_back(pg);
-			pgs.push_back(new WizardConclusionPage(tr("Importing tile sheet: ") + "%1/%2", {IMPORT_PATH}));
+			pgs.push_back(new WizardConclusionPage(tr("Importing tile sheet: %1 as %2"), {IMPORT_PATH, TILESHEET_NAME}));
 			return pgs;
 		}
 	);
 
 	wizard.setAccept([&wizard, ws, TILESHEET_NAME, IMPORT_PATH]() {
-			auto projectName = wizard.field(TILESHEET_NAME).toString();
-			auto projectPath = wizard.field(IMPORT_PATH).toString();
-			if (QDir(projectPath).exists()) {
-				auto path = projectPath + "/" + projectName;
-				if (QDir(path).exists()) {
-				}
+			auto tilesheetName = wizard.field(TILESHEET_NAME).toString();
+			auto importPath = wizard.field(IMPORT_PATH).toString();
+			if (QFile(importPath).exists()) {
 			}
 		}
 	);

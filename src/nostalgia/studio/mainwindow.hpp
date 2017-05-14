@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QDockWidget>
 #include <QMainWindow>
 #include <QModelIndex>
@@ -17,7 +19,6 @@
 #include <QString>
 #include <QTreeView>
 #include <QVector>
-#include <functional>
 
 #include <ox/std/types.hpp>
 
@@ -95,6 +96,8 @@ class MainWindow: public QMainWindow {
 		int writeState(QString path = StateFilePath);
 
 		int openProject(QString);
+
+		int closeProject();
 
 	private slots:
 		int openProject();

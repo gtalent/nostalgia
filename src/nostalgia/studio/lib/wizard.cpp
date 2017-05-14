@@ -6,13 +6,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <QFileDialog>
+#include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
+
 #include "wizard.hpp"
 
 namespace nostalgia {
@@ -97,6 +98,28 @@ void WizardConclusionPage::initializePage() {
 }
 
 
+void WizardFormPage::Field::setDisplayText(QString text) {
+	auto le = dynamic_cast<QLineEdit*>(this->valueControl);
+	auto cb = dynamic_cast<QComboBox*>(this->valueControl);
+	if (le) {
+		le->setText(text);
+	} else if (cb) {
+		cb->setCurrentText(text);
+	}
+}
+
+QString WizardFormPage::Field::getDisplayText() {
+	auto le = dynamic_cast<QLineEdit*>(this->valueControl);
+	auto cb = dynamic_cast<QComboBox*>(this->valueControl);
+	if (le) {
+		return le->text();
+	} else if (cb) {
+		return cb->currentText();
+	} else {
+		return "";
+	}
+}
+
 WizardFormPage::WizardFormPage() {
 	m_layout = new QGridLayout(this);
 	m_layout->setColumnMinimumWidth(0, 20);
@@ -112,11 +135,8 @@ WizardFormPage::~WizardFormPage() {
 void WizardFormPage::initializePage() {
 	for (auto it = m_fields.begin(); it != m_fields.end(); it++) {
 		auto key = it.key();
-		auto le = m_fields[key].lineEdit;
 		auto defaultVal = it.value().defaultValue;
-		if (le) {
-			le->setText(defaultVal);
-		}
+		m_fields[key].setDisplayText(defaultVal);
 	}
 }
 
@@ -126,7 +146,7 @@ bool WizardFormPage::validatePage() {
 	// check validators
 	for (auto f : m_fields) {
 		if (f.validator != nullptr) {
-			if (f.validator(f.lineEdit->text()) != 0) {
+			if (f.validator(f.getDisplayText()) != 0) {
 				retval = false;
 				break;
 			}
@@ -141,6 +161,38 @@ bool WizardFormPage::validatePage() {
 	return retval;
 }
 
+void WizardFormPage::addComboBox(QString displayName, QString fieldName, QVector<QString> options) {
+	auto lbl = new QLabel(displayName, this);
+	auto cb = new QComboBox(this);
+	lbl->setBuddy(cb);
+
+	m_layout->addWidget(lbl, m_currentLine, 0);
+	m_layout->addWidget(cb, m_currentLine, 1);
+
+	auto field = &m_fields[fieldName];
+
+	field->valueControl = cb;
+
+	registerField(fieldName, cb);
+
+	for (auto o : options) {
+		cb->addItem(o);
+	}
+
+	connect(cb, &QComboBox::currentTextChanged, [this, fieldName, cb, field](QString txt) {
+			if (field->value == "" && txt != "") {
+				m_validFields++;
+			} else if (field->value != "" && txt == "") {
+				m_validFields--;
+			}
+			field->value = txt;
+			emit completeChanged();
+		}
+	);
+
+	m_currentLine++;
+}
+
 void WizardFormPage::addLineEdit(QString displayName, QString fieldName, QString defaultVal, function<int(QString)> validator) {
 	auto lbl = new QLabel(displayName, this);
 	auto le = new QLineEdit(this);
@@ -152,7 +204,7 @@ void WizardFormPage::addLineEdit(QString displayName, QString fieldName, QString
 	auto field = &m_fields[fieldName];
 
 	field->defaultValue = defaultVal;
-	field->lineEdit = le;
+	field->valueControl = le;
 	field->validator = validator;
 
 	registerField(fieldName, le);
@@ -171,7 +223,8 @@ void WizardFormPage::addLineEdit(QString displayName, QString fieldName, QString
 	m_currentLine++;
 }
 
-void WizardFormPage::addDirBrowse(QString displayName, QString fieldName, QString defaultVal) {
+void WizardFormPage::addPathBrowse(QString displayName, QString fieldName,
+                                   QString defaultVal, QFileDialog::FileMode fileMode) {
 	auto layout = new QHBoxLayout();
 	auto lbl = new QLabel(displayName, this);
 	auto le = new QLineEdit("", this);
@@ -185,13 +238,24 @@ void WizardFormPage::addDirBrowse(QString displayName, QString fieldName, QStrin
 
 	m_subLayout.push_back(layout);
 	m_fields[fieldName].defaultValue = defaultVal;
-	m_fields[fieldName].lineEdit = le;
-	m_fields[fieldName].validator = [this](QString path) {
-		if (!QDir(path).exists()) {
-			showValidationError(tr("Specified Project Path directory does not exist."));
-			return 1;
+	m_fields[fieldName].valueControl = le;
+	m_fields[fieldName].validator = [this, fileMode](QString path) {
+		if (fileMode == QFileDialog::Directory) {
+			if (!QDir(path).exists()) {
+				showValidationError(tr("Specified directory path does not exist."));
+				return 1;
+			} else {
+				return 0;
+			}
+		} else if (fileMode == QFileDialog::ExistingFile) {
+			if (!QFile(path).exists()) {
+				showValidationError(tr("Specified directory path does not exist."));
+				return 1;
+			} else {
+				return 0;
+			}
 		} else {
-			return 0;
+			return 2;
 		}
 	};
 
@@ -208,10 +272,17 @@ void WizardFormPage::addDirBrowse(QString displayName, QString fieldName, QStrin
 		}
 	);
 
-	connect(btn, &QPushButton::clicked, [this, defaultVal, le]() {
-			auto p = QFileDialog::getExistingDirectory(this, tr("Select Directory..."), defaultVal);
-			if (p != "") {
-				le->setText(p);
+	connect(btn, &QPushButton::clicked, [this, defaultVal, le, fileMode]() {
+			if (fileMode == QFileDialog::Directory) {
+				auto p = QFileDialog::getExistingDirectory(this, tr("Select Directory..."), defaultVal);
+				if (p != "") {
+					le->setText(p);
+				}
+			} else if (fileMode == QFileDialog::ExistingFile) {
+				auto p = QFileDialog::getOpenFileName(this, tr("Select File..."), defaultVal);
+				if (p != "") {
+					le->setText(p);
+				}
 			}
 		}
 	);

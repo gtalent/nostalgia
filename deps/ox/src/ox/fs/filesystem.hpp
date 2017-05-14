@@ -244,7 +244,7 @@ int FileSystem::ls(const char *path, List *list) {
 	uint8_t dirBuff[s.size * 4];
 	auto dir = (Directory<uint64_t, uint64_t>*) dirBuff;
 	auto err = readDirectory(path, dir);
-	dir->ls(list);
+	err |= dir->ls(list);
 	return err;
 }
 

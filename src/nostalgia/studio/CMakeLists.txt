@@ -21,6 +21,7 @@ target_link_libraries(
 		NostalgiaCommon
 		NostalgiaCore
 		NostalgiaStudio
+		NostalgiaTool
 )
 
 install(

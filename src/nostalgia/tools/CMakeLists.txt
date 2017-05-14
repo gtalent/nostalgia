@@ -23,3 +23,5 @@ install(
 	RUNTIME DESTINATION
 		bin
 )
+
+add_subdirectory(lib)

@@ -101,7 +101,6 @@ Qt::ItemFlags OxFSModel::flags(const QModelIndex &index) const {
 }
 
 QVariant OxFSModel::headerData(int section, Qt::Orientation orientation, int role) const {
-	return QVariant();
 	if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
 		return m_rootItem->data(section);
 	} else {

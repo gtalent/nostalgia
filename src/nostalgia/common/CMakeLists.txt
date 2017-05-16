@@ -13,5 +13,5 @@ install(
 		common.hpp
 		point.hpp
 	DESTINATION
-		include/wombat/common
+		include/nostalgia/common
 )

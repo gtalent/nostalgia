@@ -11,8 +11,9 @@ endif
 make:
 	${ENV_RUN} make -j -C build HOST_ENV=${HOST_ENV}
 build_rom:
+	${ENV_RUN} make -j -C build ARGS="install" HOST_ENV=${HOST_ENV}
 	${ENV_RUN} make -j -C build HOST_ENV=${HOST_ENV}
-	${ENV_RUN} ./build_rom.sh
+	${ENV_RUN} ./scripts/build_rom.sh
 preinstall:
 	${ENV_RUN} make -j -C build ARGS="preinstall" HOST_ENV=${HOST_ENV}
 install:
@@ -20,7 +21,7 @@ install:
 clean:
 	${ENV_RUN} make -j -C build ARGS="clean" HOST_ENV=${HOST_ENV}
 purge:
-	${ENV_RUN} rm -rf $$(find build -mindepth 1 -maxdepth 1 -type d)
+	${ENV_RUN} rm -rf $$(find build -mindepth 1 -maxdepth 1 -type d) dist
 test:
 	${ENV_RUN} make -j -C build ARGS="test" HOST_ENV=${HOST_ENV}
 
@@ -55,34 +56,28 @@ release:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-release
 	${ENV_RUN} ./scripts/setup_build ${HOST_ENV} release
 	${ENV_RUN} rm -f build/current
-	${ENV_RUN} ln -s ${HOST_ENV}-release build/current
 
 debug:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-debug
 	${ENV_RUN} ./scripts/setup_build ${HOST_ENV} debug
 	${ENV_RUN} rm -f build/current
-	${ENV_RUN} ln -s ${HOST_ENV}-debug build/current
 
 windows:
 	${ENV_RUN} rm -rf build/windows
 	${ENV_RUN} ./scripts/setup_build windows
 	${ENV_RUN} rm -f build/current
-	${ENV_RUN} ln -s windows build/current
 
 windows-debug:
 	${ENV_RUN} rm -rf build/windows
 	${ENV_RUN} ./scripts/setup_build windows debug
 	${ENV_RUN} rm -f build/current
-	${ENV_RUN} ln -s windows build/current
 
 gba:
 	${ENV_RUN} rm -rf build/gba-release
-	${ENV_RUN} ./scripts/setup_build gba
+	${ENV_RUN} ./scripts/setup_build gba release
 	${ENV_RUN} rm -f build/current
-	${ENV_RUN} ln -s gba-release build/current
 
 gba-debug:
 	${ENV_RUN} rm -rf build/gba-debug
 	${ENV_RUN} ./scripts/setup_build gba debug
 	${ENV_RUN} rm -f build/current
-	${ENV_RUN} ln -s gba-debug build/current

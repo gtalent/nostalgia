@@ -24,3 +24,12 @@ target_link_libraries(
 		OxStd
 		OxFS
 )
+
+add_custom_target("nostalgia.bin")
+install(
+	TARGETS
+		nostalgia
+	DESTINATION
+		bin
+)
+

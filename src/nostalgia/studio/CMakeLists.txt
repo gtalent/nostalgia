@@ -25,6 +25,13 @@ target_link_libraries(
 )
 
 install(
+	FILES
+		nostalgia-studio.json
+	DESTINATION
+		share
+)
+
+install(
 	TARGETS
 		nostalgia-studio
 	RUNTIME DESTINATION

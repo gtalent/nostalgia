@@ -50,6 +50,9 @@ class JsonReader {
 
 		ox::Error op(QJsonValueRef src, QString *dest);
 
+		template<typename T>
+		ox::Error op(QJsonValueRef src, T *dest);
+
 };
 
 template<typename T>
@@ -65,10 +68,17 @@ ox::Error JsonReader::op(QString fieldName, QVector<T> *dest) {
 	auto a = m_src[fieldName].toArray();
 	dest->resize(a.size());
 	for (int i = 0; i < dest->size(); i++) {
-		err |= op(a[i], &dest->at(i));
+		err |= op(a[i], &(*dest)[i]);
 	}
 	return err;
 };
+
+template<typename T>
+ox::Error JsonReader::op(QJsonValueRef src, T *dest) {
+	auto obj = src.toObject();
+	auto reader = JsonReader(obj);
+	return ioOp(&reader, dest);
+}
 
 template<typename T>
 int readJson(QString json, T *dest) {

@@ -53,7 +53,7 @@ shell:
 
 release:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-release
-	${ENV_RUN} ./scripts/setup_build ${HOST_ENV}
+	${ENV_RUN} ./scripts/setup_build ${HOST_ENV} release
 	${ENV_RUN} rm -f build/current
 	${ENV_RUN} ln -s ${HOST_ENV}-release build/current
 

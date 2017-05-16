@@ -15,15 +15,17 @@ fi
 
 if [[ $BUILD_TYPE == debug ]]; then
 	buildTypeArgs="-DUSE_ASAN=ON -DCMAKE_BUILD_TYPE=Debug"
-	buildDir="build/${TARGET}-debug"
-else
+elif [[ $BUILD_TYPE == release ]]; then
 	buildTypeArgs="-DCMAKE_BUILD_TYPE=Release"
-	buildDir="build/${TARGET}-release"
 fi
+
+buildDir="build/${TARGET}-${BUILD_TYPE}"
+distDir="../../dist/${TARGET}-${BUILD_TYPE}"
 
 mkdir -p $buildDir
 pushd $buildDir
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+      -DCMAKE_INSTALL_PREFIX="$distDir" \
       $buildTypeArgs \
       $toolchain \
       $project

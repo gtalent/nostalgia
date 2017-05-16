@@ -2,6 +2,7 @@ build/current
 build/gba
 build/*-release
 build/*-debug
+dist
 tags
 nostalgia.gba
 nostalgia.sav

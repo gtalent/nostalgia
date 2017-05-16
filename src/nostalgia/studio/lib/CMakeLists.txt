@@ -11,6 +11,7 @@ add_library(
 		json_write.cpp
 		wizard.cpp
 		oxfstreeview.cpp
+		plugin.cpp
 		project.cpp
 )
 
@@ -35,8 +36,9 @@ install(
 		json_err.hpp
 		json_read.hpp
 		json_write.hpp
-		newwizard.hpp
+		wizard.hpp
 		oxfstreeview.hpp
+		plugin.hpp
 		project.hpp
 	DESTINATION
 		include/nostalgia/studio/lib

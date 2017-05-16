@@ -25,8 +25,10 @@ purge:
 test:
 	${ENV_RUN} make -j -C build ARGS="test" HOST_ENV=${HOST_ENV}
 
-run: make
-	./build/current/src/player/nostalgia -debug
+run: install
+	./dist/current/bin/nostalgia -debug
+run-studio: install
+	./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json
 gba-run: make
 	${ENV_RUN} mgba-qt build/current/src/player/nostalgia.bin
 gdb: make

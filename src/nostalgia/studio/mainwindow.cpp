@@ -76,6 +76,8 @@ void MainWindow::loadPlugins(NostalgiaStudioProfile profile) {
 	for (auto p : profile.plugins) {
 #if defined(Q_OS_WIN)
 		auto libName = p.libName + ".dll";
+#elif defined(Q_OS_MAC)
+		auto libName = "lib" + p.libName + ".dylib";
 #else
 		auto libName = "lib" + p.libName + ".so";
 #endif

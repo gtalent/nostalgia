@@ -34,8 +34,6 @@ void Project::create() {
 	FileSystem32::format(m_romBuff->data(), m_romBuff->size(), true);
 	m_fs = createFileSystem(m_romBuff->data(), m_romBuff->size());
 
-	m_fs->mkdir("/Tilesets");
-
 	QFile file(m_path + ROM_FILE);
 	file.open(QIODevice::WriteOnly);
 	file.write(*m_romBuff);
@@ -49,8 +47,6 @@ int Project::open() {
 		file.open(QIODevice::ReadOnly);
 		if (file.read(m_romBuff->data(), file.size()) > 0) {
 			m_fs = createFileSystem(m_romBuff->data(), m_romBuff->size());
-
-			m_fs->mkdir("/Tilesets");
 			return 0;
 		} else {
 			return 1;

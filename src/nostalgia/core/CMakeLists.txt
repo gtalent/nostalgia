@@ -23,6 +23,10 @@ add_library(
 		core.cpp
 )
 
+if(WOMBAT_BUILD_TYPE STREQUAL "Native")
+	add_subdirectory(studio)
+endif()
+
 install(
 	FILES
 		core.hpp

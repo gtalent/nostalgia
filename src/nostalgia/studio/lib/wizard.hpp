@@ -69,6 +69,8 @@ class WizardFormPage: public QWizardPage {
 
 		~WizardFormPage();
 
+		virtual int accept();
+
 		void initializePage() override;
 
 		bool validatePage() override;
@@ -79,8 +81,10 @@ class WizardFormPage: public QWizardPage {
                        QString defaultVal = "",
 							  std::function<int(QString)> validator = [](QString) { return 0; });
 
-		void addPathBrowse(QString displayName, QString fieldName, QString defaultVal = QDir::homePath(),
-                         QFileDialog::FileMode fileMode = QFileDialog::AnyFile);
+		void addPathBrowse(QString displayName, QString fieldName,
+		                   QString defaultVal = QDir::homePath(),
+                         QFileDialog::FileMode fileMode = QFileDialog::AnyFile,
+		                   QString fileExtensions = "");
 
 		void showValidationError(QString msg);
 };
@@ -104,14 +108,13 @@ class WizardConclusionPage: public QWizardPage {
 
 class Wizard: public QWizard {
 	Q_OBJECT
-
 	private:
-		std::function<void()> m_acceptFunc;
+		std::function<int()> m_acceptFunc;
 
 	public:
 		Wizard(QString windowTitle, QWidget *parent = 0);
 
-		void setAccept(std::function<void()> acceptFunc);
+		void setAccept(std::function<int()> acceptFunc);
 
 		void accept();
 };

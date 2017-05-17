@@ -8,6 +8,7 @@
 
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QDebug>
 #include <QDialog>
 #include <QFileDialog>
 #include <QGridLayout>
@@ -15,14 +16,16 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
+#include <QPluginLoader>
 #include <QTabBar>
 #include <QTextStream>
 #include <QVector>
 
 #include "lib/json.hpp"
-#include "lib/wizard.hpp"
 #include "lib/oxfstreeview.hpp"
 #include "lib/project.hpp"
+#include "lib/wizard.hpp"
+
 #include "mainwindow.hpp"
 
 namespace nostalgia {
@@ -30,7 +33,17 @@ namespace studio {
 
 const QString MainWindow::StateFilePath = "studio_state.json";
 
-MainWindow::MainWindow(NostalgiaStudioProfile config, QWidget *parent) {
+MainWindow::MainWindow(QString profilePath) {
+	m_profilePath = profilePath;
+	// load in profile file
+	NostalgiaStudioProfile profile;
+	QFile file(profilePath);
+	if (file.exists()) {
+		file.open(QIODevice::ReadOnly);
+		QTextStream in(&file);
+		readJson(in.readAll(), &profile);
+	}
+
 	auto screenSize = QApplication::desktop()->screenGeometry();
 
 	// set window to 75% of screen width, and center NostalgiaStudioProfile
@@ -39,13 +52,15 @@ MainWindow::MainWindow(NostalgiaStudioProfile config, QWidget *parent) {
 	move(-x(), -y());
 	move(screenSize.width() * (1 - sizePct) / 2, screenSize.height() * (1 - sizePct) / 2);
 
-	setWindowTitle(config.appName);
+	setWindowTitle(profile.appName);
 
 	auto tabbar = new QTabBar(this);
 	setCentralWidget(tabbar);
 
 	setupMenu();
 	setupProjectExplorer();
+
+	loadPlugins(profile);
 
 	readState();
 }
@@ -54,6 +69,27 @@ MainWindow::~MainWindow() {
 	closeProject();
 	for (auto f : m_cleanupTasks) {
 		f();
+	}
+}
+
+void MainWindow::loadPlugins(NostalgiaStudioProfile profile) {
+	for (auto p : profile.plugins) {
+#if defined(Q_OS_WIN)
+		auto libName = p.libName + ".dll";
+#else
+		auto libName = "lib" + p.libName + ".so";
+#endif
+		auto pluginPath = QFileInfo(m_profilePath).absolutePath() + "/" + p.dir + "/" + libName;
+
+		auto loader = new QPluginLoader(pluginPath);
+		auto plugin = qobject_cast<Plugin*>(loader->instance());
+		if (plugin) {
+			m_cleanupTasks.push_back([loader]() {
+				loader->unload();
+				delete loader;
+			});
+			m_plugins.push_back(plugin);
+		}
 	}
 }
 
@@ -132,7 +168,7 @@ QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip, const
 }
 
 QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
-                           QKeySequence::StandardKey key, const QObject *tgt, const char *cb) {
+                               QKeySequence::StandardKey key, const QObject *tgt, const char *cb) {
 	auto action = menu->addAction(text);
 	action->setShortcuts(key);
 	action->setStatusTip(toolTip);
@@ -144,7 +180,7 @@ QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 }
 
 QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
-                           QKeySequence::StandardKey key, void (*cb)()) {
+                               QKeySequence::StandardKey key, void (*cb)()) {
 	auto action = menu->addAction(text);
 	action->setShortcuts(key);
 	action->setStatusTip(toolTip);
@@ -248,14 +284,19 @@ void MainWindow::showNewWizard() {
 			return pgs;
 		}
 	);
-	wizard.setAccept([&wizard, ws, PROJECT_NAME, PROJECT_PATH]() {
+	wizard.setAccept([&wizard, ws, PROJECT_NAME, PROJECT_PATH]() -> int {
 			auto projectName = wizard.field(PROJECT_NAME).toString();
 			auto projectPath = wizard.field(PROJECT_PATH).toString();
 			if (QDir(projectPath).exists()) {
 				auto path = projectPath + "/" + projectName;
 				if (!QDir(path).exists()) {
 					Project(path).create();
+					return 0;
+				} else {
+					return 1;
 				}
+			} else {
+				return 2;
 			}
 		}
 	);
@@ -271,36 +312,11 @@ void MainWindow::showImportWizard() {
 	auto ws = new WizardSelect();
 	wizard.addPage(ws);
 
-	ws->addOption(tr("Tile Sheet"),
-			[&wizard, TILESHEET_NAME, IMPORT_PATH, BPP]() {
-			QVector<QWizardPage*> pgs;
-			auto pg = new WizardFormPage();
-			pg->addLineEdit(tr("Tile Sheet &Name:"), TILESHEET_NAME + "*", "", [IMPORT_PATH, pg, &wizard](QString projectName) {
-					auto projectPath = wizard.field(IMPORT_PATH).toString();
-					auto path = projectPath + "/" + projectName;
-					if (!QDir(path).exists()) {
-						return 0;
-					} else {
-						pg->showValidationError(tr("This project directory already exists."));
-						return 1;
-					}
-				}
-			);
-			pg->addPathBrowse(tr("Tile Sheet &Path:"), IMPORT_PATH + "*", QDir::homePath(), QFileDialog::ExistingFile);
-			pg->addComboBox(tr("Bits Per Pixe&l:"), BPP, {"4", "8"});
-			pgs.push_back(pg);
-			pgs.push_back(new WizardConclusionPage(tr("Importing tile sheet: %1 as %2"), {IMPORT_PATH, TILESHEET_NAME}));
-			return pgs;
+	for (auto p : m_plugins) {
+		for (auto w : p->importWizards()) {
+			ws->addOption(w.name, w.make);
 		}
-	);
-
-	wizard.setAccept([&wizard, ws, TILESHEET_NAME, IMPORT_PATH]() {
-			auto tilesheetName = wizard.field(TILESHEET_NAME).toString();
-			auto importPath = wizard.field(IMPORT_PATH).toString();
-			if (QFile(importPath).exists()) {
-			}
-		}
-	);
+	}
 
 	wizard.show();
 	wizard.exec();

@@ -132,6 +132,10 @@ WizardFormPage::~WizardFormPage() {
 	}
 }
 
+int WizardFormPage::accept() {
+	return 0;
+}
+
 void WizardFormPage::initializePage() {
 	for (auto it = m_fields.begin(); it != m_fields.end(); it++) {
 		auto key = it.key();
@@ -223,8 +227,8 @@ void WizardFormPage::addLineEdit(QString displayName, QString fieldName, QString
 	m_currentLine++;
 }
 
-void WizardFormPage::addPathBrowse(QString displayName, QString fieldName,
-                                   QString defaultVal, QFileDialog::FileMode fileMode) {
+void WizardFormPage::addPathBrowse(QString displayName, QString fieldName, QString defaultVal,
+                                   QFileDialog::FileMode fileMode, QString fileExtensions) {
 	auto layout = new QHBoxLayout();
 	auto lbl = new QLabel(displayName, this);
 	auto le = new QLineEdit("", this);
@@ -272,14 +276,18 @@ void WizardFormPage::addPathBrowse(QString displayName, QString fieldName,
 		}
 	);
 
-	connect(btn, &QPushButton::clicked, [this, defaultVal, le, fileMode]() {
+	connect(btn, &QPushButton::clicked, [this, defaultVal, le, fileMode, fileExtensions]() {
+			auto dir = defaultVal;
+			if (dir == "") {
+				dir = QDir::homePath();
+			}
 			if (fileMode == QFileDialog::Directory) {
-				auto p = QFileDialog::getExistingDirectory(this, tr("Select Directory..."), defaultVal);
+				auto p = QFileDialog::getExistingDirectory(this, tr("Select Directory..."), dir);
 				if (p != "") {
 					le->setText(p);
 				}
 			} else if (fileMode == QFileDialog::ExistingFile) {
-				auto p = QFileDialog::getOpenFileName(this, tr("Select File..."), defaultVal);
+				auto p = QFileDialog::getOpenFileName(this, tr("Select File..."), dir, fileExtensions);
 				if (p != "") {
 					le->setText(p);
 				}
@@ -317,13 +325,15 @@ Wizard::Wizard(QString windowTitle, QWidget *parent): QWizard(parent) {
 	setModal(true);
 }
 
-void Wizard::setAccept(std::function<void()> acceptFunc) {
+void Wizard::setAccept(std::function<int()> acceptFunc) {
 	m_acceptFunc = acceptFunc;
 }
 
 void Wizard::accept() {
-	m_acceptFunc();
-	QDialog::accept();
+	auto page = dynamic_cast<WizardFormPage*>(currentPage());
+	if (page == nullptr || page->accept() == 0) {
+		QDialog::accept();
+	}
 }
 
 }

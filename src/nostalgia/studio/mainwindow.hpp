@@ -22,6 +22,7 @@
 
 #include <ox/std/types.hpp>
 
+#include "lib/plugin.hpp"
 #include "lib/project.hpp"
 
 namespace nostalgia {
@@ -32,7 +33,7 @@ struct NostalgiaStudioState {
 };
 
 template<typename T>
-int ioOp(T *io, NostalgiaStudioState *obj) {
+ox::Error ioOp(T *io, NostalgiaStudioState *obj) {
 	ox::Error err = 0;
 	io->setFields(1);
 	err |= io->op("project_path", &obj->projectPath);
@@ -40,15 +41,32 @@ int ioOp(T *io, NostalgiaStudioState *obj) {
 }
 
 
-struct NostalgiaStudioProfile {
-	QString appName;
+struct NostalgiaStudioPluginDef {
+	QString dir;
+	QString libName;
 };
 
 template<typename T>
-int ioOp(T *io, NostalgiaStudioProfile *obj) {
+ox::Error ioOp(T *io, NostalgiaStudioPluginDef *obj) {
 	ox::Error err = 0;
-	io->setFields(1);
+	io->setFields(2);
+	err |= io->op("dir", &obj->dir);
+	err |= io->op("lib_name", &obj->libName);
+	return err;
+}
+
+
+struct NostalgiaStudioProfile {
+	QString appName;
+	QVector<NostalgiaStudioPluginDef> plugins;
+};
+
+template<typename T>
+ox::Error ioOp(T *io, NostalgiaStudioProfile *obj) {
+	ox::Error err = 0;
+	io->setFields(2);
 	err |= io->op("app_name", &obj->appName);
+	err |= io->op("plugins", &obj->plugins);
 	return err;
 }
 
@@ -61,6 +79,7 @@ class MainWindow: public QMainWindow {
 		static const QString StateFilePath;
 
 	private:
+		QString m_profilePath;
 		NostalgiaStudioState m_state;
 		QAction *m_importAction = nullptr;
 		QSharedPointer<Project> m_project;
@@ -68,13 +87,16 @@ class MainWindow: public QMainWindow {
 		QVector<std::function<void()>> m_cleanupTasks;
 		QVector<QPointer<QDockWidget>> m_dockWidgets;
 		QTreeView *m_projectExplorer = nullptr;
+		QVector<Plugin*> m_plugins;
 
 	public:
-		MainWindow(NostalgiaStudioProfile config, QWidget *parent = 0);
+		MainWindow(QString profilePath);
 
 		virtual ~MainWindow();
 
 	private:
+		void loadPlugins(NostalgiaStudioProfile profile);
+
 		void setupDockWidgets();
 
 		void setupMenu();

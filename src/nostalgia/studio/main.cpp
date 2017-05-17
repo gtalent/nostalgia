@@ -22,18 +22,10 @@ int run(int argc, char **args) {
 
 	NostalgiaStudioProfile config;
 
-	// load in config file
-	QFile file(argProfilePath);
-	if (file.exists()) {
-		file.open(QIODevice::ReadOnly);
-		QTextStream in(&file);
-		readJson(in.readAll(), &config);
-	}
-
 	QApplication app(argc, args);
-	app.setApplicationName(config.appName);
 
-	MainWindow w(config);
+	MainWindow w(argProfilePath);
+	app.setApplicationName(w.windowTitle());
 	w.show();
 
 	return app.exec();

@@ -1,6 +1,10 @@
 all: gba_build gba_debug_build native_build native_debug_build windows_release windows_debug
 
-MAKE=make -j
+ifneq ($(shell which gmake),)
+	MAKE="gmake -j"
+else
+	MAKE="make -j"
+endif
 
 gba_build:
 	@if [ -d gba-release ]; then \

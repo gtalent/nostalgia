@@ -2,6 +2,11 @@ OS=$(shell uname | tr [:upper:] [:lower:])
 HOST_ENV=${OS}-$(shell uname -m)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=nostalgia-devenv
+ifneq ($(shell which gmake),)
+	MAKE=gmake
+else
+	MAKE=make
+endif
 ifneq ($(shell which docker),)
 	ifeq ($(shell docker inspect --format="{{.State.Status}}" ${DEVENV} 2>&1),running)
 		ENV_RUN=docker exec -i -t --user $(shell id -u ${USER}) ${DEVENV}
@@ -9,21 +14,21 @@ ifneq ($(shell which docker),)
 endif
 
 make:
-	${ENV_RUN} make -j -C build HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ${MAKE} -j -C build HOST_ENV=${HOST_ENV}
 build_rom:
-	${ENV_RUN} make -j -C build ARGS="install" HOST_ENV=${HOST_ENV}
-	${ENV_RUN} make -j -C build HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ${MAKE} -j -C build ARGS="install" HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ${MAKE} -j -C build HOST_ENV=${HOST_ENV}
 	${ENV_RUN} ./scripts/build_rom.sh
 preinstall:
-	${ENV_RUN} make -j -C build ARGS="preinstall" HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ${MAKE} -j -C build ARGS="preinstall" HOST_ENV=${HOST_ENV}
 install:
-	${ENV_RUN} make -j -C build ARGS="install" HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ${MAKE} -j -C build ARGS="install" HOST_ENV=${HOST_ENV}
 clean:
-	${ENV_RUN} make -j -C build ARGS="clean" HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ${MAKE} -j -C build ARGS="clean" HOST_ENV=${HOST_ENV}
 purge:
 	${ENV_RUN} rm -rf $$(find build -mindepth 1 -maxdepth 1 -type d) dist
 test:
-	${ENV_RUN} make -j -C build ARGS="test" HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ${MAKE} -j -C build ARGS="test" HOST_ENV=${HOST_ENV}
 
 run: install
 	./dist/current/bin/nostalgia -debug

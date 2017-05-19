@@ -551,8 +551,10 @@ int FileSystemTemplate<FileStore, FS_TYPE>::write(const char *path, void *buffer
 #endif
 template<typename FileStore, FsType FS_TYPE>
 int FileSystemTemplate<FileStore, FS_TYPE>::write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType) {
-	if (m_autoExpand && m_store->spaceNeeded(size) > m_store->available()) {
-		expand(this->size() * 2);
+	if (m_autoExpand) {
+		while (m_store->spaceNeeded(size) > m_store->available()) {
+			expand(this->size() * 2);
+		}
 	}
 	return m_store->write(inode, buffer, size, fileType);
 }

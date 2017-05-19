@@ -248,7 +248,7 @@ int FileSystem::ls(const char *path, List *list) {
 	return err;
 }
 
-FileSystem *createFileSystem(void *buff, size_t buffSize);
+FileSystem *createFileSystem(void *buff, size_t buffSize, bool autoExpand = false);
 
 /**
  * Creates a larger version of the given FileSystem.
@@ -266,6 +266,7 @@ class FileSystemTemplate: public FileSystem {
 
 	private:
 		FileStore *m_store = nullptr;
+		bool m_autoExpand = false;
 
 	public:
 		// static members
@@ -273,7 +274,7 @@ class FileSystemTemplate: public FileSystem {
 		static typename FileStore::InodeId_t INODE_ROOT_DIR;
 		static typename FileStore::InodeId_t INODE_RESERVED_END;
 
-		explicit FileSystemTemplate(void *buff);
+		explicit FileSystemTemplate(void *buff, bool autoExpand = false);
 
 		int stripDirectories() override;
 
@@ -332,11 +333,14 @@ class FileSystemTemplate: public FileSystem {
 		uint64_t generateInodeId();
 
 		int insertDirectoryEntry(const char *dirPath, const char *fileName, uint64_t inode);
+
+		void expand(uint64_t size);
 };
 
 template<typename FileStore, FsType FS_TYPE>
-FileSystemTemplate<FileStore, FS_TYPE>::FileSystemTemplate(void *buff) {
+FileSystemTemplate<FileStore, FS_TYPE>::FileSystemTemplate(void *buff, bool autoExpand) {
 	m_store = (FileStore*) buff;
+	m_autoExpand = autoExpand;
 }
 
 template<typename FileStore, FsType FS_TYPE>
@@ -547,6 +551,9 @@ int FileSystemTemplate<FileStore, FS_TYPE>::write(const char *path, void *buffer
 #endif
 template<typename FileStore, FsType FS_TYPE>
 int FileSystemTemplate<FileStore, FS_TYPE>::write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType) {
+	if (size > this->size()) {
+		expand(this->size() * 2);
+	}
 	return m_store->write(inode, buffer, size, fileType);
 }
 #ifdef _MSC_VER
@@ -780,6 +787,16 @@ int FileSystemTemplate<FileStore, FS_TYPE>::readDirectory(const char *path, Dire
 	}
 }
 
+template<typename FileStore, FsType FS_TYPE>
+void FileSystemTemplate<FileStore, FS_TYPE>::expand(uint64_t newSize) {
+	if (newSize > size()) {
+		auto newBuff = new uint8_t[newSize];
+		ox_memcpy(newBuff, m_store, m_store->size());
+		delete m_store;
+		m_store = (FileStore*) newBuff;
+		resize(newSize);
+	}
+}
 
 typedef FileSystemTemplate<FileStore16, OxFS_16> FileSystem16;
 typedef FileSystemTemplate<FileStore32, OxFS_32> FileSystem32;

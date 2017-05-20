@@ -11,8 +11,10 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
+
+#include <ox/std/types.hpp>
+
 #include "json_err.hpp"
-#include "json_operator.hpp"
 
 namespace nostalgia {
 namespace studio {

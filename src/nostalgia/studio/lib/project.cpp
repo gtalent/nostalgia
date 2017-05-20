@@ -8,7 +8,8 @@
 
 #include <QByteArray>
 #include <QDir>
-#include <project.hpp>
+
+#include "project.hpp"
 
 namespace nostalgia {
 namespace studio {

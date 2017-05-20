@@ -248,7 +248,7 @@ int FileSystem::ls(const char *path, List *list) {
 	return err;
 }
 
-FileSystem *createFileSystem(void *buff, size_t buffSize, bool autoExpand = false);
+FileSystem *createFileSystem(uint8_t *buff, size_t buffSize, bool ownsBuff = false);
 
 /**
  * Creates a larger version of the given FileSystem.
@@ -266,7 +266,7 @@ class FileSystemTemplate: public FileSystem {
 
 	private:
 		FileStore *m_store = nullptr;
-		bool m_autoExpand = false;
+		bool m_ownsBuff = false;
 
 	public:
 		// static members
@@ -274,7 +274,9 @@ class FileSystemTemplate: public FileSystem {
 		static typename FileStore::InodeId_t INODE_ROOT_DIR;
 		static typename FileStore::InodeId_t INODE_RESERVED_END;
 
-		explicit FileSystemTemplate(void *buff, bool autoExpand = false);
+		explicit FileSystemTemplate(uint8_t *buff, bool ownsBuff = false);
+
+		~FileSystemTemplate();
 
 		int stripDirectories() override;
 
@@ -324,7 +326,7 @@ class FileSystemTemplate: public FileSystem {
 		 */
 		int rmDirectoryEntry(const char *path);
 
-		static uint8_t *format(void *buffer, typename FileStore::FsSize_t size, bool useDirectories);
+		static uint8_t *format(uint8_t *buffer, typename FileStore::FsSize_t size, bool useDirectories);
 
 	protected:
 		int readDirectory(const char *path, Directory<uint64_t, uint64_t> *dirOut) override;
@@ -338,9 +340,16 @@ class FileSystemTemplate: public FileSystem {
 };
 
 template<typename FileStore, FsType FS_TYPE>
-FileSystemTemplate<FileStore, FS_TYPE>::FileSystemTemplate(void *buff, bool autoExpand) {
+FileSystemTemplate<FileStore, FS_TYPE>::FileSystemTemplate(uint8_t *buff, bool ownsBuff) {
 	m_store = (FileStore*) buff;
-	m_autoExpand = autoExpand;
+	m_ownsBuff = ownsBuff;
+}
+
+template<typename FileStore, FsType FS_TYPE>
+FileSystemTemplate<FileStore, FS_TYPE>::~FileSystemTemplate() {
+	if (m_ownsBuff) {
+		delete (uint8_t*) m_store;
+	}
 }
 
 template<typename FileStore, FsType FS_TYPE>
@@ -551,7 +560,7 @@ int FileSystemTemplate<FileStore, FS_TYPE>::write(const char *path, void *buffer
 #endif
 template<typename FileStore, FsType FS_TYPE>
 int FileSystemTemplate<FileStore, FS_TYPE>::write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType) {
-	if (m_autoExpand) {
+	if (m_ownsBuff) {
 		while (m_store->spaceNeeded(size) > m_store->available()) {
 			expand(this->size() * 2);
 		}
@@ -627,12 +636,12 @@ uint8_t *FileSystemTemplate<FileStore, FS_TYPE>::buff() {
 #pragma warning(disable:4244)
 #endif
 template<typename FileStore, FsType FS_TYPE>
-uint8_t *FileSystemTemplate<FileStore, FS_TYPE>::format(void *buffer, typename FileStore::FsSize_t size, bool useDirectories) {
-	buffer = FileStore::format((uint8_t*) buffer, size, (uint16_t) FS_TYPE);
+uint8_t *FileSystemTemplate<FileStore, FS_TYPE>::format(uint8_t *buffer, typename FileStore::FsSize_t size, bool useDirectories) {
+	buffer = FileStore::format(buffer, size, (uint16_t) FS_TYPE);
 
 	if (buffer && useDirectories) {
 		Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t> dir;
-		FileSystemTemplate<FileStore, FS_TYPE> fs(buffer);
+		FileSystemTemplate<FileStore, FS_TYPE> fs((uint8_t*) buffer);
 		fs.write(INODE_ROOT_DIR, &dir, sizeof(dir), FileType::FileType_Directory);
 	}
 

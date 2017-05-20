@@ -10,7 +10,7 @@
 
 namespace ox {
 
-FileSystem *createFileSystem(void *buff, size_t buffSize, bool autoExpand) {
+FileSystem *createFileSystem(uint8_t *buff, size_t buffSize, bool ownsBuff) {
 	auto version = ((FileStore16*) buff)->version();
 	auto type = ((FileStore16*) buff)->fsType();
 	FileSystem *fs = nullptr;
@@ -19,13 +19,13 @@ FileSystem *createFileSystem(void *buff, size_t buffSize, bool autoExpand) {
 		case 5:
 			switch (type) {
 				case ox::OxFS_16:
-					fs = new FileSystem16(buff, autoExpand);
+					fs = new FileSystem16(buff, ownsBuff);
 					break;
 				case ox::OxFS_32:
-					fs = new FileSystem32(buff, autoExpand);
+					fs = new FileSystem32(buff, ownsBuff);
 					break;
 				case ox::OxFS_64:
-					fs = new FileSystem64(buff, autoExpand);
+					fs = new FileSystem64(buff, ownsBuff);
 					break;
 			}
 			break;

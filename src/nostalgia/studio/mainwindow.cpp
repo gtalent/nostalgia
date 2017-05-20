@@ -286,13 +286,14 @@ void MainWindow::showNewWizard() {
 			return pgs;
 		}
 	);
-	wizard.setAccept([&wizard, ws, PROJECT_NAME, PROJECT_PATH]() -> int {
+	wizard.setAccept([this, &wizard, ws, PROJECT_NAME, PROJECT_PATH]() -> int {
 			auto projectName = wizard.field(PROJECT_NAME).toString();
 			auto projectPath = wizard.field(PROJECT_PATH).toString();
 			if (QDir(projectPath).exists()) {
 				auto path = projectPath + "/" + projectName;
 				if (!QDir(path).exists()) {
 					Project(path).create();
+					openProject(path);
 					return 0;
 				} else {
 					return 1;

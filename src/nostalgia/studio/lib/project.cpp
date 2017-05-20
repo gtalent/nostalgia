@@ -31,8 +31,8 @@ void Project::create() {
 	QDir().mkpath(m_path);
 
 	m_romBuff = QSharedPointer<QByteArray>(new QByteArray(1024, 0));
-	FileSystem32::format(m_romBuff->data(), m_romBuff->size(), true);
-	m_fs = createFileSystem(m_romBuff->data(), m_romBuff->size());
+	FileSystem32::format((uint8_t*) m_romBuff->data(), m_romBuff->size(), true);
+	m_fs = createFileSystem((uint8_t*) m_romBuff->data(), m_romBuff->size());
 
 	QFile file(m_path + ROM_FILE);
 	file.open(QIODevice::WriteOnly);
@@ -46,7 +46,7 @@ int Project::open() {
 	if (file.exists()) {
 		file.open(QIODevice::ReadOnly);
 		if (file.read(m_romBuff->data(), file.size()) > 0) {
-			m_fs = createFileSystem(m_romBuff->data(), m_romBuff->size());
+			m_fs = createFileSystem((uint8_t*) m_romBuff->data(), m_romBuff->size());
 			return 0;
 		} else {
 			return 1;

@@ -348,7 +348,7 @@ FileSystemTemplate<FileStore, FS_TYPE>::FileSystemTemplate(uint8_t *buff, bool o
 template<typename FileStore, FsType FS_TYPE>
 FileSystemTemplate<FileStore, FS_TYPE>::~FileSystemTemplate() {
 	if (m_ownsBuff) {
-		delete (uint8_t*) m_store;
+		delete[] (uint8_t*) m_store;
 	}
 }
 

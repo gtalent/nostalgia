@@ -22,7 +22,6 @@ class Project: public QObject {
 		static QString ROM_FILE;
 
 		QString m_path = "";
-		QSharedPointer<QByteArray> m_romBuff;
 		ox::FileSystem *m_fs = nullptr;
 
 	public:

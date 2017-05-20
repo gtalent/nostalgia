@@ -6,7 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <QByteArray>
 #include <QDir>
 
 #include "project.hpp"
@@ -31,23 +30,25 @@ Project::~Project() {
 void Project::create() {
 	QDir().mkpath(m_path);
 
-	m_romBuff = QSharedPointer<QByteArray>(new QByteArray(1024, 0));
-	FileSystem32::format((uint8_t*) m_romBuff->data(), m_romBuff->size(), true);
-	m_fs = createFileSystem((uint8_t*) m_romBuff->data(), m_romBuff->size());
+	auto buffSize = 1024;
+	auto buff = new uint8_t[buffSize];
+	FileSystem32::format(buff, buffSize, true);
+	m_fs = createFileSystem(buff, buffSize, true);
 
 	QFile file(m_path + ROM_FILE);
 	file.open(QIODevice::WriteOnly);
-	file.write(*m_romBuff);
+	file.write((const char*) buff);
 	file.close();
 }
 
 int Project::open() {
 	QFile file(m_path + ROM_FILE);
-	m_romBuff = QSharedPointer<QByteArray>(new QByteArray(file.size(), 0));
+	auto buffSize = file.size();
+	auto buff = new uint8_t[buffSize];
 	if (file.exists()) {
 		file.open(QIODevice::ReadOnly);
-		if (file.read(m_romBuff->data(), file.size()) > 0) {
-			m_fs = createFileSystem((uint8_t*) m_romBuff->data(), m_romBuff->size());
+		if (file.read((char*) buff, buffSize) > 0) {
+			m_fs = createFileSystem((uint8_t*) buff, buffSize, true);
 			return 0;
 		} else {
 			return 1;
@@ -60,7 +61,7 @@ int Project::open() {
 void Project::save() {
 	QFile file(m_path + ROM_FILE);
 	file.open(QIODevice::WriteOnly);
-	file.write(*m_romBuff);
+	file.write((const char*) m_fs->buff(), m_fs->size());
 	file.close();
 }
 

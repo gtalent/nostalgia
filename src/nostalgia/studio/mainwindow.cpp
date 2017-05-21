@@ -218,9 +218,13 @@ int MainWindow::writeState(QString path) {
 
 int MainWindow::openProject(QString projectPath) {
 	auto err = closeProject();
-	auto project = QSharedPointer<Project>(new Project(projectPath));
+	auto project = new Project(projectPath);
 	err |= project->open();
 	if (err == 0) {
+		if (m_project) {
+			delete m_project;
+			m_project = nullptr;
+		}
 		m_project = project;
 		m_projectExplorer->setModel(new OxFSModel(m_project->romFS()));
 		m_importAction->setEnabled(true);
@@ -231,7 +235,10 @@ int MainWindow::openProject(QString projectPath) {
 
 int MainWindow::closeProject() {
 	auto err = 0;
-	m_project = QSharedPointer<Project>(nullptr);
+	if (m_project) {
+		delete m_project;
+		m_project = nullptr;
+	}
 	if (m_projectExplorer->model()) {
 		delete m_projectExplorer->model();
 	}
@@ -315,8 +322,10 @@ void MainWindow::showImportWizard() {
 	auto ws = new WizardSelect();
 	wizard.addPage(ws);
 
+	PluginArgs args;
+	args.project = m_project;
 	for (auto p : m_plugins) {
-		for (auto w : p->importWizards()) {
+		for (auto w : p->importWizards(args)) {
 			ws->addOption(w.name, w.make);
 		}
 	}

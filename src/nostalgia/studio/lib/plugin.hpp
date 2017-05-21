@@ -11,11 +11,19 @@
 #include <functional>
 
 #include <QMainWindow>
+#include <QPointer>
+#include <QSharedPointer>
 #include <QVector>
 #include <QWizardPage>
 
+#include "project.hpp"
+
 namespace nostalgia {
 namespace studio {
+
+struct PluginArgs {
+	Project *project = nullptr;
+};
 
 struct WizardMaker {
 	QString name;
@@ -25,16 +33,15 @@ struct WizardMaker {
 class Plugin {
 	private:
 		QVector<WizardMaker> m_newWizards;
-		QVector<WizardMaker> m_importWizards;
 
 	public:
 		void addNewWizard(QString name, std::function<QVector<QWizardPage*>()> make);
 
 		void addImportWizard(QString name, std::function<QVector<QWizardPage*>()> make);
 
-		QVector<WizardMaker> newWizards();
+		virtual QVector<WizardMaker> newWizards(PluginArgs);
 
-		QVector<WizardMaker> importWizards();
+		virtual QVector<WizardMaker> importWizards(PluginArgs);
 };
 
 }

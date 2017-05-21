@@ -15,16 +15,12 @@ void Plugin::addNewWizard(QString name, std::function<QVector<QWizardPage*>()> m
 	m_newWizards.push_back({name, make});
 }
 
-void Plugin::addImportWizard(QString name, std::function<QVector<QWizardPage*>()> make) {
-	m_importWizards.push_back({name, make});
+QVector<WizardMaker> Plugin::newWizards(PluginArgs) {
+	return {};
 }
 
-QVector<WizardMaker> Plugin::newWizards() {
-	return m_newWizards;
-}
-
-QVector<WizardMaker> Plugin::importWizards() {
-	return m_importWizards;
+QVector<WizardMaker> Plugin::importWizards(PluginArgs) {
+	return {};
 }
 
 }

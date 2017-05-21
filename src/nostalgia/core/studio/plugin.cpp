@@ -6,8 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <nostalgia/studio/studio.hpp>
-
 #include "import_tilesheet_wizard.hpp"
 
 #include "plugin.hpp"
@@ -18,14 +16,19 @@ namespace nostalgia {
 namespace core {
 
 Plugin::Plugin() {
-	addImportWizard(
-		tr("Tile Sheet"),
-		[]() {
-			QVector<QWizardPage*> pgs;
-			pgs.push_back(new ImportTilesheetWizardPage());
-			return pgs;
+}
+
+QVector<studio::WizardMaker> Plugin::importWizards(studio::PluginArgs args) {
+	return {
+		{
+			tr("Tile Sheet"),
+			[args]() {
+				QVector<QWizardPage*> pgs;
+				pgs.push_back(new ImportTilesheetWizardPage(args));
+				return pgs;
+			}
 		}
-	);
+	};
 }
 
 }

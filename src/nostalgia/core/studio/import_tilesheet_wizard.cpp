@@ -17,7 +17,8 @@ const QString ImportTilesheetWizardPage::TILESHEET_NAME = "projectName";
 const QString ImportTilesheetWizardPage::IMPORT_PATH = "projectPath";
 const QString ImportTilesheetWizardPage::BPP = "bpp";
 
-ImportTilesheetWizardPage::ImportTilesheetWizardPage() {
+ImportTilesheetWizardPage::ImportTilesheetWizardPage(studio::PluginArgs args) {
+	m_project = args.project;
 	addLineEdit(tr("&Tile Sheet Name:"), TILESHEET_NAME + "*", "", [this](QString) {
 			auto importPath = field(IMPORT_PATH).toString();
 			if (QFile(importPath).exists()) {
@@ -37,11 +38,16 @@ ImportTilesheetWizardPage::ImportTilesheetWizardPage() {
 int ImportTilesheetWizardPage::accept() {
 	auto tilesheetName = field(TILESHEET_NAME).toString();
 	auto importPath = field(IMPORT_PATH).toString();
-	if (QFile(importPath).exists()) {
-		return 0;
+	QFile importFile(importPath);
+	if (importFile.exists()) {
+		return importImage(importFile, field(TILESHEET_NAME).toString());
 	} else {
 		return 1;
 	}
+}
+
+int ImportTilesheetWizardPage::importImage(QFile &src, QString tilesetName) {
+	return 1;
 }
 
 }

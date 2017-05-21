@@ -82,7 +82,7 @@ class MainWindow: public QMainWindow {
 		QString m_profilePath;
 		NostalgiaStudioState m_state;
 		QAction *m_importAction = nullptr;
-		QSharedPointer<Project> m_project;
+		Project *m_project = nullptr;
 		QPointer<QMenu> m_viewMenu;
 		QVector<std::function<void()>> m_cleanupTasks;
 		QVector<QPointer<QDockWidget>> m_dockWidgets;

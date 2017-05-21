@@ -22,6 +22,8 @@ class Plugin: public QObject, studio::Plugin {
 
 	public:
 		Plugin();
+
+		QVector<studio::WizardMaker> importWizards(studio::PluginArgs args) override;
 };
 
 }

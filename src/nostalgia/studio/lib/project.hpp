@@ -31,11 +31,15 @@ class Project: public QObject {
 
 		void create();
 
-		int open();
+		int openRomFs();
 
-		void save();
+		int saveRomFs();
 
-		ox::FileSystem *romFS();
+		ox::FileSystem *romFs();
+
+		int mkdir(QString path);
+
+		int write(QString path, uint8_t *buff, size_t buffLen);
 };
 
 }

@@ -46,8 +46,23 @@ int ImportTilesheetWizardPage::accept() {
 	}
 }
 
-int ImportTilesheetWizardPage::importImage(QFile &src, QString tilesetName) {
-	return 1;
+int ImportTilesheetWizardPage::importImage(QFile &srcFile, QString tilesheetName) {
+	auto buffSize = srcFile.size();
+	uint8_t buff[buffSize];
+	if (srcFile.exists()) {
+		srcFile.open(QIODevice::ReadOnly);
+		if (srcFile.read((char*) buff, buffSize) > 0) {
+			int err = 0;
+			m_project->mkdir("/TileSheets");
+			err |= m_project->write("/TileSheets/" + tilesheetName, buff, buffSize);
+			err |= m_project->saveRomFs();
+			return err;
+		} else {
+			return 1;
+		}
+	} else {
+		return 2;
+	}
 }
 
 }

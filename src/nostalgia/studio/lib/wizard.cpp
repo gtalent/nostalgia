@@ -333,6 +333,8 @@ void Wizard::accept() {
 	auto page = dynamic_cast<WizardFormPage*>(currentPage());
 	if (page == nullptr || page->accept() == 0) {
 		QDialog::accept();
+	} else if(m_acceptFunc != nullptr && m_acceptFunc() == 0) {
+		QDialog::accept();
 	}
 }
 

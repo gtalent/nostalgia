@@ -219,14 +219,14 @@ int MainWindow::writeState(QString path) {
 int MainWindow::openProject(QString projectPath) {
 	auto err = closeProject();
 	auto project = new Project(projectPath);
-	err |= project->open();
+	err |= project->openRomFs();
 	if (err == 0) {
 		if (m_project) {
 			delete m_project;
 			m_project = nullptr;
 		}
 		m_project = project;
-		m_projectExplorer->setModel(new OxFSModel(m_project->romFS()));
+		m_projectExplorer->setModel(new OxFSModel(m_project->romFs()));
 		m_importAction->setEnabled(true);
 		m_state.projectPath = projectPath;
 	}

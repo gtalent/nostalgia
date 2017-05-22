@@ -26,7 +26,7 @@ class ImportTilesheetWizardPage: public studio::WizardFormPage {
 		int accept();
 
 	private:
-		int importImage(QFile &src, QString dest);
+		int importImage(QFile &srcFile, QString dest);
 };
 
 }

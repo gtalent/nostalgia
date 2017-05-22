@@ -41,7 +41,7 @@ void Project::create() {
 	file.close();
 }
 
-int Project::open() {
+int Project::openRomFs() {
 	QFile file(m_path + ROM_FILE);
 	auto buffSize = file.size();
 	auto buff = new uint8_t[buffSize];
@@ -58,15 +58,25 @@ int Project::open() {
 	}
 }
 
-void Project::save() {
+int Project::saveRomFs() {
+	int err = 0;
 	QFile file(m_path + ROM_FILE);
-	file.open(QIODevice::WriteOnly);
-	file.write((const char*) m_fs->buff(), m_fs->size());
+	err |= file.open(QIODevice::WriteOnly) == false;
+	err |= file.write((const char*) m_fs->buff(), m_fs->size()) == -1;
 	file.close();
+	return err;
 }
 
-FileSystem *Project::romFS() {
+FileSystem *Project::romFs() {
 	return m_fs;
+}
+
+int Project::mkdir(QString path) {
+	return m_fs->mkdir(path.toUtf8().data());
+}
+
+int Project::write(QString path, uint8_t *buff, size_t buffLen) {
+	return m_fs->write(path.toUtf8().data(), buff, buffLen);
 }
 
 }

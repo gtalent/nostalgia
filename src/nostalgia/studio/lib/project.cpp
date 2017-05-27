@@ -37,7 +37,7 @@ void Project::create() {
 
 	QFile file(m_path + ROM_FILE);
 	file.open(QIODevice::WriteOnly);
-	file.write((const char*) buff);
+	file.write((const char*) buff, buffSize);
 	file.close();
 }
 
@@ -48,13 +48,17 @@ int Project::openRomFs() {
 	if (file.exists()) {
 		file.open(QIODevice::ReadOnly);
 		if (file.read((char*) buff, buffSize) > 0) {
-			m_fs = createFileSystem((uint8_t*) buff, buffSize, true);
-			return 0;
+			m_fs = createFileSystem(buff, buffSize, true);
+			if (m_fs) {
+				return 0;
+			} else {
+				return 1;
+			}
 		} else {
-			return 1;
+			return 2;
 		}
 	} else {
-		return 2;
+		return 3;
 	}
 }
 

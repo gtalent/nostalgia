@@ -52,12 +52,15 @@ int Project::openRomFs() {
 			if (m_fs) {
 				return 0;
 			} else {
+				delete []buff;
 				return 1;
 			}
 		} else {
+			delete []buff;
 			return 2;
 		}
 	} else {
+		delete []buff;
 		return 3;
 	}
 }

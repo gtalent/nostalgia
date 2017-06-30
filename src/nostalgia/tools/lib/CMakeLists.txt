@@ -5,6 +5,7 @@ set(CMAKE_AUTOMOC ON)
 
 add_library(
 	NostalgiaTool
+	SHARED
 		tilesetimport.cpp
 )
 
@@ -28,6 +29,6 @@ install(
 install(
 	TARGETS
 		NostalgiaTool
-	LIBRARY DESTINATION lib/ox
-	ARCHIVE DESTINATION lib/ox
+	LIBRARY DESTINATION lib/nostalgia
+	ARCHIVE DESTINATION lib/nostalgia
 )

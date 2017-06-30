@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 2.8.11)
 
 if(WOMBAT_BUILD_TYPE STREQUAL "Native")
 	add_library(
-		NostalgiaCore-Studio
-		SHARED
+		NostalgiaCore-Studio SHARED
 			import_tilesheet_wizard.cpp
 			plugin.cpp
 	)

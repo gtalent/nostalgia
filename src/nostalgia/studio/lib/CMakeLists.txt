@@ -6,7 +6,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 add_library(
-	NostalgiaStudio
+	NostalgiaStudio SHARED
 		json_read.cpp
 		json_write.cpp
 		wizard.cpp
@@ -15,12 +15,8 @@ add_library(
 		project.cpp
 )
 
-set_property(
-	TARGET
-		NostalgiaStudio
-	PROPERTY
-		POSITION_INDEPENDENT_CODE ON
-)
+install(TARGETS NostalgiaStudio
+        LIBRARY DESTINATION lib/nostalgia)
 
 target_link_libraries(
 	NostalgiaStudio

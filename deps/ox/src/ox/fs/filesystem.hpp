@@ -693,7 +693,7 @@ int FileSystemTemplate<FileStore, FS_TYPE>::insertDirectoryEntry(const char *dir
 			auto entry = (DirectoryEntry<typename FileStore::InodeId_t>*) &dirBuff[s.size];
 			entry->inode = inode;
 			entry->setName(fileName);
-			return write(s.inode, dirBuff, dirBuffSize, FileType::FileType_Directory);
+			return write(s.inode, dirBuff, dirBuffSize, FileType_Directory);
 		} else {
 			return 1;
 		}
@@ -803,7 +803,7 @@ void FileSystemTemplate<FileStore, FS_TYPE>::expand(uint64_t newSize) {
 	if (newSize > size()) {
 		auto newBuff = new uint8_t[newSize];
 		ox_memcpy(newBuff, m_store, m_store->size());
-		delete m_store;
+		delete[] m_store;
 		m_store = (FileStore*) newBuff;
 		resize(newSize);
 	}

@@ -3,9 +3,9 @@ HOST_ENV=${OS}-$(shell uname -m)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=wombatant/devenv
 ifneq ($(shell which gmake),)
-	MAKE=gmake
+	MAKE=gmake -s
 else
-	MAKE=make
+	MAKE=make -s
 endif
 ifneq ($(shell which docker 2>&1),)
 	ifeq ($(shell docker inspect --format="{{.State.Status}}" ${DEVENV} 2>&1),running)

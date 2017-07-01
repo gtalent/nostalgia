@@ -43,7 +43,9 @@ OxFSFile *OxFSFile::child(int row) {
 int OxFSFile::childCount() const {
 	if (m_fs) {
 		QVector<DirectoryListing<QString>> ls;
-		m_fs->ls(m_path.toUtf8(), &ls);
+		if (m_fs->stat((const char*) m_path.toUtf8()).fileType == FileType_Directory) {
+			m_fs->ls(m_path.toUtf8(), &ls);
+		}
 		return ls.size();
 	} else {
 		return 0;

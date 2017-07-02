@@ -368,8 +368,12 @@ int FileSystemTemplate<FileStore, FS_TYPE>::stripDirectories() {
 
 template<typename FileStore, FsType FS_TYPE>
 int FileSystemTemplate<FileStore, FS_TYPE>::mkdir(const char *path) {
-	Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t> dir;
-	return write(path, &dir, sizeof(dir), FileType::FileType_Directory);
+	if (!stat(path).inode) {
+		Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t> dir;
+		return write(path, &dir, sizeof(dir), FileType::FileType_Directory);
+	} else {
+		return 1;
+	}
 }
 
 template<typename FileStore, FsType FS_TYPE>

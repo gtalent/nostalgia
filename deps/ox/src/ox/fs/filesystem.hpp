@@ -42,6 +42,11 @@ struct DirectoryListing {
 	}
 };
 
+template<typename String>
+bool operator<(const DirectoryListing<String> &a, const DirectoryListing<String> &b) {
+	return a.name < b.name;
+}
+
 template<typename InodeId_t>
 struct __attribute__((packed)) DirectoryEntry {
 	InodeId_t inode;

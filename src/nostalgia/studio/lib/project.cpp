@@ -79,11 +79,15 @@ FileSystem *Project::romFs() {
 }
 
 int Project::mkdir(QString path) {
-	return m_fs->mkdir(path.toUtf8().data());
+	auto err = m_fs->mkdir(path.toUtf8().data());
+	emit updated(path);
+	return err;
 }
 
 int Project::write(QString path, uint8_t *buff, size_t buffLen) {
-	return m_fs->write(path.toUtf8().data(), buff, buffLen);
+	auto err = m_fs->write(path.toUtf8().data(), buff, buffLen);
+	emit updated(path);
+	return err;
 }
 
 }

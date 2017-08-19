@@ -40,6 +40,9 @@ class Project: public QObject {
 		int mkdir(QString path);
 
 		int write(QString path, uint8_t *buff, size_t buffLen);
+
+	signals:
+		void updated(QString path);
 };
 
 }

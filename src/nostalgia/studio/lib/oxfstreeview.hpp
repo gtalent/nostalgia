@@ -19,7 +19,6 @@ namespace studio {
 
 class OxFSFile {
 	private:
-		ox::FileSystem *m_fs = nullptr;
 		OxFSFile *m_parentItem = nullptr;
 		QString m_path;
 		QVector<OxFSFile*> m_childItems;
@@ -29,7 +28,7 @@ class OxFSFile {
 
 		~OxFSFile();
 
-		void appendChild(OxFSFile *child);
+		void appendChild(class OxFSModel *model, QStringList pathItems, QString fullPath);
 
 		OxFSFile *child(int row);
 
@@ -42,10 +41,14 @@ class OxFSFile {
 		int row() const;
 
 		OxFSFile *parentItem();
+
+		QString name() const;
 };
 
 class OxFSModel: public QAbstractItemModel {
 	Q_OBJECT
+
+	friend OxFSFile;
 
 	private:
 		OxFSFile *m_rootItem = nullptr;
@@ -70,6 +73,9 @@ class OxFSModel: public QAbstractItemModel {
 		int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
 		int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+
+	public slots:
+		void updateFile(QString path);
 
 	private:
 		void setupModelData(const QStringList &lines, OxFSFile *parent);

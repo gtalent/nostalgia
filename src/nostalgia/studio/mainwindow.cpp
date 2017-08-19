@@ -7,8 +7,8 @@
  */
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QDebug>
+#include <QDesktopWidget>
 #include <QDialog>
 #include <QFileDialog>
 #include <QGridLayout>
@@ -226,7 +226,9 @@ int MainWindow::openProject(QString projectPath) {
 			m_project = nullptr;
 		}
 		m_project = project;
-		m_projectExplorer->setModel(new OxFSModel(m_project->romFs()));
+		m_oxfsView = new OxFSModel(m_project->romFs());
+		m_projectExplorer->setModel(m_oxfsView);
+		connect(m_project, SIGNAL(updated(QString)), m_oxfsView, SLOT(updateFile(QString)));
 		m_importAction->setEnabled(true);
 		m_state.projectPath = projectPath;
 	}
@@ -236,8 +238,13 @@ int MainWindow::openProject(QString projectPath) {
 int MainWindow::closeProject() {
 	auto err = 0;
 	if (m_project) {
+		disconnect(m_project, SIGNAL(updated(QString)), m_oxfsView, SLOT(updateFile(QString)));
+
 		delete m_project;
 		m_project = nullptr;
+
+		delete m_oxfsView;
+		m_oxfsView = nullptr;
 	}
 	if (m_projectExplorer->model()) {
 		delete m_projectExplorer->model();
@@ -322,8 +329,9 @@ void MainWindow::showImportWizard() {
 	auto ws = new WizardSelect();
 	wizard.addPage(ws);
 
-	PluginArgs args;
-	args.project = m_project;
+	PluginArgs args {
+		.project = m_project
+	};
 	for (auto p : m_plugins) {
 		for (auto w : p->importWizards(args)) {
 			ws->addOption(w.name, w.make);
@@ -332,6 +340,13 @@ void MainWindow::showImportWizard() {
 
 	wizard.show();
 	wizard.exec();
+}
+
+void MainWindow::refreshProjectExplorer(QString path) {
+	if (m_oxfsView) {
+		m_oxfsView->updateFile(path);
+		qInfo() << "asdf\n";
+	}
 }
 
 }

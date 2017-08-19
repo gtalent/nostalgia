@@ -16,40 +16,64 @@ namespace studio {
 using namespace ox;
 
 OxFSFile::OxFSFile(FileSystem *fs, QString path, OxFSFile *parentItem) {
-	m_fs = fs;
 	m_path = path;
 	m_parentItem = parentItem;
+
+	// find children
+	if (fs) {
+		QVector<DirectoryListing<QString>> ls;
+		if (fs->stat((const char*) m_path.toUtf8()).fileType == FileType_Directory) {
+			fs->ls(m_path.toUtf8(), &ls);
+			qSort(ls);
+		}
+		for (auto v : ls) {
+			auto ch = new OxFSFile(fs, m_path + "/" + v.name, this);
+			m_childItems.push_back(ch);
+		}
+	}
 }
 
 OxFSFile::~OxFSFile() {
 	qDeleteAll(m_childItems);
 }
 
-void OxFSFile::appendChild(OxFSFile*) {
+void OxFSFile::appendChild(OxFSModel *model, QStringList pathItems, QString currentPath) {
+	if (pathItems.size()) {
+		auto target = pathItems[0];
+		currentPath += "/" + target;
+		OxFSFile *nextItem = nullptr;
+		int index = m_childItems.size();
+		for (int i = 0; i < m_childItems.size(); i++) {
+			if (m_childItems[i]->name() >= target) {
+				index = i;
+				break;
+			}
+		}
+
+		if (m_childItems.size() == index || m_childItems[index]->name() != target) {
+			auto idx = model->createIndex(row(), 0, this);
+			model->beginInsertRows(idx, index, index);
+			nextItem = new OxFSFile(nullptr, currentPath, this);
+			m_childItems.insert(index, nextItem);
+			model->endInsertRows();
+		}
+
+		nextItem = m_childItems[index];
+
+		nextItem->appendChild(model, pathItems.mid(1), currentPath);
+	}
 }
 
 OxFSFile *OxFSFile::child(int row) {
-	if (m_fs) {
-		QVector<DirectoryListing<QString>> ls;
-		m_fs->ls(m_path.toUtf8(), &ls);
-		auto ch = new OxFSFile(m_fs, m_path + "/" + ls[row].name, this);
-		m_childItems.push_back(ch);
-		return ch;
+	if (row < m_childItems.size()) {
+		return m_childItems[row];
 	} else {
 		return nullptr;
 	}
 }
 
 int OxFSFile::childCount() const {
-	if (m_fs) {
-		QVector<DirectoryListing<QString>> ls;
-		if (m_fs->stat((const char*) m_path.toUtf8()).fileType == FileType_Directory) {
-			m_fs->ls(m_path.toUtf8(), &ls);
-		}
-		return ls.size();
-	} else {
-		return 0;
-	}
+	return m_childItems.size();
 }
 
 int OxFSFile::columnCount() const {
@@ -57,7 +81,7 @@ int OxFSFile::columnCount() const {
 }
 
 QVariant OxFSFile::data(int) const {
-	return m_path.mid(m_path.lastIndexOf('/') + 1);
+	return name();
 }
 
 int OxFSFile::row() const {
@@ -72,6 +96,10 @@ OxFSFile *OxFSFile::parentItem() {
 	return m_parentItem;
 }
 
+QString OxFSFile::name() const {
+	return m_path.mid(m_path.lastIndexOf("/") + 1);
+}
+
 
 // OxFSModel
 
@@ -82,6 +110,7 @@ OxFSModel::OxFSModel(FileSystem *fs, QObject *parent) {
 OxFSModel::~OxFSModel() {
 	if (m_rootItem) {
 		delete m_rootItem;
+		m_rootItem = nullptr;
 	}
 }
 
@@ -165,6 +194,11 @@ int OxFSModel::columnCount(const QModelIndex &parent) const {
 	} else {
 		return m_rootItem->columnCount();
 	}
+}
+
+void OxFSModel::updateFile(QString path) {
+	auto pathItems = path.split("/").mid(1);
+	m_rootItem->appendChild(this, pathItems, "");
 }
 
 void OxFSModel::setupModelData(const QStringList &lines, OxFSFile *parent) {

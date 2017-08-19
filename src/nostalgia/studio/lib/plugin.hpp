@@ -22,7 +22,7 @@ namespace nostalgia {
 namespace studio {
 
 struct PluginArgs {
-	Project *project = nullptr;
+	Project *&project;
 };
 
 struct WizardMaker {

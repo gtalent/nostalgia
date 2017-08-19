@@ -17,8 +17,7 @@ const QString ImportTilesheetWizardPage::TILESHEET_NAME = "projectName";
 const QString ImportTilesheetWizardPage::IMPORT_PATH = "projectPath";
 const QString ImportTilesheetWizardPage::BPP = "bpp";
 
-ImportTilesheetWizardPage::ImportTilesheetWizardPage(studio::PluginArgs args) {
-	m_project = args.project;
+ImportTilesheetWizardPage::ImportTilesheetWizardPage(studio::PluginArgs args): m_project(args.project) {
 	addLineEdit(tr("&Tile Sheet Name:"), TILESHEET_NAME + "*", "", [this](QString) {
 			auto importPath = field(IMPORT_PATH).toString();
 			if (QFile(importPath).exists()) {

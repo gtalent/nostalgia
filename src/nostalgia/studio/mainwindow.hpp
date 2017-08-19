@@ -22,6 +22,7 @@
 
 #include <ox/std/types.hpp>
 
+#include "lib/oxfstreeview.hpp"
 #include "lib/plugin.hpp"
 #include "lib/project.hpp"
 
@@ -88,6 +89,7 @@ class MainWindow: public QMainWindow {
 		QVector<QPointer<QDockWidget>> m_dockWidgets;
 		QTreeView *m_projectExplorer = nullptr;
 		QVector<Plugin*> m_plugins;
+		QPointer<OxFSModel> m_oxfsView = nullptr;
 
 	public:
 		MainWindow(QString profilePath);
@@ -127,6 +129,8 @@ class MainWindow: public QMainWindow {
 		void showNewWizard();
 
 		void showImportWizard();
+
+		void refreshProjectExplorer(QString path);
 };
 
 }

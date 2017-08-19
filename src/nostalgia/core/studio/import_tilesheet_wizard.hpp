@@ -18,7 +18,7 @@ class ImportTilesheetWizardPage: public studio::WizardFormPage {
 		static const QString TILESHEET_NAME;
 		static const QString IMPORT_PATH;
 		static const QString BPP;
-		studio::Project *m_project = nullptr;
+		studio::Project *&m_project;
 
 	public:
 		ImportTilesheetWizardPage(studio::PluginArgs args);

@@ -22,7 +22,7 @@ add_definitions(
 	-Wsign-compare
 )
 
-set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib/nostalgia")
+set(CMAKE_INSTALL_RPATH "$ORIGIN" "$ORIGIN/../lib/nostalgia")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")

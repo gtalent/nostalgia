@@ -59,18 +59,26 @@ class JsonReader {
 
 template<typename T>
 ox::Error JsonReader::op(QString fieldName, T *dest) {
-	auto obj = m_src[fieldName].toObject();
-	auto reader = JsonReader(obj);
-	return ioOp(&reader, dest);
+	if (m_src.contains(fieldName)) {
+		auto obj = m_src[fieldName].toObject();
+		auto reader = JsonReader(obj);
+		return ioOp(&reader, dest);
+	} else {
+		return JSON_ERR_FIELD_MISSING;
+	}
 };
 
 template<typename T>
 ox::Error JsonReader::op(QString fieldName, QVector<T> *dest) {
 	ox::Error err = 0;
-	auto a = m_src[fieldName].toArray();
-	dest->resize(a.size());
-	for (int i = 0; i < dest->size(); i++) {
-		err |= op(a[i], &(*dest)[i]);
+	if (m_src.contains(fieldName)) {
+		auto a = m_src[fieldName].toArray();
+		dest->resize(a.size());
+		for (int i = 0; i < dest->size(); i++) {
+			err |= op(a[i], &(*dest)[i]);
+		}
+	} else {
+		err |= JSON_ERR_FIELD_MISSING;
 	}
 	return err;
 };

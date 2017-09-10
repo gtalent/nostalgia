@@ -27,8 +27,10 @@ OxFSFile::OxFSFile(FileSystem *fs, QString path, OxFSFile *parentItem) {
 			qSort(ls);
 		}
 		for (auto v : ls) {
-			auto ch = new OxFSFile(fs, m_path + "/" + v.name, this);
-			m_childItems.push_back(ch);
+			if (v.name != "." && v.name != "..") {
+				auto ch = new OxFSFile(fs, m_path + "/" + v.name, this);
+				m_childItems.push_back(ch);
+			}
 		}
 	}
 }

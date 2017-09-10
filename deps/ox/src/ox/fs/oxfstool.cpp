@@ -20,7 +20,7 @@
 using namespace ox;
 using namespace std;
 
-const static auto oxfstoolVersion = "1.3.0";
+const static auto oxfstoolVersion = "1.4.0";
 const static auto usage = "usage:\n"
 "\toxfs format [16,32,64] <size> <path>\n"
 "\toxfs read <FS file> <inode>\n"
@@ -28,6 +28,7 @@ const static auto usage = "usage:\n"
 "\toxfs write-expand <FS file> <inode> <insertion file>\n"
 "\toxfs rm <FS file> <inode>\n"
 "\toxfs compact <FS file>\n"
+"\toxfs walk <FS file>\n"
 "\toxfs version\n";
 
 uint8_t *loadFileBuff(FILE *file, ::size_t *sizeOut = nullptr) {
@@ -148,7 +149,7 @@ int read(int argc, char **args) {
 		size_t fileSize;
 
 		auto fsBuff = loadFileBuff(fsPath, &fsSize);
-		
+
 		if (fsBuff) {
 			auto fs = createFileSystem(fsBuff, fsSize);
 
@@ -333,6 +334,31 @@ int remove(int argc, char **args) {
 	return err;
 }
 
+int walk(int argc, char **args) {
+	int err = 0;
+	size_t fsSize;
+	auto fsPath = args[2];
+	auto fsBuff = loadFileBuff(fsPath, &fsSize);
+	if (fsBuff) {
+		auto fs = createFileSystem(fsBuff, fsSize);
+		if (fs) {
+			fs->walk([](const char *type, uint64_t start, uint64_t end) {
+				cout << "narf\n";
+				cout << type << ", start: " << start << ", end: " << end << endl;
+				return 0;
+			});
+			delete fs;
+		} else {
+			cerr << "Invalid file system.\n";
+			err = 1;
+		}
+		delete []fsBuff;
+	} else {
+		err = 2;
+	}
+	return err;
+}
+
 int main(int argc, char **args) {
 	auto err = 0;
 	if (argc > 1) {
@@ -349,6 +375,8 @@ int main(int argc, char **args) {
 			err = compact(argc, args);
 		} else if (ox_strcmp(cmd, "rm") == 0) {
 			err = remove(argc, args);
+		} else if (ox_strcmp(cmd, "walk") == 0) {
+			err = walk(argc, args);
 		} else if (ox_strcmp(cmd, "help") == 0) {
 			printf("%s\n", usage);
 		} else if (ox_strcmp(cmd, "version") == 0) {

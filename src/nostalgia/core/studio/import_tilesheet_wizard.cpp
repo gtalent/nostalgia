@@ -13,6 +13,7 @@
 namespace nostalgia {
 namespace core {
 
+const QString ImportTilesheetWizardPage::TILESHEET_DIR = "/TileSheets/";
 const QString ImportTilesheetWizardPage::TILESHEET_NAME = "projectName";
 const QString ImportTilesheetWizardPage::IMPORT_PATH = "projectPath";
 const QString ImportTilesheetWizardPage::BPP = "bpp";
@@ -52,8 +53,8 @@ int ImportTilesheetWizardPage::importImage(QFile &srcFile, QString tilesheetName
 		srcFile.open(QIODevice::ReadOnly);
 		if (srcFile.read((char*) buff, buffSize) > 0) {
 			int err = 0;
-			m_project->mkdir("/TileSheets");
-			err |= m_project->write("/TileSheets/" + tilesheetName, buff, buffSize);
+			m_project->mkdir(TILESHEET_DIR);
+			err |= m_project->write(TILESHEET_DIR + tilesheetName, buff, buffSize);
 			err |= m_project->saveRomFs();
 			return err;
 		} else {

@@ -15,6 +15,7 @@ namespace core {
 
 class ImportTilesheetWizardPage: public studio::WizardFormPage {
 	private:
+		static const QString TILESHEET_DIR;
 		static const QString TILESHEET_NAME;
 		static const QString IMPORT_PATH;
 		static const QString BPP;

@@ -314,9 +314,11 @@ map<string, int(*)(string)> tests = {
 
 				fs->ls("/usr/share/", &files);
 
-				retval |= !(files[0].name == "a.txt");
-				retval |= !(files[1].name == "b.txt");
-				retval |= !(files[2].name == "c.txt");
+				retval |= !(files[0].name == ".");
+				retval |= !(files[1].name == "..");
+				retval |= !(files[2].name == "a.txt");
+				retval |= !(files[3].name == "b.txt");
+				retval |= !(files[4].name == "c.txt");
 
 				delete fs;
 				delete []buff;

@@ -1,0 +1,9 @@
+{
+	"app_name": "Nostalgia Studio",
+	"plugins": [
+		{
+			"dir": "./",
+			"lib_name": "NostalgiaCore-Studio"
+		}
+	]
+}

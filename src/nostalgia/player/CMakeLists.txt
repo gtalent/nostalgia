@@ -14,7 +14,7 @@ if(COMMAND OBJCOPY_FILE)
 		COMPILER_FLAGS "-mthumb -mthumb-interwork"
 	)
 
-	OBJCOPY_FILE(nostalgia)
+	OBJCOPY_FILE(../../../nostalgia)
 	#PADBIN_FILE(nostalgia)
 endif()
 

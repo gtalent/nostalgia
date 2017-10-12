@@ -35,7 +35,7 @@ run: install
 run-studio: install
 	./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json
 gba-run: make
-	${ENV_RUN} mgba-qt build/current/src/player/nostalgia.bin
+	mgba-qt build/current/nostalgia.bin
 gdb: make
 	gdb ./build/current/src/wombat/wombat
 gdb-studio: make

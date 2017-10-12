@@ -142,7 +142,7 @@ void MainWindow::setupMenu() {
 
 void MainWindow::setupProjectExplorer() {
 	// setup dock
-	auto dock = new QDockWidget(tr("&Project"), this);
+	auto dock = new QDockWidget(tr("Project"), this);
 	dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	addDockWidget(Qt::LeftDockWidgetArea, dock);
 	resizeDocks({dock}, {(int) (width() * 0.25)}, Qt::Horizontal);

@@ -43,7 +43,6 @@ void OxFSFile::appendChild(OxFSModel *model, QStringList pathItems, QString curr
 	if (pathItems.size()) {
 		auto target = pathItems[0];
 		currentPath += "/" + target;
-		OxFSFile *nextItem = nullptr;
 		int index = m_childItems.size();
 		for (int i = 0; i < m_childItems.size(); i++) {
 			if (m_childItems[i]->name() >= target) {
@@ -55,14 +54,11 @@ void OxFSFile::appendChild(OxFSModel *model, QStringList pathItems, QString curr
 		if (m_childItems.size() == index || m_childItems[index]->name() != target) {
 			auto idx = model->createIndex(row(), 0, this);
 			model->beginInsertRows(idx, index, index);
-			nextItem = new OxFSFile(nullptr, currentPath, this);
-			m_childItems.insert(index, nextItem);
+			m_childItems.insert(index, new OxFSFile(nullptr, currentPath, this));
 			model->endInsertRows();
 		}
 
-		nextItem = m_childItems[index];
-
-		nextItem->appendChild(model, pathItems.mid(1), currentPath);
+		m_childItems[index]->appendChild(model, pathItems.mid(1), currentPath);
 	}
 }
 

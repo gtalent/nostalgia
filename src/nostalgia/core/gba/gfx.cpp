@@ -137,19 +137,22 @@ ox::Error initConsole(Context *ctx) {
 
 	REG_BG0CNT = (28 << 8) | 1;
 	if (fs) {
+		// load the header
 		err |= fs->read(CharsetInode, 0, sizeof(imgData), &imgData, nullptr);
 
 		// load palette
 		err |= fs->read(CharsetInode, PaletteStart,
-					512, (uint16_t*) &MEM_PALLETE_BG[0], nullptr);
+		                512, (uint16_t*) &MEM_PALLETE_BG[0], nullptr);
 
 		if (imgData.bpp == 4) {
 			err |= fs->read(CharsetInode, __builtin_offsetof(GbaImageData, tiles),
-			         sizeof(Tile) * imgData.tileCount, (uint16_t*) &TILE_ADDR[0][1], nullptr);
-		} else if (imgData.bpp == 4) {
+			                sizeof(Tile) * imgData.tileCount, (uint16_t*) &TILE_ADDR[0][1], nullptr);
+		} else if (imgData.bpp == 8) {
 			REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
 			err |= fs->read(CharsetInode, __builtin_offsetof(GbaImageData, tiles),
-			         sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
+			                sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
+		} else {
+			err = 1;
 		}
 	} else {
 		err = 1;
@@ -161,6 +164,9 @@ void puts(Context *ctx, int loc, const char *str) {
 	for (int i = 0; str[i]; i++) {
 		MEM_BG_MAP[28][loc + i] = charMap[(int) str[i]];
 	}
+}
+
+void setTileMap(Context *ctx, int layer, int columns, int rows, uint16_t *buff) {
 }
 
 }

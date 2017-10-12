@@ -1,6 +1,3 @@
-cmake_minimum_required(VERSION 2.8.11)
-
-project(nostalgia)
 
 add_executable(
 	nostalgia
@@ -33,13 +30,4 @@ install(
 	DESTINATION
 		bin
 )
-
-if (NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
-	install(
-		FILES
-			nostalgia.bin
-		DESTINATION
-			bin
-	)
-endif()
 

@@ -14,23 +14,23 @@ Bounds::Bounds() {
 }
 
 bool Bounds::intersects(Bounds o) const {
-	return o.x2() >= X && x2() >= o.X && o.y2() >= Y && y2() >= o.Y;
+	return o.x2() >= x && x2() >= o.x && o.y2() >= y && y2() >= o.y;
 }
 
 bool Bounds::contains(int x, int y) const {
-	return x >= X && y >= Y && x <= x2() && y <= y2();
+	return x >= this->x && y >= this->y && x <= x2() && y <= y2();
 }
 
 int Bounds::x2() const {
-	return X + Width;
+	return x + width;
 }
 
 int Bounds::y2() const {
-	return Y + Height;
+	return y + height;
 }
 
 Point Bounds::pt1() {
-	return Point(X, Y);
+	return Point(x, y);
 }
 
 Point Bounds::pt2() {

@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 2.8.11)
 
 #setup libraries
 
@@ -11,6 +10,7 @@ endif()
 add_subdirectory(core)
 add_subdirectory(common)
 add_subdirectory(player)
+add_subdirectory(world)
 
 if(NOT NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 	add_subdirectory(tools)

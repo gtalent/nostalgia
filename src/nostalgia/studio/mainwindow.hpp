@@ -17,6 +17,7 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QString>
+#include <QTabBar>
 #include <QTreeView>
 #include <QVector>
 
@@ -90,6 +91,7 @@ class MainWindow: public QMainWindow {
 		QTreeView *m_projectExplorer = nullptr;
 		QVector<Plugin*> m_plugins;
 		QPointer<OxFSModel> m_oxfsView = nullptr;
+		QTabBar *m_tabbar;
 
 	public:
 		MainWindow(QString profilePath);

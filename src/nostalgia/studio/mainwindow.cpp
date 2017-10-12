@@ -17,7 +17,6 @@
 #include <QLineEdit>
 #include <QMenuBar>
 #include <QPluginLoader>
-#include <QTabBar>
 #include <QTextStream>
 #include <QVector>
 
@@ -54,8 +53,8 @@ MainWindow::MainWindow(QString profilePath) {
 
 	setWindowTitle(profile.appName);
 
-	auto tabbar = new QTabBar(this);
-	setCentralWidget(tabbar);
+	m_tabbar = new QTabBar(this);
+	setCentralWidget(m_tabbar);
 
 	setupMenu();
 	setupProjectExplorer();

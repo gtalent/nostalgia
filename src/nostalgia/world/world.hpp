@@ -5,22 +5,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 #pragma once
 
 #include <ox/std/types.hpp>
 
-#include "context.hpp"
-
 namespace nostalgia {
-namespace core {
+namespace world {
 
-ox::Error initGfx(Context *ctx);
-
-ox::Error initConsole(Context *ctx);
-
-void puts(Context *ctx, int loc, const char *str);
-
-void setTileMap(Context *ctx, int layer, int columns, int rows, uint16_t *buff);
+struct ZoneDef {
+	int width = 0;
+	int height = 0;
+	uint16_t tileMap;
+};
 
 }
 }

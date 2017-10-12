@@ -14,110 +14,110 @@ Point::Point() {
 }
 
 Point::Point(int x, int y) {
-	X = x;
-	Y = y;
+	this->x = x;
+	this->y = y;
 }
 
 Point Point::operator+(common::Point p) const {
-	p.X += X;
-	p.Y += Y;
+	p.x += x;
+	p.y += y;
 	return p;
 }
 
 Point Point::operator-(common::Point p) const {
 	auto out = *this; 
-	out.X -= p.X;
-	out.Y -= p.Y;
+	out.x -= p.x;
+	out.y -= p.y;
 	return out;
 }
 
 Point Point::operator*(common::Point p) const {
-	p.X *= X;
-	p.Y *= Y;
+	p.x *= x;
+	p.y *= y;
 	return p;
 }
 
 Point Point::operator/(common::Point p) const {
 	auto out = *this; 
-	out.X /= p.X;
-	out.Y /= p.Y;
+	out.x /= p.x;
+	out.y /= p.y;
 	return out;
 }
 
 Point Point::operator+=(common::Point p) {
-	X += p.X;
-	Y += p.Y;
+	x += p.x;
+	y += p.y;
 	return *this;
 }
 
 Point Point::operator-=(common::Point p) {
-	X -= p.X;
-	Y -= p.Y;
+	x -= p.x;
+	y -= p.y;
 	return *this;
 }
 
 Point Point::operator*=(common::Point p) {
-	X *= p.X;
-	Y *= p.Y;
+	x *= p.x;
+	y *= p.y;
 	return *this;
 }
 
 Point Point::operator/=(common::Point p) {
-	X /= p.X;
-	Y /= p.Y;
+	x /= p.x;
+	y /= p.y;
 	return *this;
 }
 
 
 Point Point::operator+(int i) const {
 	auto out = *this; 
-	out.X += i;
-	out.Y += i;
+	out.x += i;
+	out.y += i;
 	return out;
 }
 
 Point Point::operator-(int i) const {
 	auto out = *this; 
-	out.X -= i;
-	out.Y -= i;
+	out.x -= i;
+	out.y -= i;
 	return out;
 }
 
 Point Point::operator*(int i) const {
 	auto out = *this; 
-	out.X *= i;
-	out.Y *= i;
+	out.x *= i;
+	out.y *= i;
 	return out;
 }
 
 Point Point::operator/(int i) const {
 	auto out = *this; 
-	out.X /= i;
-	out.Y /= i;
+	out.x /= i;
+	out.y /= i;
 	return out;
 }
 
 Point Point::operator+=(int i) {
-	X += i;
-	Y += i;
+	x += i;
+	y += i;
 	return *this;
 }
 
 Point Point::operator-=(int i) {
-	X -= i;
-	Y -= i;
+	x -= i;
+	y -= i;
 	return *this;
 }
 
 Point Point::operator*=(int i) {
-	X *= i;
-	Y *= i;
+	x *= i;
+	y *= i;
 	return *this;
 }
 
 Point Point::operator/=(int i) {
-	X /= i;
-	Y /= i;
+	x /= i;
+	y /= i;
 	return *this;
 }
 

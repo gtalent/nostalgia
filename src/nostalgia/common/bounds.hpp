@@ -14,10 +14,10 @@ namespace common {
 
 class Bounds {
 	public:
-		int X = 0;
-		int Y = 0;
-		int Width = 0;
-		int Height = 0;
+		int x = 0;
+		int y = 0;
+		int width = 0;
+		int height = 0;
 
 		/**
 		 * Constructor
@@ -36,6 +36,17 @@ class Bounds {
 
 		Point pt2();
 };
+
+template<typename T>
+ox::Error ioOp(T *io, Bounds *obj) {
+	ox::Error err = 0;
+	io->setFields(4);
+	err |= io->op("x", &obj->x);
+	err |= io->op("y", &obj->y);
+	err |= io->op("width", &obj->width);
+	err |= io->op("height", &obj->height);
+	return err;
+}
 
 }
 }

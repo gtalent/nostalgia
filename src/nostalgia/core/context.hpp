@@ -6,21 +6,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "../gfx.hpp"
+#include <ox/fs/filesystem.hpp>
 
 namespace nostalgia {
 namespace core {
 
-ox::Error initGfx(Context *ctx) {
-	return 1;
-}
-
-ox::Error initConsole(Context *ctx) {
-	return 1;
-}
-
-void puts(Context *ctx, int loc, const char *str) {
-}
+// User Input Output
+struct Context {
+	ox::FileSystem32 *rom = nullptr;
+};
 
 }
 }
+

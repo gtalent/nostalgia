@@ -8,13 +8,14 @@
 
 #include <nostalgia/core/core.hpp>
 
-using namespace nostalgia;
+using namespace nostalgia::core;
 
 int main() {
-	core::init();
-	core::initConsole();
-	core::puts(9 * 32 + 8, "HELLO,WORLD!");
-	core::puts(10 * 32 + 8, "01234 56789");
+	Context ctx;
+	init(&ctx);
+	initConsole(&ctx);
+	puts(&ctx, 9 * 32 + 8, "HELLO,WORLD!");
+	puts(&ctx, 10 * 32 + 8, "01234 56789");
 	while (1);
 	return 0;
 }

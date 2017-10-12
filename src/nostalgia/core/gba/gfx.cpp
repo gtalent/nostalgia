@@ -116,7 +116,7 @@ static char charMap[128] = {
 	26, // Z
 };
 
-ox::Error initGfx() {
+ox::Error initGfx(Context *ctx) {
 	/* Sprite Mode ----\ */
 	/*             ---\| */
 	/* Background 0 -\|| */
@@ -127,31 +127,37 @@ ox::Error initGfx() {
 	return 0;
 }
 
-void initConsole() {
-	auto charsetInode = 101;
+ox::Error initConsole(Context *ctx) {
+	const auto CharsetInode = 101;
+	const auto PaletteStart = sizeof(GbaImageDataHeader);
+	ox::Error err = 0;
 	auto fs = (FileStore32*) findMedia();
 
 	GbaImageDataHeader imgData;
-	fs->read(101, 0, sizeof(imgData), &imgData, nullptr);
 
 	REG_BG0CNT = (28 << 8) | 1;
 	if (fs) {
+		err |= fs->read(CharsetInode, 0, sizeof(imgData), &imgData, nullptr);
+
 		// load palette
-		fs->read(charsetInode, sizeof(GbaImageDataHeader),
+		err |= fs->read(CharsetInode, PaletteStart,
 					512, (uint16_t*) &MEM_PALLETE_BG[0], nullptr);
 
 		if (imgData.bpp == 4) {
-			fs->read(charsetInode, __builtin_offsetof(GbaImageData, tiles),
+			err |= fs->read(CharsetInode, __builtin_offsetof(GbaImageData, tiles),
 			         sizeof(Tile) * imgData.tileCount, (uint16_t*) &TILE_ADDR[0][1], nullptr);
-		} else {
+		} else if (imgData.bpp == 4) {
 			REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
-			fs->read(charsetInode, __builtin_offsetof(GbaImageData, tiles),
+			err |= fs->read(CharsetInode, __builtin_offsetof(GbaImageData, tiles),
 			         sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
 		}
+	} else {
+		err = 1;
 	}
+	return err;
 }
 
-void puts(int loc, const char *str) {
+void puts(Context *ctx, int loc, const char *str) {
 	for (int i = 0; str[i]; i++) {
 		MEM_BG_MAP[28][loc + i] = charMap[(int) str[i]];
 	}

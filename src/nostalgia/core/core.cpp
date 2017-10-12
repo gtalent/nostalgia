@@ -5,14 +5,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-#include <ox/std/types.hpp>
-#include "gfx.hpp"
+
+#include "core.hpp"
 
 namespace nostalgia {
 namespace core {
 
-ox::Error init() {
-	auto err = initGfx();
+ox::Error init(Context *ctx) {
+	ox::Error err = 0;
+	err = initGfx(ctx);
 	return err;
 }
 

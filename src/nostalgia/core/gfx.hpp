@@ -9,14 +9,16 @@
 
 #include <ox/std/types.hpp>
 
+#include "context.hpp"
+
 namespace nostalgia {
 namespace core {
 
-ox::Error initGfx();
+ox::Error initGfx(Context *ctx);
 
-void initConsole();
+ox::Error initConsole(Context *ctx);
 
-void puts(int loc, const char *str);
+void puts(Context *ctx, int loc, const char *str);
 
 }
 }

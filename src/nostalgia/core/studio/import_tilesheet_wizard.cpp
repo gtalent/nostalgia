@@ -6,7 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <QDebug>
 #include <QFile>
 
 #include "import_tilesheet_wizard.hpp"
@@ -55,8 +54,8 @@ int ImportTilesheetWizardPage::importImage(QFile &srcFile, QString tilesheetName
 		if (srcFile.read((char*) buff, buffSize) > 0) {
 			int err = 0;
 			m_project->mkdir(TILESHEET_DIR);
-			qInfo() << "write:" << (err |= m_project->write(TILESHEET_DIR + tilesheetName, buff, buffSize));
-			qInfo() << "save: " << (err |= m_project->saveRomFs());
+			err |= m_project->write(TILESHEET_DIR + tilesheetName, buff, buffSize);
+			err |= m_project->saveRomFs();
 			return err;
 		} else {
 			return 1;

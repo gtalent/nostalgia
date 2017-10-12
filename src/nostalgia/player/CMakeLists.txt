@@ -14,7 +14,7 @@ if(COMMAND OBJCOPY_FILE)
 		COMPILER_FLAGS "-mthumb -mthumb-interwork"
 	)
 
-	OBJCOPY_FILE(../../../nostalgia)
+	OBJCOPY_FILE(nostalgia)
 	#PADBIN_FILE(nostalgia)
 endif()
 
@@ -26,10 +26,20 @@ target_link_libraries(
 )
 
 add_custom_target("nostalgia.bin")
+
 install(
 	TARGETS
 		nostalgia
 	DESTINATION
 		bin
 )
+
+if (NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
+	install(
+		FILES
+			nostalgia.bin
+		DESTINATION
+			bin
+	)
+endif()
 

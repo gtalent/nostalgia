@@ -9,4 +9,5 @@ echo NOSTALGIA_MEDIA_HEADER_________ > media_header.txt
 
 ${DEVKITARM}/bin/padbin 32 build/gba-release/nostalgia.bin
 cat build/gba-release/nostalgia.bin media_header.txt nostalgia_media.oxfs > nostalgia.gba
+rm -f media_header.txt
 ${DEVKITARM}/bin/gbafix nostalgia.gba

@@ -27,7 +27,6 @@ target_link_libraries(
 install(
 	FILES
 		nostalgia-studio.json
-		nostalgia_rom.oxfs
 	DESTINATION
 		share
 )

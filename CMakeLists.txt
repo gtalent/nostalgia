@@ -2,12 +2,13 @@ cmake_minimum_required(VERSION 2.8.8)
 
 project(nostalgia)
 
-set(WOMBAT_BUILD_TYPE "Native" CACHE STRING "The type of build to produce(Native/GBA)")
+set(NOSTALGIA_BUILD_TYPE "Native" CACHE STRING "The type of build to produce(Native/GBA)")
+set(NOSTALGIA_IDE_BUILD "ON" CACHE STRING "Build for IDE's to run")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 include(address_sanitizer)
 
-if (WOMBAT_BUILD_TYPE STREQUAL "GBA")
+if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 	include(GBA)
 	add_definitions(
 		-nostdlib
@@ -22,8 +23,10 @@ add_definitions(
 	-Wsign-compare
 )
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+if(NOSTALGIA_IDE_BUILD STREQUAL "ON")
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+endif()
 set(CMAKE_INSTALL_RPATH "$ORIGIN" "$ORIGIN/../lib/nostalgia")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 

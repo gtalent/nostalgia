@@ -6,6 +6,7 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 		CPP
 			gba/gfx.cpp
 			gba/media.cpp
+			gba/mem.cpp
 	)
 elseif(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
 	set(CMAKE_INCLUDE_CURRENT_DIR ON)

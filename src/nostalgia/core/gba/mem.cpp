@@ -87,6 +87,13 @@ void operator delete(void *ptr) {
 		if (prev && !prev->inUse) {
 			prev->size += current->size;
 			prev->next = current->next;
+			current = prev;
+		}
+
+		// if current is closer heap start than _heapIdx, _heapIdx becomes
+		// current
+		if (current > _heapIdx) {
+			_heapIdx = current;
 		}
 	}
 }

@@ -20,7 +20,7 @@ ox::Error initConsole(Context *ctx);
 
 void puts(Context *ctx, int loc, const char *str);
 
-void setTileMap(Context *ctx, int layer, int columns, int rows, uint16_t *buff);
+void setTile(Context *ctx, int layer, int column, int row, uint16_t tile);
 
 }
 }

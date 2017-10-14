@@ -7,14 +7,25 @@
  */
 
 #include "addresses.hpp"
+#include "panic.hpp"
 
 namespace nostalgia {
 namespace core {
 
-static uint8_t *_heapPtr = MEM_WRAM_END;
+struct HeapSegment {
+	size_t size;
+	uint8_t inUse;
+	HeapSegment *next;
+};
 
-void clearHeap() {
-	_heapPtr = MEM_WRAM_END;
+static HeapSegment *_heapIdx = nullptr;
+
+void initHeap() {
+	_heapIdx = (HeapSegment*) MEM_WRAM_END;
+	// set size to half of WRAM
+	_heapIdx->size = (MEM_WRAM_END - MEM_WRAM_BEGIN) / 2;
+	_heapIdx->next = nullptr;
+	_heapIdx->inUse = false;
 }
 
 }
@@ -23,9 +34,60 @@ void clearHeap() {
 using namespace nostalgia::core;
 
 void *operator new(size_t sz) {
-	return _heapPtr -= sz;
+	// add space for heap segment header data
+	sz += sizeof(HeapSegment);
+	auto out = _heapIdx;
+	while (out && out->size < sz) {
+		out = out->next;
+	}
+
+	// panic if the allocation failed
+	if (out == nullptr) {
+		panic("Heap allocation failed");
+	}
+
+	// update size for the heap segment now that it is to be considered
+	// allocated
+	out->size = sz;
+	out->next = (HeapSegment*) (((uint8_t*) out) + sz);
+	out->inUse = true;
+
+	auto hs = *_heapIdx;
+	hs.size -= sz;
+	if (hs.size == 0) {
+		_heapIdx = hs.next;
+	} else {
+		_heapIdx = (HeapSegment*) (((uint8_t*) _heapIdx) - sz);
+		*_heapIdx = hs;
+	}
+
+	return out;
 }
 
 void operator delete(void *ptr) {
+	HeapSegment *prev = nullptr;
+	HeapSegment *current = _heapIdx;
+	while (current && current != ptr) {
+		prev = current;
+		current = current->next;
+	}
+
+	// ptr was found as a valid memory allocation, deallocate it
+	if (current) {
+		// mark as not in use
+		prev->inUse = false;
+
+		// join with next if next is also unused
+		if (current->next && !current->next->inUse) {
+			current->size += current->next->size;
+			current->next = current->next->next;
+		}
+
+		// join with prev if prev is also unused
+		if (prev && !prev->inUse) {
+			prev->size += current->size;
+			prev->next = current->next;
+		}
+	}
 }
 

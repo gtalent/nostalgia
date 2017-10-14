@@ -2,12 +2,19 @@
 
 set -e
 
-echo NOSTALGIA_MEDIA_HEADER_________ > media_header.txt
+BIN=./dist/current/bin/
+NOSTALGA_BIN=build/gba-release/src/nostalgia/player/nostalgia.bin
+NOSTALGA_MEDIA=nostalgia_media.oxfs
+NOSTALGA_GBA=nostalgia.gba
+MEDIA_HEADER=media_header.txt
+CHARSET_FILE=src/nostalgia/core/studio/charset.png
 
-./dist/current/bin/oxfs format 32 1k nostalgia_media.oxfs
-./dist/current/bin/nost-pack -fs nostalgia_media.oxfs -img charset.png -inode 101 -tiles 40 -bpp 4 -c
+echo NOSTALGIA_MEDIA_HEADER_________ > $MEDIA_HEADER
 
-${DEVKITARM}/bin/padbin 32 build/gba-release/nostalgia.bin
-cat build/gba-release/nostalgia.bin media_header.txt nostalgia_media.oxfs > nostalgia.gba
-rm -f media_header.txt
-${DEVKITARM}/bin/gbafix nostalgia.gba
+$BIN/oxfs format 32 1k $NOSTALGA_MEDIA
+$BIN/nost-pack -fs $NOSTALGA_MEDIA -img $CHARSET_FILE -inode 101 -tiles 127 -bpp 4 -c
+
+${DEVKITARM}/bin/padbin 32 $NOSTALGA_BIN
+cat $NOSTALGA_BIN $MEDIA_HEADER $NOSTALGA_MEDIA > $NOSTALGA_GBA
+rm -f $MEDIA_HEADER $NOSTALGA_MEDIA
+${DEVKITARM}/bin/gbafix $NOSTALGA_GBA

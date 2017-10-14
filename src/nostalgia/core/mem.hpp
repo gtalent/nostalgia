@@ -6,18 +6,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "mem.hpp"
-#include "core.hpp"
-
 namespace nostalgia {
 namespace core {
 
-ox::Error init(Context *ctx) {
-	ox::Error err = 0;
-	err = initGfx(ctx);
-	initHeap(); // this does nothing in userland builds
-	return err;
-}
+void initHeap();
 
 }
 }

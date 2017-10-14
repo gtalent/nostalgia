@@ -21,6 +21,8 @@ using namespace ox;
 #define TILE_ADDR  ((CharBlock*) 0x06000000)
 #define TILE8_ADDR ((CharBlock8*) 0x06000000)
 
+const auto GBA_TILE_COLUMNS = 32;
+
 // map ASCII values to the nostalgia charset
 static char charMap[128] = {
 	0,
@@ -63,13 +65,13 @@ static char charMap[128] = {
 	0,
 	0,
 	0,
-	0,
-	0,
+	42, // (
+	43, // )
 	0,
 	0,
 	37, // ,
 	0,
-	0,
+	39, // .
 	0,
 	27, // 0
 	28, // 1
@@ -81,10 +83,10 @@ static char charMap[128] = {
 	34, // 7
 	35, // 8
 	36, // 9
-	0,
-	0,
-	0,
-	0,
+	40, // :
+	0,  // ;
+	0,  // <
+	41, // =
 	0,
 	0,
 	0,
@@ -114,6 +116,41 @@ static char charMap[128] = {
 	24, // X
 	25, // Y
 	26, // Z
+	44, // [
+	0,  // backslash
+	45, // ]
+	0,
+	0,
+	0,
+	1,  // a
+	2,  // b
+	3,  // c
+	4,  // d
+	5,  // e
+	6,  // f
+	7,  // g
+	8,  // h
+	9,  // i
+	10, // j
+	11, // k
+	12, // l
+	13, // m
+	14, // n
+	15, // o
+	16, // p
+	17, // q
+	18, // r
+	19, // s
+	20, // t
+	21, // u
+	22, // v
+	23, // w
+	24, // x
+	25, // y
+	26, // z
+	46, // {
+	0,  // |
+	48, // }
 };
 
 ox::Error initGfx(Context *ctx) {
@@ -127,7 +164,8 @@ ox::Error initGfx(Context *ctx) {
 	return 0;
 }
 
-ox::Error initConsole(Context *ctx) {
+// Do NOT use Context in the GBA version of this function.
+ox::Error initConsole(Context*) {
 	const auto CharsetInode = 101;
 	const auto PaletteStart = sizeof(GbaImageDataHeader);
 	ox::Error err = 0;
@@ -160,13 +198,15 @@ ox::Error initConsole(Context *ctx) {
 	return err;
 }
 
-void puts(Context *ctx, int loc, const char *str) {
+// Do NOT use Context in the GBA version of this function.
+void puts(Context*, int loc, const char *str) {
 	for (int i = 0; str[i]; i++) {
 		MEM_BG_MAP[28][loc + i] = charMap[(int) str[i]];
 	}
 }
 
-void setTileMap(Context *ctx, int layer, int columns, int rows, uint16_t *buff) {
+void setTile(Context *ctx, int layer, int column, int row, uint16_t tile) {
+	MEM_BG_MAP[28 + layer][row * GBA_TILE_COLUMNS + column] = tile;
 }
 
 }

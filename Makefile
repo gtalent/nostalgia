@@ -15,7 +15,7 @@ endif
 
 make:
 	${ENV_RUN} ${MAKE} -j -C build HOST_ENV=${HOST_ENV}
-build_rom:
+build-rom:
 	${ENV_RUN} ${MAKE} -j -C build ARGS="install" HOST_ENV=${HOST_ENV}
 	${ENV_RUN} ${MAKE} -j -C build HOST_ENV=${HOST_ENV}
 	${ENV_RUN} ./scripts/build_rom.sh
@@ -34,8 +34,8 @@ run: install
 	./dist/current/bin/nostalgia -debug
 run-studio: install
 	./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json
-gba-run: make
-	mgba-qt build/current/nostalgia.bin
+gba-run: build-rom
+	mgba-qt nostalgia.gba
 gdb: make
 	gdb ./build/current/src/wombat/wombat
 gdb-studio: make

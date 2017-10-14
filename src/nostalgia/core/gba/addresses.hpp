@@ -46,3 +46,6 @@ typedef uint16_t BgMapTile[1024];
 #define MEM_BG_MAP ((BgMapTile*) 0x06000000)
 
 #define MEM_ROM *((uint8_t*) 0x08000000)
+
+#define MEM_WRAM_BEGIN ((uint8_t*) 0x02000000)
+#define MEM_WRAM_END   ((uint8_t*) 0x0203FFFF)

@@ -75,7 +75,7 @@ void operator delete(void *ptr) {
 	// ptr was found as a valid memory allocation, deallocate it
 	if (current) {
 		// mark as not in use
-		prev->inUse = false;
+		current->inUse = false;
 
 		// join with next if next is also unused
 		if (current->next && !current->next->inUse) {

@@ -36,21 +36,22 @@ using namespace nostalgia::core;
 void *operator new(size_t sz) {
 	// add space for heap segment header data
 	sz += sizeof(HeapSegment);
-	auto out = _heapIdx;
-	while (out && out->size < sz) {
-		out = out->next;
+	auto seg = _heapIdx;
+	while (seg && seg->size < sz) {
+		seg = seg->next;
 	}
 
 	// panic if the allocation failed
-	if (out == nullptr) {
+	if (seg == nullptr) {
 		panic("Heap allocation failed");
 	}
 
 	// update size for the heap segment now that it is to be considered
 	// allocated
-	out->size = sz;
-	out->next = (HeapSegment*) (((uint8_t*) out) + sz);
-	out->inUse = true;
+	seg->size = sz;
+	seg->next = (HeapSegment*) (((uint8_t*) seg) + sz);
+	seg->inUse = true;
+	auto out = seg + 1;
 
 	auto hs = *_heapIdx;
 	hs.size -= sz;
@@ -64,7 +65,9 @@ void *operator new(size_t sz) {
 	return out;
 }
 
-void operator delete(void *ptr) {
+void operator delete(void *ptrIn) {
+	// get ptr back down to the meta data
+	auto *ptr = ((HeapSegment*) ptrIn) - 1;
 	HeapSegment *prev = nullptr;
 	HeapSegment *current = _heapIdx;
 	while (current && current != ptr) {

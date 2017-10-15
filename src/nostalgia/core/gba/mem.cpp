@@ -38,7 +38,7 @@ void initHeap() {
 
 using namespace nostalgia::core;
 
-void *operator new(size_t allocSize) {
+void *malloc(size_t allocSize) {
 	// add space for heap segment header data
 	const auto fullSize = allocSize + sizeof(HeapSegment);
 	auto seg = _heapIdx;
@@ -76,7 +76,7 @@ void *operator new(size_t allocSize) {
 	return out;
 }
 
-void operator delete(void *ptrIn) {
+void free(void *ptrIn) {
 	// get ptr back down to the meta data
 	auto *ptr = ((HeapSegment*) ptrIn) - 1;
 	HeapSegment *prev = nullptr;
@@ -118,3 +118,18 @@ void operator delete(void *ptrIn) {
 	}
 }
 
+void *operator new(size_t allocSize) {
+	return malloc(allocSize);
+}
+
+void *operator new[](size_t allocSize) {
+	return malloc(allocSize);
+}
+
+void operator delete(void *ptr) {
+	free(ptr);
+}
+
+void operator delete[](void *ptr) {
+	free(ptr);
+}

@@ -16,6 +16,10 @@ struct HeapSegment {
 	size_t size;
 	uint8_t inUse;
 	HeapSegment *next;
+
+	uint8_t *end() {
+		return ((uint8_t*) this) + this->size;
+	}
 };
 
 static HeapSegment *_heapIdx = nullptr;
@@ -84,6 +88,12 @@ void operator delete(void *ptrIn) {
 
 	// ptr was found as a valid memory allocation, deallocate it
 	if (current) {
+		// move header back to end of segment
+		auto newCurrent = (HeapSegment*) current->end() - sizeof(HeapSegment);
+		*newCurrent = *current;
+		current = newCurrent;
+		prev->next = current;
+
 		// mark as not in use
 		current->inUse = false;
 

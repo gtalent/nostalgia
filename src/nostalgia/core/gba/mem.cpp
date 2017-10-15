@@ -22,6 +22,7 @@ static HeapSegment *_heapIdx = nullptr;
 
 void initHeap() {
 	_heapIdx = (HeapSegment*) MEM_WRAM_END;
+	_heapIdx--;
 	// set size to half of WRAM
 	_heapIdx->size = (MEM_WRAM_END - MEM_WRAM_BEGIN) / 2;
 	_heapIdx->next = nullptr;
@@ -33,11 +34,13 @@ void initHeap() {
 
 using namespace nostalgia::core;
 
-void *operator new(size_t sz) {
+void *operator new(size_t allocSize) {
 	// add space for heap segment header data
-	sz += sizeof(HeapSegment);
+	const auto fullSize = allocSize + sizeof(HeapSegment);
 	auto seg = _heapIdx;
-	while (seg && seg->size < sz) {
+	HeapSegment *prev = nullptr;
+	while (seg && seg->size < fullSize) {
+		prev = seg;
 		seg = seg->next;
 	}
 
@@ -46,19 +49,23 @@ void *operator new(size_t sz) {
 		panic("Heap allocation failed");
 	}
 
+	seg = (HeapSegment*) (((uint8_t*) seg) - allocSize);
+	if (prev) {
+		prev->next = seg;
+	}
 	// update size for the heap segment now that it is to be considered
 	// allocated
-	seg->size = sz;
-	seg->next = (HeapSegment*) (((uint8_t*) seg) + sz);
+	seg->size = fullSize;
+	seg->next = (HeapSegment*) (((uint8_t*) seg) + fullSize);
 	seg->inUse = true;
 	auto out = seg + 1;
 
 	auto hs = *_heapIdx;
-	hs.size -= sz;
+	hs.size -= fullSize;
 	if (hs.size == 0) {
 		_heapIdx = hs.next;
 	} else {
-		_heapIdx = (HeapSegment*) (((uint8_t*) _heapIdx) - sz);
+		_heapIdx = (HeapSegment*) (((uint8_t*) _heapIdx) - fullSize);
 		*_heapIdx = hs;
 	}
 

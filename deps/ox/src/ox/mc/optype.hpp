@@ -15,4 +15,13 @@ enum class OpType {
 	Write = 1
 };
 
+template<typename T, typename O>
+ox::Error ioOp(T *io, O *obj) {
+	if (io->opType() == ox::OpType::Read) {
+		return ioOpRead(io, obj);
+	} else {
+		return ioOpWrite(io, obj);
+	}
+}
+
 }

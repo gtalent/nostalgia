@@ -11,11 +11,9 @@
 namespace nostalgia {
 namespace world {
 
-Zone::Zone() {
-	m_bounds.x = -1;
-	m_bounds.y = -1;
-	m_bounds.width = -1;
-	m_bounds.height = -1;
+Zone::Zone(common::Bounds bnds) {
+	const auto size = bnds.width * bnds.height;
+	m_tiles = new TileDef[size];
 }
 
 void Zone::draw(core::Context *ctx) {
@@ -25,16 +23,12 @@ size_t Zone::size() {
 	return sizeof(Zone) + m_bounds.width * m_bounds.height * sizeof(TileDef);
 }
 
-TileDef *Zone::tiles() {
-	return (TileDef*) (this + 1);
-}
-
 TileDef *Zone::tile(int row, int column) {
-	return &tiles()[row * m_bounds.width + column];
+	return &m_tiles[row * m_bounds.width + column];
 }
 
 void Zone::setTile(int row, int column, TileDef *td) {
-	tiles()[row * m_bounds.width + column] = *td;
+	m_tiles[row * m_bounds.width + column] = *td;
 }
 
 }

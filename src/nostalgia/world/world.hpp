@@ -29,6 +29,10 @@ ox::Error ioOp(T *io, TileDef *obj) {
 }
 
 
+struct RegionDef {
+	uint32_t tileSheetInodes[20];
+};
+
 struct ZoneDef {
 	int32_t width = 0;
 	int32_t height = 0;
@@ -38,16 +42,15 @@ class Zone {
 
 	private:
 		common::Bounds m_bounds;
+		TileDef *m_tiles = nullptr;
 
 	public:
 
-		Zone();
+		Zone(common::Bounds bnds);
 
 		void draw(core::Context *ctx);
 
 		size_t size();
-
-		TileDef *tiles();
 
 		TileDef *tile(int row, int column);
 

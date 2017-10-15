@@ -15,10 +15,10 @@ endif
 
 make:
 	${ENV_RUN} ${MAKE} -j -C build HOST_ENV=${HOST_ENV}
-build-rom:
+gba-pkg:
 	${ENV_RUN} ${MAKE} -j -C build ARGS="install" HOST_ENV=${HOST_ENV}
 	${ENV_RUN} ${MAKE} -j -C build HOST_ENV=${HOST_ENV}
-	${ENV_RUN} ./scripts/build_rom.sh
+	${ENV_RUN} ./scripts/gba-pkg
 preinstall:
 	${ENV_RUN} ${MAKE} -j -C build ARGS="preinstall" HOST_ENV=${HOST_ENV}
 install:
@@ -34,14 +34,14 @@ run: install
 	./dist/current/bin/nostalgia -debug
 run-studio: install
 	./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json
-gba-run: build-rom
+gba-run: gba-pkg
 	mgba-qt nostalgia.gba
 gdb: make
 	gdb ./build/current/src/wombat/wombat
 gdb-studio: make
 	gdb "./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json"
 
-devenv-build:
+devenv-image:
 	docker build . -t ${DEVENV_IMAGE}
 devenv:
 	docker run -d \

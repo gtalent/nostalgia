@@ -19,6 +19,9 @@ namespace ox {
 class MetalClawReader {
 
 	private:
+		typedef uint32_t ArrayLength;
+		typedef uint32_t StringLength;
+
 		FieldPresenseMask m_fieldPresence;
 		int m_fields = 0;
 		int m_field = 0;
@@ -48,6 +51,11 @@ class MetalClawReader {
 		template<size_t L>
 		int op(const char*, ox::bstring<L> *val);
 
+		size_t arrayLength(const char*);
+
+		// stringLength returns the length of the string, including the null terminator.
+		size_t stringLength(const char*);
+
 		void setFields(int fields);
 
       OpType opType() {
@@ -76,7 +84,6 @@ int MetalClawReader::op(const char*, ox::bstring<L> *val) {
 	int err = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
-		typedef uint32_t StringLength;
 		size_t size = 0;
 		if (m_buffIt + sizeof(StringLength) < m_buffLen) {
 			size = ox::bigEndianAdapt(*((StringLength*) &m_buff[m_buffIt]));
@@ -125,10 +132,9 @@ int MetalClawReader::op(const char*, T *val, size_t valLen) {
 	int err = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
-		typedef uint32_t ArrayLength;
 		size_t len = 0;
 		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
-			len = ox::bigEndianAdapt(*((T*) &m_buff[m_buffIt]));
+			len = ox::bigEndianAdapt(*((ArrayLength*) &m_buff[m_buffIt]));
 			m_buffIt += sizeof(ArrayLength);
 		} else {
 			err = MC_BUFFENDED;

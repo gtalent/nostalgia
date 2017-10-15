@@ -11,6 +11,7 @@
 #include <ox/std/string.hpp>
 #include <ox/std/types.hpp>
 #include "err.hpp"
+#include "optype.hpp"
 #include "presencemask.hpp"
 
 namespace ox {
@@ -48,6 +49,10 @@ class MetalClawWriter {
 		int op(const char*, T *val);
 
 		void setFields(int fields);
+
+      OpType opType() {
+          return OpType::Write;
+      }
 
 	private:
 		template<typename I>

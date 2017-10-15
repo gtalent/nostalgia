@@ -11,6 +11,7 @@
 #include <ox/std/byteswap.hpp>
 #include <ox/std/string.hpp>
 #include "err.hpp"
+#include "optype.hpp"
 #include "presencemask.hpp"
 
 namespace ox {
@@ -48,6 +49,10 @@ class MetalClawReader {
 		int op(const char*, ox::bstring<L> *val);
 
 		void setFields(int fields);
+
+      OpType opType() {
+          return OpType::Read;
+      }
 
 	private:
 		template<typename I>

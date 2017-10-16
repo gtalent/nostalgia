@@ -84,8 +84,8 @@ int run(ClArgs args) {
 		int colorId = 0;
 
 		// copy pixels as color ids
-		for (int x = 0; x < src.colorCount(); x++) {
-			for (int y = 0; y < src.colorCount(); y++) {
+		for (int x = 0; x < src.width(); x++) {
+			for (int y = 0; y < src.height(); y++) {
 				auto destI = pointToIdx(src.width(), x, y);
 				if (destI <= argTiles * 64) {
 					auto c = src.pixel(x, y);

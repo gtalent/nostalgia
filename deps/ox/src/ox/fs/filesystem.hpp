@@ -719,7 +719,7 @@ uint64_t FileSystemTemplate<FileStore, FS_TYPE>::generateInodeId() {
 	// find an inode value for the given path
 	while (!inode) {
 		inode = rand.gen();
-		inode >>= 64 -  8 * sizeof(typename FileStore::InodeId_t);
+		inode >>= 64 - 8 * sizeof(typename FileStore::InodeId_t);
 
 		// make sure this does not already exist
 		if (inode < INODE_RESERVED_END || stat(inode).inode) {

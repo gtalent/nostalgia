@@ -17,7 +17,7 @@ struct __attribute__((packed)) FileStoreHeader {
 	public:
 		typedef InodeId InodeId_t;
 		typedef FsT FsSize_t;
-		const static auto VERSION = 6;
+		const static auto VERSION = 7;
 
 	private:
 		uint16_t m_version;

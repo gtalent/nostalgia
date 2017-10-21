@@ -1,5 +1,6 @@
 {
 	"app_name": "Nostalgia Studio",
+	"org_name": "Drinking Tea",
 	"plugins": [
 		{
 			"dir": "../lib/nostalgia",

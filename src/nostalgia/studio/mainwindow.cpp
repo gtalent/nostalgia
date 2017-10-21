@@ -36,12 +36,11 @@ const QString MainWindow::StateFilePath = "studio_state.json";
 MainWindow::MainWindow(QString profilePath) {
 	m_profilePath = profilePath;
 	// load in profile file
-	NostalgiaStudioProfile profile;
 	QFile file(profilePath);
 	if (file.exists()) {
 		file.open(QIODevice::ReadOnly);
 		QTextStream in(&file);
-		readJson(in.readAll(), &profile);
+		readJson(in.readAll(), &m_profile);
 	}
 
 	auto screenSize = QApplication::desktop()->screenGeometry();
@@ -52,7 +51,7 @@ MainWindow::MainWindow(QString profilePath) {
 	move(-x(), -y());
 	move(screenSize.width() * (1 - sizePct) / 2, screenSize.height() * (1 - sizePct) / 2);
 
-	setWindowTitle(profile.appName);
+	setWindowTitle(m_profile.appName);
 
 	m_tabbar = new QTabBar(this);
 	setCentralWidget(m_tabbar);
@@ -61,7 +60,7 @@ MainWindow::MainWindow(QString profilePath) {
 	setupProjectExplorer();
 	statusBar(); // setup status bar
 
-	loadPlugins(profile);
+	loadPlugins();
 
 	readState();
 }
@@ -73,8 +72,8 @@ MainWindow::~MainWindow() {
 	}
 }
 
-void MainWindow::loadPlugins(NostalgiaStudioProfile profile) {
-	for (auto p : profile.plugins) {
+void MainWindow::loadPlugins() {
+	for (auto p : m_profile.plugins) {
 #if defined(Q_OS_WIN)
 		auto libName = p.libName + ".dll";
 #elif defined(Q_OS_MAC)
@@ -198,7 +197,7 @@ QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 int MainWindow::readState(QString path) {
 	int err = 0;
 
-	QSettings settings("Drinking Tea", "nostalgia-studio");
+	QSettings settings(m_profile.orgName, m_profile.appName);
 	settings.beginGroup("MainWindow");
 	restoreGeometry(settings.value("geometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
@@ -218,7 +217,7 @@ int MainWindow::writeState(QString path) {
 	QString json;
 	err |= writeJson(&json, &m_state);
 
-	QSettings settings("Drinking Tea", "nostalgia-studio");
+	QSettings settings(m_profile.orgName, m_profile.appName);
 	settings.beginGroup("MainWindow");
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());

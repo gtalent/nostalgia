@@ -27,6 +27,7 @@ int run(int argc, char **args) {
 	MainWindow w(argProfilePath);
 	app.setApplicationName(w.windowTitle());
 	w.show();
+	QObject::connect(&app, SIGNAL(aboutToQuit()), &w, SLOT(onExit()));
 
 	return app.exec();
 }

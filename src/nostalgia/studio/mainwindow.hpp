@@ -125,6 +125,9 @@ class MainWindow: public QMainWindow {
 
 		int closeProject();
 
+	public slots:
+		void onExit();
+
 	private slots:
 		int openProject();
 

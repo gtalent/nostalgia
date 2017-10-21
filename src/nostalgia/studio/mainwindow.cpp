@@ -17,6 +17,7 @@
 #include <QLineEdit>
 #include <QMenuBar>
 #include <QPluginLoader>
+#include <QSettings>
 #include <QTextStream>
 #include <QVector>
 
@@ -58,6 +59,7 @@ MainWindow::MainWindow(QString profilePath) {
 
 	setupMenu();
 	setupProjectExplorer();
+	statusBar(); // setup status bar
 
 	loadPlugins(profile);
 
@@ -143,6 +145,7 @@ void MainWindow::setupProjectExplorer() {
 	// setup dock
 	auto dock = new QDockWidget(tr("Project"), this);
 	dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	dock->setObjectName("Project Explorer");
 	addDockWidget(Qt::LeftDockWidgetArea, dock);
 	resizeDocks({dock}, {(int) (width() * 0.25)}, Qt::Horizontal);
 
@@ -194,6 +197,13 @@ QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 
 int MainWindow::readState(QString path) {
 	int err = 0;
+
+	QSettings settings("Drinking Tea", "nostalgia-studio");
+	settings.beginGroup("MainWindow");
+	restoreGeometry(settings.value("geometry").toByteArray());
+	restoreState(settings.value("windowState").toByteArray());
+	settings.endGroup();
+
 	QString json;
 	QFile file(path);
 	err |= !file.open(QIODevice::ReadOnly);
@@ -206,6 +216,13 @@ int MainWindow::readState(QString path) {
 
 int MainWindow::writeState(QString path) {
 	int err = 0;
+
+	QSettings settings("Drinking Tea", "nostalgia-studio");
+	settings.beginGroup("MainWindow");
+	settings.setValue("geometry", saveGeometry());
+	settings.setValue("windowState", saveState());
+	settings.endGroup();
+
 	QString json;
 	err |= writeJson(&json, &m_state);
 	QFile file(path);
@@ -254,6 +271,10 @@ int MainWindow::closeProject() {
 
 	m_state.projectPath = "";
 	return err;
+}
+
+void MainWindow::onExit() {
+	writeState();
 }
 
 

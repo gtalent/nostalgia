@@ -21,7 +21,7 @@ install(
 	TARGETS
 		NostalgiaCore-Studio
 	LIBRARY DESTINATION
-		lib/nostalgia
+		${NOSTALGIA_DIST_PLUGIN}/nostalgia
 )
 
 install(

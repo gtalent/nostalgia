@@ -24,18 +24,27 @@ target_link_libraries(
 		NostalgiaTool
 )
 
+if(APPLE)
+	install(
+		FILES
+			Info.plist
+		DESTINATION
+			${NOSTALGIA_DIST_MAC_APP_CONTENTS}
+	)
+endif()
+
 install(
 	FILES
 		nostalgia-studio.json
 	DESTINATION
-		share
+		${NOSTALGIA_DIST_RESOURCES}
 )
 
 install(
 	TARGETS
 		nostalgia-studio
 	RUNTIME DESTINATION
-		bin
+		${NOSTALGIA_DIST_BIN}
 )
 
 add_subdirectory(lib)

@@ -16,7 +16,7 @@ add_library(
 )
 
 install(TARGETS NostalgiaStudio
-        LIBRARY DESTINATION lib/nostalgia)
+        LIBRARY DESTINATION ${NOSTALGIA_DIST_LIB}/nostalgia)
 
 target_link_libraries(
 	NostalgiaStudio

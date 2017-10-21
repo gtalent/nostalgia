@@ -29,6 +29,6 @@ install(
 install(
 	TARGETS
 		NostalgiaTool
-	LIBRARY DESTINATION lib/nostalgia
-	ARCHIVE DESTINATION lib/nostalgia
+	LIBRARY DESTINATION ${NOSTALGIA_DIST_LIB}/nostalgia
+	ARCHIVE DESTINATION ${NOSTALGIA_DIST_LIB}/nostalgia
 )

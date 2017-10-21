@@ -202,33 +202,29 @@ int MainWindow::readState(QString path) {
 	settings.beginGroup("MainWindow");
 	restoreGeometry(settings.value("geometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
+	auto json = settings.value("json").toString();
+	err |= readJson(json, &m_state);
 	settings.endGroup();
 
-	QString json;
-	QFile file(path);
-	err |= !file.open(QIODevice::ReadOnly);
-	json = QTextStream(&file).readAll();
-	file.close();
-	err |= readJson(json, &m_state);
 	err |= openProject(m_state.projectPath);
+
 	return err;
 }
 
 int MainWindow::writeState(QString path) {
 	int err = 0;
 
+	// generate JSON for application specific state info
+	QString json;
+	err |= writeJson(&json, &m_state);
+
 	QSettings settings("Drinking Tea", "nostalgia-studio");
 	settings.beginGroup("MainWindow");
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
+	settings.setValue("json", json);
 	settings.endGroup();
 
-	QString json;
-	err |= writeJson(&json, &m_state);
-	QFile file(path);
-	err |= !file.open(QIODevice::WriteOnly);
-	QTextStream(&file) << json;
-	file.close();
 	return err;
 }
 
@@ -365,7 +361,6 @@ void MainWindow::showImportWizard() {
 void MainWindow::refreshProjectExplorer(QString path) {
 	if (m_oxfsView) {
 		m_oxfsView->updateFile(path);
-		qInfo() << "asdf\n";
 	}
 }
 

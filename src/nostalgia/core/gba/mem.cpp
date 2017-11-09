@@ -22,11 +22,10 @@ struct HeapSegment {
 	}
 };
 
-static HeapSegment *_heapIdx = nullptr;
+static HeapSegment *volatile _heapIdx = nullptr;
 
 void initHeap() {
-	_heapIdx = (HeapSegment*) MEM_WRAM_END;
-	_heapIdx--;
+	_heapIdx = ((HeapSegment*) MEM_WRAM_END) - 1;
 	// set size to half of WRAM
 	_heapIdx->size = (MEM_WRAM_END - MEM_WRAM_BEGIN) / 2;
 	_heapIdx->next = nullptr;
@@ -43,7 +42,7 @@ void *malloc(size_t allocSize) {
 	const auto fullSize = allocSize + sizeof(HeapSegment);
 	auto seg = _heapIdx;
 	HeapSegment *prev = nullptr;
-	while (seg && seg->size < fullSize) {
+	while (seg && (seg->inUse || seg->size < fullSize)) {
 		prev = seg;
 		seg = seg->next;
 	}
@@ -80,7 +79,7 @@ void free(void *ptrIn) {
 	// get ptr back down to the meta data
 	auto *ptr = ((HeapSegment*) ptrIn) - 1;
 	HeapSegment *prev = nullptr;
-	HeapSegment *current = _heapIdx;
+	auto current = _heapIdx;
 	while (current && current != ptr) {
 		prev = current;
 		current = current->next;

@@ -9,12 +9,13 @@
 #include <ox/fs/filesystem.hpp>
 #include <ox/std/std.hpp>
 #include "addresses.hpp"
-#include "media.hpp"
+
+#include "../media.hpp"
 
 namespace nostalgia {
 namespace core {
 
-uint8_t *findMedia() {
+uint8_t *loadRom(const char*) {
 	// put the header in the wrong order to prevent mistaking this code for the
 	// media section
 	const static auto headerP2 = "_HEADER_________";
@@ -29,7 +30,7 @@ uint8_t *findMedia() {
 			return current + headerLen;
 		}
 	}
-	return 0;
+	return nullptr;
 }
 
 }

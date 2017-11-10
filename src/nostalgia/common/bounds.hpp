@@ -19,10 +19,9 @@ class Bounds {
 		int width = 0;
 		int height = 0;
 
-		/**
-		 * Constructor
-		 */
-		Bounds();
+		Bounds() = default;
+
+		Bounds(int x, int y, int w, int h);
 
 		bool intersects(Bounds other) const;
 

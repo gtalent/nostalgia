@@ -17,9 +17,11 @@ endif()
 
 target_link_libraries(
 	nostalgia
+		NostalgiaWorld
+		NostalgiaCommon
 		NostalgiaCore
-		OxStd
 		OxFS
+		OxStd
 )
 
 add_custom_target("nostalgia.bin")

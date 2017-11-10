@@ -8,16 +8,12 @@
 
 #pragma once
 
-#include <ox/fs/filesystem.hpp>
-
-#include "gfx.hpp"
-#include "media.hpp"
-#include "types.hpp"
+#include <ox/std/types.hpp>
 
 namespace nostalgia {
 namespace core {
 
-ox::Error init(Context *ctx);
+uint8_t *loadRom(const char *path = "");
 
 }
 }

@@ -14,11 +14,15 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 		-nostdlib
 		-fno-exceptions
 		-fno-rtti
+		-fno-strict-aliasing
+		-mthumb-interwork
+		-mthumb
 	)
 endif()
 
 add_definitions(
-	-std=c++11
+	-std=c++14
+	-fdiagnostics-color
 	-Wall
 	-Wsign-compare
 )
@@ -45,7 +49,7 @@ else()
 	set(NOSTALGIA_DIST_RESOURCES share)
 endif()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
 	add_definitions(
 		-Werror
 	)

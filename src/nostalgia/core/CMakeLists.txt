@@ -16,6 +16,7 @@ elseif(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
 	set(
 		CPP
 			qt/gfx.cpp
+			userland/media.cpp
 			userland/mem.cpp
 	)
 endif()
@@ -34,6 +35,7 @@ install(
 	FILES
 		core.hpp
 		gfx.hpp
+		media.hpp
 		gba/gba.hpp
 	DESTINATION
 		include/nostalgia/core

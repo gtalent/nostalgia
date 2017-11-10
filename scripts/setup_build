@@ -7,6 +7,10 @@ project=$(pwd)/
 TARGET=$1
 BUILD_TYPE=$2
 
+#if [[ $(which ninja) != "ninja not found" ]]; then
+#	buildTool="-GNinja"
+#fi
+
 if [[ $TARGET == windows ]]; then
 	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/Mingw.cmake"
 elif [[ $TARGET == gba ]]; then
@@ -28,6 +32,7 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
       -DCMAKE_INSTALL_PREFIX="$distDir" \
       -DCMAKE_INSTALL_RPATH="$project/dist/${TARGET}-${BUILD_TYPE}/lib/nostalgia" \
       -DNOSTALGIA_IDE_BUILD=OFF \
+		$buildTool \
       $buildTypeArgs \
       $toolchain \
       $project

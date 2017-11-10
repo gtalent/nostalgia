@@ -19,7 +19,14 @@ ox::Error initConsole(Context *ctx) {
 	return 1;
 }
 
+ox::Error loadTileSheet(Context *ctx, InodeId_t inode) {
+	return 1;
+}
+
 void puts(Context *ctx, int loc, const char *str) {
+}
+
+void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
 }
 
 }

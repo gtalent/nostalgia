@@ -1,9 +1,9 @@
 all: gba_build gba_debug_build native_build native_debug_build windows_release windows_debug
 
 ifneq ($(shell which gmake),)
-	MAKE="gmake -j"
+MAKE="gmake"
 else
-	MAKE="make -j"
+MAKE="make"
 endif
 
 gba_build:

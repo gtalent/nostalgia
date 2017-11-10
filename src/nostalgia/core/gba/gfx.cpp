@@ -8,9 +8,13 @@
 
 #include <ox/fs/filesystem.hpp>
 #include <ox/std/std.hpp>
+
+#include "../media.hpp"
+
 #include "addresses.hpp"
-#include "media.hpp"
 #include "gba.hpp"
+#include "panic.hpp"
+
 #include "../gfx.hpp"
 
 namespace nostalgia {
@@ -22,6 +26,7 @@ using namespace ox;
 #define TILE8_ADDR ((CharBlock8*) 0x06000000)
 
 const auto GBA_TILE_COLUMNS = 32;
+const auto GBA_TILE_ROWS = 32;
 
 // map ASCII values to the nostalgia charset
 static char charMap[128] = {
@@ -170,7 +175,7 @@ ox::Error initConsole(Context*) {
 	const auto CharsetInode = 101;
 	const auto PaletteStart = sizeof(GbaImageDataHeader);
 	ox::Error err = 0;
-	auto fs = (FileStore32*) findMedia();
+	auto fs = (FileStore32*) loadRom();
 
 	GbaImageDataHeader imgData;
 
@@ -199,6 +204,37 @@ ox::Error initConsole(Context*) {
 	return err;
 }
 
+ox::Error loadTileSheet(Context *ctx, InodeId_t inode) {
+	ox::Error err = 0;
+	const auto PaletteStart = sizeof(GbaImageDataHeader);
+	GbaImageDataHeader imgData;
+
+	auto fs = (ox::FileStore32*) ctx->rom->buff();
+	REG_BG0CNT = (28 << 8) | 1;
+	if (fs) {
+		// load the header
+		err |= fs->read(inode, 0, sizeof(imgData), &imgData, nullptr);
+
+		// load palette
+		err |= fs->read(inode, PaletteStart,
+		                512, (uint16_t*) &MEM_PALLETE_BG[0], nullptr);
+
+		if (imgData.bpp == 4) {
+			err |= fs->read(inode, __builtin_offsetof(GbaImageData, tiles),
+			                sizeof(Tile) * imgData.tileCount, (uint16_t*) &TILE_ADDR[0][1], nullptr);
+		} else if (imgData.bpp == 8) {
+			REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
+			err |= fs->read(inode, __builtin_offsetof(GbaImageData, tiles),
+			                sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
+		} else {
+			err = 1;
+		}
+	} else {
+		err = 1;
+	}
+	return err;
+}
+
 // Do NOT use Context in the GBA version of this function.
 void puts(Context*, int loc, const char *str) {
 	for (int i = 0; str[i]; i++) {
@@ -206,8 +242,10 @@ void puts(Context*, int loc, const char *str) {
 	}
 }
 
-void setTile(Context *ctx, int layer, int column, int row, uint16_t tile) {
-	MEM_BG_MAP[28 + layer][row * GBA_TILE_COLUMNS + column] = tile;
+void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
+	if (column < GBA_TILE_COLUMNS && row < GBA_TILE_ROWS) {
+		MEM_BG_MAP[28 + layer][row * GBA_TILE_COLUMNS + column] = tile;
+	}
 }
 
 }

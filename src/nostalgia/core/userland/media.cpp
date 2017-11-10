@@ -6,18 +6,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#pragma once
-
 #include <ox/fs/filesystem.hpp>
+#include <ox/std/std.hpp>
 
-#include "gfx.hpp"
-#include "media.hpp"
-#include "types.hpp"
+#include "../media.hpp"
 
 namespace nostalgia {
 namespace core {
 
-ox::Error init(Context *ctx);
+uint8_t *loadRom(const char*) {
+	return nullptr;
+}
 
 }
 }

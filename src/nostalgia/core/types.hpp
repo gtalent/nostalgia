@@ -8,12 +8,12 @@
 
 #pragma once
 
-#include <ox/std/types.hpp>
+#include <ox/fs/filestore.hpp>
 
 namespace nostalgia {
 namespace core {
 
-uint8_t *findMedia();
+typedef ox::FileStore32::InodeId_t InodeId_t;
 
 }
 }

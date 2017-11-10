@@ -10,7 +10,11 @@
 namespace nostalgia {
 namespace common {
 
-Bounds::Bounds() {
+Bounds::Bounds(int x, int y, int w, int h) {
+	this->x = x;
+	this->y = y;
+	this->width = w;
+	this->height = h;
 }
 
 bool Bounds::intersects(Bounds o) const {

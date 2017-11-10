@@ -6,16 +6,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <nostalgia/core/core.hpp>
+#include <nostalgia/world/world.hpp>
 
+using namespace nostalgia::common;
 using namespace nostalgia::core;
+using namespace nostalgia::world;
 
 int main() {
+	ox::FileSystem32 fs(loadRom(), false);
 	Context ctx;
 	init(&ctx);
-	initConsole(&ctx);
-	puts(&ctx, 9 * 32 + 8, "HELLO,WORLD!");
-	puts(&ctx, 10 * 32 + 8, "01234 56789");
+	ctx.rom = &fs;
+	Zone zone(&ctx, Bounds{0, 0, 40, 40}, 102);
+	zone.draw(&ctx);
 	while (1);
 	return 0;
 }

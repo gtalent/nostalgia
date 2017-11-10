@@ -11,24 +11,42 @@
 namespace nostalgia {
 namespace world {
 
-Zone::Zone(common::Bounds bnds) {
+using namespace common;
+using namespace core;
+
+const int Zone::FIELDS = 1;
+const int Region::FIELDS = 0;
+
+
+Zone::Zone(Context *ctx, Bounds bnds, InodeId_t tileSheet) {
 	const auto size = bnds.width * bnds.height;
-	m_tiles = new TileDef[size];
+	m_tiles = new Tile[size];
+	m_bounds = bnds;
+	core::loadTileSheet(ctx, tileSheet);
 }
 
-void Zone::draw(core::Context *ctx) {
+void Zone::draw(Context *ctx) {
+	for (int x = 0; x < m_bounds.width; x++) {
+		for (int y = 0; y < m_bounds.height; y++) {
+			auto t = tile(x, y);
+			core::setTile(ctx, 0, x * 2, y * 2, t->bgTile);
+			core::setTile(ctx, 0, x * 2 + 1, y * 2, t->bgTile + 1);
+			core::setTile(ctx, 0, x * 2 + 1, y * 2 + 1, t->bgTile + 2);
+			core::setTile(ctx, 0, x * 2, y * 2 + 1, t->bgTile + 3);
+		}
+	}
 }
 
 size_t Zone::size() {
-	return sizeof(Zone) + m_bounds.width * m_bounds.height * sizeof(TileDef);
+	return sizeof(Zone) + m_bounds.width * m_bounds.height * sizeof(Tile);
 }
 
-TileDef *Zone::tile(int row, int column) {
-	return &m_tiles[row * m_bounds.width + column];
+Tile *Zone::tile(int x, int y) {
+	return &m_tiles[x * m_bounds.width + y];
 }
 
-void Zone::setTile(int row, int column, TileDef *td) {
-	m_tiles[row * m_bounds.width + column] = *td;
+void Zone::setTile(int x, int y, Tile *td) {
+	m_tiles[x * m_bounds.width + y] = *td;
 }
 
 }

@@ -11,5 +11,5 @@ namespace = "namespace nostalgia {\nnamespace %s {\n\n}\n}" % pkg
 hpp = "#pragma once\n"
 cpp = "#include \"%s.hpp\"\n\n%s" % (name, namespace)
 
-open("src/%s/%s.hpp" % (pkg, name), "w").write(hpp)
-open("src/%s/%s.cpp" % (pkg, name), "w").write(cpp)
+open("src/nostalgia/%s/%s.hpp" % (pkg, name), "w").write(hpp)
+open("src/nostalgia/%s/%s.cpp" % (pkg, name), "w").write(cpp)

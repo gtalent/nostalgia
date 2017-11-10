@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <ox/std/types.hpp>
+#include <ox/mc/mc.hpp>
 
 #include <nostalgia/common/common.hpp>
 #include <nostalgia/core/core.hpp>
@@ -16,56 +16,94 @@
 namespace nostalgia {
 namespace world {
 
-struct TileDef {
-	uint16_t bgTile;
+struct Tile {
+	uint8_t bgTile = 0;
+	uint8_t type = 0;
+	void *occupant = nullptr;
 };
 
 template<typename T>
-ox::Error ioOp(T *io, TileDef *obj) {
+ox::Error ioOpRead(T *io, Tile *obj) {
 	ox::Error err = 0;
-	io->setFields(1);
+	io->setFields(2);
 	err |= io->op("bgTile", &obj->bgTile);
+	err |= io->op("type", &obj->type);
 	return err;
 }
 
 
-struct RegionDef {
-	uint32_t tileSheetInodes[20];
-};
+struct Zone {
 
-struct ZoneDef {
-	int32_t width = 0;
-	int32_t height = 0;
-};
+	template<typename T>
+	friend ox::Error ioOpRead(T*, Zone*);
 
-class Zone {
+	template<typename T>
+	friend ox::Error ioOpWrite(T*, Zone*);
 
-	private:
+	protected:
+		static const int FIELDS;
 		common::Bounds m_bounds;
-		TileDef *m_tiles = nullptr;
+		Tile *m_tiles = nullptr;
 
 	public:
-
-		Zone(common::Bounds bnds);
+		Zone(core::Context *ctx, common::Bounds bnds, core::InodeId_t tileSheet);
 
 		void draw(core::Context *ctx);
 
 		size_t size();
 
-		TileDef *tile(int row, int column);
+		Tile *tile(int x, int y);
 
-		void setTile(int row, int column, TileDef *td);
+		void setTile(int x, int y, Tile *td);
 
 };
 
-class Region {
+template<typename T>
+ox::Error ioOpRead(T *io, Zone *obj) {
+	ox::Error err = 0;
+	io->setFields(Zone::FIELDS);
+	err |= io->op("bounds", &obj->m_bounds);
+	return err;
+}
 
-	private:
-		Zone *m_zones;
+template<typename T>
+ox::Error ioOpWrite(T *io, Zone *obj) {
+	ox::Error err = 0;
+	io->setFields(Zone::FIELDS);
+	err |= io->op("bounds", &obj->m_bounds);
+	return err;
+}
+
+
+struct Region {
+
+	template<typename T>
+	friend ox::Error ioOpRead(T*, Region*);
+
+	template<typename T>
+	friend ox::Error ioOpWrite(T*, Region*);
+
+	protected:
+		static const int FIELDS;
+		Zone *m_zones = nullptr;
 
 	public:
 
 };
+
+template<typename T>
+ox::Error ioOpRead(T *io, Region *obj) {
+	ox::Error err = 0;
+	io->setFields(Region::FIELDS);
+	return err;
+}
+
+template<typename T>
+ox::Error ioOpWrite(T *io, Region *obj) {
+	ox::Error err = 0;
+	io->setFields(Region::FIELDS);
+	return err;
+}
 
 }
 }

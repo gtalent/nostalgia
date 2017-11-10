@@ -16,13 +16,14 @@ typedef uint64_t RandomSeed[2];
 
 class Random {
 	public:
-		static RandomSeed DEFAULT_SEED;
 
 	private:
 		RandomSeed m_seed;
 
 	public:
-		Random(RandomSeed seed = DEFAULT_SEED);
+		Random();
+
+		Random(RandomSeed seed);
 
 		uint64_t gen();
 };

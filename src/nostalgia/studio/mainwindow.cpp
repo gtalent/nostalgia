@@ -91,6 +91,8 @@ void MainWindow::loadPlugins() {
 				delete loader;
 			});
 			m_plugins.push_back(plugin);
+		} else {
+			qInfo() << loader->errorString();
 		}
 	}
 }
@@ -232,14 +234,14 @@ int MainWindow::openProject(QString projectPath) {
 	auto project = new Project(projectPath);
 	err |= project->openRomFs();
 	if (err == 0) {
-		if (m_project) {
-			delete m_project;
-			m_project = nullptr;
+		if (m_ctx.project) {
+			delete m_ctx.project;
+			m_ctx.project = nullptr;
 		}
-		m_project = project;
-		m_oxfsView = new OxFSModel(m_project->romFs());
+		m_ctx.project = project;
+		m_oxfsView = new OxFSModel(project->romFs());
 		m_projectExplorer->setModel(m_oxfsView);
-		connect(m_project, SIGNAL(updated(QString)), m_oxfsView, SLOT(updateFile(QString)));
+		connect(m_ctx.project, SIGNAL(updated(QString)), m_oxfsView, SLOT(updateFile(QString)));
 		m_importAction->setEnabled(true);
 		m_state.projectPath = projectPath;
 	}
@@ -248,11 +250,11 @@ int MainWindow::openProject(QString projectPath) {
 
 int MainWindow::closeProject() {
 	auto err = 0;
-	if (m_project) {
-		disconnect(m_project, SIGNAL(updated(QString)), m_oxfsView, SLOT(updateFile(QString)));
+	if (m_ctx.project) {
+		disconnect(m_ctx.project, SIGNAL(updated(QString)), m_oxfsView, SLOT(updateFile(QString)));
 
-		delete m_project;
-		m_project = nullptr;
+		delete m_ctx.project;
+		m_ctx.project = nullptr;
 
 		delete m_oxfsView;
 		m_oxfsView = nullptr;
@@ -293,45 +295,58 @@ void MainWindow::showNewWizard() {
 	Wizard wizard(tr("New..."));
 	auto ws = new WizardSelect();
 	wizard.addPage(ws);
-	ws->addOption(tr("Project"),
-		[&wizard, PROJECT_NAME, PROJECT_PATH]() {
-			QVector<QWizardPage*> pgs;
-			auto pg = new WizardFormPage();
-			pg->addLineEdit(tr("Project &Name:"), PROJECT_NAME + "*", "", [PROJECT_PATH, pg, &wizard](QString projectName) {
-					auto projectPath = wizard.field(PROJECT_PATH).toString();
+
+	// add new project wizard
+	ws->addOption(
+		WizardMaker {
+			tr("Project"),
+
+			[&wizard, PROJECT_NAME, PROJECT_PATH]() {
+				QVector<QWizardPage*> pgs;
+				auto pg = new WizardFormPage();
+				pg->addLineEdit(tr("Project &Name:"), PROJECT_NAME + "*", "", [PROJECT_PATH, pg, &wizard](QString projectName) {
+						auto projectPath = wizard.field(PROJECT_PATH).toString();
+						auto path = projectPath + "/" + projectName;
+						if (!QDir(path).exists()) {
+							return 0;
+						} else {
+							pg->showValidationError(tr("This project directory already exists."));
+							return 1;
+						}
+					}
+				);
+				pg->addPathBrowse(tr("Project &Path:"), PROJECT_PATH + "*", QDir::homePath(), QFileDialog::Directory);
+				pgs.push_back(pg);
+				pgs.push_back(new WizardConclusionPage(tr("Creating project: %1/%2"), {PROJECT_PATH, PROJECT_NAME}));
+				return pgs;
+			},
+
+			[this, PROJECT_NAME, PROJECT_PATH](QWizard *wizard) {
+				auto projectName = wizard->field(PROJECT_NAME).toString();
+				auto projectPath = wizard->field(PROJECT_PATH).toString();
+				if (QDir(projectPath).exists()) {
 					auto path = projectPath + "/" + projectName;
 					if (!QDir(path).exists()) {
+						Project(path).create();
+						openProject(path);
 						return 0;
 					} else {
-						pg->showValidationError(tr("This project directory already exists."));
 						return 1;
 					}
-				}
-			);
-			pg->addPathBrowse(tr("Project &Path:"), PROJECT_PATH + "*", QDir::homePath(), QFileDialog::Directory);
-			pgs.push_back(pg);
-			pgs.push_back(new WizardConclusionPage(tr("Creating project: ") + "%1/%2", {PROJECT_PATH, PROJECT_NAME}));
-
-			return pgs;
-		}
-	);
-	wizard.setAccept([this, &wizard, ws, PROJECT_NAME, PROJECT_PATH]() -> int {
-			auto projectName = wizard.field(PROJECT_NAME).toString();
-			auto projectPath = wizard.field(PROJECT_PATH).toString();
-			if (QDir(projectPath).exists()) {
-				auto path = projectPath + "/" + projectName;
-				if (!QDir(path).exists()) {
-					Project(path).create();
-					openProject(path);
-					return 0;
 				} else {
-					return 1;
+					return 2;
 				}
-			} else {
-				return 2;
 			}
 		}
 	);
+
+	// add plugin options
+	for (auto p : m_plugins) {
+		for (auto w : p->newWizards(&m_ctx)) {
+			ws->addOption(w);
+		}
+	}
+
 	wizard.show();
 	wizard.exec();
 }
@@ -344,12 +359,9 @@ void MainWindow::showImportWizard() {
 	auto ws = new WizardSelect();
 	wizard.addPage(ws);
 
-	PluginArgs args {
-		.project = m_project
-	};
 	for (auto p : m_plugins) {
-		for (auto w : p->importWizards(args)) {
-			ws->addOption(w.name, w.make);
+		for (auto w : p->importWizards(&m_ctx)) {
+			ws->addOption(w);
 		}
 	}
 

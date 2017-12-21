@@ -13,17 +13,18 @@
 #include <nostalgia/studio/studio.hpp>
 
 namespace nostalgia {
-namespace core {
+namespace world {
 
-class Plugin: public QObject, studio::Plugin {
+class WorldEditorPlugin: public QObject, public studio::Plugin {
 	Q_OBJECT
 	Q_PLUGIN_METADATA(IID "net.drinkingtea.nostalgia.studio.Plugin")
 	Q_INTERFACES(nostalgia::studio::Plugin)
 
 	public:
-		Plugin();
+		QVector<studio::WizardMaker> newWizards(const studio::Context *ctx) override;
 
-		QVector<studio::WizardMaker> importWizards(const studio::Context *args) override;
+		QWidget *makeEditor(QString path, const studio::Context *ctx) override;
+
 };
 
 }

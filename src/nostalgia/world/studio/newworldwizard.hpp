@@ -13,17 +13,16 @@
 #include <nostalgia/studio/studio.hpp>
 
 namespace nostalgia {
-namespace core {
+namespace world {
 
-class Plugin: public QObject, studio::Plugin {
-	Q_OBJECT
-	Q_PLUGIN_METADATA(IID "net.drinkingtea.nostalgia.studio.Plugin")
-	Q_INTERFACES(nostalgia::studio::Plugin)
+struct NewWorldWizard: public studio::WizardFormPage {
 
-	public:
-		Plugin();
+	static const QString FIELD_WORLD_PATH;
+	static const QString FIELD_WIDTH;
+	static const QString FIELD_HEIGHT;
 
-		QVector<studio::WizardMaker> importWizards(const studio::Context *args) override;
+	NewWorldWizard(const studio::Context *ctx);
+
 };
 
 }

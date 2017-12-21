@@ -18,7 +18,8 @@ const QString ImportTilesheetWizardPage::TILESHEET_NAME = "projectName";
 const QString ImportTilesheetWizardPage::IMPORT_PATH = "projectPath";
 const QString ImportTilesheetWizardPage::BPP = "bpp";
 
-ImportTilesheetWizardPage::ImportTilesheetWizardPage(studio::PluginArgs args): m_project(args.project) {
+ImportTilesheetWizardPage::ImportTilesheetWizardPage(const studio::Context *ctx) {
+	m_ctx = ctx;
 	addLineEdit(tr("&Tile Sheet Name:"), TILESHEET_NAME + "*", "", [this](QString) {
 			auto importPath = field(IMPORT_PATH).toString();
 			if (QFile(importPath).exists()) {
@@ -53,9 +54,9 @@ int ImportTilesheetWizardPage::importImage(QFile &srcFile, QString tilesheetName
 		srcFile.open(QIODevice::ReadOnly);
 		if (srcFile.read((char*) buff, buffSize) > 0) {
 			int err = 0;
-			m_project->mkdir(TILESHEET_DIR);
-			err |= m_project->write(TILESHEET_DIR + tilesheetName, buff, buffSize);
-			err |= m_project->saveRomFs();
+			m_ctx->project->mkdir(TILESHEET_DIR);
+			err |= m_ctx->project->write(TILESHEET_DIR + tilesheetName, buff, buffSize);
+			err |= m_ctx->project->saveRomFs();
 			return err;
 		} else {
 			return 1;

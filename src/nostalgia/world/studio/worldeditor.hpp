@@ -6,22 +6,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "plugin.hpp"
+#pragma once
+
+#include <nostalgia/studio/studio.hpp>
 
 namespace nostalgia {
-namespace studio {
+namespace world {
 
-QVector<WizardMaker> Plugin::newWizards(const Context *ctx) {
-	return {};
-}
+class WorldEditor: public QWidget {
 
-QVector<WizardMaker> Plugin::importWizards(const Context *ctx) {
-	return {};
-}
+	public:
+		WorldEditor(QString path, const studio::Context *ctx);
 
-QWidget *Plugin::makeEditor(QString path, const Context *ctx) {
-	return nullptr;
-}
+};
 
 }
 }

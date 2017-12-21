@@ -5,6 +5,10 @@
 		{
 			"dir": "../lib/nostalgia",
 			"lib_name": "NostalgiaCore-Studio"
+		},
+		{
+			"dir": "../lib/nostalgia",
+			"lib_name": "NostalgiaWorld-Studio"
 		}
 	]
 }

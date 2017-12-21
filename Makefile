@@ -71,6 +71,11 @@ debug:
 	${ENV_RUN} ./scripts/setup_build ${HOST_ENV} debug
 	${ENV_RUN} rm -f build/current
 
+asan:
+	${ENV_RUN} rm -rf build/${HOST_ENV}-asan
+	${ENV_RUN} ./scripts/setup_build ${HOST_ENV} asan
+	${ENV_RUN} rm -f build/current
+
 windows:
 	${ENV_RUN} rm -rf build/windows
 	${ENV_RUN} ./scripts/setup_build windows

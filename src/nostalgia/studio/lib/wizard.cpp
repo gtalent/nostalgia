@@ -7,6 +7,7 @@
  */
 
 #include <QComboBox>
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -14,6 +15,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
+#include "plugin.hpp"
 #include "wizard.hpp"
 
 namespace nostalgia {
@@ -43,9 +45,9 @@ void WizardSelect::initializePage() {
 	emit completeChanged();
 }
 
-void WizardSelect::addOption(QString name, function<QVector<QWizardPage*>()> makePage) {
-	m_options[name] = makePage;
-	m_listWidget->addItem(name);
+void WizardSelect::addOption(WizardMaker wm) {
+	m_options[wm.name] = {wm.make, wm.onAccept};
+	m_listWidget->addItem(wm.name);
 }
 
 bool WizardSelect::isComplete() const {
@@ -53,18 +55,21 @@ bool WizardSelect::isComplete() const {
 }
 
 void WizardSelect::itemSelected(int row) {
-	if (row > -1) {
-		auto w = wizard();
-
-		if (nextId() > -1) {
+	auto w = dynamic_cast<Wizard*>(wizard());
+	if (w and row > -1) {
+		// remove other pages
+		while (nextId() > -1) {
 			w->removePage(nextId());
 		}
 
 		auto selected = m_listWidget->currentItem()->text();
 		if (m_options.contains(selected)) {
-			for (auto p : m_options[selected]()) {
+			auto &o = m_options[selected];
+			for (auto p : o.make()) {
 				w->addPage(p);
 			}
+			w->setAccept(o.onAccept);
+
 			// for some reason the continue button only appears correctly after remove runs
 			w->removePage(w->addPage(new QWizardPage()));
 		}
@@ -313,7 +318,7 @@ void WizardFormPage::showValidationError(QString msg) {
 
 	// set message
 	if (msg != "") {
-		m_errorMsg->setText(tr("Error: ") + msg);
+		m_errorMsg->setText(msg);
 	} else {
 		m_errorMsg->setText("");
 	}
@@ -325,7 +330,7 @@ Wizard::Wizard(QString windowTitle, QWidget *parent): QWizard(parent) {
 	setModal(true);
 }
 
-void Wizard::setAccept(std::function<int()> acceptFunc) {
+void Wizard::setAccept(std::function<int(QWizard*)> acceptFunc) {
 	m_acceptFunc = acceptFunc;
 }
 
@@ -333,7 +338,7 @@ void Wizard::accept() {
 	auto page = dynamic_cast<WizardFormPage*>(currentPage());
 	if (page != nullptr && page->accept() == 0) {
 		QDialog::accept();
-	} else if (m_acceptFunc != nullptr && m_acceptFunc() == 0) {
+	} else if (m_acceptFunc != nullptr && m_acceptFunc(this) == 0) {
 		QDialog::accept();
 	}
 }

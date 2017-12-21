@@ -65,7 +65,7 @@ int Project::openRomFs() {
 	}
 }
 
-int Project::saveRomFs() {
+int Project::saveRomFs() const {
 	int err = 0;
 	QFile file(m_path + ROM_FILE);
 	err |= file.open(QIODevice::WriteOnly) == false;
@@ -78,16 +78,20 @@ FileSystem *Project::romFs() {
 	return m_fs;
 }
 
-int Project::mkdir(QString path) {
+int Project::mkdir(QString path) const {
 	auto err = m_fs->mkdir(path.toUtf8().data());
 	emit updated(path);
 	return err;
 }
 
-int Project::write(QString path, uint8_t *buff, size_t buffLen) {
+int Project::write(QString path, uint8_t *buff, size_t buffLen) const {
 	auto err = m_fs->write(path.toUtf8().data(), buff, buffLen);
 	emit updated(path);
 	return err;
+}
+
+ox::FileStat Project::stat(QString path) const {
+	return m_fs->stat(path.toUtf8().data());
 }
 
 }

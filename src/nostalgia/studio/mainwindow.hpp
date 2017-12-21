@@ -87,14 +87,14 @@ class MainWindow: public QMainWindow {
 		NostalgiaStudioProfile m_profile;
 		NostalgiaStudioState m_state;
 		QAction *m_importAction = nullptr;
-		Project *m_project = nullptr;
+		Context m_ctx;
 		QPointer<QMenu> m_viewMenu;
 		QVector<std::function<void()>> m_cleanupTasks;
 		QVector<QPointer<QDockWidget>> m_dockWidgets;
 		QTreeView *m_projectExplorer = nullptr;
 		QVector<Plugin*> m_plugins;
 		QPointer<OxFSModel> m_oxfsView = nullptr;
-		QTabBar *m_tabbar;
+		QTabBar *m_tabbar = nullptr;
 
 	public:
 		MainWindow(QString profilePath);

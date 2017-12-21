@@ -3,6 +3,7 @@
 
 if(NOT NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 	find_package(Qt5Widgets)
+	set(CMAKE_AUTOMOC ON)
 endif()
 
 #project packages

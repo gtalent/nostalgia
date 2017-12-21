@@ -21,27 +21,30 @@
 namespace nostalgia {
 namespace studio {
 
-struct PluginArgs {
-	Project *&project;
+struct Context {
+	QWidget *tabParent = nullptr;
+	const Project *project = nullptr;
 };
 
 struct WizardMaker {
 	QString name;
 	std::function<QVector<QWizardPage*>()> make;
+	std::function<int(QWizard*)> onAccept;
+};
+
+struct EditorMaker {
+	virtual QWidget *make(QString path, const Context *ctx) = 0;
 };
 
 class Plugin {
-	private:
-		QVector<WizardMaker> m_newWizards;
 
 	public:
-		void addNewWizard(QString name, std::function<QVector<QWizardPage*>()> make);
+		virtual QVector<WizardMaker> newWizards(const Context *ctx);
 
-		void addImportWizard(QString name, std::function<QVector<QWizardPage*>()> make);
+		virtual QVector<WizardMaker> importWizards(const Context *ctx);
 
-		virtual QVector<WizardMaker> newWizards(PluginArgs);
+		virtual QWidget *makeEditor(QString path, const Context *ctx);
 
-		virtual QVector<WizardMaker> importWizards(PluginArgs);
 };
 
 }

@@ -22,7 +22,7 @@ endif()
 
 add_definitions(
 	-std=c++14
-	-fdiagnostics-color
+	#-fdiagnostics-color
 	-Wall
 	-Wsign-compare
 )

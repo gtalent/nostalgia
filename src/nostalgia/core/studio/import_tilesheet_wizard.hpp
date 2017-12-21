@@ -19,10 +19,10 @@ class ImportTilesheetWizardPage: public studio::WizardFormPage {
 		static const QString TILESHEET_NAME;
 		static const QString IMPORT_PATH;
 		static const QString BPP;
-		studio::Project *&m_project;
+		const studio::Context *m_ctx = nullptr;
 
 	public:
-		ImportTilesheetWizardPage(studio::PluginArgs args);
+		ImportTilesheetWizardPage(const studio::Context *args);
 
 		int accept();
 

@@ -33,16 +33,19 @@ class Project: public QObject {
 
 		int openRomFs();
 
-		int saveRomFs();
+		int saveRomFs() const;
 
 		ox::FileSystem *romFs();
 
-		int mkdir(QString path);
+		int mkdir(QString path) const;
 
-		int write(QString path, uint8_t *buff, size_t buffLen);
+		int write(QString path, uint8_t *buff, size_t buffLen) const;
+
+		ox::FileStat stat(QString path) const;
 
 	signals:
-		void updated(QString path);
+		void updated(QString path) const;
+
 };
 
 }

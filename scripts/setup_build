@@ -17,8 +17,10 @@ elif [[ $TARGET == gba ]]; then
 	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/GBA.cmake -DNOSTALGIA_BUILD_TYPE=GBA -DOX_USE_STDLIB=OFF"
 fi
 
-if [[ $BUILD_TYPE == debug ]]; then
+if [[ $BUILD_TYPE == asan ]]; then
 	buildTypeArgs="-DUSE_ASAN=ON -DCMAKE_BUILD_TYPE=Debug"
+elif [[ $BUILD_TYPE == debug ]]; then
+	buildTypeArgs="-DCMAKE_BUILD_TYPE=Debug"
 elif [[ $BUILD_TYPE == release ]]; then
 	buildTypeArgs="-DCMAKE_BUILD_TYPE=Release"
 fi

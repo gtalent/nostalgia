@@ -22,18 +22,25 @@
 namespace nostalgia {
 namespace studio {
 
+class WizardMaker;
+
 class WizardSelect: public QWizardPage {
 	Q_OBJECT
 
 	private:
-		QMap<QString, std::function<QVector<QWizardPage*>()>> m_options;
+		struct WizardFuncs {
+			std::function<QVector<QWizardPage*>()> make;
+			std::function<int(QWizard*)> onAccept;
+		};
+
+		QHash<QString, WizardFuncs> m_options;
 		QListWidget *m_listWidget = nullptr;
 		bool m_complete = false;
 
 	public:
 		WizardSelect();
 
-		void addOption(QString name, std::function<QVector<QWizardPage*>()> makePage);
+		void addOption(WizardMaker wm);
 
 		void initializePage() override;
 
@@ -109,12 +116,12 @@ class WizardConclusionPage: public QWizardPage {
 class Wizard: public QWizard {
 	Q_OBJECT
 	private:
-		std::function<int()> m_acceptFunc;
+		std::function<int(QWizard*)> m_acceptFunc;
 
 	public:
 		Wizard(QString windowTitle, QWidget *parent = 0);
 
-		void setAccept(std::function<int()> acceptFunc);
+		void setAccept(std::function<int(QWizard*)> acceptFunc);
 
 		void accept();
 };

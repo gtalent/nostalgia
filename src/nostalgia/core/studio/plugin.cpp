@@ -18,7 +18,7 @@ namespace core {
 Plugin::Plugin() {
 }
 
-QVector<studio::WizardMaker> Plugin::importWizards(studio::PluginArgs args) {
+QVector<studio::WizardMaker> Plugin::importWizards(const studio::Context *args) {
 	return {
 		{
 			tr("Tile Sheet"),

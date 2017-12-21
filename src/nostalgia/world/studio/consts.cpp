@@ -6,22 +6,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "plugin.hpp"
+#include "consts.hpp"
 
 namespace nostalgia {
-namespace studio {
+namespace world {
 
-QVector<WizardMaker> Plugin::newWizards(const Context *ctx) {
-	return {};
-}
-
-QVector<WizardMaker> Plugin::importWizards(const Context *ctx) {
-	return {};
-}
-
-QWidget *Plugin::makeEditor(QString path, const Context *ctx) {
-	return nullptr;
-}
+QString PATH_ZONES = "/World/Zones/";
 
 }
 }

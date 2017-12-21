@@ -1,4 +1,4 @@
-all: gba_build gba_debug_build native_build native_debug_build windows_release windows_debug
+all: gba_build gba_debug_build native_build native_debug_build native_asan_build windows_release windows_debug
 
 ifneq ($(shell which gmake),)
 MAKE="gmake"
@@ -24,6 +24,11 @@ native_build:
 native_debug_build:
 	@if [ -d ${HOST_ENV}-debug ]; then \
 		${MAKE} -C ${HOST_ENV}-debug ${ARGS}; \
+	fi
+
+native_asan_build:
+	@if [ -d ${HOST_ENV}-asan ]; then \
+		${MAKE} -C ${HOST_ENV}-asan ${ARGS}; \
 	fi
 
 windows_release:

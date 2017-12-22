@@ -11,6 +11,7 @@
 #include <ox/std/string.hpp>
 #include <ox/std/types.hpp>
 #include "err.hpp"
+#include "optype.hpp"
 #include "presencemask.hpp"
 
 namespace ox {
@@ -28,10 +29,12 @@ class MetalClawWriter {
 	public:
 		MetalClawWriter(uint8_t *buff, size_t buffLen);
 
+		int op(const char*, int8_t *val);
 		int op(const char*, int16_t *val);
 		int op(const char*, int32_t *val);
 		int op(const char*, int64_t *val);
 
+		int op(const char*, uint8_t *val);
 		int op(const char*, uint16_t *val);
 		int op(const char*, uint32_t *val);
 		int op(const char*, uint64_t *val);
@@ -48,6 +51,12 @@ class MetalClawWriter {
 		int op(const char*, T *val);
 
 		void setFields(int fields);
+
+		size_t size();
+
+      OpType opType() {
+          return OpType::Write;
+      }
 
 	private:
 		template<typename I>
@@ -120,7 +129,7 @@ int MetalClawWriter::op(const char*, T *val, size_t len) {
 		// write the length
 		typedef uint32_t ArrayLength;
 		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
-			*((T*) &m_buff[m_buffIt]) = ox::bigEndianAdapt((ArrayLength) len);
+			*((ArrayLength*) &m_buff[m_buffIt]) = ox::bigEndianAdapt((ArrayLength) len);
 			m_buffIt += sizeof(ArrayLength);
 		} else {
 			err = MC_BUFFENDED;
@@ -144,9 +153,13 @@ int MetalClawWriter::op(const char*, T *val, size_t len) {
 };
 
 template<typename T>
-int write(uint8_t *buff, size_t buffLen, T *val) {
+int write(uint8_t *buff, size_t buffLen, T *val, size_t *sizeOut = nullptr) {
 	MetalClawWriter writer(buff, buffLen);
-	return ioOp(&writer, val);
+	auto err = ioOp(&writer, val);
+	if (sizeOut) {
+		*sizeOut = writer.size();
+	}
+	return err;
 }
 
 }

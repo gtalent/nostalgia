@@ -11,7 +11,10 @@
 
 namespace ox {
 
-RandomSeed Random::DEFAULT_SEED = {540932923848, 540932540932};
+Random::Random() {
+	m_seed[0] = 540932923848;
+	m_seed[1] = 540932540932;
+}
 
 Random::Random(RandomSeed seed) {
 	m_seed[0] = seed[0];
@@ -31,10 +34,4 @@ uint64_t Random::gen() {
 	return retval;
 }
 
-}
-
-
-uint64_t ox_rand() {
-	static ox::Random rand;
-	return rand.gen();
 }

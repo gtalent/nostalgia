@@ -17,7 +17,7 @@ struct __attribute__((packed)) FileStoreHeader {
 	public:
 		typedef InodeId InodeId_t;
 		typedef FsT FsSize_t;
-		const static auto VERSION = 6;
+		const static auto VERSION = 7;
 
 	private:
 		uint16_t m_version;
@@ -917,7 +917,7 @@ uint8_t *FileStore<Header>::format(uint8_t *buffer, typename Header::FsSize_t si
 }
 
 typedef FileStore<FileStoreHeader<uint16_t, uint16_t>> FileStore16;
-typedef FileStore<FileStoreHeader<uint32_t, uint64_t>> FileStore32;
+typedef FileStore<FileStoreHeader<uint32_t, uint16_t>> FileStore32;
 typedef FileStore<FileStoreHeader<uint64_t, uint64_t>> FileStore64;
 
 }

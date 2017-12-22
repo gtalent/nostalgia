@@ -17,6 +17,10 @@ MetalClawReader::MetalClawReader(uint8_t *buff, size_t buffLen): m_fieldPresence
 	m_buffLen = buffLen;
 }
 
+int MetalClawReader::op(const char*, int8_t *val) {
+	return readInteger(val);
+}
+
 int MetalClawReader::op(const char*, int16_t *val) {
 	return readInteger(val);
 }
@@ -26,6 +30,11 @@ int MetalClawReader::op(const char*, int32_t *val) {
 }
 
 int MetalClawReader::op(const char*, int64_t *val) {
+	return readInteger(val);
+}
+
+
+int MetalClawReader::op(const char*, uint8_t *val) {
 	return readInteger(val);
 }
 
@@ -44,6 +53,28 @@ int MetalClawReader::op(const char*, uint64_t *val) {
 int MetalClawReader::op(const char*, bool *val) {
 	*val = m_fieldPresence.get(m_field++);
 	return 0;
+}
+
+size_t MetalClawReader::arrayLength(const char*) {
+	size_t len = 0;
+	if (m_fieldPresence.get(m_field)) {
+		// read the length
+		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
+			len = ox::bigEndianAdapt(*((ArrayLength*) &m_buff[m_buffIt]));
+		}
+	}
+	return len;
+}
+
+size_t MetalClawReader::stringLength(const char*) {
+	size_t len = 0;
+	if (m_fieldPresence.get(m_field)) {
+		// read the length
+		if (m_buffIt + sizeof(StringLength) < m_buffLen) {
+			len = ox::bigEndianAdapt(*((StringLength*) &m_buff[m_buffIt]));
+		}
+	}
+	return len;
 }
 
 void MetalClawReader::setFields(int fields) {

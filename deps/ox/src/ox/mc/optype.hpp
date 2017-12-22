@@ -8,24 +8,20 @@
 
 #pragma once
 
-uint64_t ox_rand();
-
 namespace ox {
 
-typedef uint64_t RandomSeed[2];
-
-class Random {
-	public:
-
-	private:
-		RandomSeed m_seed;
-
-	public:
-		Random();
-
-		Random(RandomSeed seed);
-
-		uint64_t gen();
+enum class OpType {
+	Read = 0,
+	Write = 1
 };
+
+template<typename T, typename O>
+ox::Error ioOp(T *io, O *obj) {
+	if (io->opType() == ox::OpType::Read) {
+		return ioOpRead(io, obj);
+	} else {
+		return ioOpWrite(io, obj);
+	}
+}
 
 }

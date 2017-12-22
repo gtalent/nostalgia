@@ -17,6 +17,10 @@ MetalClawReader::MetalClawReader(uint8_t *buff, size_t buffLen): m_fieldPresence
 	m_buffLen = buffLen;
 }
 
+int MetalClawReader::op(const char*, int8_t *val) {
+	return readInteger(val);
+}
+
 int MetalClawReader::op(const char*, int16_t *val) {
 	return readInteger(val);
 }
@@ -26,6 +30,11 @@ int MetalClawReader::op(const char*, int32_t *val) {
 }
 
 int MetalClawReader::op(const char*, int64_t *val) {
+	return readInteger(val);
+}
+
+
+int MetalClawReader::op(const char*, uint8_t *val) {
 	return readInteger(val);
 }
 

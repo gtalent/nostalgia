@@ -32,10 +32,12 @@ class MetalClawReader {
 	public:
 		MetalClawReader(uint8_t *buff, size_t buffLen);
 
+		int op(const char*, int8_t *val);
 		int op(const char*, int16_t *val);
 		int op(const char*, int32_t *val);
 		int op(const char*, int64_t *val);
 
+		int op(const char*, uint8_t *val);
 		int op(const char*, uint16_t *val);
 		int op(const char*, uint32_t *val);
 		int op(const char*, uint64_t *val);

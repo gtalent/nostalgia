@@ -17,6 +17,10 @@ MetalClawWriter::MetalClawWriter(uint8_t *buff, size_t buffLen): m_fieldPresence
 	m_buffLen = buffLen;
 }
 
+int MetalClawWriter::op(const char*, int8_t *val) {
+	return appendInteger(*val);
+}
+
 int MetalClawWriter::op(const char*, int16_t *val) {
 	return appendInteger(*val);
 }
@@ -26,6 +30,11 @@ int MetalClawWriter::op(const char*, int32_t *val) {
 }
 
 int MetalClawWriter::op(const char*, int64_t *val) {
+	return appendInteger(*val);
+}
+
+
+int MetalClawWriter::op(const char*, uint8_t *val) {
 	return appendInteger(*val);
 }
 
@@ -49,6 +58,10 @@ void MetalClawWriter::setFields(int fields) {
 	m_fields = fields;
 	m_buffIt = (fields / 8 + 1) - (fields % 8 == 0);
 	m_fieldPresence.setMaxLen(m_buffIt);
+}
+
+size_t MetalClawWriter::size() {
+	return m_buffIt;
 }
 
 }

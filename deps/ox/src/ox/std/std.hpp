@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include "array.hpp"
 #include "bitops.hpp"
 #include "byteswap.hpp"
 #include "memops.hpp"

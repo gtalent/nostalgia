@@ -30,10 +30,6 @@ class Vector {
 
 		~Vector();
 
-		size_t size() const;
-
-		void resize(size_t size);
-
 		Vector &operator=(Vector &other);
 
 		Vector &operator=(Vector &&other);
@@ -41,6 +37,10 @@ class Vector {
 		T &operator[](size_t i);
 
 		const T &operator[](size_t i) const;
+
+		size_t size() const;
+
+		void resize(size_t size);
 
 };
 
@@ -52,7 +52,7 @@ Vector<T>::Vector(size_t size) {
 
 template<typename T>
 Vector<T>::Vector(Vector<T> &other) {
-	m_size = size;
+	m_size = other.m_size;
 	m_items = new T[m_size];
 	for (size_t i = 0; i < m_size; i++) {
 		m_items[i] = other.m_items[i];
@@ -78,7 +78,7 @@ Vector<T>::~Vector() {
 template<typename T>
 Vector<T> &Vector<T>::operator=(Vector<T> &other) {
 	~Vector<T>();
-	m_size = size;
+	m_size = other.m_size;
 	m_items = new T[m_size];
 	for (size_t i = 0; i < m_size; i++) {
 		m_items[i] = other.m_items[i];
@@ -97,6 +97,16 @@ Vector<T> &Vector<T>::operator=(Vector<T> &&other) {
 }
 
 template<typename T>
+T &Vector<T>::operator[](size_t i) {
+	return *(m_items[i]);
+}
+
+template<typename T>
+const T &Vector<T>::operator[](size_t i) const {
+	return *(m_items[i]);
+}
+
+template<typename T>
 size_t Vector<T>::size() const {
 	return m_size;
 };
@@ -111,16 +121,6 @@ void Vector<T>::resize(size_t size) {
 	}
 	m_size = size;
 	delete[] oldItems;
-}
-
-template<typename T>
-T &Vector<T>::operator[](size_t i) {
-	return *(m_items[i]);
-}
-
-template<typename T>
-const T &Vector<T>::operator[](size_t i) const {
-	return *(m_items[i]);
 }
 
 }

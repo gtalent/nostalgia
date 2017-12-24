@@ -14,21 +14,21 @@ ifneq ($(shell which docker),)
 endif
 
 make:
-	${ENV_RUN} ${MAKE} -j -C build HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ./scripts/run-make build
 gba-pkg:
-	${ENV_RUN} ${MAKE} -j -C build ARGS="install" HOST_ENV=${HOST_ENV}
-	${ENV_RUN} ${MAKE} -j -C build HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ./scripts/run-make build install
+	${ENV_RUN} ./scripts/run-make build
 	${ENV_RUN} ./scripts/gba-pkg
 preinstall:
-	${ENV_RUN} ${MAKE} -j -C build ARGS="preinstall" HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ./scripts/run-make build preinstall
 install:
-	${ENV_RUN} ${MAKE} -j -C build ARGS="install" HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ./scripts/run-make build install
 clean:
-	${ENV_RUN} ${MAKE} -j -C build ARGS="clean" HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ./scripts/run-make build clean
 purge:
 	${ENV_RUN} rm -rf $$(find build -mindepth 1 -maxdepth 1 -type d) dist
 test:
-	${ENV_RUN} ${MAKE} -j -C build ARGS="test" HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ./scripts/run-make build test
 
 run: install
 	./dist/current/bin/nostalgia -debug

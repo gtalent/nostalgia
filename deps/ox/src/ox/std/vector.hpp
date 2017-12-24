@@ -13,28 +13,30 @@
 namespace ox {
 
 template<typename T>
-class larray {
+class Vector {
 
 	private:
 		size_t m_size = 0;
 		T *m_items = nullptr;
 
 	public:
-		larray() = default;
+		Vector() = default;
 
-		explicit larray(size_t size);
+		explicit Vector(size_t size);
 
-		larray(larray &other);
+		Vector(Vector &other);
 
-		larray(larray &&other);
+		Vector(Vector &&other);
 
-		~larray();
+		~Vector();
 
 		size_t size() const;
 
-		larray &operator=(larray &other);
+		void resize(size_t size);
 
-		larray &operator=(larray &&other);
+		Vector &operator=(Vector &other);
+
+		Vector &operator=(Vector &&other);
 
 		T &operator[](size_t i);
 
@@ -43,13 +45,13 @@ class larray {
 };
 
 template<typename T>
-larray<T>::larray(size_t size) {
+Vector<T>::Vector(size_t size) {
 	m_size = size;
 	m_items = new T[m_size];
 }
 
 template<typename T>
-larray<T>::larray(larray<T> &other) {
+Vector<T>::Vector(Vector<T> &other) {
 	m_size = size;
 	m_items = new T[m_size];
 	for (size_t i = 0; i < m_size; i++) {
@@ -58,7 +60,7 @@ larray<T>::larray(larray<T> &other) {
 }
 
 template<typename T>
-larray<T>::larray(larray<T> &&other) {
+Vector<T>::Vector(Vector<T> &&other) {
 	m_size = other.m_size;
 	m_items = other.m_items;
 	other.m_size = 0;
@@ -66,14 +68,16 @@ larray<T>::larray(larray<T> &&other) {
 }
 
 template<typename T>
-larray<T>::~larray() {
+Vector<T>::~Vector() {
 	if (m_items) {
 		delete m_items;
+		m_items = nullptr;
 	}
 }
 
 template<typename T>
-larray<T> &larray<T>::operator=(larray<T> &other) {
+Vector<T> &Vector<T>::operator=(Vector<T> &other) {
+	~Vector<T>();
 	m_size = size;
 	m_items = new T[m_size];
 	for (size_t i = 0; i < m_size; i++) {
@@ -83,7 +87,8 @@ larray<T> &larray<T>::operator=(larray<T> &other) {
 }
 
 template<typename T>
-larray<T> &larray<T>::operator=(larray<T> &&other) {
+Vector<T> &Vector<T>::operator=(Vector<T> &&other) {
+	~Vector<T>();
 	m_size = other.m_size;
 	m_items = other.m_items;
 	other.m_size = 0;
@@ -92,17 +97,28 @@ larray<T> &larray<T>::operator=(larray<T> &&other) {
 }
 
 template<typename T>
-size_t larray<T>::size() const {
+size_t Vector<T>::size() const {
 	return m_size;
 };
 
 template<typename T>
-T &larray<T>::operator[](size_t i) {
+void Vector<T>::resize(size_t size) {
+	auto oldItems = m_items;
+	m_items = new T[size];
+	const auto itRange = size > m_size ? m_size : size;
+	for (size_t i = 0; i < itRange; i++) {
+		m_items[i] = oldItems[i];
+	}
+	m_size = size;
+}
+
+template<typename T>
+T &Vector<T>::operator[](size_t i) {
 	return *(m_items[i]);
 }
 
 template<typename T>
-const T &larray<T>::operator[](size_t i) const {
+const T &Vector<T>::operator[](size_t i) const {
 	return *(m_items[i]);
 }
 

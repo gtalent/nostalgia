@@ -198,7 +198,7 @@ map<string, int(*)(string)> tests = {
 				auto dataIn = "test string";
 				auto dataOutLen = 1024 * 64;
 				auto dataOut = new char[dataOutLen];
-				vector<uint64_t> inodes;
+				std::vector<uint64_t> inodes;
 
 				const auto size = 1024 * 1024;
 				auto buff = new uint8_t[size];
@@ -234,7 +234,7 @@ map<string, int(*)(string)> tests = {
 				auto dataIn = "test string";
 				auto dataOutLen = ox_strlen(dataIn) + 1;
 				auto dataOut = new char[dataOutLen];
-				vector<uint64_t> inodes;
+				std::vector<uint64_t> inodes;
 
 				const auto size = 1024 * 1024;
 				auto buff = new uint8_t[size];
@@ -263,7 +263,7 @@ map<string, int(*)(string)> tests = {
 				auto dataIn = "test string";
 				auto dataOutLen = ox_strlen(dataIn) + 1;
 				auto dataOut = new char[dataOutLen];
-				vector<uint64_t> inodes;
+				std::vector<uint64_t> inodes;
 
 				const auto size = 1024 * 1024;
 				auto buff = new uint8_t[size];
@@ -298,8 +298,8 @@ map<string, int(*)(string)> tests = {
 				auto dataIn = "test string";
 				auto dataOutLen = ox_strlen(dataIn) + 1;
 				auto dataOut = new char[dataOutLen];
-				vector<uint64_t> inodes;
-				vector<DirectoryListing<string>> files;
+				std::vector<uint64_t> inodes;
+				std::vector<DirectoryListing<string>> files;
 
 				const auto size = 1024 * 1024;
 				auto buff = new uint8_t[size];

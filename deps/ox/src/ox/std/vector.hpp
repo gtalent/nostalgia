@@ -70,7 +70,7 @@ Vector<T>::Vector(Vector<T> &&other) {
 template<typename T>
 Vector<T>::~Vector() {
 	if (m_items) {
-		delete m_items;
+		delete[] m_items;
 		m_items = nullptr;
 	}
 }

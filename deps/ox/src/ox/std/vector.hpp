@@ -110,6 +110,7 @@ void Vector<T>::resize(size_t size) {
 		m_items[i] = oldItems[i];
 	}
 	m_size = size;
+	delete[] oldItems;
 }
 
 template<typename T>

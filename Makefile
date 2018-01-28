@@ -38,8 +38,8 @@ gba-run: gba-pkg
 	mgba-qt nostalgia.gba
 gdb: make
 	gdb ./build/current/src/wombat/wombat
-gdb-studio: make
-	gdb "./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json"
+gdb-studio: install
+	gdb --args ./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json
 
 devenv-image:
 	docker build . -t ${DEVENV_IMAGE}
@@ -63,35 +63,28 @@ shell:
 
 release:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-release
-	${ENV_RUN} ./scripts/setup_build ${HOST_ENV} release
-	${ENV_RUN} rm -f build/current
+	${ENV_RUN} ./scripts/setup-build.ps1 ${HOST_ENV} release
 
 debug:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-debug
-	${ENV_RUN} ./scripts/setup_build ${HOST_ENV} debug
-	${ENV_RUN} rm -f build/current
+	${ENV_RUN} ./scripts/setup-build.ps1 ${HOST_ENV} debug
 
 asan:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-asan
-	${ENV_RUN} ./scripts/setup_build ${HOST_ENV} asan
-	${ENV_RUN} rm -f build/current
+	${ENV_RUN} ./scripts/setup-build.ps1 ${HOST_ENV} asan
 
 windows:
 	${ENV_RUN} rm -rf build/windows
-	${ENV_RUN} ./scripts/setup_build windows
-	${ENV_RUN} rm -f build/current
+	${ENV_RUN} ./scripts/setup-build.ps1 windows
 
 windows-debug:
 	${ENV_RUN} rm -rf build/windows
-	${ENV_RUN} ./scripts/setup_build windows debug
-	${ENV_RUN} rm -f build/current
+	${ENV_RUN} ./scripts/setup-build.ps1 windows debug
 
 gba:
 	${ENV_RUN} rm -rf build/gba-release
-	${ENV_RUN} ./scripts/setup_build gba release
-	${ENV_RUN} rm -f build/current
+	${ENV_RUN} ./scripts/setup-build.ps1 gba release
 
 gba-debug:
 	${ENV_RUN} rm -rf build/gba-debug
-	${ENV_RUN} ./scripts/setup_build gba debug
-	${ENV_RUN} rm -f build/current
+	${ENV_RUN} ./scripts/setup-build.ps1 gba debug

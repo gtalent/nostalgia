@@ -2,13 +2,7 @@
 
 set -e
 
-if [$(which gmake) != 'gmake not found']; then
-	MAKE="gmake"
-else
-	MAKE="make"
-fi
-
 for f in $(find $1 -maxdepth 1 -mindepth 1 -type d)
 do
-	$MAKE -s -j -C "$f" $2
+	cmake --build "$f" --target $2 -- -j
 done

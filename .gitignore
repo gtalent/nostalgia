@@ -1,7 +1,4 @@
-build/current
-build/gba
-build/*-release
-build/*-debug
+build
 dist
 tags
 nostalgia.gba

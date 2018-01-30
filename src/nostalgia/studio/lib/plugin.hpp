@@ -17,6 +17,7 @@
 #include <QWizardPage>
 
 #include "project.hpp"
+#include "wizard.hpp"
 
 namespace nostalgia {
 namespace studio {
@@ -24,12 +25,6 @@ namespace studio {
 struct Context {
 	QWidget *tabParent = nullptr;
 	const Project *project = nullptr;
-};
-
-struct WizardMaker {
-	QString name;
-	std::function<QVector<QWizardPage*>()> make;
-	std::function<int(QWizard*)> onAccept;
 };
 
 struct EditorMaker {

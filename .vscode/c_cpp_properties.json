@@ -39,7 +39,9 @@
                 "/usr/include/x86_64-linux-gnu/qt5/QtCore",
                 "/usr/include/x86_64-linux-gnu/qt5",
                 "${workspaceRoot}/deps/ox/src",
-                "/usr/lib/llvm-3.8/lib/clang/3.8.1/include"
+                "/usr/lib/llvm-3.8/lib/clang/3.8.1/include",
+                "${workspaceRoot}/src",
+                "/usr/include/x86_64-linux-gnu/qt5/QtWidgets"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",

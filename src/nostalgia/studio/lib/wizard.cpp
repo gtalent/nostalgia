@@ -336,9 +336,8 @@ void Wizard::setAccept(std::function<int(QWizard*)> acceptFunc) {
 
 void Wizard::accept() {
 	auto page = dynamic_cast<WizardFormPage*>(currentPage());
-	if (page != nullptr && page->accept() == 0) {
-		QDialog::accept();
-	} else if (m_acceptFunc != nullptr && m_acceptFunc(this) == 0) {
+	if (page != nullptr and page->accept() == 0 and
+	    m_acceptFunc != nullptr and m_acceptFunc(this) == 0) {
 		QDialog::accept();
 	}
 }

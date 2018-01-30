@@ -12,8 +12,6 @@ target_link_libraries(
 		Qt5::Core
 		Qt5::Widgets
 		NostalgiaStudio
-		OxFS
-		OxStd
 )
 
 install(

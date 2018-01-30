@@ -18,8 +18,6 @@ namespace world {
 struct NewWorldWizard: public studio::WizardFormPage {
 
 	static const QString FIELD_WORLD_PATH;
-	static const QString FIELD_WIDTH;
-	static const QString FIELD_HEIGHT;
 
 	NewWorldWizard(const studio::Context *ctx);
 

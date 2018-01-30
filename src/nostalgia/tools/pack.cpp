@@ -125,30 +125,36 @@ int run(ClArgs args) {
 				fsBuff = fs->buff(); // update fsBuff pointer in case there is a new buff
 				err |= fs->write(argInode, imgDataBuff, imgDataBuffSize);
 
-				if (argCompact) {
-					fs->resize();
-				}
+				if (!err) {
+					if (argCompact) {
+						fs->resize();
+					}
 
-				auto fsFile = fopen(argFsPath.toUtf8(), "wb");
-				if (fsFile) {
-					err = fwrite(fsBuff, fs->size(), 1, fsFile) != 1;
-					err |= fclose(fsFile);
-					if (err) {
-						cerr << "Could not write to file system file.\n";
+					auto fsFile = fopen(argFsPath.toUtf8(), "wb");
+					if (fsFile) {
+						err = fwrite(fsBuff, fs->size(), 1, fsFile) != 1;
+						err |= fclose(fsFile);
+						if (err) {
+							cerr << "Could not write to file system file.\n";
+						}
+					} else {
+						err = 2;
 					}
 				} else {
-					err = 2;
+					err = 3;
 				}
 
 				delete fs;
 			} else {
-				err = 3;
+				err = 4;
 			}
 		}
 
-		delete[] fsBuff;
+		if (fsBuff) {
+			delete[] fsBuff;
+		}
 	} else {
-		err = 4;
+		err = 5;
 	}
 
 	return err;

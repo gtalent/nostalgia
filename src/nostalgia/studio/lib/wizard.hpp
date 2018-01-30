@@ -22,7 +22,11 @@
 namespace nostalgia {
 namespace studio {
 
-class WizardMaker;
+struct WizardMaker {
+	QString name;
+	std::function<QVector<QWizardPage*>()> make;
+	std::function<int(QWizard*)> onAccept;
+};
 
 class WizardSelect: public QWizardPage {
 	Q_OBJECT
@@ -53,6 +57,7 @@ class WizardSelect: public QWizardPage {
 
 class WizardFormPage: public QWizardPage {
 	Q_OBJECT
+
 	private:
 		struct Field {
 			QString defaultValue = "";

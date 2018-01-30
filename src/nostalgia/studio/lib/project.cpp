@@ -79,7 +79,7 @@ FileSystem *Project::romFs() {
 }
 
 int Project::mkdir(QString path) const {
-	auto err = m_fs->mkdir(path.toUtf8().data());
+	auto err = m_fs->mkdir(path.toUtf8().data(), true);
 	emit updated(path);
 	return err;
 }

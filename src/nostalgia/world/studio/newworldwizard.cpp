@@ -17,8 +17,6 @@ namespace world {
 using namespace studio;
 
 const QString NewWorldWizard::FIELD_WORLD_PATH = "World.WorldPath";
-const QString NewWorldWizard::FIELD_WIDTH = "World.Width";
-const QString NewWorldWizard::FIELD_HEIGHT = "World.Height";
 
 NewWorldWizard::NewWorldWizard(const Context *ctx) {
 	addLineEdit(tr("&Name:"), FIELD_WORLD_PATH, "", [this, ctx](QString worldName) {
@@ -27,28 +25,6 @@ NewWorldWizard::NewWorldWizard(const Context *ctx) {
 				return 0;
 			} else {
 				this->showValidationError(tr("World already exists: %1").arg(worldName));
-				return 1;
-			}
-		}
-	);
-	addLineEdit(tr("&Width:"), FIELD_WIDTH, "", [this, ctx](QString widthStr) {
-			bool ok = false;
-			widthStr.toInt(&ok);
-			if (ok) {
-				return 0;
-			} else {
-				this->showValidationError(tr("Invalid width: \"%1\"").arg(widthStr));
-				return 1;
-			}
-		}
-	);
-	addLineEdit(tr("&Height:"), FIELD_HEIGHT, "", [this, ctx](QString widthStr) {
-			bool ok = false;
-			widthStr.toInt(&ok);
-			if (ok) {
-				return 0;
-			} else {
-				this->showValidationError(tr("Invalid height: \"%1\"").arg(widthStr));
 				return 1;
 			}
 		}

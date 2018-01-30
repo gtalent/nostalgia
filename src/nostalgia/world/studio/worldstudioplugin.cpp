@@ -29,10 +29,14 @@ QVector<WizardMaker> WorldEditorPlugin::newWizards(const Context *ctx) {
 				return {new NewWorldWizard(ctx)};
 			},
 			[ctx](QWizard *w) {
-				w->field(NewWorldWizard::FIELD_WORLD_PATH).toString();
-				w->field(NewWorldWizard::FIELD_WIDTH).toInt();
-				w->field(NewWorldWizard::FIELD_HEIGHT).toInt();
-				return 0;
+				qDebug() << "creating Region";
+				auto path = PATH_ZONES + w->field(NewWorldWizard::FIELD_WORLD_PATH).toString();
+				Region rgn;
+				auto err = ctx->project->mkdir(PATH_ZONES);
+				ctx->project->saveRomFs();
+				qDebug() << "err:" << err;
+				err |= ctx->project->writeObj(path, &rgn);
+				return err;
 			}
 		}
 	};

@@ -9,6 +9,7 @@
 #pragma once
 
 #include <ox/mc/mc.hpp>
+#include <ox/std/std.hpp>
 
 #include <nostalgia/common/common.hpp>
 #include <nostalgia/core/core.hpp>
@@ -83,9 +84,12 @@ struct Region {
 	template<typename T>
 	friend ox::Error ioOpWrite(T*, Region*);
 
+	enum {
+		FIELDS = 1
+	};
+
 	protected:
-		static const int FIELDS;
-		Zone *m_zones = nullptr;
+		ox::Vector<Zone*> m_zones;
 
 	public:
 

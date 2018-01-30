@@ -15,7 +15,6 @@ using namespace common;
 using namespace core;
 
 const int Zone::FIELDS = 1;
-const int Region::FIELDS = 0;
 
 
 Zone::Zone(Context *ctx, Bounds bnds, InodeId_t tileSheet) {

@@ -10,6 +10,10 @@
 
 #include <ox/std/std.hpp>
 
+#include <iostream>
+using std::cout;
+using std::endl;
+
 namespace ox {
 
 template<typename FsT, typename InodeId>
@@ -801,6 +805,7 @@ void *FileStore<Header>::alloc(typename Header::FsSize_t size) {
 		compact();
 		next = nextInodeAddr();
 		if ((next + size) > ptr(end())) {
+			cout << "alloc returning nullptr\n";
 			return nullptr;
 		}
 	}
@@ -818,6 +823,7 @@ void *FileStore<Header>::alloc(typename Header::FsSize_t size) {
 
 template<typename Header>
 void FileStore<Header>::compact() {
+	cout << "FileStore::compact\n";
 	auto dest = ptr<Inode*>(firstInode());
 	auto current = ptr<Inode*>(firstInode());
 	while (current->getNext() > firstInode() && current->getNext() < ptr(end())) {

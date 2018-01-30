@@ -60,10 +60,7 @@ FileSystem *expandCopy(FileSystem *fs, size_t size) {
 FileSystem *expandCopyCleanup(FileSystem *fs, size_t size) {
 	auto out = expandCopy(fs, size);
 
-	if (out) {
-		delete[] fs->buff();
-		delete fs;
-	} else {
+	if (!out) {
 		out = fs;
 	}
 

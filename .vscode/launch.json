@@ -1,0 +1,25 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Studio",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/dist/current/bin/nostalgia-studio",
+            "args": ["-profile", "${workspaceFolder}/dist/current/share/nostalgia-studio.json"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "program": "${workspaceFolder}/dist/current/Nostalgia.app/Contents/MacOS/nostalgia-studio",
+                "args": ["-profile", "${workspaceFolder}/dist/current/Nostalgia.app/Contents/Resources/nostalgia-studio.json"]
+            }
+        }
+    ]
+}

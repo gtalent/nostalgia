@@ -51,7 +51,7 @@ class MetalClawReader {
 		int op(const char*, T *val);
 
 		template<size_t L>
-		int op(const char*, ox::bstring<L> *val);
+		int op(const char*, ox::BString<L> *val);
 
 		size_t arrayLength(const char*);
 
@@ -82,7 +82,7 @@ int MetalClawReader::op(const char*, T *val) {
 };
 
 template<size_t L>
-int MetalClawReader::op(const char*, ox::bstring<L> *val) {
+int MetalClawReader::op(const char*, ox::BString<L> *val) {
 	int err = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length

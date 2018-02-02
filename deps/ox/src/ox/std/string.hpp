@@ -16,20 +16,20 @@ namespace ox {
 
 // Bounded String
 template<size_t buffLen>
-class bstring {
+class BString {
 	private:
 		uint8_t m_buff[buffLen];
 
 	public:
-		bstring();
+		BString();
 
-		bstring(const char *str);
+		BString(const char *str);
 
-		const bstring &operator=(const char *str);
+		const BString &operator=(const char *str);
 
-		const bstring &operator=(char *str);
+		const BString &operator=(char *str);
 
-		bool operator==(const bstring &other);
+		bool operator==(const BString &other);
 
 		char *data();
 
@@ -50,17 +50,17 @@ class bstring {
 };
 
 template<size_t size>
-bstring<size>::bstring() {
+BString<size>::BString() {
 	m_buff[0] = 0;
 }
 
 template<size_t size>
-bstring<size>::bstring(const char *str) {
+BString<size>::BString(const char *str) {
 	*this = str;
 }
 
 template<size_t size>
-const bstring<size> &bstring<size>::operator=(const char *str) {
+const BString<size> &BString<size>::operator=(const char *str) {
 	size_t strLen = ox_strlen(str) + 1;
 	if (cap() < strLen) {
 		strLen = cap();
@@ -72,12 +72,12 @@ const bstring<size> &bstring<size>::operator=(const char *str) {
 }
 
 template<size_t size>
-const bstring<size> &bstring<size>::operator=(char *str) {
+const BString<size> &BString<size>::operator=(char *str) {
 	return *this = (const char*) str;
 }
 
 template<size_t buffLen>
-bool bstring<buffLen>::operator==(const bstring<buffLen> &other) {
+bool BString<buffLen>::operator==(const BString<buffLen> &other) {
 	bool retval = true;
 	size_t i = 0;
 	while (i < buffLen && (m_buff[i] || other.m_buff[i])) {
@@ -91,12 +91,12 @@ bool bstring<buffLen>::operator==(const bstring<buffLen> &other) {
 }
 
 template<size_t buffLen>
-char *bstring<buffLen>::data() {
+char *BString<buffLen>::data() {
 	return (char*) m_buff;
 }
 
 template<size_t buffLen>
-size_t bstring<buffLen>::len() {
+size_t BString<buffLen>::len() {
 	size_t length = 0;
 	for (size_t i = 0; i < buffLen; i++) {
 		uint8_t b = m_buff[i];
@@ -114,14 +114,14 @@ size_t bstring<buffLen>::len() {
 }
 
 template<size_t buffLen>
-size_t bstring<buffLen>::size() {
+size_t BString<buffLen>::size() {
 	size_t i;
 	for (i = 0; i < buffLen && m_buff[i]; i++);
 	return i + 1; // add one for null terminator
 }
 
 template<size_t buffLen>
-size_t bstring<buffLen>::cap() {
+size_t BString<buffLen>::cap() {
 	return buffLen;
 }
 

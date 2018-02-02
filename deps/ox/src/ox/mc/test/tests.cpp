@@ -20,7 +20,7 @@ using namespace ox;
 struct TestStructNest {
 	bool Bool = false;
 	uint32_t Int = 0;
-	bstring<32> String = "";
+	BString<32> String = "";
 };
 
 struct TestStruct {
@@ -34,7 +34,7 @@ struct TestStruct {
 	int32_t Int6 = 0;
 	int32_t Int7 = 0;
 	int32_t Int8 = 0;
-	bstring<32> String = "";
+	BString<32> String = "";
 	uint32_t List[4] = {0, 0, 0 , 0};
 	TestStructNest EmptyStruct;
 	TestStructNest Struct;

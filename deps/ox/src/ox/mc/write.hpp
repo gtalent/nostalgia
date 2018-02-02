@@ -45,7 +45,7 @@ class MetalClawWriter {
 		int op(const char*, T *val, size_t len);
 
 		template<size_t L>
-		int op(const char*, ox::bstring<L> *val);
+		int op(const char*, ox::BString<L> *val);
 
 		template<typename T>
 		int op(const char*, T *val);
@@ -64,7 +64,7 @@ class MetalClawWriter {
 };
 
 template<size_t L>
-int MetalClawWriter::op(const char*, ox::bstring<L> *val) {
+int MetalClawWriter::op(const char*, ox::BString<L> *val) {
 	int err = 0;
 	bool fieldSet = false;
 	if (val->len()) {

@@ -33,15 +33,15 @@
             "includePath": [
                 "/usr/include",
                 "/usr/local/include",
-                "${workspaceRoot}",
                 "/usr/include/c++/6",
                 "/usr/include/x86_64-linux-gnu/c++/6",
                 "/usr/include/x86_64-linux-gnu/qt5/QtCore",
                 "/usr/include/x86_64-linux-gnu/qt5",
-                "${workspaceRoot}/deps/ox/src",
+                "/usr/include/x86_64-linux-gnu/qt5/QtWidgets",
                 "/usr/lib/llvm-3.8/lib/clang/3.8.1/include",
+                "${workspaceRoot}/deps/ox/src",
                 "${workspaceRoot}/src",
-                "/usr/include/x86_64-linux-gnu/qt5/QtWidgets"
+                "/usr/include/x86_64-linux-gnu/qt5/QtGui"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
@@ -52,7 +52,7 @@
                     "${workspaceRoot}"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": ""
+                "databaseFilename": "${workspaceRoot}/build/current/compile_commands.json"
             }
         },
         {

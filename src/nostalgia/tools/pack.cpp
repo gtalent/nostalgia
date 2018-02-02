@@ -13,7 +13,7 @@
 #include <nostalgia/core/gba/gba.hpp>
 #include <nostalgia/common/point.hpp>
 #include <ox/clargs/clargs.hpp>
-#include <ox/fs/filesystem.hpp>
+#include <ox/fs/fs.hpp>
 
 using namespace std;
 using namespace ox;

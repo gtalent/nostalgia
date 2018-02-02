@@ -6,7 +6,7 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "cmake --build ${workspaceFolder}/build/current --target install",
+            "command": "cmake --build ${workspaceFolder}/build/current --target install -- -j",
             "group": {
                 "kind": "build",
                 "isDefault": true

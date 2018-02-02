@@ -10,7 +10,7 @@
 
 #include <QSharedPointer>
 
-#include <ox/fs/filesystem.hpp>
+#include <ox/fs/fs.hpp>
 #include <ox/mc/mc.hpp>
 
 namespace nostalgia {

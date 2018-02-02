@@ -5,7 +5,7 @@ Param(
     [parameter(Mandatory=$true,Position=1)][String] ${buildType}
 )
 
-$project=(Get-Location)
+$project=(Get-Location).Path
 
 if (${target} -eq "windows") {
 	$toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/Mingw.cmake"
@@ -21,8 +21,8 @@ if (${buildType} -eq "asan") {
 	$buildTypeArgs="-DCMAKE_BUILD_TYPE=Release"
 }
 
-$buildDir="build/${target}-${buildType}"
-$distDir="../../dist/${target}-${buildType}"
+$buildDir="${project}/build/${target}-${buildType}"
+$distDir="${project}/dist/${target}-${buildType}"
 
 New-Item -ItemType Directory -Path $buildDir | Out-Null
 Push-Location $buildDir
@@ -37,6 +37,8 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON `
 Pop-Location
 
 rm -f build/current dist/current
-New-Item -ItemType Directory -Path dist | Out-Null
+if (!(Test-Path -Path dist)) {
+    New-Item -ItemType Directory -Path dist | Out-Null
+}
 ln -s ${target}-${buildType} build/current
 ln -s ${target}-${buildType} dist/current

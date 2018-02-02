@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <ox/fs/filesystem.hpp>
+#include <ox/fs/fs.hpp>
 
 #include "gfx.hpp"
 #include "media.hpp"

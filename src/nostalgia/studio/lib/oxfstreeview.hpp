@@ -12,7 +12,7 @@
 #include <QVector>
 #include <QVariant>
 
-#include <ox/fs/filesystem.hpp>
+#include <ox/fs/fs.hpp>
 
 namespace nostalgia {
 namespace studio {

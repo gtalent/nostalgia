@@ -11,7 +11,7 @@
 #include <QMap>
 
 #include <ox/clargs/clargs.hpp>
-#include <ox/fs/filesystem.hpp>
+#include <ox/fs/fs.hpp>
 
 #include <nostalgia/core/gba/gba.hpp>
 #include <nostalgia/common/point.hpp>

@@ -11,8 +11,7 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <ox/fs/filesystem.hpp>
-#include <ox/fs/pathiterator.hpp>
+#include <ox/fs/fs.hpp>
 #include <ox/std/std.hpp>
 
 using namespace std;

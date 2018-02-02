@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <ox/fs/filesystem.hpp>
+#include <ox/fs/fs.hpp>
 
 using namespace ox;
 

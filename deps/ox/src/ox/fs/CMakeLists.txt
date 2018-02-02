@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 add_library(
 	OxFS
-		filesystem.cpp
-		pathiterator.cpp
+		filesystem/filesystem.cpp
+		filesystem/pathiterator.cpp
 )
 
 set_property(
@@ -31,10 +31,16 @@ endif()
 install(
 	FILES
 		filestore.hpp
-		filesystem.hpp
-		pathiterator.hpp
 	DESTINATION
 		include/ox/fs
+)
+
+install(
+	FILES
+		filesystem/filesystem.hpp
+		filesystem/pathiterator.hpp
+	DESTINATION
+		include/ox/fs/filesystem
 )
 
 install(

@@ -23,6 +23,8 @@ typedef long               int64_t;
 typedef unsigned long      uint64_t;
 #endif
 
+typedef uint64_t uintmax_t;
+
 namespace ox {
 
 typedef uint32_t Error;

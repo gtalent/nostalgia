@@ -10,18 +10,8 @@
 
 namespace ox {
 
-enum class LogLevel_t: int {
-	Info,
-	Debug,
-	Error,
-};
-
-void logFile(const char *path);
-
-void info(const char *msg, ...);
-
-void debug(const char *msg, ...);
-
-void error(const char *msg, ...);
+void trace(const char *file, int line, const char *ch, const char *msg);
 
 }
+
+#define ox_trace(ch, msg) ox::trace(__FILE__, __LINE__, ch, msg)

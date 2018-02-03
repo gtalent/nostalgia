@@ -5,7 +5,7 @@ add_executable(
 		tests.cpp
 )
 
-target_link_libraries(StdTest OxLog OxStd)
+target_link_libraries(StdTest OxTrace OxStd)
 
 add_test("Test\\ ox_memcmp\\ ABCDEFG\\ !=\\ HIJKLMN" StdTest "ABCDEFG != HIJKLMN")
 add_test("Test\\ ox_memcmp\\ HIJKLMN\\ !=\\ ABCDEFG" StdTest "HIJKLMN != ABCDEFG")
@@ -24,7 +24,7 @@ add_executable(
 target_link_libraries(
 	StrOpsTest
 		OxStd
-		OxLog
+		OxTrace
 )
 
 add_test("Test\\ ox_strcmp\\ asdf\\ !=\\ hijk" StrOpsTest "asdf < hijk")
@@ -48,7 +48,7 @@ add_executable(
 target_link_libraries(
 	ByteSwapTest
 		OxStd
-		OxLog
+		OxTrace
 )
 
 add_test("Test\\ bigEndianAdapt\\ 0x00ff" ByteSwapTest bigEndianAdapt<uint16_t> 0x00ff)

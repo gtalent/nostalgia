@@ -24,28 +24,28 @@ target_link_libraries(
 	FileStoreFormat
 		OxFS
 		OxStd
-		OxLog
+		OxTrace
 )
 
 target_link_libraries(
 	FileSystemFormat
 		OxFS
 		OxStd
-		OxLog
+		OxTrace
 )
 
 target_link_libraries(
 	FileStoreIO
 		OxFS
 		OxStd
-		OxLog
+		OxTrace
 )
 
 target_link_libraries(
 	FSTests
 		OxFS
 		OxStd
-		OxLog
+		OxTrace
 )
 
 add_test("FileStoreFormat" FileStoreFormat)

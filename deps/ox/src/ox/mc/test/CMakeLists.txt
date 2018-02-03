@@ -9,7 +9,7 @@ target_link_libraries(
 	McTest
 		OxMetalClaw
 		OxStd
-		OxLog
+		OxTrace
 )
 
 add_test("Test\\ McTest\\ Writer" McTest MetalClawWriter)

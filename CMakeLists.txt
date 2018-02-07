@@ -4,6 +4,9 @@ project(nostalgia)
 
 set(NOSTALGIA_BUILD_TYPE "Native" CACHE STRING "The type of build to produce(Native/GBA)")
 set(NOSTALGIA_IDE_BUILD "ON" CACHE STRING "Build for IDE's to run")
+set(NOSTALGIA_QT_PATH "" CACHE STRING "Path to Qt Libraries")
+
+set(CMAKE_PREFIX_PATH ${NOSTALGIA_QT_PATH})
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 include(address_sanitizer)
@@ -22,7 +25,7 @@ endif()
 
 add_definitions(
 	-std=c++14
-	#-fdiagnostics-color
+	#-fdiagnostics-color # forces colored output when using ninja
 	-Wall
 	-Wsign-compare
 )
@@ -42,6 +45,9 @@ if(APPLE)
 	set(NOSTALGIA_DIST_MAC_APP_CONTENTS Nostalgia.app/Contents)
 else()
 	set(CMAKE_INSTALL_RPATH "$ORIGIN" "$ORIGIN/../lib/nostalgia")
+	if(NOT ${NOSTALGIA_QT_PATH} STREQUAL "")
+		set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_RPATH} "${NOSTALGIA_QT_PATH}/lib")
+	endif()
 	set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 	set(NOSTALGIA_DIST_BIN       bin)
 	set(NOSTALGIA_DIST_LIB       lib)

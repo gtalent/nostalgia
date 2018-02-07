@@ -21,6 +21,10 @@ if (${buildType} -eq "asan") {
 	$buildTypeArgs="-DCMAKE_BUILD_TYPE=Release"
 }
 
+if (${env:NOSTALGIA_QT_PATH} -ne "") {
+    $qtPath="-DNOSTALGIA_QT_PATH=${env:NOSTALGIA_QT_PATH}"
+}
+
 $buildDir="${project}/build/${target}-${buildType}"
 $distDir="${project}/dist/${target}-${buildType}"
 
@@ -32,6 +36,7 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON `
       -DNOSTALGIA_IDE_BUILD=OFF `
       $buildTool `
       $buildTypeArgs `
+      $qtPath `
       $toolchain `
       $project
 Pop-Location

@@ -24,11 +24,15 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 endif()
 
 add_definitions(
-	-std=c++14
 	#-fdiagnostics-color # forces colored output when using ninja
 	-Wall
 	-Wsign-compare
 )
+
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(NOSTALGIA_IDE_BUILD STREQUAL "ON")
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

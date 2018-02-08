@@ -10,7 +10,9 @@ $project=(Get-Location).Path
 if (${target} -eq "windows") {
 	$toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/Mingw.cmake"
 } elseif (${target} -eq "gba") {
-	$toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/GBA.cmake -DNOSTALGIA_BUILD_TYPE=GBA -DOX_USE_STDLIB=OFF"
+    $toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/GBA.cmake"
+    $nostalgiaBuildType="-DNOSTALGIA_BUILD_TYPE=GBA"
+    $oxUseStdLib="-DOX_USE_STDLIB=OFF"
 }
 
 if (${buildType} -eq "asan") {
@@ -35,6 +37,8 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON `
       -DCMAKE_INSTALL_RPATH="$project/dist/${target}-${buildType}/lib/nostalgia" `
       -DNOSTALGIA_IDE_BUILD=OFF `
       $buildTool `
+      $nostalgiaBuildType `
+      $oxUseStdLib `
       $buildTypeArgs `
       $qtPath `
       $toolchain `

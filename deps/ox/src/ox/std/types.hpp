@@ -18,12 +18,15 @@ typedef unsigned           uint_t;
 #if defined(_WIN32) || defined(__APPLE__) || defined(__arm__) || defined(__ppc__)
 typedef long long          int64_t;
 typedef unsigned long long uint64_t;
+typedef __INTMAX_TYPE__    intmax_t;
+typedef __UINTMAX_TYPE__   uintmax_t;
 #else
 typedef long               int64_t;
 typedef unsigned long      uint64_t;
+typedef int64_t            intmax_t;
+typedef uint64_t           uintmax_t;
 #endif
 
-typedef uint64_t uintmax_t;
 
 namespace ox {
 

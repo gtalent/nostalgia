@@ -20,8 +20,14 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 		-fno-strict-aliasing
 		-mthumb-interwork
 		-mthumb
+		-std=c++17
 	)
+else()
+	set(CMAKE_CXX_STANDARD 14)
 endif()
+
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_definitions(
 	#-fdiagnostics-color # forces colored output when using ninja
@@ -29,10 +35,6 @@ add_definitions(
 	-Wsign-compare
 )
 
-
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(NOSTALGIA_IDE_BUILD STREQUAL "ON")
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

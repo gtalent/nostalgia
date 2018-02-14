@@ -1,0 +1,35 @@
+---
+envs:
+   nostalgia_devenv:
+      dockerfile_path: ./Dockerfile
+cmake:
+   .:
+      src_dir: .
+      build_dir: build/${target}-${build_type}
+      generator: Unix Makefiles
+      defs:
+         CMAKE_EXPORT_COMPILE_COMMANDS: ON
+         CMAKE_INSTALL_PREFIX: dist/${target}-${build_type}
+         CMAKE_INSTALL_RPATH: dist/${target}-${build_type}
+         NOSTALGIA_BUILD_TYPE: OFF
+      build_types:
+         release:
+            defs:
+               CMAKE_BUILD_TYPE: Release
+         debug:
+            defs:
+               USE_ASAN: ON
+               CMAKE_BUILD_TYPE: Debug
+      targets:
+         linux:
+            env: nostalgia_devenv
+         windows:
+            env: nostalgia_devenv
+            defs:
+               CMAKE_TOOLCHAIN_FILE: cmake/Modules/Mingw.cmake
+         gba:
+            env: nostalgia_devenv
+            defs:
+               CMAKE_TOOLCHAIN_FILE: cmake/Modules/GBA.cmake
+               NOSTALGIA_BUILD_TYPE: GBA
+               OX_USE_STDLIB: OFF

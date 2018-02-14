@@ -1,10 +1,5 @@
 set(CMAKE_SYSTEM_NAME "Generic")
 set(DEVKITARM $ENV{DEVKITARM})
-set(DEVKITPRO $ENV{DEVKITPRO})
-
-if(NOT DEVKITPRO)
-	message(FATAL_ERROR "DEVKITPRO environment variable not set")
-endif()
 
 if(NOT DEVKITARM)
 	message(FATAL_ERROR "DEVKITARM environment variable not set")

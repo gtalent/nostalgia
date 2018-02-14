@@ -7,6 +7,7 @@
  */
 
 #include <QDir>
+#include <QDebug>
 
 #include "project.hpp"
 
@@ -28,6 +29,7 @@ Project::~Project() {
 }
 
 void Project::create() {
+	qDebug() << "Project::create";
 	QDir().mkpath(m_path);
 
 	auto buffSize = 1024;

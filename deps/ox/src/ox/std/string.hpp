@@ -29,6 +29,12 @@ class BString {
 
 		const BString &operator=(char *str);
 
+		const BString &operator=(int64_t i);
+
+		const BString &operator+=(const char *str);
+
+		const BString &operator+=(char *str);
+
 		bool operator==(const BString &other);
 
 		char *data();
@@ -60,6 +66,13 @@ BString<size>::BString(const char *str) {
 }
 
 template<size_t size>
+const BString<size> &BString<size>::operator=(int64_t i) {
+	char str[65];
+	ox_itoa(i, str);
+	return this->operator=(str);
+}
+
+template<size_t size>
 const BString<size> &BString<size>::operator=(const char *str) {
 	size_t strLen = ox_strlen(str) + 1;
 	if (cap() < strLen) {
@@ -73,6 +86,24 @@ const BString<size> &BString<size>::operator=(const char *str) {
 
 template<size_t size>
 const BString<size> &BString<size>::operator=(char *str) {
+	return *this = (const char*) str;
+}
+
+template<size_t size>
+const BString<size> &BString<size>::operator+=(const char *str) {
+	size_t strLen = ox_strlen(str) + 1;
+	auto currentSize = size();
+	if (cap() < currentSize + strLen) {
+		strLen = cap() - currentSize;
+	}
+	ox_memcpy(m_buff + currentSize, str, strLen);
+	// make sure last element is a null terminator
+	m_buff[cap() - 1] = 0;
+	return *this;
+}
+
+template<size_t size>
+const BString<size> &BString<size>::operator+=(char *str) {
 	return *this = (const char*) str;
 }
 

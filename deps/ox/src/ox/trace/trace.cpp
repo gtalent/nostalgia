@@ -6,24 +6,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <stdarg.h>
-#include <stdio.h>
-
 #include <ox/std/std.hpp>
 
 #include "trace.hpp"
 
 namespace ox {
 
-struct TraceMsg {
-	const char *file;
-	int line;
-	uint64_t time;
-	const char *ch;
-	const char *msg;
-};
-
-void trace(const char *file, int line, const char *ch, const char *msg) {
+OutStream::OutStream(const char *file, int line, const char *ch, const char *msg) {
+	m_msg.file = file;
+	m_msg.line = line;
+	m_msg.ch = ch;
+	m_msg.msg = msg;
 }
 
 }

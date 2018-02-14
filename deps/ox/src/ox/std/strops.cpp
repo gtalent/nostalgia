@@ -6,6 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include "math.hpp"
+
 #include "strops.hpp"
 
 int ox_strcmp(const char *str1, const char *str2) {
@@ -88,4 +90,31 @@ int ox_atoi(const char *str) {
 	}
 
 	return total;
+}
+
+char *ox_itoa(int64_t v, char *str) {
+	auto mod = 1000000000000000000;
+	constexpr auto base = 10;
+	auto it = 0;
+	if (v < 0) {
+		str[it] = '-';
+		it++;
+	}
+	while (mod) {
+		auto digit = v / mod;
+		v %= mod;
+		mod /= base;
+		if (it or digit) {
+			int start;
+			if (digit < 10) {
+				start = '0';
+			} else {
+				start = 'a';
+				digit -= 10;
+			}
+			str[it] = start + digit;
+			it++;
+		}
+	}
+	return str;
 }

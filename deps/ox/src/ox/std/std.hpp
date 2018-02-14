@@ -16,4 +16,5 @@
 #include "strops.hpp"
 #include "string.hpp"
 #include "types.hpp"
+#include "typetraits.hpp"
 #include "vector.hpp"

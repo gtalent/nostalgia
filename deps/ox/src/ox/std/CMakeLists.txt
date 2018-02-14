@@ -24,6 +24,7 @@ install(
 		strops.hpp
 		std.hpp
 		types.hpp
+		typetraits.hpp
 	DESTINATION
 		include/ox/std
 )

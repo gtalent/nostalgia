@@ -9,6 +9,7 @@
 #pragma once
 
 #include "types.hpp"
+#include "typetraits.hpp"
 
 int ox_strcmp(const char *str1, const char *str2);
 
@@ -25,3 +26,5 @@ int ox_lastIndexOf(const char *str, int character, int maxLen = 0xFFFFFFFF);
 int ox_lastIndexOf(char *str, int character, int maxLen = 0xFFFFFFFF);
 
 int ox_atoi(const char *str);
+
+char *ox_itoa(int64_t v, char *str);

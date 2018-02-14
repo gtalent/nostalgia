@@ -8,10 +8,37 @@
 
 #pragma once
 
+#include <ox/std/std.hpp>
+
 namespace ox {
 
-void trace(const char *file, int line, const char *ch, const char *msg);
+struct TraceMsg {
+	const char *file;
+	int line;
+	uint64_t time;
+	const char *ch;
+	ox::BString<100> msg;
+};
+
+class OutStream {
+
+	private:
+		TraceMsg m_msg;
+
+	public:
+		OutStream() = default;
+
+		OutStream(const char *file, int line, const char *ch, const char *msg = "");
+
+		template<typename T>
+		OutStream &operator<<(T v) {
+			m_msg.msg += " ";
+			m_msg.msg += v;
+			return *this;
+		}
+
+};
 
 }
 
-#define ox_trace(ch, msg) ox::trace(__FILE__, __LINE__, ch, msg)
+#define oxTrace(ch, msg) ox::OutStream(__FILE__, __LINE__, ch, msg)

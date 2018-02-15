@@ -5,7 +5,7 @@ project(nostalgia-studio)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_executable(
-	nostalgia-studio
+	nostalgia-studio MACOSX_BUNDLE
 		main.cpp
 		mainwindow.cpp
 )
@@ -44,6 +44,7 @@ install(
 		nostalgia-studio
 	RUNTIME DESTINATION
 		${NOSTALGIA_DIST_BIN}
+	BUNDLE DESTINATION .
 )
 
 add_subdirectory(lib)

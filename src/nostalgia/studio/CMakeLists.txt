@@ -24,12 +24,7 @@ target_link_libraries(
 )
 
 if(APPLE)
-	install(
-		FILES
-			Info.plist
-		DESTINATION
-			${NOSTALGIA_DIST_MAC_APP_CONTENTS}
-	)
+	set_target_properties(nostalgia-studio PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
 endif()
 
 install(

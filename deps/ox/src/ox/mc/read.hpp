@@ -159,7 +159,7 @@ int MetalClawReader::op(const char*, T *val, size_t valLen) {
 };
 
 template<typename T>
-int read(uint8_t *buff, size_t buffLen, T *val) {
+int readMC(uint8_t *buff, size_t buffLen, T *val) {
 	MetalClawReader reader(buff, buffLen);
 	return ioOp(&reader, val);
 }

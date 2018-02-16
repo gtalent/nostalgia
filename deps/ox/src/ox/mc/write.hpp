@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <ox/std/byteswap.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/types.hpp>
 #include "err.hpp"
@@ -43,6 +44,9 @@ class MetalClawWriter {
 
 		template<typename T>
 		int op(const char*, T *val, size_t len);
+
+		template<size_t L>
+		int op(const char*, const char *val);
 
 		template<size_t L>
 		int op(const char*, ox::BString<L> *val);
@@ -153,7 +157,7 @@ int MetalClawWriter::op(const char*, T *val, size_t len) {
 };
 
 template<typename T>
-int write(uint8_t *buff, size_t buffLen, T *val, size_t *sizeOut = nullptr) {
+int writeMC(uint8_t *buff, size_t buffLen, T *val, size_t *sizeOut = nullptr) {
 	MetalClawWriter writer(buff, buffLen);
 	auto err = ioOp(&writer, val);
 	if (sizeOut) {

@@ -83,7 +83,7 @@ map<string, int(*)(string)> tests = {
 				int err = 0;
 				TestStruct ts;
 
-				err |= write(buff, buffLen, &ts);
+				err |= writeMC(buff, buffLen, &ts);
 
 				delete []buff;
 
@@ -109,8 +109,8 @@ map<string, int(*)(string)> tests = {
 				testIn.Struct.Int = 300;
 				testIn.Struct.String = "Test String 2";
 
-				err |= write(buff, buffLen, &testIn);
-				err |= read(buff, buffLen, &testOut);
+				err |= writeMC(buff, buffLen, &testIn);
+				err |= readMC(buff, buffLen, &testOut);
 
 				err |= !(testIn.Bool               == testOut.Bool);
 				err |= !(testIn.Int                == testOut.Int);

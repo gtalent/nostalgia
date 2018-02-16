@@ -13,12 +13,23 @@
 namespace ox {
 
 struct TraceMsg {
-	const char *file;
-	int line;
-	uint64_t time;
-	const char *ch;
+	ox::BString<150> file = "";
+	int line = 0;
+	uint64_t time = 0;
+	ox::BString<50> ch = "";
 	ox::BString<100> msg;
 };
+
+template<typename T>
+int ioOp(T *io, ox::TraceMsg *obj) {
+	int32_t err = 0;
+	io->setFields(5);
+	err |= io->op("file", &obj->file);
+	err |= io->op("line", &obj->line);
+	err |= io->op("time", &obj->time);
+	err |= io->op("msg", &obj->msg);
+	return err;
+}
 
 class OutStream {
 
@@ -29,6 +40,8 @@ class OutStream {
 		OutStream() = default;
 
 		OutStream(const char *file, int line, const char *ch, const char *msg = "");
+
+		~OutStream();
 
 		template<typename T>
 		OutStream &operator<<(T v) {
@@ -41,4 +54,4 @@ class OutStream {
 
 }
 
-#define oxTrace(ch, msg) ox::OutStream(__FILE__, __LINE__, ch, msg)
+#define oxTrace(ch) ox::OutStream(__FILE__, __LINE__, ch)

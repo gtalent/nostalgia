@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <ox/std/std.hpp>
+#include <ox/mc/write.hpp>
 
 #include "trace.hpp"
 
@@ -17,6 +17,13 @@ OutStream::OutStream(const char *file, int line, const char *ch, const char *msg
 	m_msg.line = line;
 	m_msg.ch = ch;
 	m_msg.msg = msg;
+}
+
+OutStream::~OutStream() {
+	constexpr size_t buffLen = 1024;
+	size_t size = 0;
+	uint8_t buff[buffLen];
+	writeMC(buff, buffLen, &m_msg, &size);
 }
 
 }

@@ -292,8 +292,8 @@ int MainWindow::openProject() {
 }
 
 void MainWindow::showNewWizard() {
-	const QString PROJECT_NAME = "projectName";
-	const QString PROJECT_PATH = "projectPath";
+	const QString ProjectName = "projectName";
+	const QString ProjectPath = "projectPath";
 	Wizard wizard(tr("New..."));
 	auto ws = new WizardSelect();
 	wizard.addPage(ws);
@@ -303,11 +303,11 @@ void MainWindow::showNewWizard() {
 		WizardMaker {
 			tr("Project"),
 
-			[&wizard, PROJECT_NAME, PROJECT_PATH]() {
+			[&wizard, ProjectName, ProjectPath]() {
 				QVector<QWizardPage*> pgs;
 				auto pg = new WizardFormPage();
-				pg->addLineEdit(tr("Project &Name:"), PROJECT_NAME + "*", "", [PROJECT_PATH, pg, &wizard](QString projectName) {
-						auto projectPath = wizard.field(PROJECT_PATH).toString();
+				pg->addLineEdit(tr("Project &Name:"), ProjectName + "*", "", [ProjectPath, pg, &wizard](QString projectName) {
+						auto projectPath = wizard.field(ProjectPath).toString();
 						auto path = projectPath + "/" + projectName;
 						if (!QDir(path).exists()) {
 							return 0;
@@ -317,15 +317,15 @@ void MainWindow::showNewWizard() {
 						}
 					}
 				);
-				pg->addPathBrowse(tr("Project &Path:"), PROJECT_PATH + "*", QDir::homePath(), QFileDialog::Directory);
+				pg->addPathBrowse(tr("Project &Path:"), ProjectPath + "*", QDir::homePath(), QFileDialog::Directory);
 				pgs.push_back(pg);
-				pgs.push_back(new WizardConclusionPage(tr("Creating project: %1/%2"), {PROJECT_PATH, PROJECT_NAME}));
+				pgs.push_back(new WizardConclusionPage(tr("Creating project: %1/%2"), {ProjectPath, ProjectName}));
 				return pgs;
 			},
 
-			[this, PROJECT_NAME, PROJECT_PATH](QWizard *wizard) {
-				auto projectName = wizard->field(PROJECT_NAME).toString();
-				auto projectPath = wizard->field(PROJECT_PATH).toString();
+			[this, ProjectName, ProjectPath](QWizard *wizard) {
+				auto projectName = wizard->field(ProjectName).toString();
+				auto projectPath = wizard->field(ProjectPath).toString();
 				if (QDir(projectPath).exists()) {
 					auto path = projectPath + "/" + projectName;
 					if (!QDir(path).exists()) {

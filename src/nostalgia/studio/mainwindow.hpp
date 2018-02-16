@@ -89,7 +89,6 @@ class MainWindow: public QMainWindow {
 		QAction *m_importAction = nullptr;
 		Context m_ctx;
 		QPointer<QMenu> m_viewMenu;
-		QVector<std::function<void()>> m_cleanupTasks;
 		QVector<QPointer<QDockWidget>> m_dockWidgets;
 		QTreeView *m_projectExplorer = nullptr;
 		QVector<Plugin*> m_plugins;

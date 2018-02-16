@@ -67,9 +67,6 @@ MainWindow::MainWindow(QString profilePath) {
 
 MainWindow::~MainWindow() {
 	closeProject();
-	for (auto f : m_cleanupTasks) {
-		f();
-	}
 }
 
 void MainWindow::loadPlugins() {
@@ -102,16 +99,12 @@ void MainWindow::loadPluginDir(QString dir) {
 
 void MainWindow::loadPlugin(QString pluginPath) {
 	qDebug() << "Loading plugin:" << pluginPath;
-	auto loader = new QPluginLoader(pluginPath);
-	auto plugin = qobject_cast<Plugin*>(loader->instance());
+	QPluginLoader loader(pluginPath);
+	auto plugin = qobject_cast<Plugin*>(loader.instance());
 	if (plugin) {
-		m_cleanupTasks.push_back([loader]() {
-			loader->unload();
-			delete loader;
-		});
 		m_plugins.push_back(plugin);
 	} else {
-		qInfo() << loader->errorString();
+		qInfo() << loader.errorString();
 	}
 }
 
@@ -184,9 +177,6 @@ QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip, const
 	auto action = menu->addAction(text);
 	action->setStatusTip(toolTip);
 	auto conn = connect(action, SIGNAL(triggered()), tgt, cb);
-	m_cleanupTasks.push_back([this, conn]() {
-		QObject::disconnect(conn);
-	});
 	return action;
 }
 
@@ -196,9 +186,6 @@ QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 	action->setShortcuts(key);
 	action->setStatusTip(toolTip);
 	auto conn = connect(action, SIGNAL(triggered()), tgt, cb);
-	m_cleanupTasks.push_back([this, conn]() {
-		QObject::disconnect(conn);
-	});
 	return action;
 }
 
@@ -208,9 +195,6 @@ QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 	action->setShortcuts(key);
 	action->setStatusTip(toolTip);
 	auto conn = connect(action, &QAction::triggered, cb);
-	m_cleanupTasks.push_back([this, conn]() {
-		QObject::disconnect(conn);
-	});
 	return action;
 }
 

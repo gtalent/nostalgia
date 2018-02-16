@@ -17,8 +17,8 @@
             "MIMode": "gdb",
             "osx": {
                 "MIMode": "lldb",
-                "program": "${workspaceFolder}/dist/current/Nostalgia.app/Contents/MacOS/nostalgia-studio",
-                "args": ["-profile", "${workspaceFolder}/dist/current/Nostalgia.app/Contents/Resources/nostalgia-studio.json"]
+                "program": "${workspaceFolder}/dist/current/nostalgia-studio.app/Contents/MacOS/nostalgia-studio",
+                "args": ["-profile", "${workspaceFolder}/dist/current/nostalgia-studio.app/Contents/Resources/nostalgia-studio.json"]
             }
         }
     ]

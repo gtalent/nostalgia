@@ -81,17 +81,9 @@ void MainWindow::loadPlugins() {
 }
 
 void MainWindow::loadPluginDir(QString dir) {
-#if defined(Q_OS_WIN)
-		constexpr auto libSuffix = ".dll";
-#elif defined(Q_OS_MAC)
-		constexpr auto libSuffix = ".dylib";
-#else
-		constexpr auto libSuffix = ".so";
-#endif
-
 	for (auto pluginPath : QDir(dir).entryList()) {
 		pluginPath = dir + '/' + pluginPath;
-		if (pluginPath.endsWith(libSuffix)) {
+		if (QLibrary::isLibrary(pluginPath)) {
 			loadPlugin(pluginPath);
 		}
 	}

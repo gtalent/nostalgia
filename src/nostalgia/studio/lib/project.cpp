@@ -23,19 +23,15 @@ Project::Project(QString path) {
 }
 
 Project::~Project() {
-	if (m_fs) {
-		delete m_fs;
-	}
 }
 
 void Project::create() {
-	qDebug() << "Project::create";
 	QDir().mkpath(m_path);
 
 	auto buffSize = 1024;
 	auto buff = new uint8_t[buffSize];
 	FileSystem32::format(buff, buffSize, true);
-	m_fs = createFileSystem(buff, buffSize, true);
+	m_fs = std::unique_ptr<ox::FileSystem>{createFileSystem(buff, buffSize, true)};
 
 	QFile file(m_path + ROM_FILE);
 	file.open(QIODevice::WriteOnly);
@@ -46,23 +42,21 @@ void Project::create() {
 int Project::openRomFs() {
 	QFile file(m_path + ROM_FILE);
 	auto buffSize = file.size();
-	auto buff = new uint8_t[buffSize];
+	auto buff = std::make_unique<uint8_t[]>(buffSize);
 	if (file.exists()) {
 		file.open(QIODevice::ReadOnly);
-		if (file.read((char*) buff, buffSize) > 0) {
-			m_fs = createFileSystem(buff, buffSize, true);
+		if (file.read((char*) buff.get(), buffSize) > 0) {
+			m_fs = std::unique_ptr<ox::FileSystem>{createFileSystem(buff.get(), buffSize, true)};
 			if (m_fs) {
+				buff.release();
 				return 0;
 			} else {
-				delete []buff;
 				return 1;
 			}
 		} else {
-			delete []buff;
 			return 2;
 		}
 	} else {
-		delete []buff;
 		return 3;
 	}
 }
@@ -77,7 +71,7 @@ int Project::saveRomFs() const {
 }
 
 FileSystem *Project::romFs() {
-	return m_fs;
+	return m_fs.get();
 }
 
 int Project::mkdir(QString path) const {

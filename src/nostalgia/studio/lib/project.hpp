@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include <QSharedPointer>
 
 #include <ox/fs/fs.hpp>
@@ -23,7 +25,7 @@ class Project: public QObject {
 		static QString ROM_FILE;
 
 		QString m_path = "";
-		ox::FileSystem *m_fs = nullptr;
+		std::unique_ptr<ox::FileSystem> m_fs;
 
 	public:
 		Project(QString path);
@@ -63,7 +65,7 @@ int Project::writeObj(QString path, T *obj) const {
 
 	// write MetalClaw
 	size_t mcSize = 0;
-	err |= ox::write((uint8_t*) buff.data(), buffLen, obj, &mcSize);
+	err |= ox::writeMC((uint8_t*) buff.data(), buffLen, obj, &mcSize);
 	if (err) {
 		return err;
 	}

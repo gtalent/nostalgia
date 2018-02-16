@@ -73,27 +73,45 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::loadPlugins() {
-	for (auto p : m_profile.plugins) {
-#if defined(Q_OS_WIN)
-		auto libName = p.libName + ".dll";
-#elif defined(Q_OS_MAC)
-		auto libName = "lib" + p.libName + ".dylib";
-#else
-		auto libName = "lib" + p.libName + ".so";
-#endif
-		auto pluginPath = QFileInfo(m_profilePath).absolutePath() + "/" + p.dir + "/" + libName;
-
-		auto loader = new QPluginLoader(pluginPath);
-		auto plugin = qobject_cast<Plugin*>(loader->instance());
-		if (plugin) {
-			m_cleanupTasks.push_back([loader]() {
-				loader->unload();
-				delete loader;
-			});
-			m_plugins.push_back(plugin);
-		} else {
-			qInfo() << loader->errorString();
+	for (auto dir : m_profile.pluginsPath) {
+		QFileInfo dirInfo(m_profilePath);
+		dir = dirInfo.absolutePath() + "/" + dir;
+		if (dirInfo.exists()) {
+			qDebug() << "Checking plugin directory:" << dir;
+			loadPluginDir(dir);
 		}
+	}
+}
+
+void MainWindow::loadPluginDir(QString dir) {
+#if defined(Q_OS_WIN)
+		constexpr auto libSuffix = ".dll";
+#elif defined(Q_OS_MAC)
+		constexpr auto libSuffix = ".dylib";
+#else
+		constexpr auto libSuffix = ".so";
+#endif
+
+	for (auto pluginPath : QDir(dir).entryList()) {
+		pluginPath = dir + '/' + pluginPath;
+		if (pluginPath.endsWith(libSuffix)) {
+			loadPlugin(pluginPath);
+		}
+	}
+}
+
+void MainWindow::loadPlugin(QString pluginPath) {
+	qDebug() << "Loading plugin:" << pluginPath;
+	auto loader = new QPluginLoader(pluginPath);
+	auto plugin = qobject_cast<Plugin*>(loader->instance());
+	if (plugin) {
+		m_cleanupTasks.push_back([loader]() {
+			loader->unload();
+			delete loader;
+		});
+		m_plugins.push_back(plugin);
+	} else {
+		qInfo() << loader->errorString();
 	}
 }
 

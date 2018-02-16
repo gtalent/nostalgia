@@ -57,7 +57,7 @@ else()
 	set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 	set(NOSTALGIA_DIST_BIN       bin)
 	set(NOSTALGIA_DIST_LIB       lib)
-	set(NOSTALGIA_DIST_PLUGIN    lib)
+	set(NOSTALGIA_DIST_PLUGIN    lib/nostalgia/plugins)
 	set(NOSTALGIA_DIST_RESOURCES share)
 endif()
 

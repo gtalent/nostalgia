@@ -61,7 +61,7 @@ ox::Error ioOp(T *io, NostalgiaStudioPluginDef *obj) {
 struct NostalgiaStudioProfile {
 	QString appName;
 	QString orgName;
-	QVector<NostalgiaStudioPluginDef> plugins;
+	QVector<QString> pluginsPath;
 };
 
 template<typename T>
@@ -70,7 +70,7 @@ ox::Error ioOp(T *io, NostalgiaStudioProfile *obj) {
 	io->setFields(3);
 	err |= io->op("app_name", &obj->appName);
 	err |= io->op("org_name", &obj->orgName);
-	err |= io->op("plugins", &obj->plugins);
+	err |= io->op("plugins_path", &obj->pluginsPath);
 	return err;
 }
 
@@ -103,6 +103,10 @@ class MainWindow: public QMainWindow {
 
 	private:
 		void loadPlugins();
+
+		void loadPluginDir(QString path);
+
+		void loadPlugin(QString path);
 
 		void setupDockWidgets();
 

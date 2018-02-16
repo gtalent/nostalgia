@@ -17,7 +17,7 @@ namespace core {
 
 class Plugin: public QObject, studio::Plugin {
 	Q_OBJECT
-	Q_PLUGIN_METADATA(IID "net.drinkingtea.nostalgia.studio.Plugin")
+	Q_PLUGIN_METADATA(IID "net.drinkingtea.nostalgia.studio.Plugin" FILE "core-studio.json")
 	Q_INTERFACES(nostalgia::studio::Plugin)
 
 	public:

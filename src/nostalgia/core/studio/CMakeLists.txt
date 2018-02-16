@@ -20,7 +20,7 @@ install(
 	TARGETS
 		NostalgiaCore-Studio
 	LIBRARY DESTINATION
-		${NOSTALGIA_DIST_PLUGIN}/nostalgia
+		${NOSTALGIA_DIST_PLUGIN}
 )
 
 install(

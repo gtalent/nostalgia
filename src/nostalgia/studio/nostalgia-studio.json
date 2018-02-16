@@ -1,14 +1,8 @@
 {
 	"app_name": "Nostalgia Studio",
 	"org_name": "Drinking Tea",
-	"plugins": [
-		{
-			"dir": "../lib/nostalgia",
-			"lib_name": "NostalgiaCore-Studio"
-		},
-		{
-			"dir": "../lib/nostalgia",
-			"lib_name": "NostalgiaWorld-Studio"
-		}
+	"plugins_path": [
+		"../lib/nostalgia/plugins",
+		"../Plugins"
 	]
 }

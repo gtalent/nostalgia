@@ -18,5 +18,5 @@ install(
 	TARGETS
 		NostalgiaWorld-Studio
 	LIBRARY DESTINATION
-		${NOSTALGIA_DIST_PLUGIN}/nostalgia
+		${NOSTALGIA_DIST_PLUGIN}
 )

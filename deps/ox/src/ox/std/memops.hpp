@@ -11,6 +11,6 @@
 
 int ox_memcmp(const void *ptr1, const void *ptr2, size_t size);
 
-void *ox_memcpy(void *src, const void *dest, int64_t size);
+void *ox_memcpy(void *dest, const void *src, int64_t size);
 
 void *ox_memset(void *ptr, int val, int64_t size);

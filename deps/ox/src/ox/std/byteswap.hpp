@@ -12,6 +12,10 @@
 
 namespace ox {
 
+inline int8_t byteSwap(int8_t i) {
+	return i;
+}
+
 inline int16_t byteSwap(int16_t i) {
 	return (i << 8) | (i >> 8);
 }
@@ -32,6 +36,10 @@ inline int64_t byteSwap(int64_t i) {
 	       ((i << 24) & 0x0000ff0000000000) |
 	       ((i << 40) & 0x00ff000000000000) |
 	       ((i << 56) & 0xff00000000000000);
+}
+
+inline uint16_t byteSwap(uint8_t i) {
+	return i;
 }
 
 inline uint16_t byteSwap(uint16_t i) {
@@ -97,6 +105,70 @@ class LittleEndian {
 
 		inline bool operator!=(T value) {
 			return value != ox::bigEndianAdapt(m_value);
+		}
+
+		inline T operator+(T value) const {
+			return ox::bigEndianAdapt(m_value) + value;
+		}
+
+		inline T operator+=(T other) {
+			auto newVal = *this + other;
+			m_value = ox::bigEndianAdapt(newVal);
+			return newVal;
+		}
+
+		inline T operator-(T value) {
+			return ox::bigEndianAdapt(m_value) - value;
+		}
+
+		inline T operator-=(T other) {
+			auto newVal = *this - other;
+			m_value = ox::bigEndianAdapt(newVal);
+			return newVal;
+		}
+
+		inline T operator*(T value) {
+			return ox::bigEndianAdapt(m_value) * value;
+		}
+
+		inline T operator*=(T other) {
+			auto newVal = *this * other;
+			m_value = ox::bigEndianAdapt(newVal);
+			return newVal;
+		}
+
+		inline T operator/(T value) {
+			return ox::bigEndianAdapt(m_value) / value;
+		}
+
+		inline T operator/=(T other) {
+			auto newVal = *this / other;
+			m_value = ox::bigEndianAdapt(newVal);
+			return newVal;
+		}
+
+		// Prefix increment
+		inline T &operator++() {
+			return operator+=(1);
+		}
+
+		// Postfix increment
+		inline T operator++(int) {
+			auto old = *this;
+			++*this;
+			return old;
+		}
+
+		// Prefix decrement
+		inline T &operator--() {
+			return operator-=(1);
+		}
+
+		// Postfix decrement
+		inline T operator--(int) {
+			auto old = *this;
+			--*this;
+			return old;
 		}
 
 };

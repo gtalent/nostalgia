@@ -37,6 +37,14 @@ install(
 
 install(
 	FILES
+		filestore/linkedlist.hpp
+		filestore/ptr.hpp
+	DESTINATION
+		include/ox/fs/filestore
+)
+
+install(
+	FILES
 		filesystem/filesystem.hpp
 		filesystem/pathiterator.hpp
 	DESTINATION

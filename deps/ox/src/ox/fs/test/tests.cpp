@@ -13,6 +13,7 @@
 #include <string>
 #include <ox/fs/fs.hpp>
 #include <ox/std/std.hpp>
+#include <ox/fs/filestore/linkedlist.hpp>
 
 using namespace std;
 using namespace ox;
@@ -324,6 +325,15 @@ map<string, int(*)(string)> tests = {
 				delete []dataOut;
 
 				return retval;
+			}
+		},
+		{
+			"LinkedList::insert",
+			[](string) {
+				ox::fs::LinkedList<uint32_t> list;
+				list.malloc(50);
+				list.firstItem();
+				return 0;
 			}
 		},
 	},

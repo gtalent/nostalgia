@@ -171,6 +171,60 @@ class LittleEndian {
 			return old;
 		}
 
+		inline T operator~() {
+			return ~ox::bigEndianAdapt(m_value);
+		}
+
+		inline T operator&(T value) {
+			return ox::bigEndianAdapt(m_value) & value;
+		}
+
+		inline T operator&=(T other) {
+			auto newVal = *this & other;
+			m_value = ox::bigEndianAdapt(newVal);
+			return newVal;
+		}
+
+		inline T operator|(T value) {
+			return ox::bigEndianAdapt(m_value) | value;
+		}
+
+		inline T operator|=(T other) {
+			auto newVal = *this | other;
+			m_value = ox::bigEndianAdapt(newVal);
+			return newVal;
+		}
+
+		inline T operator^(T value) {
+			return ox::bigEndianAdapt(m_value) ^ value;
+		}
+
+		inline T operator^=(T other) {
+			auto newVal = *this ^ other;
+			m_value = ox::bigEndianAdapt(newVal);
+			return newVal;
+		}
+
+		inline T operator>>(T value) {
+			return ox::bigEndianAdapt(m_value) >> value;
+		}
+
+		inline T operator>>=(T other) {
+			auto newVal = *this >> other;
+			m_value = ox::bigEndianAdapt(newVal);
+			return newVal;
+		}
+
+		inline T operator<<(T value) {
+			return ox::bigEndianAdapt(m_value) << value;
+		}
+
+		inline T operator<<=(T other) {
+			auto newVal = *this << other;
+			m_value = ox::bigEndianAdapt(newVal);
+			return newVal;
+		}
+
 };
 
 }

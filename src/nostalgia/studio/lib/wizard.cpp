@@ -188,7 +188,7 @@ void WizardFormPage::addComboBox(QString displayName, QString fieldName, QVector
 		cb->addItem(o);
 	}
 
-	connect(cb, &QComboBox::currentTextChanged, [this, fieldName, cb, field](QString txt) {
+	connect(cb, &QComboBox::currentTextChanged, [this, fieldName, field](QString txt) {
 			if (field->value == "" && txt != "") {
 				m_validFields++;
 			} else if (field->value != "" && txt == "") {
@@ -218,7 +218,7 @@ void WizardFormPage::addLineEdit(QString displayName, QString fieldName, QString
 
 	registerField(fieldName, le);
 
-	connect(le, &QLineEdit::textChanged, [this, fieldName, le, field](QString txt) {
+	connect(le, &QLineEdit::textChanged, [this, fieldName, field](QString txt) {
 			if (field->value == "" && txt != "") {
 				m_validFields++;
 			} else if (field->value != "" && txt == "") {
@@ -270,7 +270,7 @@ void WizardFormPage::addPathBrowse(QString displayName, QString fieldName, QStri
 
 	registerField(fieldName, le);
 
-	connect(le, &QLineEdit::textChanged, [this, fieldName, le](QString txt) {
+	connect(le, &QLineEdit::textChanged, [this, fieldName](QString txt) {
 			if (m_fields[fieldName].value == "" && txt != "") {
 				m_validFields++;
 			} else if (m_fields[fieldName].value != "" && txt == "") {

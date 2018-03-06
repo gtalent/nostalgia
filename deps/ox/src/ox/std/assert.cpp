@@ -12,8 +12,10 @@
 #endif
 
 void oxAssert(const char *file, int line, bool pass, const char *msg) {
+#if defined(OX_USE_STDLIB)
 	if (!pass) {
 		std::cerr << '(' << file << ':' << line << "): " << msg << std::endl;
 		std::abort();
 	}
+#endif
 }

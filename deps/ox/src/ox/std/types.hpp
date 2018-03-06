@@ -25,17 +25,9 @@ typedef long               int64_t;
 typedef unsigned long      uint64_t;
 typedef int64_t            intmax_t;
 typedef uint64_t           uintmax_t;
+typedef int64_t            intptr_t;
+typedef uint64_t           uintptr_t;
 #endif
-
-static_assert(sizeof(int8_t)  == 1, "int8_t is wrong size");
-static_assert(sizeof(int16_t) == 2, "int16_t is wrong size");
-static_assert(sizeof(int32_t) == 4, "int32_t is wrong size");
-static_assert(sizeof(int64_t) == 8, "int64_t is wrong size");
-
-static_assert(sizeof(uint8_t)  == 1, "uint8_t is wrong size");
-static_assert(sizeof(uint16_t) == 2, "uint16_t is wrong size");
-static_assert(sizeof(uint32_t) == 4, "uint32_t is wrong size");
-static_assert(sizeof(uint64_t) == 8, "uint64_t is wrong size");
 
 namespace ox {
 
@@ -45,10 +37,30 @@ typedef uint32_t Error;
 
 #if defined(_LP64) || defined(__ppc64__) || defined(__aarch64__)
 typedef unsigned long size_t;
+typedef long          intptr_t;
+typedef unsigned long uintptr_t;
 #elif defined(_WIN64)
 typedef uint64_t size_t;
+typedef int64_t  intptr_t;
+typedef uint64_t uintptr_t;
 #elif defined(_LP32) || defined(__ppc__) || defined(_WIN32) || defined(__arm__)
 typedef uint32_t size_t;
+typedef int32_t  intptr_t;
+typedef uint32_t uintptr_t;
 #else
-#error size_t undefined
+#error size_t, intptr_t, and uintptr_t undefined
 #endif
+
+static_assert(sizeof(int8_t)   == 1, "int8_t is wrong size");
+static_assert(sizeof(int16_t)  == 2, "int16_t is wrong size");
+static_assert(sizeof(int32_t)  == 4, "int32_t is wrong size");
+static_assert(sizeof(int64_t)  == 8, "int64_t is wrong size");
+static_assert(sizeof(intptr_t) == sizeof(void*), "intptr_t is wrong size");
+
+static_assert(sizeof(uint8_t)   == 1, "uint8_t is wrong size");
+static_assert(sizeof(uint16_t)  == 2, "uint16_t is wrong size");
+static_assert(sizeof(uint32_t)  == 4, "uint32_t is wrong size");
+static_assert(sizeof(uint64_t)  == 8, "uint64_t is wrong size");
+static_assert(sizeof(uintptr_t) == sizeof(void*), "uintptr_t is wrong size");
+
+static_assert(sizeof(size_t)    == sizeof(void*), "size_t is wrong size");

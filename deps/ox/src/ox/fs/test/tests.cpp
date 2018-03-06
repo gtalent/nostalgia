@@ -13,7 +13,7 @@
 #include <string>
 #include <ox/fs/fs.hpp>
 #include <ox/std/std.hpp>
-#include <ox/fs/filestore/linkedlist.hpp>
+#include <ox/fs/filestore/filestore.hpp>
 
 using namespace std;
 using namespace ox;
@@ -330,9 +330,12 @@ map<string, int(*)(string)> tests = {
 		{
 			"LinkedList::insert",
 			[](string) {
-				ox::fs::LinkedList<uint32_t> list;
-				list.malloc(50);
-				list.firstItem();
+				constexpr auto buffLen = 5000;
+				uint8_t buff[buffLen];
+				auto list = new (buff) ox::fs::LinkedList<uint32_t>(buffLen);
+				assert(list->malloc(50).valid());
+				assert(list->firstItem().valid());
+				assert(list->firstItem()->size == 50);
 				return 0;
 			}
 		},

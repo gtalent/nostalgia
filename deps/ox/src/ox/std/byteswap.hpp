@@ -79,7 +79,7 @@ inline T bigEndianAdapt(T i) {
 
 
 template<typename T>
-class LittleEndian {
+class __attribute__((packed)) LittleEndian {
 	private:
 		T m_value;
 
@@ -97,14 +97,6 @@ class LittleEndian {
 
 		inline operator T() {
 			return ox::bigEndianAdapt(m_value);
-		}
-
-		inline bool operator==(T value) {
-			return value == ox::bigEndianAdapt(m_value);
-		}
-
-		inline bool operator!=(T value) {
-			return value != ox::bigEndianAdapt(m_value);
 		}
 
 		inline T operator+(T value) const {

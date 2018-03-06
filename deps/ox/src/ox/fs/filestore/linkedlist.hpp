@@ -10,40 +10,46 @@
 
 #include "ptr.hpp"
 
-namespace ox {
-namespace fs {
+namespace ox::fs {
 
 template<typename size_t>
-class LinkedList {
+class __attribute__((packed)) LinkedList {
+
+	public:
+		struct __attribute__((packed)) Item {
+			friend LinkedList;
+
+			public:
+				ox::LittleEndian<size_t> size = sizeof(Item);
+
+			protected:
+				ox::LittleEndian<size_t> prev = 0;
+				ox::LittleEndian<size_t> next = 0;
+
+				explicit Item(size_t size) {
+					this->size = size;
+				}
+		};
 
 	private:
-		struct Header {
+		struct __attribute__((packed)) Header {
 			ox::LittleEndian<size_t> size = sizeof(Header);
 			ox::LittleEndian<size_t> firstItem = 0;
 		};
 
-		struct Item {
-			ox::LittleEndian<size_t> size = sizeof(Item);
-			ox::LittleEndian<size_t> prev = 0;
-			ox::LittleEndian<size_t> next = 0;
-
-			Item(size_t size) {
-				this->size = size;
-			}
-		};
-
 		struct ItemPtr: public ox::fs::Ptr<Item, size_t> {
-			inline ItemPtr(void *dataStart, void *dataEnd, size_t itemOffset, size_t size):
-			Ptr<Item, size_t>(dataStart, dataEnd, itemOffset, size) {}
+			inline ItemPtr(void *dataStart, size_t dataSize, size_t itemOffset, size_t size):
+			Ptr<Item, size_t>(dataStart, dataSize, itemOffset, size) {
+			}
 
-			inline ItemPtr(void *dataStart, void *dataEnd, size_t itemOffset) {
+			inline ItemPtr(void *dataStart, size_t dataSize, size_t itemOffset) {
 				// make sure this can be read as an Item, and then use Item::size for the size
-				uint8_t *itemStart = static_cast<uint8_t*>(dataStart) + itemOffset;
-				if (static_cast<uint8_t*>(dataEnd) - itemStart >= static_cast<size_t>(sizeof(Item))) {
-					auto item = (Item*) (static_cast<uint8_t*>(dataStart) + itemOffset);
-					ItemPtr(dataStart, dataEnd, itemOffset, item->size);
+				auto itemSpace = dataSize - itemOffset;
+				auto item = reinterpret_cast<Item*>(static_cast<uint8_t*>(dataStart) + itemOffset);
+				if (itemSpace >= static_cast<size_t>(sizeof(Item)) and itemSpace >= item->size) {
+					this->init(dataStart, dataSize, itemOffset, item->size);
 				} else {
-					ItemPtr(dataStart, dataEnd, 0, 0);
+					this->init(dataStart, dataSize, 0, 0);
 				}
 			}
 		};
@@ -51,6 +57,10 @@ class LinkedList {
 		Header m_header;
 
 	public:	
+		LinkedList() = default;
+
+		explicit LinkedList(size_t size);
+
 		ItemPtr firstItem();
 
 		ItemPtr prev(Item *item);
@@ -61,14 +71,21 @@ class LinkedList {
 
 		ItemPtr ptr(uint8_t *item);
 
-	//private:
 		ItemPtr malloc(size_t size);
 
+		void free(ItemPtr item);
+
+	private:
 		void compact(void (*cb)(ItemPtr itemMoved));
 
 		uint8_t *data();
 
 };
+
+template<typename size_t>
+LinkedList<size_t>::LinkedList(size_t size) {
+	m_header.size = size;
+}
 
 template<typename size_t>
 typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::firstItem() {
@@ -87,17 +104,20 @@ typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::next(Item *item) {
 
 template<typename size_t>
 typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::ptr(size_t offset) {
-	return ItemPtr(this, this + 1, offset);
+	return ItemPtr(this, m_header.size, offset);
 }
 
 template<typename size_t>
 typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::ptr(uint8_t *item) {
-	return ItemPtr(this, this + 1, reinterpret_cast<size_t>(static_cast<uint8_t*>(item - static_cast<uint8_t*>(this))));
+	return ItemPtr(this, m_header.size, reinterpret_cast<size_t>(item - static_cast<uint8_t*>(this)));
 }
 
 template<typename size_t>
 typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::malloc(size_t size) {
-	auto out = ItemPtr(this, this + 1, 0, size);
+	if (!m_header.firstItem) {
+		m_header.firstItem = sizeof(m_header);
+	}
+	auto out = ItemPtr(this, m_header.size, m_header.firstItem, size);
 	if (out.valid()) {
 		new (out) Item(size);
 	}
@@ -106,7 +126,7 @@ typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::malloc(size_t size) {
 
 template<typename size_t>
 void LinkedList<size_t>::compact(void (*cb)(ItemPtr)) {
-	auto src = ptr(firstItem());
+	auto src = firstItem();
 	auto dest = data();
 	while (src.valid()) {
 		// move node
@@ -134,5 +154,4 @@ uint8_t *LinkedList<size_t>::data() {
 	return reinterpret_cast<uint8_t*>(this + 1);
 }
 
-}
 }

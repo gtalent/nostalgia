@@ -18,29 +18,13 @@ class Ptr {
 
 	private:
 		uint8_t *m_dataStart = nullptr;
-		uint8_t *m_dataEnd = nullptr;
-		size_t m_itemOffset = 0;
+		size_t m_itemStart = 0;
 		size_t m_itemSize = 0;
 
 	public:
 		inline Ptr() = default;
 
-		inline Ptr(void *dataStart, void *dataEnd, size_t itemOffset, size_t itemSize = sizeof(T)) {
-			// do some sanity checks before assuming this is valid
-			if (itemSize >= sizeof(T) and
-			    m_dataStart and
-			    m_dataStart < m_dataEnd and
-			    m_dataStart + m_itemOffset + m_itemSize < m_dataEnd) {
-				m_dataStart = static_cast<uint8_t*>(dataStart);
-				m_dataEnd = static_cast<uint8_t*>(dataEnd);
-				m_itemOffset = itemOffset;
-				m_itemSize = itemSize;
-			}
-		}
-
-		inline Ptr(void *dataStart, void *dataEnd, void *item, size_t itemSize = sizeof(T)) {
-			Ptr(dataStart, dataEnd, reinterpret_cast<size_t>(static_cast<uint8_t*>(item) - static_cast<uint8_t*>(dataStart)), itemSize);
-		}
+		inline Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize = sizeof(T));
 
 		inline bool valid() const;
 
@@ -60,11 +44,19 @@ class Ptr {
 
 		inline Ptr &operator+=(size_t offset);
 
+	protected:
+		void init(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize);
+
 };
 
 template<typename T, typename size_t>
+inline Ptr<T, size_t>::Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize) {
+	init(dataStart, dataSize, itemStart, itemSize);
+}
+
+template<typename T, typename size_t>
 inline bool Ptr<T, size_t>::valid() const {
-	return m_dataStart and m_itemOffset;
+	return m_dataStart and m_itemStart;
 }
 
 template<typename T, typename size_t>
@@ -74,23 +66,23 @@ inline size_t Ptr<T, size_t>::size() const {
 
 template<typename T, typename size_t>
 inline size_t Ptr<T, size_t>::offset() const {
-	return m_itemOffset;
+	return m_itemStart;
 }
 
 template<typename T, typename size_t>
 inline T *Ptr<T, size_t>::operator->() const {
-	return (T*) m_dataStart + m_itemOffset;
+	return reinterpret_cast<T*>(m_dataStart + m_itemStart);
 }
 
 template<typename T, typename size_t>
 inline Ptr<T, size_t>::operator T*() const {
-	return (T*) m_dataStart + m_itemOffset;
+	return reinterpret_cast<T*>(m_dataStart + m_itemStart);
 }
 
 template<typename T, typename size_t>
 inline Ptr<T, size_t>::operator size_t() const {
 	if (valid()) {
-		return m_itemOffset;
+		return m_itemStart;
 	}
 	return 0;
 }
@@ -102,14 +94,26 @@ inline T &Ptr<T, size_t>::operator*() const {
 
 template<typename T, typename size_t>
 inline Ptr<T, size_t> &Ptr<T, size_t>::operator=(size_t offset) {
-	m_itemOffset = offset;
+	m_itemStart = offset;
 	return *this;
 }
 
 template<typename T, typename size_t>
 inline Ptr<T, size_t> &Ptr<T, size_t>::operator+=(size_t offset) {
-	m_itemOffset += offset;
+	m_itemStart += offset;
 	return *this;
+}
+
+template<typename T, typename size_t>
+void Ptr<T, size_t>::init(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize) {
+	// do some sanity checks before assuming this is valid
+	if (itemSize >= sizeof(T) and
+		 dataStart and
+		 itemStart + itemSize <= dataSize) {
+		m_dataStart = static_cast<uint8_t*>(dataStart);
+		m_itemStart = itemStart;
+		m_itemSize = itemSize;
+	}
 }
 
 }

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 add_library(
 	OxStd
+		assert.cpp
 		memops.cpp
 		random.cpp
 		strops.cpp
@@ -16,6 +17,7 @@ set_property(
 
 install(
 	FILES
+		assert.hpp
 		bitops.hpp
 		byteswap.hpp
 		memops.hpp

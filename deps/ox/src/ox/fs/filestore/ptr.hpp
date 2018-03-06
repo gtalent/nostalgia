@@ -71,6 +71,7 @@ inline size_t Ptr<T, size_t>::offset() const {
 
 template<typename T, typename size_t>
 inline T *Ptr<T, size_t>::operator->() const {
+	ox_assert(valid(), "Invalid pointer access. (ox::fs::Ptr::operator->())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemStart);
 }
 
@@ -89,6 +90,7 @@ inline Ptr<T, size_t>::operator size_t() const {
 
 template<typename T, typename size_t>
 inline T &Ptr<T, size_t>::operator*() const {
+	ox_assert(valid(), "Invalid pointer dereference. (ox::fs::Ptr::operator*())");
 	return *static_cast<T>(this);
 }
 

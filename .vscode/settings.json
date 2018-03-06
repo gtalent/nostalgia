@@ -6,7 +6,12 @@
         "initializer_list": "cpp",
         "utility": "cpp",
         "__config": "cpp",
-        "__nullptr": "cpp"
+        "__nullptr": "cpp",
+        "__bit_reference": "cpp",
+        "__string": "cpp",
+        "algorithm": "cpp",
+        "string": "cpp",
+        "string_view": "cpp"
     },
     "editor.insertSpaces": false,
     "editor.tabSize": 3,

@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "assert.hpp"
 #include "bitops.hpp"
 #include "byteswap.hpp"
 #include "math.hpp"

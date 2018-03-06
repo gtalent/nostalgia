@@ -95,7 +95,7 @@ class __attribute__((packed)) LittleEndian {
 			return value;
 		}
 
-		inline operator T() {
+		inline operator T() const {
 			return ox::bigEndianAdapt(m_value);
 		}
 
@@ -109,7 +109,7 @@ class __attribute__((packed)) LittleEndian {
 			return newVal;
 		}
 
-		inline T operator-(T value) {
+		inline T operator-(T value) const {
 			return ox::bigEndianAdapt(m_value) - value;
 		}
 
@@ -119,7 +119,7 @@ class __attribute__((packed)) LittleEndian {
 			return newVal;
 		}
 
-		inline T operator*(T value) {
+		inline T operator*(T value) const {
 			return ox::bigEndianAdapt(m_value) * value;
 		}
 
@@ -129,7 +129,7 @@ class __attribute__((packed)) LittleEndian {
 			return newVal;
 		}
 
-		inline T operator/(T value) {
+		inline T operator/(T value) const {
 			return ox::bigEndianAdapt(m_value) / value;
 		}
 
@@ -163,11 +163,11 @@ class __attribute__((packed)) LittleEndian {
 			return old;
 		}
 
-		inline T operator~() {
+		inline T operator~() const {
 			return ~ox::bigEndianAdapt(m_value);
 		}
 
-		inline T operator&(T value) {
+		inline T operator&(T value) const {
 			return ox::bigEndianAdapt(m_value) & value;
 		}
 
@@ -177,7 +177,7 @@ class __attribute__((packed)) LittleEndian {
 			return newVal;
 		}
 
-		inline T operator|(T value) {
+		inline T operator|(T value) const {
 			return ox::bigEndianAdapt(m_value) | value;
 		}
 
@@ -187,7 +187,7 @@ class __attribute__((packed)) LittleEndian {
 			return newVal;
 		}
 
-		inline T operator^(T value) {
+		inline T operator^(T value) const {
 			return ox::bigEndianAdapt(m_value) ^ value;
 		}
 
@@ -197,7 +197,7 @@ class __attribute__((packed)) LittleEndian {
 			return newVal;
 		}
 
-		inline T operator>>(T value) {
+		inline T operator>>(T value) const {
 			return ox::bigEndianAdapt(m_value) >> value;
 		}
 
@@ -207,7 +207,7 @@ class __attribute__((packed)) LittleEndian {
 			return newVal;
 		}
 
-		inline T operator<<(T value) {
+		inline T operator<<(T value) const {
 			return ox::bigEndianAdapt(m_value) << value;
 		}
 

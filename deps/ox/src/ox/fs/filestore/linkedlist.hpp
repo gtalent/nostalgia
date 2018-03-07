@@ -162,8 +162,12 @@ typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::malloc(size_t size) {
 			auto last = lastItem();
 			out->next = first;
 			out->prev = last;
-			first->prev = out;
-			last->next = out;
+			if (first.valid()) {
+				first->prev = out;
+			}
+			if (last.valid()) {
+				last->next = out;
+			}
 			m_header.bytesUsed += out.size();
 		}
 		return out;

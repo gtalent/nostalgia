@@ -86,8 +86,17 @@ class __attribute__((packed)) LittleEndian {
 	public:
 		inline LittleEndian() = default;
 
+		inline LittleEndian(const LittleEndian &other) {
+			m_value = other.m_value;
+		}
+
 		inline LittleEndian(T value) {
 			m_value = ox::bigEndianAdapt(value);
+		}
+
+		inline const LittleEndian &operator=(const LittleEndian &other) {
+			m_value = other.m_value;
+			return *this;
 		}
 
 		inline T operator=(T value) {
@@ -99,41 +108,29 @@ class __attribute__((packed)) LittleEndian {
 			return ox::bigEndianAdapt(m_value);
 		}
 
-		inline T operator+(T value) const {
-			return ox::bigEndianAdapt(m_value) + value;
-		}
-
-		inline T operator+=(T other) {
+		template<typename I>
+		inline T operator+=(I other) {
 			auto newVal = *this + other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
-		inline T operator-(T value) const {
-			return ox::bigEndianAdapt(m_value) - value;
-		}
-
-		inline T operator-=(T other) {
+		template<typename I>
+		inline T operator-=(I other) {
 			auto newVal = *this - other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
-		inline T operator*(T value) const {
-			return ox::bigEndianAdapt(m_value) * value;
-		}
-
-		inline T operator*=(T other) {
+		template<typename I>
+		inline T operator*=(I other) {
 			auto newVal = *this * other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
-		inline T operator/(T value) const {
-			return ox::bigEndianAdapt(m_value) / value;
-		}
-
-		inline T operator/=(T other) {
+		template<typename I>
+		inline T operator/=(I other) {
 			auto newVal = *this / other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;

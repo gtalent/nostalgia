@@ -10,7 +10,7 @@
 
 void oxAssert(const char *file, int line, bool pass, const char *msg);
 
-#ifdef NDEBUG
+#ifndef NDEBUG
 #define ox_assert(pass, msg) oxAssert(__FILE__, __LINE__, pass, msg)
 #else
 #define ox_assert(pass, msg)

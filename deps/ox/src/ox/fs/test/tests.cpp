@@ -6,6 +6,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+// make sure asserts are enabled for the test file
+#undef NDEBUG
+
 #include <iostream>
 #include <assert.h>
 #include <map>
@@ -14,6 +17,8 @@
 #include <ox/fs/fs.hpp>
 #include <ox/std/std.hpp>
 #include <ox/fs/filestore/filestore.hpp>
+#include <ox/fs/filestore/filestoretemplate.hpp>
+
 
 using namespace std;
 using namespace ox;
@@ -330,12 +335,24 @@ map<string, int(*)(string)> tests = {
 		{
 			"LinkedList::insert",
 			[](string) {
+				int err = 0;
 				constexpr auto buffLen = 5000;
 				uint8_t buff[buffLen];
 				auto list = new (buff) ox::fs::LinkedList<uint32_t>(buffLen);
-				assert(list->malloc(50).valid());
-				assert(list->firstItem().valid());
-				assert(list->firstItem()->size == 50);
+				err |= !(list->malloc(50).valid());
+				err |= !(list->firstItem().valid());
+				err |= !(list->firstItem()->size() == 50);
+				return err;
+			}
+		},
+		{
+			"FileStore::readWrite",
+			[](string) {
+				constexpr auto buffLen = 5000;
+				uint8_t buff[buffLen];
+				auto list = new (buff) ox::fs::LinkedList<uint32_t>(buffLen);
+				ox::fs::FileStore32 fileStore(list, buffLen);
+				ox_assert(fileStore.format() == 0, "Filestore::format failed.");
 				return 0;
 			}
 		},

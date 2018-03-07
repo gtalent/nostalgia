@@ -20,24 +20,36 @@ class __attribute__((packed)) LinkedList {
 			friend LinkedList;
 
 			public:
-				ox::LittleEndian<size_t> size = sizeof(Item);
+				ox::LittleEndian<size_t> m_size = sizeof(Item);
 
 			protected:
 				ox::LittleEndian<size_t> prev = 0;
 				ox::LittleEndian<size_t> next = 0;
 
+			public:
 				explicit Item(size_t size) {
-					this->size = size;
+					this->m_size = size;
+				}
+
+				size_t size() const {
+					return m_size;
+				}
+
+				ox::fs::Ptr<uint8_t, size_t> data() {
+					return Ptr<uint8_t, size_t>(this, m_size, sizeof(*this), m_size - sizeof(*this));
 				}
 		};
 
 	private:
 		struct __attribute__((packed)) Header {
 			ox::LittleEndian<size_t> size = sizeof(Header);
+			ox::LittleEndian<size_t> bytesUsed = sizeof(Header);
 			ox::LittleEndian<size_t> firstItem = 0;
 		};
 
 		struct ItemPtr: public ox::fs::Ptr<Item, size_t> {
+			inline ItemPtr() = default;
+
 			inline ItemPtr(void *dataStart, size_t dataSize, size_t itemOffset, size_t size):
 			Ptr<Item, size_t>(dataStart, dataSize, itemOffset, size) {
 			}
@@ -46,8 +58,10 @@ class __attribute__((packed)) LinkedList {
 				// make sure this can be read as an Item, and then use Item::size for the size
 				auto itemSpace = dataSize - itemOffset;
 				auto item = reinterpret_cast<Item*>(static_cast<uint8_t*>(dataStart) + itemOffset);
-				if (itemSpace >= static_cast<size_t>(sizeof(Item)) and itemSpace >= item->size) {
-					this->init(dataStart, dataSize, itemOffset, item->size);
+				if (itemOffset >= sizeof(Header) and
+				    itemSpace >= static_cast<size_t>(sizeof(Item)) and
+				    itemSpace >= item->size()) {
+					this->init(dataStart, dataSize, itemOffset, item->size());
 				} else {
 					this->init(dataStart, dataSize, 0, 0);
 				}
@@ -63,17 +77,30 @@ class __attribute__((packed)) LinkedList {
 
 		ItemPtr firstItem();
 
+		ItemPtr lastItem();
+
 		ItemPtr prev(Item *item);
 
 		ItemPtr next(Item *item);
 
 		ItemPtr ptr(size_t offset);
 
-		ItemPtr ptr(uint8_t *item);
+		ItemPtr ptr(void *item);
 
 		ItemPtr malloc(size_t size);
 
 		void free(ItemPtr item);
+
+		bool valid(size_t maxSize);
+
+		Error setSize(size_t size);
+
+		size_t size();
+
+		/**
+		 * @return the bytes still available in this LinkedList
+		 */
+		size_t available();
 
 	private:
 		void compact(void (*cb)(ItemPtr itemMoved));
@@ -93,6 +120,15 @@ typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::firstItem() {
 }
 
 template<typename size_t>
+typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::lastItem() {
+	auto first = ptr(m_header.firstItem);
+	if (first.valid()) {
+		return prev(first);
+	}
+	return ItemPtr();
+}
+
+template<typename size_t>
 typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::prev(Item *item) {
 	return ptr(item->prev);
 }
@@ -108,20 +144,61 @@ typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::ptr(size_t offset) {
 }
 
 template<typename size_t>
-typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::ptr(uint8_t *item) {
-	return ItemPtr(this, m_header.size, reinterpret_cast<size_t>(item - static_cast<uint8_t*>(this)));
+typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::ptr(void *item) {
+	return ItemPtr(this, m_header.size, reinterpret_cast<size_t>(static_cast<uint8_t*>(item) - static_cast<uint8_t*>(this)));
 }
 
 template<typename size_t>
 typename LinkedList<size_t>::ItemPtr LinkedList<size_t>::malloc(size_t size) {
-	if (!m_header.firstItem) {
-		m_header.firstItem = sizeof(m_header);
+	size += sizeof(Item);
+	if (m_header.size - m_header.bytesUsed >= size) {
+		if (!m_header.firstItem) {
+			m_header.firstItem = sizeof(m_header);
+		}
+		auto out = ItemPtr(this, m_header.size, m_header.firstItem, size);
+		if (out.valid()) {
+			new (out) Item(size);
+			auto first = firstItem();
+			auto last = lastItem();
+			out->next = first;
+			out->prev = last;
+			first->prev = out;
+			last->next = out;
+			m_header.bytesUsed += out.size();
+		}
+		return out;
 	}
-	auto out = ItemPtr(this, m_header.size, m_header.firstItem, size);
-	if (out.valid()) {
-		new (out) Item(size);
+	return ItemPtr();
+}
+
+template<typename size_t>
+void LinkedList<size_t>::free(ItemPtr item) {
+	auto prev = this->prev(item);
+	auto next = this->next(item);
+	prev->next = next;
+	next->prev = prev;
+	m_header.bytesUsed -= item.size();
+}
+
+template<typename size_t>
+Error LinkedList<size_t>::setSize(size_t size) {
+	auto last = lastItem();
+	if ((last.valid() and last.end() >= size) or size < sizeof(m_header)) {
+		return 1;
+	} else {
+		m_header.size = size;
+		return 0;
 	}
-	return out;
+}
+
+template<typename size_t>
+bool LinkedList<size_t>::valid(size_t maxSize) {
+	return m_header.size <= maxSize;
+}
+
+template<typename size_t>
+size_t LinkedList<size_t>::available() {
+	return m_header.size - m_header.bytesUsed;
 }
 
 template<typename size_t>

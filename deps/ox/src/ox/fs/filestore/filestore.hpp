@@ -24,9 +24,9 @@ class FileStore {
 			uint8_t fileType;
 		};
 
-		virtual bool valid(InodeId_t size) = 0;
+		virtual Error format() = 0;
 
-		virtual void resize(InodeId_t size = 0) = 0;
+		virtual Error setSize(InodeId_t size) = 0;
 
 		virtual Error write(InodeId_t id, void *data, InodeId_t dataLen, uint8_t fileType = 0) = 0;
 

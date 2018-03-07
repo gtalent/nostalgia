@@ -18,7 +18,7 @@ class Ptr {
 
 	private:
 		uint8_t *m_dataStart = nullptr;
-		size_t m_itemStart = 0;
+		size_t m_itemOffset = 0;
 		size_t m_itemSize = 0;
 
 	public:
@@ -32,6 +32,8 @@ class Ptr {
 
 		inline size_t offset() const;
 
+		inline size_t end();
+
 		inline T *operator->() const;
 
 		inline operator T*() const;
@@ -39,10 +41,6 @@ class Ptr {
 		inline operator size_t() const;
 
 		inline T &operator*() const;
-
-		inline Ptr &operator=(size_t offset);
-
-		inline Ptr &operator+=(size_t offset);
 
 	protected:
 		void init(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize);
@@ -56,7 +54,7 @@ inline Ptr<T, size_t>::Ptr(void *dataStart, size_t dataSize, size_t itemStart, s
 
 template<typename T, typename size_t>
 inline bool Ptr<T, size_t>::valid() const {
-	return m_dataStart and m_itemStart;
+	return m_dataStart and m_itemOffset;
 }
 
 template<typename T, typename size_t>
@@ -66,24 +64,29 @@ inline size_t Ptr<T, size_t>::size() const {
 
 template<typename T, typename size_t>
 inline size_t Ptr<T, size_t>::offset() const {
-	return m_itemStart;
+	return m_itemOffset;
+}
+
+template<typename T, typename size_t>
+inline size_t Ptr<T, size_t>::end() {
+	return m_itemOffset + m_itemSize;
 }
 
 template<typename T, typename size_t>
 inline T *Ptr<T, size_t>::operator->() const {
 	ox_assert(valid(), "Invalid pointer access. (ox::fs::Ptr::operator->())");
-	return reinterpret_cast<T*>(m_dataStart + m_itemStart);
+	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t>
 inline Ptr<T, size_t>::operator T*() const {
-	return reinterpret_cast<T*>(m_dataStart + m_itemStart);
+	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t>
 inline Ptr<T, size_t>::operator size_t() const {
 	if (valid()) {
-		return m_itemStart;
+		return m_itemOffset;
 	}
 	return 0;
 }
@@ -95,25 +98,13 @@ inline T &Ptr<T, size_t>::operator*() const {
 }
 
 template<typename T, typename size_t>
-inline Ptr<T, size_t> &Ptr<T, size_t>::operator=(size_t offset) {
-	m_itemStart = offset;
-	return *this;
-}
-
-template<typename T, typename size_t>
-inline Ptr<T, size_t> &Ptr<T, size_t>::operator+=(size_t offset) {
-	m_itemStart += offset;
-	return *this;
-}
-
-template<typename T, typename size_t>
 void Ptr<T, size_t>::init(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize) {
 	// do some sanity checks before assuming this is valid
+	m_dataStart = static_cast<uint8_t*>(dataStart);
 	if (itemSize >= sizeof(T) and
 		 dataStart and
 		 itemStart + itemSize <= dataSize) {
-		m_dataStart = static_cast<uint8_t*>(dataStart);
-		m_itemStart = itemStart;
+		m_itemOffset = itemStart;
 		m_itemSize = itemSize;
 	}
 }

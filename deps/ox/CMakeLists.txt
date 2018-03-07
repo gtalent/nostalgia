@@ -15,6 +15,10 @@ if(OX_BUILD_EXEC STREQUAL "OFF" OR OX_USE_STDLIB STREQUAL "OFF")
 	set(OX_RUN_TESTS "OFF")
 endif()
 
+if(OX_USE_STDLIB STREQUAL "ON")
+	add_definitions(-DOX_USE_STDLIB)
+endif()
+
 if(NOT MSVC)
 	add_definitions(
 		-std=c++11

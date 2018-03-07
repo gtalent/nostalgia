@@ -17,14 +17,19 @@ template<typename size_t>
 class FileStoreTemplate: public FileStore {
 
 	private:
+		struct __attribute__((packed)) FileStoreData {
+			ox::LittleEndian<size_t> rootNode = sizeof(LinkedList<size_t>);
+		};
+
+		size_t m_buffSize = 0;
 		ox::fs::LinkedList<size_t> *m_linkedList = nullptr;
 
 	public:
-		FileStoreTemplate(void *buff);
+		FileStoreTemplate(void *buff, size_t buffSize);
 
-		bool valid(InodeId_t size);
+		Error format();
 
-		void resize(InodeId_t size = 0);
+		Error setSize(InodeId_t buffSize);
 
 		Error write(InodeId_t id, void *data, InodeId_t dataLen, uint8_t fileType = 0);
 
@@ -44,55 +49,96 @@ class FileStoreTemplate: public FileStore {
 
 		InodeId_t available();
 
+	private:
+		FileStoreData &fileStoreData();
+
 };
 
 template<typename size_t>
-FileStoreTemplate<size_t>::FileStoreTemplate(void *buff) {
+FileStoreTemplate<size_t>::FileStoreTemplate(void *buff, size_t buffSize) {
+	m_buffSize = buffSize;
 	m_linkedList = static_cast<ox::fs::LinkedList<size_t>*>(buff);
+	if (!m_linkedList->valid(buffSize)) {
+		m_buffSize = 0;
+		m_linkedList = nullptr;
+	}
 }
 
 template<typename size_t>
-bool FileStoreTemplate<size_t>::valid(size_t size) {
-	return false;
+Error FileStoreTemplate<size_t>::format() {
+	Error err = 0;
+	auto data = m_linkedList->malloc(sizeof(FileStoreData));
+	if (data.valid()) {
+		new (data->data()) FileStoreData;
+	} else {
+		err = 1;
+	}
+	return err;
 }
 
-void FileStoreTemplate<size_t>::resize(InodeId_t size = 0) {
+template<typename size_t>
+Error FileStoreTemplate<size_t>::setSize(InodeId_t size) {
+	Error err = 0;
+	if (m_buffSize >= size) {
+		err |= m_linkedList->setSize(size);
+	} else {
+		err = 1;
+	}
+	return err;
 }
 
-Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, InodeId_t dataLen, uint8_t fileType = 0) {
+template<typename size_t>
+Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, InodeId_t dataLen, uint8_t fileType) {
 	return 1;
 }
 
+template<typename size_t>
 Error FileStoreTemplate<size_t>::incLinks(InodeId_t id) {
 	return 1;
 }
 
+template<typename size_t>
 Error FileStoreTemplate<size_t>::decLinks(InodeId_t id) {
 	return 1;
 }
 
+template<typename size_t>
 Error FileStoreTemplate<size_t>::read(InodeId_t id, void *data, InodeId_t *size) {
 	return 1;
 }
 
+template<typename size_t>
 Error FileStoreTemplate<size_t>::read(InodeId_t id, InodeId_t readStart, InodeId_t readSize, void *data, InodeId_t *size) {
 	return 1;
 }
 
-StatInfo FileStoreTemplate<size_t>::stat(InodeId_t id) {
+template<typename size_t>
+typename FileStoreTemplate<size_t>::StatInfo FileStoreTemplate<size_t>::stat(InodeId_t id) {
 	return {};
 }
 
+template<typename size_t>
 InodeId_t FileStoreTemplate<size_t>::spaceNeeded(InodeId_t size) {
 	return 1;
 }
 
+template<typename size_t>
 InodeId_t FileStoreTemplate<size_t>::size() {
 	return 1;
 }
 
+template<typename size_t>
 InodeId_t FileStoreTemplate<size_t>::available() {
 	return 1;
 }
+
+template<typename size_t>
+typename FileStoreTemplate<size_t>::FileStoreData &FileStoreTemplate<size_t>::fileStoreData() {
+	return *reinterpret_cast<FileStoreData*>(m_linkedList->firstItem());
+}
+
+using FileStore16 = FileStoreTemplate<uint16_t>;
+using FileStore32 = FileStoreTemplate<uint32_t>;
+using FileStore64 = FileStoreTemplate<uint64_t>;
 
 }

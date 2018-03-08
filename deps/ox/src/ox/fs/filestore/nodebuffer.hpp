@@ -22,11 +22,11 @@ class __attribute__((packed)) NodeBuffer {
 			ox::LittleEndian<size_t> firstItem = 0;
 		};
 
-		struct ItemPtr: public ox::fs::Ptr<Item, size_t> {
+		struct ItemPtr: public ox::fs::Ptr<Item, size_t, sizeof(Header)> {
 			inline ItemPtr() = default;
 
 			inline ItemPtr(void *dataStart, size_t dataSize, size_t itemOffset, size_t size):
-			Ptr<Item, size_t>(dataStart, dataSize, itemOffset, size) {
+			Ptr<Item, size_t, sizeof(Header)>(dataStart, dataSize, itemOffset, size) {
 			}
 
 			inline ItemPtr(void *dataStart, size_t dataSize, size_t itemOffset) {

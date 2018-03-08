@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "linkedlist.hpp"
+#include "nodebuffer.hpp"
 
 namespace ox::fs {
 

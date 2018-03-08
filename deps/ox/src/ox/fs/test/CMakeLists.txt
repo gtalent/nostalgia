@@ -69,3 +69,4 @@ add_test("Test\\ FileSystem32::stripDirectories" FSTests "FileSystem32::stripDir
 add_test("Test\\ FileSystem32::ls" FSTests "FileSystem32::ls")
 
 add_test("Test\\ LinkedList::insert" FSTests "LinkedList::insert")
+add_test("Test\\ NodeBuffer::readWrite" FSTests "NodeBuffer::readWrite")

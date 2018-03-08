@@ -12,29 +12,8 @@
 
 namespace ox::fs {
 
-struct __attribute__((packed)) Item {
-	public:
-		ox::LittleEndian<size_t> m_size = sizeof(Item);
-
-	public:
-		ox::LittleEndian<size_t> prev = 0;
-		ox::LittleEndian<size_t> next = 0;
-
-		explicit Item(size_t size) {
-			this->m_size = size;
-		}
-
-		size_t size() const {
-			return m_size;
-		}
-
-		ox::fs::Ptr<uint8_t, size_t> data() {
-			return Ptr<uint8_t, size_t>(this, m_size, sizeof(*this), m_size - sizeof(*this));
-		}
-};
-
 template<typename size_t, typename Item>
-class __attribute__((packed)) LinkedList {
+class __attribute__((packed)) NodeBuffer {
 
 	private:
 		struct __attribute__((packed)) Header {
@@ -67,9 +46,9 @@ class __attribute__((packed)) LinkedList {
 		Header m_header;
 
 	public:
-		LinkedList() = default;
+		NodeBuffer() = default;
 
-		explicit LinkedList(size_t size);
+		explicit NodeBuffer(size_t size);
 
 		ItemPtr firstItem();
 
@@ -94,7 +73,7 @@ class __attribute__((packed)) LinkedList {
 		size_t size();
 
 		/**
-		 * @return the bytes still available in this LinkedList
+		 * @return the bytes still available in this NodeBuffer
 		 */
 		size_t available();
 
@@ -106,17 +85,17 @@ class __attribute__((packed)) LinkedList {
 };
 
 template<typename size_t, typename Item>
-LinkedList<size_t, Item>::LinkedList(size_t size) {
+NodeBuffer<size_t, Item>::NodeBuffer(size_t size) {
 	m_header.size = size;
 }
 
 template<typename size_t, typename Item>
-typename LinkedList<size_t, Item>::ItemPtr LinkedList<size_t, Item>::firstItem() {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::firstItem() {
 	return ptr(m_header.firstItem);
 }
 
 template<typename size_t, typename Item>
-typename LinkedList<size_t, Item>::ItemPtr LinkedList<size_t, Item>::lastItem() {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::lastItem() {
 	auto first = ptr(m_header.firstItem);
 	if (first.valid()) {
 		return prev(first);
@@ -125,27 +104,27 @@ typename LinkedList<size_t, Item>::ItemPtr LinkedList<size_t, Item>::lastItem() 
 }
 
 template<typename size_t, typename Item>
-typename LinkedList<size_t, Item>::ItemPtr LinkedList<size_t, Item>::prev(Item *item) {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::prev(Item *item) {
 	return ptr(item->prev);
 }
 
 template<typename size_t, typename Item>
-typename LinkedList<size_t, Item>::ItemPtr LinkedList<size_t, Item>::next(Item *item) {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::next(Item *item) {
 	return ptr(item->next);
 }
 
 template<typename size_t, typename Item>
-typename LinkedList<size_t, Item>::ItemPtr LinkedList<size_t, Item>::ptr(size_t offset) {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t offset) {
 	return ItemPtr(this, m_header.size, offset);
 }
 
 template<typename size_t, typename Item>
-typename LinkedList<size_t, Item>::ItemPtr LinkedList<size_t, Item>::ptr(void *item) {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(void *item) {
 	return ItemPtr(this, m_header.size, reinterpret_cast<size_t>(static_cast<uint8_t*>(item) - static_cast<uint8_t*>(this)));
 }
 
 template<typename size_t, typename Item>
-typename LinkedList<size_t, Item>::ItemPtr LinkedList<size_t, Item>::malloc(size_t size) {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size_t size) {
 	size += sizeof(Item);
 	if (m_header.size - m_header.bytesUsed >= size) {
 		if (!m_header.firstItem) {
@@ -172,7 +151,7 @@ typename LinkedList<size_t, Item>::ItemPtr LinkedList<size_t, Item>::malloc(size
 }
 
 template<typename size_t, typename Item>
-void LinkedList<size_t, Item>::free(ItemPtr item) {
+void NodeBuffer<size_t, Item>::free(ItemPtr item) {
 	auto prev = this->prev(item);
 	auto next = this->next(item);
 	if (prev.valid()) {
@@ -185,7 +164,7 @@ void LinkedList<size_t, Item>::free(ItemPtr item) {
 }
 
 template<typename size_t, typename Item>
-Error LinkedList<size_t, Item>::setSize(size_t size) {
+Error NodeBuffer<size_t, Item>::setSize(size_t size) {
 	auto last = lastItem();
 	if ((last.valid() and last.end() >= size) or size < sizeof(m_header)) {
 		return 1;
@@ -196,17 +175,17 @@ Error LinkedList<size_t, Item>::setSize(size_t size) {
 }
 
 template<typename size_t, typename Item>
-bool LinkedList<size_t, Item>::valid(size_t maxSize) {
+bool NodeBuffer<size_t, Item>::valid(size_t maxSize) {
 	return m_header.size <= maxSize;
 }
 
 template<typename size_t, typename Item>
-size_t LinkedList<size_t, Item>::available() {
+size_t NodeBuffer<size_t, Item>::available() {
 	return m_header.size - m_header.bytesUsed;
 }
 
 template<typename size_t, typename Item>
-void LinkedList<size_t, Item>::compact(void (*cb)(ItemPtr)) {
+void NodeBuffer<size_t, Item>::compact(void (*cb)(ItemPtr)) {
 	auto src = firstItem();
 	auto dest = data();
 	while (src.valid()) {
@@ -231,8 +210,28 @@ void LinkedList<size_t, Item>::compact(void (*cb)(ItemPtr)) {
 }
 
 template<typename size_t, typename Item>
-uint8_t *LinkedList<size_t, Item>::data() {
+uint8_t *NodeBuffer<size_t, Item>::data() {
 	return reinterpret_cast<uint8_t*>(this + 1);
 }
+
+
+template<typename size_t>
+struct __attribute__((packed)) Item {
+	public:
+		ox::LittleEndian<size_t> prev = 0;
+		ox::LittleEndian<size_t> next = 0;
+
+	private:
+		ox::LittleEndian<size_t> m_size = sizeof(Item);
+
+	public:
+		explicit Item(size_t size) {
+			this->m_size = size;
+		}
+
+		size_t size() const {
+			return m_size;
+		}
+};
 
 }

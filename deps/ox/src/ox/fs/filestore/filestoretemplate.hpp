@@ -18,11 +18,11 @@ class FileStoreTemplate: public FileStore {
 
 	private:
 		struct __attribute__((packed)) FileStoreData {
-			ox::LittleEndian<size_t> rootNode = sizeof(LinkedList<size_t>);
+			ox::LittleEndian<size_t> rootNode = sizeof(LinkedList<size_t, Item>);
 		};
 
 		size_t m_buffSize = 0;
-		ox::fs::LinkedList<size_t> *m_linkedList = nullptr;
+		ox::fs::LinkedList<size_t, Item> *m_linkedList = nullptr;
 
 	public:
 		FileStoreTemplate(void *buff, size_t buffSize);
@@ -57,7 +57,7 @@ class FileStoreTemplate: public FileStore {
 template<typename size_t>
 FileStoreTemplate<size_t>::FileStoreTemplate(void *buff, size_t buffSize) {
 	m_buffSize = buffSize;
-	m_linkedList = static_cast<ox::fs::LinkedList<size_t>*>(buff);
+	m_linkedList = static_cast<ox::fs::LinkedList<size_t, Item>*>(buff);
 	if (!m_linkedList->valid(buffSize)) {
 		m_buffSize = 0;
 		m_linkedList = nullptr;

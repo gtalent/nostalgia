@@ -338,7 +338,7 @@ map<string, int(*)(string)> tests = {
 				int err = 0;
 				constexpr auto buffLen = 5000;
 				uint8_t buff[buffLen];
-				auto list = new (buff) ox::fs::LinkedList<uint32_t>(buffLen);
+				auto list = new (buff) ox::fs::LinkedList<uint32_t, ox::fs::Item>(buffLen);
 				err |= !(list->malloc(50).valid());
 				err |= !(list->firstItem().valid());
 				err |= !(list->firstItem()->size() == 50);
@@ -350,7 +350,7 @@ map<string, int(*)(string)> tests = {
 			[](string) {
 				constexpr auto buffLen = 5000;
 				uint8_t buff[buffLen];
-				auto list = new (buff) ox::fs::LinkedList<uint32_t>(buffLen);
+				auto list = new (buff) ox::fs::LinkedList<uint32_t, ox::fs::Item>(buffLen);
 				ox::fs::FileStore32 fileStore(list, buffLen);
 				ox_assert(fileStore.format() == 0, "Filestore::format failed.");
 				return 0;

@@ -37,7 +37,7 @@ install(
 
 install(
 	FILES
-		filestore/linkedlist.hpp
+		filestore/nodebuffer.hpp
 		filestore/ptr.hpp
 	DESTINATION
 		include/ox/fs/filestore

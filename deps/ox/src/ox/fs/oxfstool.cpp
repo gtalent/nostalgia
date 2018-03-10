@@ -248,23 +248,23 @@ int compact(int argc, char **args) {
 
 			if (fs) {
 				fs->resize();
+
+				// write back to file
+				auto fsFile = fopen(fsPath, "wb");
+				if (fsFile) {
+					err = fwrite(fsBuff, fs->size(), 1, fsFile) != 1;
+					err |= fclose(fsFile);
+					if (err) {
+						fprintf(stderr, "Could not write to file system file.\n");
+					}
+				} else {
+					err = 1;
+				}
+
+				delete fs;
 			} else {
 				fprintf(stderr, "Invalid file system.\n");
 			}
-
-			// write back to file
-			auto fsFile = fopen(fsPath, "wb");
-			if (fsFile) {
-				err = fwrite(fsBuff, fs->size(), 1, fsFile) != 1;
-				err |= fclose(fsFile);
-				if (err) {
-					fprintf(stderr, "Could not write to file system file.\n");
-				}
-			} else {
-				err = 1;
-			}
-
-			delete fs;
 			delete []fsBuff;
 		} else {
 			fprintf(stderr, "Could not open file: %s\n", fsPath);
@@ -321,39 +321,41 @@ int remove(int argc, char **args) {
 int walk(int argc, char **args) {
 	int err = 0;
 	size_t fsSize;
-	auto fsPath = args[2];
-	auto fsBuff = loadFileBuff(fsPath, &fsSize);
-	if (fsBuff) {
-		auto fs = createFileSystem(fsBuff, fsSize);
-		if (fs) {
-			cout << setw(9) << "Type |";
-			cout << setw(10) << "Start |";
-			cout << setw(10) << "End |";
-			cout << setw(8) << "Size";
-			cout << endl;
-			cout << "-------------------------------------";
-			cout << endl;
-			fs->walk([](const char *type, uint64_t start, uint64_t end) {
-				cout << setw(7) << type << " |";
-				cout << setw(8) << start << " |";
-				cout << setw(8) << end << " |";
-				cout << setw(8) << (end - start);
+	if (argc >= 2) {
+		auto fsPath = args[2];
+		auto fsBuff = loadFileBuff(fsPath, &fsSize);
+		if (fsBuff) {
+			auto fs = createFileSystem(fsBuff, fsSize);
+			if (fs) {
+				cout << setw(9) << "Type |";
+				cout << setw(10) << "Start |";
+				cout << setw(10) << "End |";
+				cout << setw(8) << "Size";
 				cout << endl;
-				return 0;
-			});
-			delete fs;
+				cout << "-------------------------------------";
+				cout << endl;
+				fs->walk([](const char *type, uint64_t start, uint64_t end) {
+					cout << setw(7) << type << " |";
+					cout << setw(8) << start << " |";
+					cout << setw(8) << end << " |";
+					cout << setw(8) << (end - start);
+					cout << endl;
+					return 0;
+				});
+				delete fs;
+			} else {
+				cerr << "Invalid file system.\n";
+				err = 1;
+			}
+			delete []fsBuff;
 		} else {
-			cerr << "Invalid file system.\n";
-			err = 1;
+			err = 2;
 		}
-		delete []fsBuff;
-	} else {
-		err = 2;
 	}
 	return err;
 }
 
-int help(int, char**) { 
+int help(int, char**) {
 	cout << usage << endl;
 	return 0;
 }

@@ -24,6 +24,7 @@ fi
 mkdir -p $buildDir
 pushd $buildDir
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+      -GNinja \
       $buildTypeArgs \
 		$toolchain \
 		$project

@@ -79,7 +79,7 @@ inline T bigEndianAdapt(T i) {
 
 
 template<typename T>
-class __attribute__((packed)) LittleEndian {
+class LittleEndian {
 	private:
 		T m_value;
 
@@ -99,7 +99,8 @@ class __attribute__((packed)) LittleEndian {
 			return *this;
 		}
 
-		inline T operator=(T value) {
+		template<typename I>
+		inline T operator=(I value) {
 			m_value = ox::bigEndianAdapt(value);
 			return value;
 		}
@@ -137,7 +138,7 @@ class __attribute__((packed)) LittleEndian {
 		}
 
 		// Prefix increment
-		inline T &operator++() {
+		inline T operator++() {
 			return operator+=(1);
 		}
 
@@ -149,7 +150,7 @@ class __attribute__((packed)) LittleEndian {
 		}
 
 		// Prefix decrement
-		inline T &operator--() {
+		inline T operator--() {
 			return operator-=(1);
 		}
 
@@ -160,55 +161,36 @@ class __attribute__((packed)) LittleEndian {
 			return old;
 		}
 
-		inline T operator~() const {
-			return ~ox::bigEndianAdapt(m_value);
-		}
-
-		inline T operator&(T value) const {
-			return ox::bigEndianAdapt(m_value) & value;
-		}
-
-		inline T operator&=(T other) {
+		template<typename I>
+		inline T operator&=(I other) {
 			auto newVal = *this & other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
-		inline T operator|(T value) const {
-			return ox::bigEndianAdapt(m_value) | value;
-		}
-
-		inline T operator|=(T other) {
+		template<typename I>
+		inline T operator|=(I other) {
 			auto newVal = *this | other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
-		inline T operator^(T value) const {
-			return ox::bigEndianAdapt(m_value) ^ value;
-		}
-
-		inline T operator^=(T other) {
+		template<typename I>
+		inline T operator^=(I other) {
 			auto newVal = *this ^ other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
-		inline T operator>>(T value) const {
-			return ox::bigEndianAdapt(m_value) >> value;
-		}
-
-		inline T operator>>=(T other) {
+		template<typename I>
+		inline T operator>>=(I other) {
 			auto newVal = *this >> other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
-		inline T operator<<(T value) const {
-			return ox::bigEndianAdapt(m_value) << value;
-		}
-
-		inline T operator<<=(T other) {
+		template<typename I>
+		inline T operator<<=(I other) {
 			auto newVal = *this << other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;

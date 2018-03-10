@@ -17,33 +17,47 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	)
 else()
 	add_definitions(
-		-Werror
 		-DNDEBUG
+		-Werror
 	)
 endif()
 
-if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
-	include(GBA)
+if(NOT MSVC)
 	add_definitions(
-		-nostdlib
-		-fno-exceptions
-		-fno-rtti
-		-fno-strict-aliasing
-		-mthumb-interwork
-		-mthumb
+		-Wall
+		-Wsign-compare
 	)
+
+
+	if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
+		include(GBA)
+		add_definitions(
+			-nostdlib
+			-fno-exceptions
+			-fno-rtti
+			-fno-strict-aliasing
+			-mthumb-interwork
+			-mthumb
+		)
+	endif()
+
+	if (CMAKE_BUILD_TYPE STREQUAL "Release")
+		add_definitions(
+			-Werror
+			-O3
+		)
+	endif()
+
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		add_definitions(
+			-fdiagnostics-color # forces colored output when using ninja
+		)
+	endif()
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
-add_definitions(
-	#-fdiagnostics-color # forces colored output when using ninja
-	-Wall
-	-Wsign-compare
-)
-
 
 if(NOSTALGIA_IDE_BUILD STREQUAL "ON")
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -68,12 +82,6 @@ else()
 	set(NOSTALGIA_DIST_LIB       lib)
 	set(NOSTALGIA_DIST_PLUGIN    lib/nostalgia/plugins)
 	set(NOSTALGIA_DIST_RESOURCES share)
-endif()
-
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-	add_definitions(
-		-Werror
-	)
 endif()
 
 enable_testing()

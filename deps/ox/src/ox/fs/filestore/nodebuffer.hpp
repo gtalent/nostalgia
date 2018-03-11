@@ -15,7 +15,7 @@ namespace ox::fs {
 template<typename size_t, typename Item>
 class __attribute__((packed)) NodeBuffer {
 
-	private:
+	public:
 		struct __attribute__((packed)) Header {
 			ox::LittleEndian<size_t> size = sizeof(Header);
 			ox::LittleEndian<size_t> bytesUsed = sizeof(Header);
@@ -24,6 +24,9 @@ class __attribute__((packed)) NodeBuffer {
 
 		struct ItemPtr: public ox::fs::Ptr<Item, size_t, sizeof(Header)> {
 			inline ItemPtr() = default;
+
+			inline ItemPtr(std::nullptr_t) {
+			}
 
 			inline ItemPtr(void *dataStart, size_t dataSize, size_t itemOffset, size_t size):
 			Ptr<Item, size_t, sizeof(Header)>(dataStart, dataSize, itemOffset, size) {
@@ -35,8 +38,8 @@ class __attribute__((packed)) NodeBuffer {
 				auto item = reinterpret_cast<Item*>(static_cast<uint8_t*>(dataStart) + itemOffset);
 				if (itemOffset >= sizeof(Header) and
 				    itemSpace >= static_cast<size_t>(sizeof(Item)) and
-				    itemSpace >= item->size()) {
-					this->init(dataStart, dataSize, itemOffset, item->size());
+				    itemSpace >= item->fullSize()) {
+					this->init(dataStart, dataSize, itemOffset, sizeof(item) + item->fullSize());
 				} else {
 					this->init(dataStart, dataSize, 0, 0);
 				}
@@ -77,6 +80,12 @@ class __attribute__((packed)) NodeBuffer {
 		 */
 		size_t available();
 
+		/**
+		 * @return the actual number a bytes need to store the given number of
+		 * bytes
+		 */
+		size_t spaceNeeded(size_t size);
+
 	private:
 		void compact(void (*cb)(ItemPtr itemMoved));
 
@@ -100,7 +109,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::lastItem() 
 	if (first.valid()) {
 		return prev(first);
 	}
-	return ItemPtr();
+	return nullptr;
 }
 
 template<typename size_t, typename Item>
@@ -147,7 +156,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 		}
 		return out;
 	}
-	return ItemPtr();
+	return nullptr;
 }
 
 template<typename size_t, typename Item>
@@ -175,6 +184,11 @@ Error NodeBuffer<size_t, Item>::setSize(size_t size) {
 }
 
 template<typename size_t, typename Item>
+size_t NodeBuffer<size_t, Item>::size() {
+	return m_header.size;
+}
+
+template<typename size_t, typename Item>
 bool NodeBuffer<size_t, Item>::valid(size_t maxSize) {
 	return m_header.size <= maxSize;
 }
@@ -185,10 +199,15 @@ size_t NodeBuffer<size_t, Item>::available() {
 }
 
 template<typename size_t, typename Item>
+size_t NodeBuffer<size_t, Item>::spaceNeeded(size_t size) {
+	return sizeof(Item) + size;
+}
+
+template<typename size_t, typename Item>
 void NodeBuffer<size_t, Item>::compact(void (*cb)(ItemPtr)) {
 	auto src = firstItem();
 	auto dest = data();
-	while (src.valid()) {
+	while (src.valid() && dest.valid()) {
 		// move node
 		ox_memcpy(dest, src, src.size());
 		if (cb) {
@@ -205,7 +224,7 @@ void NodeBuffer<size_t, Item>::compact(void (*cb)(ItemPtr)) {
 		}
 		// update iterators
 		src = ptr(dest->next);
-		dest += ptr(dest)->size;
+		dest += ptr(dest).size();
 	}
 }
 
@@ -231,6 +250,13 @@ struct __attribute__((packed)) Item {
 
 		size_t size() const {
 			return m_size;
+		}
+
+		/**
+		 * @return the size of the data + the size of the Item type
+		 */
+		size_t fullSize() const {
+			return sizeof(*this) + m_size;
 		}
 };
 

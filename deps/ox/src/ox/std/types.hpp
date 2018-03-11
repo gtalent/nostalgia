@@ -51,6 +51,12 @@ typedef uint32_t uintptr_t;
 #error size_t, intptr_t, and uintptr_t undefined
 #endif
 
+namespace std {
+
+typedef decltype(nullptr) nullptr_t;
+
+}
+
 static_assert(sizeof(int8_t)   == 1, "int8_t is wrong size");
 static_assert(sizeof(int16_t)  == 2, "int16_t is wrong size");
 static_assert(sizeof(int32_t)  == 4, "int32_t is wrong size");

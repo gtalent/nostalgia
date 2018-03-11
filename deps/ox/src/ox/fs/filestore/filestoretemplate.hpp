@@ -16,7 +16,7 @@ namespace ox::fs {
 template<typename size_t>
 struct __attribute__((packed)) FileStoreItem: public Item<size_t> {
 	ox::LittleEndian<size_t> id = 0;
-	ox::LittleEndian<size_t> fileType = 0;
+	ox::LittleEndian<uint8_t> fileType = 0;
 	ox::LittleEndian<size_t> links = 0;
 	ox::LittleEndian<size_t> left = 0;
 	ox::LittleEndian<size_t> right = 0;
@@ -68,7 +68,7 @@ class FileStoreTemplate: public FileStore {
 		InodeId_t available();
 
 	private:
-		FileStoreData &fileStoreData();
+		FileStoreData *fileStoreData();
 
 		/**
 		 * Places the given Item at the given ID. If it already exists, the
@@ -96,7 +96,7 @@ class FileStoreTemplate: public FileStore {
 		 */
 		ItemPtr rootInode();
 
-		bool canWrite(InodeId_t id, size_t size);
+		bool canWrite(ItemPtr existing, size_t size);
 
 };
 
@@ -151,8 +151,15 @@ Error FileStoreTemplate<size_t>::decLinks(InodeId_t id) {
 
 template<typename size_t>
 Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, InodeId_t dataSize, uint8_t fileType) {
-	// TODO: delete the old node if it exists
-	if (canWrite(id, dataSize)) {
+	auto existing = find(id);
+	if (canWrite(existing, dataSize)) {
+		// delete the old node if it exists
+		if (existing.valid()) {
+			m_buffer->free(existing);
+			existing = nullptr;
+		}
+
+		// write the given data
 		auto dest = m_buffer->malloc(dataSize);
 		// if first malloc failed, compact and try again
 		dest = m_buffer->malloc(dataSize);
@@ -165,7 +172,13 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, InodeId_t dataS
 			if (root.valid()) {
 				placeItem(root, dest);
 			} else {
-				fileStoreData().rootNode = root;
+				auto fsData = fileStoreData();
+				if (fsData) {
+					fsData->rootNode = dest;
+				} else {
+					m_buffer->free(dest);
+					return 1;
+				}
 			}
 			return 0;
 		}
@@ -185,12 +198,21 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, InodeId_t readStart, InodeId
 
 template<typename size_t>
 typename FileStoreTemplate<size_t>::StatInfo FileStoreTemplate<size_t>::stat(InodeId_t id) {
+	auto inode = find(id);
+	if (inode.valid()) {
+		return {
+			.inodeId = id,
+			.links = inode->links,
+			.size = inode->size(),
+			.fileType = inode->fileType,
+		};
+	}
 	return {};
 }
 
 template<typename size_t>
 InodeId_t FileStoreTemplate<size_t>::spaceNeeded(InodeId_t size) {
-	return 1;
+	return m_buffer->spaceNeeded(size);
 }
 
 template<typename size_t>
@@ -204,8 +226,15 @@ InodeId_t FileStoreTemplate<size_t>::available() {
 }
 
 template<typename size_t>
-typename FileStoreTemplate<size_t>::FileStoreData &FileStoreTemplate<size_t>::fileStoreData() {
-	return *reinterpret_cast<FileStoreData*>(m_buffer->firstItem()->data().get());
+typename FileStoreTemplate<size_t>::FileStoreData *FileStoreTemplate<size_t>::fileStoreData() {
+	auto first = m_buffer->firstItem();
+	if (first.valid()) {
+		auto data = first->data();
+		if (data.valid()) {
+			return reinterpret_cast<FileStoreData*>(data.get());
+		}
+	}
+	return nullptr;
 }
 
 template<typename size_t>
@@ -267,7 +296,7 @@ typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(Item
 
 template<typename size_t>
 typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(size_t id) {
-	auto root = m_buffer->ptr(fileStoreData().rootNode);
+	auto root = m_buffer->ptr(fileStoreData()->rootNode);
 	if (root.valid()) {
 		auto item = find(root, id);
 		return item;
@@ -280,22 +309,12 @@ typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(size
  */
 template<typename size_t>
 typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::rootInode() {
-	return m_buffer->ptr(fileStoreData().rootNode);
+	return m_buffer->ptr(fileStoreData()->rootNode);
 }
 
 template<typename size_t>
-bool FileStoreTemplate<size_t>::canWrite(InodeId_t id, size_t size) {
-	if (m_buffer->spaceNeeded(size) >= m_buffer->available()) {
-		return true;
-	} else {
-		auto existing = find(id);
-		if (existing.valid()) {
-			if (m_buffer->spaceNeeded(size) >= existing.size()) {
-				return true;
-			}
-		}
-	}
-	return false;
+bool FileStoreTemplate<size_t>::canWrite(ItemPtr existing, size_t size) {
+	return existing.size() >= size || m_buffer->spaceNeeded(size) >= m_buffer->available();
 }
 
 using FileStore16 = FileStoreTemplate<uint16_t>;

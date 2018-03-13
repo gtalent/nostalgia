@@ -25,6 +25,7 @@ target_link_libraries(
 		OxFS
 		OxStd
 		OxTrace
+		OxMetalClaw
 )
 
 target_link_libraries(
@@ -32,6 +33,7 @@ target_link_libraries(
 		OxFS
 		OxStd
 		OxTrace
+		OxMetalClaw
 )
 
 target_link_libraries(
@@ -39,6 +41,7 @@ target_link_libraries(
 		OxFS
 		OxStd
 		OxTrace
+		OxMetalClaw
 )
 
 target_link_libraries(
@@ -46,6 +49,7 @@ target_link_libraries(
 		OxFS
 		OxStd
 		OxTrace
+		OxMetalClaw
 )
 
 add_test("FileStoreFormat" FileStoreFormat)

@@ -13,6 +13,7 @@
 #include "byteswap.hpp"
 #include "math.hpp"
 #include "memops.hpp"
+#include "new.hpp"
 #include "random.hpp"
 #include "strops.hpp"
 #include "string.hpp"

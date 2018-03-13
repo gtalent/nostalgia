@@ -49,7 +49,6 @@ class Ptr {
 
 		inline T &operator*() const;
 
-	protected:
 		inline void init(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize);
 
 };

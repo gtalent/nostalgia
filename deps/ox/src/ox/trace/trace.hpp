@@ -10,7 +10,7 @@
 
 #include <ox/std/std.hpp>
 
-namespace ox {
+namespace ox::trace {
 
 struct TraceMsg {
 	ox::BString<150> file = "";
@@ -21,7 +21,7 @@ struct TraceMsg {
 };
 
 template<typename T>
-int ioOp(T *io, ox::TraceMsg *obj) {
+int ioOp(T *io, ox::trace::TraceMsg *obj) {
 	int32_t err = 0;
 	io->setFields(5);
 	err |= io->op("file", &obj->file);
@@ -44,7 +44,7 @@ class OutStream {
 		~OutStream();
 
 		template<typename T>
-		OutStream &operator<<(T v) {
+		inline OutStream &operator<<(const T &v) {
 			m_msg.msg += " ";
 			m_msg.msg += v;
 			return *this;
@@ -52,6 +52,45 @@ class OutStream {
 
 };
 
+
+class StdOutStream {
+
+	private:
+		TraceMsg m_msg;
+
+	public:
+		StdOutStream() = default;
+
+		StdOutStream(const char *file, int line, const char *ch, const char *msg = "");
+
+		~StdOutStream();
+
+		template<typename T>
+		inline StdOutStream &operator<<(T v) {
+			m_msg.msg += " ";
+			m_msg.msg += v;
+			return *this;
+		}
+
+};
+
+
+class NullStream {
+
+	public:
+		NullStream() = default;
+
+		NullStream(const char *file, int line, const char *ch, const char *msg = "");
+
+		~NullStream();
+
+		template<typename T>
+		inline NullStream &operator<<(const T&) {
+			return *this;
+		}
+
+};
+
 }
 
-#define oxTrace(ch) ox::OutStream(__FILE__, __LINE__, ch)
+#define oxTrace(ch) ox::trace::StdOutStream(__FILE__, __LINE__, ch)

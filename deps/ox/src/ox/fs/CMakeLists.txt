@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 add_library(
 	OxFS
+		filestore.cpp
+		filestore/filestoretemplate.cpp
 		filesystem/filesystem.cpp
 		filesystem/pathiterator.cpp
 )
@@ -24,6 +26,7 @@ if(OX_BUILD_EXEC STREQUAL "ON")
 		oxfstool
 			OxFS
 			OxTrace
+			OxMetalClaw
 			OxStd
 	)
 endif()

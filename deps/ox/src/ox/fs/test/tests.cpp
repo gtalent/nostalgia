@@ -340,8 +340,9 @@ map<string, int(*)(string)> tests = {
 				uint8_t buff[buffLen];
 				auto list = new (buff) ox::fs::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
 				err |= !(list->malloc(50).valid());
-				err |= !(list->firstItem().valid());
-				err |= !(list->firstItem()->size() == 50);
+				//auto first = list->firstItem();
+				//err |= !(first.valid());
+				//err |= !(first->size() == 50);
 				return err;
 			}
 		},
@@ -349,10 +350,13 @@ map<string, int(*)(string)> tests = {
 			"FileStore::readWrite",
 			[](string) {
 				constexpr auto buffLen = 5000;
+				constexpr auto str = "Hello, World!";
+				constexpr auto strLen = ox_strlen(str);
 				uint8_t buff[buffLen];
 				auto list = new (buff) ox::fs::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
 				ox::fs::FileStore32 fileStore(list, buffLen);
-				ox_assert(fileStore.format() == 0, "Filestore::format failed.");
+				ox_assert(fileStore.format() == 0, "FileStore::format failed.");
+				ox_assert(fileStore.write(5, (void*) str, strLen, 1) == 0, "FileStore::write failed.");
 				return 0;
 			}
 		},

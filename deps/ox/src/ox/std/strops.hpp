@@ -13,9 +13,17 @@
 
 int ox_strcmp(const char *str1, const char *str2);
 
-int ox_strlen(const char *str1);
+constexpr int ox_strlen(const char *str1) {
+	int len = 0;
+	for (; str1[len]; len++);
+	return len;
+}
 
-int ox_strlen(char *str1);
+constexpr int ox_strlen(char *str1) {
+	int len = 0;
+	for (; str1[len]; len++);
+	return len;
+}
 
 const char *ox_strchr(const char *str, int character, size_t maxLen = 0xFFFFFFFF);
 

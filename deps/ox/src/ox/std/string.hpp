@@ -39,6 +39,8 @@ class BString {
 
 		char *data();
 
+		const char *c_str() noexcept;
+
 		/**
 		 * Returns the number of characters in this string.
 		 */
@@ -92,11 +94,11 @@ const BString<size> &BString<size>::operator=(char *str) {
 template<size_t size>
 const BString<size> &BString<size>::operator+=(const char *str) {
 	size_t strLen = ox_strlen(str) + 1;
-	auto currentSize = size();
-	if (cap() < currentSize + strLen) {
-		strLen = cap() - currentSize;
+	auto currentLen = len();
+	if (cap() < currentLen + strLen) {
+		strLen = cap() - currentLen;
 	}
-	ox_memcpy(m_buff + currentSize, str, strLen);
+	ox_memcpy(m_buff + currentLen, str, strLen);
 	// make sure last element is a null terminator
 	m_buff[cap() - 1] = 0;
 	return *this;
@@ -125,6 +127,12 @@ template<size_t buffLen>
 char *BString<buffLen>::data() {
 	return (char*) m_buff;
 }
+
+template<size_t buffLen>
+const char *BString<buffLen>::c_str() noexcept {
+	return (const char*) m_buff;
+}
+
 
 template<size_t buffLen>
 size_t BString<buffLen>::len() {

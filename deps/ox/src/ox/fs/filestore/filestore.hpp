@@ -13,6 +13,7 @@
 namespace ox::fs {
 
 using InodeId_t = uintptr_t;
+using FsSize_t = uintptr_t;
 
 class FileStore {
 
@@ -28,19 +29,19 @@ class FileStore {
 
 		virtual Error setSize(InodeId_t size) = 0;
 
-		virtual Error write(InodeId_t id, void *data, InodeId_t dataLen, uint8_t fileType = 0) = 0;
+		virtual Error write(InodeId_t id, void *data, FsSize_t dataLen, uint8_t fileType = 0) = 0;
 
 		virtual Error incLinks(InodeId_t id) = 0;
 
 		virtual Error decLinks(InodeId_t id) = 0;
 
-		virtual Error read(InodeId_t id, void *data, InodeId_t *size) = 0;
+		virtual Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size) = 0;
 
-		virtual Error read(InodeId_t id, InodeId_t readStart, InodeId_t readSize, void *data, InodeId_t *size) = 0;
+		virtual Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size) = 0;
 
 		virtual StatInfo stat(InodeId_t id) = 0;
 
-		virtual InodeId_t spaceNeeded(InodeId_t size) = 0;
+		virtual InodeId_t spaceNeeded(FsSize_t size) = 0;
 
 		virtual InodeId_t size() = 0;
 

@@ -6,12 +6,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "filestore.hpp"
+#include "filestoretemplate.hpp"
 
-namespace ox {
+namespace ox::fs {
 
-template class FileStore<FileStoreHeader<uint16_t, uint16_t>>;
-template class FileStore<FileStoreHeader<uint32_t, uint32_t>>;
-template class FileStore<FileStoreHeader<uint64_t, uint64_t>>;
+template class FileStoreTemplate<uint32_t>;
 
 }

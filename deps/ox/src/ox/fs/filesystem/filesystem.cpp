@@ -10,6 +10,10 @@
 
 namespace ox {
 
+template class FileSystemTemplate<FileStore16, OxFS_16>;
+template class FileSystemTemplate<FileStore32, OxFS_32>;
+template class FileSystemTemplate<FileStore64, OxFS_64>;
+
 FileSystem *createFileSystem(uint8_t *buff, size_t buffSize, bool ownsBuff) {
 	auto version = ((FileStore16*) buff)->version();
 	auto type = ((FileStore16*) buff)->fsType();

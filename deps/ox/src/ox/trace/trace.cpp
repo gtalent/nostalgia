@@ -6,11 +6,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#if defined(OX_USE_STDLIB)
+#include <iostream>
+#endif
+
 #include <ox/mc/write.hpp>
 
 #include "trace.hpp"
 
-namespace ox {
+namespace ox::trace {
 
 OutStream::OutStream(const char *file, int line, const char *ch, const char *msg) {
 	m_msg.file = file;
@@ -24,6 +28,28 @@ OutStream::~OutStream() {
 	size_t size = 0;
 	uint8_t buff[buffLen];
 	writeMC(buff, buffLen, &m_msg, &size);
+}
+
+
+StdOutStream::StdOutStream(const char *file, int line, const char *ch, const char *msg) {
+	m_msg.file = file;
+	m_msg.line = line;
+	m_msg.ch = ch;
+	m_msg.msg = msg;
+}
+
+StdOutStream::~StdOutStream() {
+#if defined(OX_USE_STDLIB)
+	std::cout << m_msg.ch.c_str() << ':' << m_msg.msg.c_str();
+	std::cout << " (" << m_msg.file.c_str() << ':' << m_msg.line << ")\n";
+#endif
+}
+
+
+NullStream::NullStream(const char*, int, const char*, const char*) {
+}
+
+NullStream::~NullStream() {
 }
 
 }

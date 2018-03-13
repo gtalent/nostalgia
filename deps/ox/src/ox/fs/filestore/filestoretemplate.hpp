@@ -29,18 +29,20 @@ struct __attribute__((packed)) FileStoreItem: public Item<size_t> {
 	}
 };
 
+
 template<typename size_t>
 class FileStoreTemplate: public FileStore {
 
 	private:
-		using ItemPtr = typename ox::fs::NodeBuffer<size_t, FileStoreItem<uint32_t>>::ItemPtr;
+		using ItemPtr = typename ox::fs::NodeBuffer<size_t, FileStoreItem<size_t>>::ItemPtr;
+		using Buffer = ox::fs::NodeBuffer<size_t, FileStoreItem<size_t>>;
 
 		struct __attribute__((packed)) FileStoreData {
-			ox::LittleEndian<size_t> rootNode = sizeof(NodeBuffer<size_t, FileStoreItem<uint32_t>>);
+			ox::LittleEndian<size_t> rootNode = sizeof(NodeBuffer<size_t, FileStoreItem<size_t>>);
 		};
 
 		size_t m_buffSize = 0;
-		ox::fs::NodeBuffer<size_t, FileStoreItem<uint32_t>> *m_buffer = nullptr;
+		Buffer *m_buffer = nullptr;
 
 	public:
 		FileStoreTemplate(void *buff, size_t buffSize);
@@ -53,15 +55,15 @@ class FileStoreTemplate: public FileStore {
 
 		Error decLinks(InodeId_t id);
 
-		Error write(InodeId_t id, void *data, InodeId_t dataLen, uint8_t fileType = 0);
+		Error write(InodeId_t id, void *data, FsSize_t dataLen, uint8_t fileType = 0);
 
-		Error read(InodeId_t id, void *data, InodeId_t *size);
+		Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size);
 
-		Error read(InodeId_t id, InodeId_t readStart, InodeId_t readSize, void *data, InodeId_t *size);
+		Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size);
 
 		StatInfo stat(InodeId_t id);
 
-		InodeId_t spaceNeeded(InodeId_t size);
+		InodeId_t spaceNeeded(FsSize_t size);
 
 		InodeId_t size();
 
@@ -74,7 +76,7 @@ class FileStoreTemplate: public FileStore {
 		 * Places the given Item at the given ID. If it already exists, the
 		 * existing value will be overwritten.
 		 */
-		void placeItem(ItemPtr root, ItemPtr item);
+		Error placeItem(ItemPtr root, ItemPtr item);
 
 		/**
 		 * Finds the parent an inode by its ID.
@@ -103,7 +105,7 @@ class FileStoreTemplate: public FileStore {
 template<typename size_t>
 FileStoreTemplate<size_t>::FileStoreTemplate(void *buff, size_t buffSize) {
 	m_buffSize = buffSize;
-	m_buffer = static_cast<ox::fs::NodeBuffer<size_t, FileStoreItem<uint32_t>>*>(buff);
+	m_buffer = static_cast<ox::fs::NodeBuffer<size_t, FileStoreItem<size_t>>*>(buff);
 	if (!m_buffer->valid(buffSize)) {
 		m_buffSize = 0;
 		m_buffer = nullptr;
@@ -112,7 +114,7 @@ FileStoreTemplate<size_t>::FileStoreTemplate(void *buff, size_t buffSize) {
 
 template<typename size_t>
 Error FileStoreTemplate<size_t>::format() {
-	new (m_buffer) NodeBuffer<size_t, FileStoreItem<uint32_t>>(m_buffSize);
+	new (m_buffer) Buffer(m_buffSize);
 	auto data = m_buffer->malloc(sizeof(FileStoreData));
 	if (data.valid()) {
 		new (data->data()) FileStoreData;
@@ -150,7 +152,7 @@ Error FileStoreTemplate<size_t>::decLinks(InodeId_t id) {
 }
 
 template<typename size_t>
-Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, InodeId_t dataSize, uint8_t fileType) {
+Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSize, uint8_t fileType) {
 	auto existing = find(id);
 	if (canWrite(existing, dataSize)) {
 		// delete the old node if it exists
@@ -164,21 +166,38 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, InodeId_t dataS
 		// if first malloc failed, compact and try again
 		dest = m_buffer->malloc(dataSize);
 		if (dest.valid()) {
-			new (dest) FileStoreItem(dataSize);
+			new (dest) FileStoreItem<size_t>(dataSize);
 			dest->id = id;
 			dest->fileType = fileType;
 			ox_memcpy(dest->data(), data, dest->size());
 			auto root = rootInode();
 			if (root.valid()) {
-				placeItem(root, dest);
+				return placeItem(root, dest);
 			} else {
 				auto fsData = fileStoreData();
 				if (fsData) {
 					fsData->rootNode = dest;
+					return 0;
 				} else {
 					m_buffer->free(dest);
+					oxTrace("ox::fs::FileStoreTemplate::write::fail") << "Could not place item due to absence of FileStore header.";
 					return 1;
 				}
+			}
+		}
+	}
+	return 1;
+}
+
+template<typename size_t>
+Error FileStoreTemplate<size_t>::read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size) {
+	auto src = find(id);
+	if (src.valid() && src.size() <= dataSize) {
+		auto srcData = src->data();
+		if (srcData.valid()) {
+			ox_memcpy(data, srcData, src.size());
+			if (size) {
+				*size = src.size();
 			}
 			return 0;
 		}
@@ -187,12 +206,11 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, InodeId_t dataS
 }
 
 template<typename size_t>
-Error FileStoreTemplate<size_t>::read(InodeId_t id, void *data, InodeId_t *size) {
-	return 1;
-}
-
-template<typename size_t>
-Error FileStoreTemplate<size_t>::read(InodeId_t id, InodeId_t readStart, InodeId_t readSize, void *data, InodeId_t *size) {
+Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t /* readStart */, FsSize_t /* readSize */, void * /* data */, FsSize_t * /* size */) {
+	auto src = find(id);
+	if (src.valid()) {
+		return 0;
+	}
 	return 1;
 }
 
@@ -211,7 +229,7 @@ typename FileStoreTemplate<size_t>::StatInfo FileStoreTemplate<size_t>::stat(Ino
 }
 
 template<typename size_t>
-InodeId_t FileStoreTemplate<size_t>::spaceNeeded(InodeId_t size) {
+InodeId_t FileStoreTemplate<size_t>::spaceNeeded(FsSize_t size) {
 	return m_buffer->spaceNeeded(size);
 }
 
@@ -238,22 +256,25 @@ typename FileStoreTemplate<size_t>::FileStoreData *FileStoreTemplate<size_t>::fi
 }
 
 template<typename size_t>
-void FileStoreTemplate<size_t>::placeItem(ItemPtr root, ItemPtr item) {
+Error FileStoreTemplate<size_t>::placeItem(ItemPtr root, ItemPtr item) {
 	if (item->id > root->id) {
 		auto right = m_buffer->ptr(root->right);
-		if (right.valid()) {
-			placeItem(right, item);
-		} else {
+		if (!right.valid() || right->id == item->id) {
 			root->right = root;
+			return 0;
+		} else {
+			return placeItem(right, item);
 		}
 	} else if (item->id < root->id) {
 		auto left = m_buffer->ptr(root->left);
-		if (left.valid()) {
-			placeItem(left, item);
-		} else {
+		if (!left.valid() || left->id == item->id) {
 			root->left = root;
+			return 0;
+		} else {
+			return placeItem(left, item);
 		}
 	}
+	return 1;
 }
 
 template<typename size_t>
@@ -309,13 +330,20 @@ typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(size
  */
 template<typename size_t>
 typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::rootInode() {
-	return m_buffer->ptr(fileStoreData()->rootNode);
+	auto fsData = fileStoreData();
+	if (fsData) {
+		return m_buffer->ptr(fsData->rootNode);
+	} else {
+		return nullptr;
+	}
 }
 
 template<typename size_t>
 bool FileStoreTemplate<size_t>::canWrite(ItemPtr existing, size_t size) {
-	return existing.size() >= size || m_buffer->spaceNeeded(size) >= m_buffer->available();
+	return existing.size() >= size || m_buffer->spaceNeeded(size) <= m_buffer->available();
 }
+
+extern template class FileStoreTemplate<uint32_t>;
 
 using FileStore16 = FileStoreTemplate<uint16_t>;
 using FileStore32 = FileStoreTemplate<uint32_t>;

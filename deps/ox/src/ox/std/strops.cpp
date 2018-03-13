@@ -26,18 +26,6 @@ int ox_strcmp(const char *str1, const char *str2) {
 	return retval;
 }
 
-int ox_strlen(const char *str1) {
-	int len;
-	for (len = 0; str1[len]; len++);
-	return len;
-}
-
-int ox_strlen(char *str1) {
-	int len;
-	for (len = 0; str1[len]; len++);
-	return len;
-}
-
 const char *ox_strchr(const char *str, int character, size_t maxLen) {
 	for (size_t i = 0; i <= maxLen; i++) {
 		if (str[i] == character) {

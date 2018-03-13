@@ -917,7 +917,7 @@ uint8_t *FileStore<Header>::format(uint8_t *buffer, typename Header::FsSize_t si
 }
 
 extern template class FileStore<FileStoreHeader<uint16_t, uint16_t>>;
-extern template class FileStore<FileStoreHeader<uint32_t, uint16_t>>;
+extern template class FileStore<FileStoreHeader<uint32_t, uint32_t>>;
 extern template class FileStore<FileStoreHeader<uint64_t, uint64_t>>;
 
 typedef FileStore<FileStoreHeader<uint16_t, uint16_t>> FileStore16;

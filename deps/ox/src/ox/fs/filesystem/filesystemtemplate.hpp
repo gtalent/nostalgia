@@ -620,6 +620,10 @@ void FileSystemTemplate<FileStore, FS_TYPE>::walk(int(*cb)(const char*, uint64_t
 	m_store->walk(cb);
 }
 
+extern template class FileSystemTemplate<FileStore16, OxFS_16>;
+extern template class FileSystemTemplate<FileStore32, OxFS_32>;
+extern template class FileSystemTemplate<FileStore64, OxFS_64>;
+
 typedef FileSystemTemplate<FileStore16, OxFS_16> FileSystem16;
 typedef FileSystemTemplate<FileStore32, OxFS_32> FileSystem32;
 typedef FileSystemTemplate<FileStore64, OxFS_64> FileSystem64;

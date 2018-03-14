@@ -11,53 +11,42 @@ set(CMAKE_PREFIX_PATH ${NOSTALGIA_QT_PATH})
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 include(address_sanitizer)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	add_definitions(
-		-DDEBUG
-	)
-else()
-	add_definitions(
-		-DNDEBUG
-		-Werror
-	)
-endif()
-
-if(NOT MSVC)
-	add_definitions(
-		-Wall
-		-Wsign-compare
-	)
-
-
-	if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
-		include(GBA)
-		add_definitions(
-			-nostdlib
-			-fno-exceptions
-			-fno-rtti
-			-fno-strict-aliasing
-			-mthumb-interwork
-			-mthumb
-		)
-	endif()
-
-	if (CMAKE_BUILD_TYPE STREQUAL "Release")
-		add_definitions(
-			-Werror
-			-O3
-		)
-	endif()
-
-	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-		add_definitions(
-			-fdiagnostics-color # forces colored output when using ninja
-		)
-	endif()
-endif()
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	add_definitions(-DDEBUG)
+else()
+	add_definitions(-DNDEBUG)
+endif()
+
+if(NOT MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsign-compare")
+
+	if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
+		include(GBA)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nostdlib")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthumb-interwork")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthumb")
+
+		set(OX_USE_STDLIB OFF)
+	endif()
+
+	if (CMAKE_BUILD_TYPE STREQUAL "Release")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+	endif()
+
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		# forces colored output when using ninja
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color")
+	endif()
+endif()
 
 if(NOSTALGIA_IDE_BUILD STREQUAL "ON")
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

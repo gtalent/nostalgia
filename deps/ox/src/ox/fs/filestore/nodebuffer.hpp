@@ -168,9 +168,12 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 				return nullptr;
 			}
 			m_header.bytesUsed += out.size();
+		} else {
+			oxTrace("ox::fs::NodeBuffer::malloc::fail") << "Unknown";
 		}
 		return out;
 	}
+	oxTrace("ox::fs::NodeBuffer::malloc::fail") << "Insufficient space:" << fullSize << "needed," << available() << "available";
 	return nullptr;
 }
 

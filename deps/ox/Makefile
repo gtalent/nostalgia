@@ -25,10 +25,6 @@ purge:
 	${ENV_RUN} rm -rf $(shell find build -mindepth 1 -maxdepth 1 -type d)
 test:
 	${ENV_RUN} ${MAKE} -j -C build ARGS="test" HOST_ENV=${HOST_ENV}
-run: make
-	./build/current/src/wombat/wombat -debug
-gdb: make
-	gdb ./build/current/src/wombat/wombat
 
 devenv:
 	docker pull ${DEVENV_IMAGE}

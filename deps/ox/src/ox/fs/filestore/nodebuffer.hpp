@@ -132,12 +132,21 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t 
 
 template<typename size_t, typename Item>
 typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size_t size) {
-	size += sizeof(Item);
-	if (m_header.size - m_header.bytesUsed >= size) {
-		if (!m_header.firstItem) {
-			m_header.firstItem = sizeof(m_header);
+	auto fullSize = size + sizeof(Item);
+	if (m_header.size - m_header.bytesUsed >= fullSize) {
+		auto last = lastItem();
+		size_t addr = 0;
+		if (last.valid()) {
+			addr = last.offset() + last.size();
+		} else {
+			// there is no first item, so this may be the first item
+			if (!m_header.firstItem) {
+				oxTrace("ox::fs::NodeBuffer::malloc") << "No first item.";
+				m_header.firstItem = sizeof(m_header);
+				addr = m_header.firstItem;
+			}
 		}
-		auto out = ItemPtr(this, m_header.size, m_header.firstItem, size);
+		auto out = ItemPtr(this, m_header.size, addr, fullSize);
 		if (out.valid()) {
 			new (out) Item(size);
 
@@ -260,13 +269,6 @@ struct __attribute__((packed)) Item {
 
 		size_t size() const {
 			return m_size;
-		}
-
-		/**
-		 * @return the size of the data + the size of the Item type
-		 */
-		size_t fullSize() const {
-			return sizeof(*this) + m_size;
 		}
 };
 

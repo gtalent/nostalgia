@@ -340,9 +340,9 @@ map<string, int(*)(string)> tests = {
 				uint8_t buff[buffLen];
 				auto list = new (buff) ox::fs::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
 				err |= !(list->malloc(50).valid());
-				//auto first = list->firstItem();
-				//err |= !(first.valid());
-				//err |= !(first->size() == 50);
+				auto first = list->firstItem();
+				ox_assert(first.valid(), "NodeBuffer::insert: Could not access first item");
+				ox_assert(first->size() == 50, "NodeBuffer::insert: First item size invalid");
 				return err;
 			}
 		},

@@ -93,4 +93,4 @@ class NullStream {
 
 }
 
-#define oxTrace(ch) ox::trace::StdOutStream(__FILE__, __LINE__, ch)
+#define oxTrace(ch) ox::trace::NullStream(__FILE__, __LINE__, ch)

@@ -24,6 +24,13 @@ struct __attribute__((packed)) FileStoreItem: public Item<size_t> {
 	explicit FileStoreItem(size_t size): Item<size_t>(size) {
 	}
 
+	/**
+	 * @return the size of the data + the size of the Item type
+	 */
+	size_t fullSize() const {
+		return sizeof(*this) + this->size();
+	}
+
 	ox::fs::Ptr<uint8_t, size_t> data() {
 		return Ptr<uint8_t, size_t>(this, this->size(), sizeof(*this), this->size() - sizeof(*this));
 	}
@@ -169,22 +176,24 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 			new (dest) FileStoreItem<size_t>(dataSize);
 			dest->id = id;
 			dest->fileType = fileType;
-			ox_memcpy(dest->data(), data, dest->size());
-			auto root = rootInode();
-			if (root.valid()) {
-				return placeItem(root, dest);
-			} else {
+			auto destData = dest->data();
+			if (destData.valid()) {
+				ox_memcpy(destData, data, dest->size());
 				auto fsData = fileStoreData();
 				if (fsData) {
-					fsData->rootNode = dest;
-					return 0;
+					auto root = m_buffer->ptr(fsData->rootNode);
+					if (root.valid()) {
+						return placeItem(root, dest);
+					} else {
+						fsData->rootNode = dest;
+						return 0;
+					}
 				} else {
-					m_buffer->free(dest);
 					oxTrace("ox::fs::FileStoreTemplate::write::fail") << "Could not place item due to absence of FileStore header.";
-					return 1;
 				}
 			}
 		}
+		m_buffer->free(dest);
 	}
 	return 1;
 }

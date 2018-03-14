@@ -81,28 +81,35 @@ int ox_atoi(const char *str) {
 }
 
 char *ox_itoa(int64_t v, char *str) {
-	auto mod = 1000000000000000000;
-	constexpr auto base = 10;
-	auto it = 0;
-	if (v < 0) {
-		str[it] = '-';
-		it++;
-	}
-	while (mod) {
-		auto digit = v / mod;
-		v %= mod;
-		mod /= base;
-		if (it or digit) {
-			int start;
-			if (digit < 10) {
-				start = '0';
-			} else {
-				start = 'a';
-				digit -= 10;
-			}
-			str[it] = start + digit;
+	if (v) {
+		auto mod = 1000000000000000000;
+		constexpr auto base = 10;
+		auto it = 0;
+		if (v < 0) {
+			str[it] = '-';
 			it++;
 		}
+		while (mod) {
+			auto digit = v / mod;
+			v %= mod;
+			mod /= base;
+			if (it or digit) {
+				int start;
+				if (digit < 10) {
+					start = '0';
+				} else {
+					start = 'a';
+					digit -= 10;
+				}
+				str[it] = start + digit;
+				it++;
+			}
+		}
+		str[it] = 0;
+	} else {
+		// 0 is a special case
+		str[0] = '0';
+		str[1] = 0;
 	}
 	return str;
 }

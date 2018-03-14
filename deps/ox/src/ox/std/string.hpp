@@ -35,6 +35,8 @@ class BString {
 
 		const BString &operator+=(char *str);
 
+		const BString &operator+=(int64_t i);
+
 		bool operator==(const BString &other);
 
 		char *data();
@@ -106,7 +108,14 @@ const BString<size> &BString<size>::operator+=(const char *str) {
 
 template<size_t size>
 const BString<size> &BString<size>::operator+=(char *str) {
-	return *this = (const char*) str;
+	return *this += (const char*) str;
+}
+
+template<size_t size>
+const BString<size> &BString<size>::operator+=(int64_t i) {
+	char str[65];
+	ox_itoa(i, str);
+	return this->operator+=(str);
 }
 
 template<size_t buffLen>

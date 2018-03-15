@@ -102,7 +102,7 @@ const BString<size> &BString<size>::operator+=(const char *str) {
 	}
 	ox_memcpy(m_buff + currentLen, str, strLen);
 	// make sure last element is a null terminator
-	m_buff[cap() - 1] = 0;
+	m_buff[currentLen + strLen] = 0;
 	return *this;
 }
 

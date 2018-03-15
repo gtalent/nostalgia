@@ -41,10 +41,8 @@ if(NOT MSVC)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 	endif()
-	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-		# forces colored output when using ninja
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color")
-	endif()
+	# forces colored output when using ninja
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color")
 endif()
 
 enable_testing()

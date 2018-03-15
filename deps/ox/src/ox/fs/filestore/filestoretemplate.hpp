@@ -45,7 +45,7 @@ class FileStoreTemplate: public FileStore {
 		using Buffer = ox::fs::NodeBuffer<size_t, FileStoreItem<size_t>>;
 
 		struct __attribute__((packed)) FileStoreData {
-			ox::LittleEndian<size_t> rootNode = sizeof(NodeBuffer<size_t, FileStoreItem<size_t>>);
+			ox::LittleEndian<size_t> rootNode;
 		};
 
 		size_t m_buffSize = 0;
@@ -83,7 +83,7 @@ class FileStoreTemplate: public FileStore {
 		 * Places the given Item at the given ID. If it already exists, the
 		 * existing value will be overwritten.
 		 */
-		Error placeItem(ItemPtr root, ItemPtr item);
+		Error placeItem(ItemPtr root, ItemPtr item, int depth = 0);
 
 		/**
 		 * Finds the parent an inode by its ID.
@@ -93,12 +93,12 @@ class FileStoreTemplate: public FileStore {
 		/**
 		 * Finds an inode by its ID.
 		 */
-		ItemPtr find(ItemPtr ptr, size_t id);
+		ItemPtr find(ItemPtr item, InodeId_t id, int depth = 0);
 
 		/**
 		 * Finds an inode by its ID.
 		 */
-		ItemPtr find(size_t id);
+		ItemPtr find(InodeId_t id);
 
 		/**
 		 * Gets the root inode.
@@ -183,8 +183,10 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 				if (fsData) {
 					auto root = m_buffer->ptr(fsData->rootNode);
 					if (root.valid()) {
+						oxTrace("ox::fs::FileStoreTemplate::write") << "Placing" << dest->id << "on" << root->id;
 						return placeItem(root, dest);
 					} else {
+						oxTrace("ox::fs::FileStoreTemplate::write") << "Initializing root inode.";
 						fsData->rootNode = dest;
 						return 0;
 					}
@@ -265,23 +267,27 @@ typename FileStoreTemplate<size_t>::FileStoreData *FileStoreTemplate<size_t>::fi
 }
 
 template<typename size_t>
-Error FileStoreTemplate<size_t>::placeItem(ItemPtr root, ItemPtr item) {
-	if (item->id > root->id) {
-		auto right = m_buffer->ptr(root->right);
-		if (!right.valid() || right->id == item->id) {
-			root->right = root;
-			return 0;
-		} else {
-			return placeItem(right, item);
+Error FileStoreTemplate<size_t>::placeItem(ItemPtr root, ItemPtr item, int depth) {
+	if (depth < 5000) {
+		if (item->id > root->id) {
+			auto right = m_buffer->ptr(root->right);
+			if (!right.valid() || right->id == item->id) {
+				root->right = root;
+				return 0;
+			} else {
+				return placeItem(right, item, depth + 1);
+			}
+		} else if (item->id < root->id) {
+			auto left = m_buffer->ptr(root->left);
+			if (!left.valid() || left->id == item->id) {
+				root->left = root;
+				return 0;
+			} else {
+				return placeItem(left, item, depth + 1);
+			}
 		}
-	} else if (item->id < root->id) {
-		auto left = m_buffer->ptr(root->left);
-		if (!left.valid() || left->id == item->id) {
-			root->left = root;
-			return 0;
-		} else {
-			return placeItem(left, item);
-		}
+	} else {
+		oxTrace("ox::fs::FileStoreTemplate::placeItem::fail") << "Excessive recursion depth, stopping before stack overflow.";
 	}
 	return 1;
 }
@@ -311,25 +317,36 @@ typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::findParen
 }
 
 template<typename size_t>
-typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(ItemPtr item, size_t id) {
-	if (item.valid()) {
-		if (id > item->id) {
-			return find(m_buffer->ptr(item->right), id);
-		} else if (id < item->id) {
-			return find(m_buffer->ptr(item->left), id);
-		} else {
-			return item;
+typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(ItemPtr item, InodeId_t id, int depth) {
+	if (depth < 5000) {
+		if (item.valid()) {
+			if (id > item->id) {
+				return find(m_buffer->ptr(item->right), id, depth + 1);
+			} else if (id < item->id) {
+				return find(m_buffer->ptr(item->left), id, depth + 1);
+			} else {
+				return item;
+			}
 		}
+	} else {
+		oxTrace("ox::fs::FileStoreTemplate::find::fail") << "Excessive recursion depth, stopping before stack overflow. Search for:" << id;
 	}
 	return nullptr;
 }
 
 template<typename size_t>
-typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(size_t id) {
-	auto root = m_buffer->ptr(fileStoreData()->rootNode);
-	if (root.valid()) {
-		auto item = find(root, id);
-		return item;
+typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(InodeId_t id) {
+	auto fsData = fileStoreData();
+	if (fsData) {
+		auto root = m_buffer->ptr(fsData->rootNode);
+		if (root.valid()) {
+			auto item = find(root, id);
+			return item;
+		} else {
+			oxTrace("ox::fs::FileStoreTemplate::find::fail") << "No root node";
+		}
+	} else {
+		oxTrace("ox::fs::FileStoreTemplate::find::fail") << "No FileStore Data";
 	}
 	return nullptr;
 }

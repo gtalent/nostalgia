@@ -79,7 +79,7 @@ inline T bigEndianAdapt(T i) {
 
 
 template<typename T>
-class LittleEndian {
+class __attribute__((packed)) LittleEndian {
 	private:
 		T m_value;
 

@@ -141,7 +141,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 		} else {
 			// there is no first item, so this may be the first item
 			if (!m_header.firstItem) {
-				oxTrace("ox::fs::NodeBuffer::malloc") << "No first item.";
+				oxTrace("ox::fs::NodeBuffer::malloc") << "No first item, initializing.";
 				m_header.firstItem = sizeof(m_header);
 				addr = m_header.firstItem;
 			}

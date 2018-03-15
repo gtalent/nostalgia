@@ -350,13 +350,16 @@ map<string, int(*)(string)> tests = {
 			"FileStore::readWrite",
 			[](string) {
 				constexpr auto buffLen = 5000;
-				constexpr auto str = "Hello, World!";
-				constexpr auto strLen = ox_strlen(str);
+				constexpr auto str1 = "Hello, World!";
+				constexpr auto str1Len = ox_strlen(str1);
+				constexpr auto str2 = "Hello, World!";
+				constexpr auto str2Len = ox_strlen(str2);
 				uint8_t buff[buffLen];
 				auto list = new (buff) ox::fs::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
 				ox::fs::FileStore32 fileStore(list, buffLen);
 				ox_assert(fileStore.format() == 0, "FileStore::format failed.");
-				ox_assert(fileStore.write(5, (void*) str, strLen, 1) == 0, "FileStore::write failed.");
+				ox_assert(fileStore.write(4, (void*) str1, str1Len, 1) == 0, "FileStore::write 1 failed.");
+				ox_assert(fileStore.write(5, (void*) str2, str2Len, 1) == 0, "FileStore::write 2 failed.");
 				return 0;
 			}
 		},

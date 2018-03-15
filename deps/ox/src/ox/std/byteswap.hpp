@@ -8,26 +8,28 @@
 
 #pragma once
 
+#include <ox/__buildinfo/defines.hpp>
+
 #include "types.hpp"
 
 namespace ox {
 
-inline int8_t byteSwap(int8_t i) {
+constexpr inline int8_t byteSwap(int8_t i) {
 	return i;
 }
 
-inline int16_t byteSwap(int16_t i) {
+constexpr inline int16_t byteSwap(int16_t i) {
 	return (i << 8) | (i >> 8);
 }
 
-inline int32_t byteSwap(int32_t i) {
+constexpr inline int32_t byteSwap(int32_t i) {
 	return ((i >> 24) & 0x000000ff) |
 	       ((i >>  8) & 0x0000ff00) |
 	       ((i <<  8) & 0x00ff0000) |
 	       ((i << 24) & 0xff000000);
 }
 
-inline int64_t byteSwap(int64_t i) {
+constexpr inline int64_t byteSwap(int64_t i) {
 	return ((i >> 56) & 0x00000000000000ff) |
 	       ((i >> 40) & 0x000000000000ff00) |
 	       ((i >> 24) & 0x0000000000ff0000) |
@@ -38,22 +40,22 @@ inline int64_t byteSwap(int64_t i) {
 	       ((i << 56) & 0xff00000000000000);
 }
 
-inline uint16_t byteSwap(uint8_t i) {
+constexpr inline uint16_t byteSwap(uint8_t i) {
 	return i;
 }
 
-inline uint16_t byteSwap(uint16_t i) {
+constexpr inline uint16_t byteSwap(uint16_t i) {
 	return (i << 8) | (i >> 8);
 }
 
-inline uint32_t byteSwap(uint32_t i) {
+constexpr inline uint32_t byteSwap(uint32_t i) {
 	return ((i >> 24) & 0x000000ff) |
 	       ((i >>  8) & 0x0000ff00) |
 	       ((i <<  8) & 0x00ff0000) |
 	       ((i << 24) & 0xff000000);
 }
 
-inline uint64_t byteSwap(uint64_t i) {
+constexpr inline uint64_t byteSwap(uint64_t i) {
 	return ((i >> 56) & 0x00000000000000ff) |
 	       ((i >> 40) & 0x000000000000ff00) |
 	       ((i >> 24) & 0x0000000000ff0000) |
@@ -69,12 +71,12 @@ inline uint64_t byteSwap(uint64_t i) {
  * Takes an int and byte swaps if the platform is big endian.
  */
 template<typename T>
-inline T bigEndianAdapt(T i) {
-#ifdef __BIG_ENDIAN__
-	return byteSwap(i);
-#else
-	return i;
-#endif
+constexpr inline T bigEndianAdapt(T i) {
+	if constexpr(ox::buildinfo::BigEndian) {
+		return byteSwap(i);
+	} else {
+		return i;
+	}
 }
 
 
@@ -84,113 +86,113 @@ class __attribute__((packed)) LittleEndian {
 		T m_value;
 
 	public:
-		inline LittleEndian() = default;
+		constexpr inline LittleEndian() = default;
 
-		inline LittleEndian(const LittleEndian &other) {
+		constexpr inline LittleEndian(const LittleEndian &other) {
 			m_value = other.m_value;
 		}
 
-		inline LittleEndian(T value) {
+		constexpr inline LittleEndian(T value) {
 			m_value = ox::bigEndianAdapt(value);
 		}
 
-		inline const LittleEndian &operator=(const LittleEndian &other) {
+		constexpr inline const LittleEndian &operator=(const LittleEndian &other) {
 			m_value = other.m_value;
 			return *this;
 		}
 
 		template<typename I>
-		inline T operator=(I value) {
+		constexpr inline T operator=(I value) {
 			m_value = ox::bigEndianAdapt(value);
 			return value;
 		}
 
-		inline operator T() const {
+		constexpr inline operator T() const {
 			return ox::bigEndianAdapt(m_value);
 		}
 
 		template<typename I>
-		inline T operator+=(I other) {
+		constexpr inline T operator+=(I other) {
 			auto newVal = *this + other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		inline T operator-=(I other) {
+		constexpr inline T operator-=(I other) {
 			auto newVal = *this - other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		inline T operator*=(I other) {
+		constexpr inline T operator*=(I other) {
 			auto newVal = *this * other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		inline T operator/=(I other) {
+		constexpr inline T operator/=(I other) {
 			auto newVal = *this / other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
 		// Prefix increment
-		inline T operator++() {
+		constexpr inline T operator++() {
 			return operator+=(1);
 		}
 
 		// Postfix increment
-		inline T operator++(int) {
+		constexpr inline T operator++(int) {
 			auto old = *this;
 			++*this;
 			return old;
 		}
 
 		// Prefix decrement
-		inline T operator--() {
+		constexpr inline T operator--() {
 			return operator-=(1);
 		}
 
 		// Postfix decrement
-		inline T operator--(int) {
+		constexpr inline T operator--(int) {
 			auto old = *this;
 			--*this;
 			return old;
 		}
 
 		template<typename I>
-		inline T operator&=(I other) {
+		constexpr inline T operator&=(I other) {
 			auto newVal = *this & other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		inline T operator|=(I other) {
+		constexpr inline T operator|=(I other) {
 			auto newVal = *this | other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		inline T operator^=(I other) {
+		constexpr inline T operator^=(I other) {
 			auto newVal = *this ^ other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		inline T operator>>=(I other) {
+		constexpr inline T operator>>=(I other) {
 			auto newVal = *this >> other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		inline T operator<<=(I other) {
+		constexpr inline T operator<<=(I other) {
 			auto newVal = *this << other;
 			m_value = ox::bigEndianAdapt(newVal);
 			return newVal;

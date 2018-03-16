@@ -68,6 +68,21 @@ class FileStoreTemplate: public FileStore {
 
 		Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size);
 
+		/**
+		 * Reads the "file" at the given id. You are responsible for freeing
+		 * the data when done with it.
+		 * @param id id of the "file"
+		 * @param readStart where in the data to start reading
+		 * @param readSize how much data to read
+		 * @param data pointer to the pointer where the data is stored
+		 * @param size pointer to a value that will be assigned the size of data
+		 * @return 0 if read is a success
+		 */
+		template<typename T>
+		int read(InodeId_t id, FsSize_t readStart,
+		         FsSize_t readSize, T *data,
+		         FsSize_t *size);
+
 		StatInfo stat(InodeId_t id);
 
 		InodeId_t spaceNeeded(FsSize_t size);
@@ -226,6 +241,35 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart, FsSize_t
 			auto sub = srcData.subPtr(readStart, readSize);
 			if (sub.valid()) {
 				ox_memcpy(data, sub, sub.size());
+				if (size) {
+					*size = sub.size();
+				}
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+
+template<typename size_t>
+template<typename T>
+int FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart,
+                                    FsSize_t readSize, T *data, FsSize_t *size) {
+	auto src = find(id);
+	if (src.valid()) {
+		auto srcData = src->data();
+		if (srcData.valid()) {
+			auto sub = srcData.subPtr(readStart, readSize);
+			if (sub.valid() && sub.size() % sizeof(T)) {
+				for (FsSize_t i = 0; i < sub.size() / sizeof(T); i++) {
+					// do byte-by-byte copy to ensure alignment is right when
+					// copying to final destination
+					T tmp;
+					for (size_t i = 0; i < sizeof(T); i++) {
+						*reinterpret_cast<uint8_t*>(&tmp)[i] = *(reinterpret_cast<uint8_t*>(sub.get()) + i);
+					}
+					*(data + i) = tmp;
+				}
 				if (size) {
 					*size = sub.size();
 				}

@@ -10,6 +10,7 @@
 
 namespace ox::fs {
 
+template class FileStoreTemplate<uint16_t>;
 template class FileStoreTemplate<uint32_t>;
 
 }

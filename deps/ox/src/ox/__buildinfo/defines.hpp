@@ -28,4 +28,12 @@ constexpr auto NDebug = true;
 constexpr auto NDebug = false;
 #endif
 
+#if defined(__BIG_ENDIAN__)
+constexpr auto BigEndian = true;
+constexpr auto LittleEndian = false;
+#else
+constexpr auto BigEndian = false;
+constexpr auto LittleEndian = true;
+#endif
+
 }

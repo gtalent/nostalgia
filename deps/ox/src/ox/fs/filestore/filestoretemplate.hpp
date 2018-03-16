@@ -161,6 +161,7 @@ Error FileStoreTemplate<size_t>::decLinks(InodeId_t id) {
 template<typename size_t>
 Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSize, uint8_t fileType) {
 	auto existing = find(id);
+	// TODO: try compacting if unable to write
 	if (canWrite(existing, dataSize)) {
 		// delete the old node if it exists
 		if (existing.valid()) {
@@ -203,10 +204,10 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 template<typename size_t>
 Error FileStoreTemplate<size_t>::read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size) {
 	auto src = find(id);
-	if (src.valid() && src.size() <= dataSize) {
+	if (src.valid()) {
 		auto srcData = src->data();
-		if (srcData.valid()) {
-			ox_memcpy(data, srcData, src.size());
+		if (srcData.valid() && srcData.size() <= dataSize) {
+			ox_memcpy(data, srcData, srcData.size());
 			if (size) {
 				*size = src.size();
 			}
@@ -217,10 +218,20 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, void *data, FsSize_t dataSiz
 }
 
 template<typename size_t>
-Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t /* readStart */, FsSize_t /* readSize */, void * /* data */, FsSize_t * /* size */) {
+Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size) {
 	auto src = find(id);
 	if (src.valid()) {
-		return 0;
+		auto srcData = src->data();
+		if (srcData.valid()) {
+			auto sub = srcData.subPtr(readStart, readSize);
+			if (sub.valid()) {
+				ox_memcpy(data, sub, sub.size());
+				if (size) {
+					*size = sub.size();
+				}
+				return 0;
+			}
+		}
 	}
 	return 1;
 }
@@ -369,10 +380,10 @@ bool FileStoreTemplate<size_t>::canWrite(ItemPtr existing, size_t size) {
 	return existing.size() >= size || m_buffer->spaceNeeded(size) <= m_buffer->available();
 }
 
+extern template class FileStoreTemplate<uint16_t>;
 extern template class FileStoreTemplate<uint32_t>;
 
 using FileStore16 = FileStoreTemplate<uint16_t>;
 using FileStore32 = FileStoreTemplate<uint32_t>;
-using FileStore64 = FileStoreTemplate<uint64_t>;
 
 }

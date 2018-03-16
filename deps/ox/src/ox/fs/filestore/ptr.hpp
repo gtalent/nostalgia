@@ -49,6 +49,10 @@ class Ptr {
 
 		inline T &operator*() const;
 
+		inline Ptr subPtr(size_t offset, size_t size);
+
+		inline Ptr subPtr(size_t offset);
+
 		inline void init(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize);
 
 };
@@ -85,15 +89,15 @@ inline size_t Ptr<T, size_t, minOffset>::end() {
 
 template<typename T, typename size_t, size_t minOffset>
 inline T *Ptr<T, size_t, minOffset>::get() const {
-	ox_assert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::get())");
-	ox_assert(valid(), "Invalid pointer access. (ox::fs::Ptr::get())");
+	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::get())");
+	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::get())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
 inline T *Ptr<T, size_t, minOffset>::operator->() const {
-	ox_assert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::operator->())");
-	ox_assert(valid(), "Invalid pointer access. (ox::fs::Ptr::operator->())");
+	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::operator->())");
+	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::operator->())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
@@ -112,9 +116,20 @@ inline Ptr<T, size_t, minOffset>::operator size_t() const {
 
 template<typename T, typename size_t, size_t minOffset>
 inline T &Ptr<T, size_t, minOffset>::operator*() const {
-	ox_assert(m_validated, "Unvalidated pointer dereference. (ox::fs::Ptr::operator*())");
-	ox_assert(valid(), "Invalid pointer dereference. (ox::fs::Ptr::operator*())");
+	oxAssert(m_validated, "Unvalidated pointer dereference. (ox::fs::Ptr::operator*())");
+	oxAssert(valid(), "Invalid pointer dereference. (ox::fs::Ptr::operator*())");
 	return *static_cast<T>(this);
+}
+
+template<typename T, typename size_t, size_t minOffset>
+inline Ptr<T, size_t, minOffset> Ptr<T, size_t, minOffset>::subPtr(size_t offset, size_t size) {
+	auto dataSize = ((m_dataStart + offset) - m_dataStart) + m_itemSize;
+	return Ptr<T, size_t, minOffset>(m_dataStart, dataSize, offset, size);
+}
+
+template<typename T, typename size_t, size_t minOffset>
+inline Ptr<T, size_t, minOffset> Ptr<T, size_t, minOffset>::subPtr(size_t offset) {
+	return subPtr(offset, m_itemSize - offset);
 }
 
 template<typename T, typename size_t, size_t minOffset>

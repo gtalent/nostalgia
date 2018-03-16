@@ -19,10 +19,10 @@ class FileStore {
 
 	public:
 		struct StatInfo {
-			InodeId_t inodeId;
-			InodeId_t links;
-			InodeId_t size;
-			uint8_t fileType;
+			InodeId_t inodeId = 0;
+			InodeId_t links = 0;
+			InodeId_t size = 0;
+			uint8_t fileType = 0;
 		};
 
 		virtual Error format() = 0;

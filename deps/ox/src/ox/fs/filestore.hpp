@@ -706,6 +706,8 @@ int FileStore<Header>::read(Inode *inode, typename Header::FsSize_t readStart,
 	readSize /= sizeof(T);
 	uint8_t *it = &(inode->getData()[readStart]);
 	for (typename Header::FsSize_t i = 0; i < readSize; i++) {
+		// do byte-by-byte copy to ensure alignment is right when copying to
+		// final destination
 		T val;
 		for (size_t i = 0; i < sizeof(T); i++) {
 			((uint8_t*) (&val))[i] = *(it++);

@@ -341,8 +341,8 @@ map<string, int(*)(string)> tests = {
 				auto list = new (buff) ox::fs::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
 				err |= !(list->malloc(50).valid());
 				auto first = list->firstItem();
-				ox_assert(first.valid(), "NodeBuffer::insert: Could not access first item");
-				ox_assert(first->size() == 50, "NodeBuffer::insert: First item size invalid");
+				oxAssert(first.valid(), "NodeBuffer::insert: Could not access first item");
+				oxAssert(first->size() == 50, "NodeBuffer::insert: First item size invalid");
 				return err;
 			}
 		},
@@ -352,14 +352,14 @@ map<string, int(*)(string)> tests = {
 				constexpr auto buffLen = 5000;
 				constexpr auto str1 = "Hello, World!";
 				constexpr auto str1Len = ox_strlen(str1);
-				constexpr auto str2 = "Hello, World!";
+				constexpr auto str2 = "Hello, Moon!";
 				constexpr auto str2Len = ox_strlen(str2);
 				uint8_t buff[buffLen];
 				auto list = new (buff) ox::fs::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
 				ox::fs::FileStore32 fileStore(list, buffLen);
-				ox_assert(fileStore.format() == 0, "FileStore::format failed.");
-				ox_assert(fileStore.write(4, (void*) str1, str1Len, 1) == 0, "FileStore::write 1 failed.");
-				ox_assert(fileStore.write(5, (void*) str2, str2Len, 1) == 0, "FileStore::write 2 failed.");
+				oxAssert(fileStore.format() == 0, "FileStore::format failed.");
+				oxAssert(fileStore.write(4, (void*) str1, str1Len, 1) == 0, "FileStore::write 1 failed.");
+				oxAssert(fileStore.write(5, (void*) str2, str2Len, 1) == 0, "FileStore::write 2 failed.");
 				return 0;
 			}
 		},

@@ -45,7 +45,7 @@ class FileStoreTemplate: public FileStore {
 		using Buffer = ox::fs::NodeBuffer<size_t, FileStoreItem<size_t>>;
 
 		struct __attribute__((packed)) FileStoreData {
-			ox::LittleEndian<size_t> rootNode;
+			ox::LittleEndian<size_t> rootNode = 0;
 		};
 
 		size_t m_buffSize = 0;

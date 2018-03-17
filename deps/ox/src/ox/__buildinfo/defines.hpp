@@ -8,7 +8,7 @@
 
 #pragma once
 
-namespace ox::buildinfo {
+namespace ox::defines {
 
 #if defined(OX_USE_STDLIB)
 constexpr auto UseStdLib = true;

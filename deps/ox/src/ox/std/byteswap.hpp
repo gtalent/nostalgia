@@ -72,7 +72,7 @@ constexpr inline uint64_t byteSwap(uint64_t i) {
  */
 template<typename T>
 constexpr inline T bigEndianAdapt(T i) {
-	if constexpr(ox::buildinfo::BigEndian) {
+	if constexpr(ox::defines::BigEndian) {
 		return byteSwap(i);
 	} else {
 		return i;

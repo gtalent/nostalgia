@@ -13,8 +13,11 @@ elif [[ $TARGET == gba ]]; then
 	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/GBA.cmake -DOX_USE_STDLIB=OFF -DCMAKE_INSTALL_PREFIX=$DEVKITARM"
 fi
 
-if [[ $BUILD_TYPE == debug ]]; then
+if [[ $BUILD_TYPE == asan ]]; then
 	buildTypeArgs="-DUSE_ASAN=ON -DCMAKE_BUILD_TYPE=Debug"
+	buildDir="build/${TARGET}-asan"
+elif [[ $BUILD_TYPE == debug ]]; then
+	buildTypeArgs="-DCMAKE_BUILD_TYPE=Debug"
 	buildDir="build/${TARGET}-debug"
 else
 	buildTypeArgs="-DCMAKE_BUILD_TYPE=Release"

@@ -1,5 +1,6 @@
 build/current
 build/gba
+build/*-asan
 build/*-debug
 build/*-release
 tags

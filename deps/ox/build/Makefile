@@ -1,4 +1,4 @@
-all: gba_build native_build native_debug_build windows_release windows_debug
+all: gba_build native_build native_debug_build native_asan_build windows_release windows_debug
 
 gba_build:
 	@if [ -d gba-release ]; then \
@@ -13,6 +13,11 @@ native_build:
 native_debug_build:
 	@if [ -d ${HOST_ENV}-debug ]; then \
 		cmake --build ${HOST_ENV}-debug --target ${ARGS}; \
+	fi
+
+native_asan_build:
+	@if [ -d ${HOST_ENV}-asan ]; then \
+		cmake --build ${HOST_ENV}-asan --target ${ARGS}; \
 	fi
 
 windows_release:

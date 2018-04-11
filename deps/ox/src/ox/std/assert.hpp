@@ -8,10 +8,14 @@
 
 #pragma once
 
-void oxAssert(const char *file, int line, bool pass, const char *msg);
+namespace ox {
+
+void _assert(const char *file, int line, bool pass, const char *msg);
+
+}
 
 #ifndef NDEBUG
-#define ox_assert(pass, msg) oxAssert(__FILE__, __LINE__, pass, msg)
+#define oxAssert(pass, msg) ox::_assert(__FILE__, __LINE__, pass, msg)
 #else
-#define ox_assert(pass, msg)
+#define oxAssert(pass, msg)
 #endif

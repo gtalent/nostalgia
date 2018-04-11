@@ -6,16 +6,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#if defined(OX_USE_STDLIB)
-#include <cstdlib>
-#include <iostream>
-#endif
+#include <ox/__buildinfo/defines.hpp>
 
-void oxAssert(const char *file, int line, bool pass, const char *msg) {
+namespace ox {
+
 #if defined(OX_USE_STDLIB)
+void _assert(const char *file, int line, bool pass, const char *msg) {
 	if (!pass) {
 		std::cerr << '(' << file << ':' << line << "): " << msg << std::endl;
 		std::abort();
 	}
+}
+#else
+void _assert(const char*, int, bool, const char*) {
+}
 #endif
+
 }

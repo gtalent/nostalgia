@@ -29,7 +29,29 @@ typedef uint64_t           uintmax_t;
 
 namespace ox {
 
-typedef uint32_t Error;
+using Error = uint32_t;
+
+template<typename T>
+struct ValErr {
+	T value;
+	Error error;
+
+	inline constexpr ValErr() = default;
+
+	inline constexpr ValErr(T value, Error error = 0) {
+		this->value = value;
+		this->error = error;
+	}
+
+	inline constexpr operator T&() {
+		return value;
+	}
+
+	inline constexpr bool ok() {
+		return error == 0;
+	}
+
+};
 
 }
 

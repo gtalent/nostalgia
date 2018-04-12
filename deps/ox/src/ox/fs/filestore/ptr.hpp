@@ -10,8 +10,7 @@
 
 #include <ox/std/std.hpp>
 
-namespace ox {
-namespace fs {
+namespace ox::fs {
 
 template<typename T, typename size_t, size_t minOffset = 1>
 class Ptr {
@@ -49,11 +48,11 @@ class Ptr {
 
 		inline T &operator*() const;
 
-		inline Ptr subPtr(size_t offset, size_t size);
+		template<typename SubT>
+		inline Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset, size_t size);
 
-		inline Ptr subPtr(size_t offset);
-
-		inline void init(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize);
+		template<typename SubT>
+		inline Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset);
 
 };
 
@@ -63,7 +62,15 @@ inline Ptr<T, size_t, minOffset>::Ptr(std::nullptr_t) {
 
 template<typename T, typename size_t, size_t minOffset>
 inline Ptr<T, size_t, minOffset>::Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize) {
-	init(dataStart, dataSize, itemStart, itemSize);
+	// do some sanity checks before assuming this is valid
+	if (itemSize >= sizeof(T) and
+	    dataStart and
+	    itemStart >= minOffset and
+	    itemStart + itemSize <= dataSize) {
+		m_dataStart = reinterpret_cast<uint8_t*>(dataStart);
+		m_itemOffset = itemStart;
+		m_itemSize = itemSize;
+	}
 }
 
 template<typename T, typename size_t, size_t minOffset>
@@ -118,32 +125,21 @@ template<typename T, typename size_t, size_t minOffset>
 inline T &Ptr<T, size_t, minOffset>::operator*() const {
 	oxAssert(m_validated, "Unvalidated pointer dereference. (ox::fs::Ptr::operator*())");
 	oxAssert(valid(), "Invalid pointer dereference. (ox::fs::Ptr::operator*())");
-	return *static_cast<T>(this);
+	return *reinterpret_cast<T*>(this);
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline Ptr<T, size_t, minOffset> Ptr<T, size_t, minOffset>::subPtr(size_t offset, size_t size) {
-	auto dataSize = ((m_dataStart + offset) - m_dataStart) + m_itemSize;
-	return Ptr<T, size_t, minOffset>(m_dataStart, dataSize, offset, size);
+template<typename SubT>
+inline Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset, size_t size) {
+	auto out = Ptr<SubT, size_t, sizeof(T)>(get(), this->size(), offset, size);
+	return out;
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline Ptr<T, size_t, minOffset> Ptr<T, size_t, minOffset>::subPtr(size_t offset) {
-	return subPtr(offset, m_itemSize - offset);
+template<typename SubT>
+inline Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset) {
+	oxTrace("ox::fs::Ptr::subPtr") << m_itemOffset << this->size() << offset << m_itemSize << (m_itemSize - offset);
+	return subPtr<SubT>(offset, m_itemSize - offset);
 }
 
-template<typename T, typename size_t, size_t minOffset>
-inline void Ptr<T, size_t, minOffset>::init(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize) {
-	// do some sanity checks before assuming this is valid
-	if (itemSize >= sizeof(T) and
-	    dataStart and
-	    itemStart >= minOffset and
-	    itemStart + itemSize <= dataSize) {
-		m_dataStart = static_cast<uint8_t*>(dataStart);
-		m_itemOffset = itemStart;
-		m_itemSize = itemSize;
-	}
-}
-
-}
 }

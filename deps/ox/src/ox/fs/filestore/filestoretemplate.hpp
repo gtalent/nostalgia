@@ -127,7 +127,7 @@ class FileStoreTemplate: public FileStore {
 template<typename size_t>
 FileStoreTemplate<size_t>::FileStoreTemplate(void *buff, size_t buffSize) {
 	m_buffSize = buffSize;
-	m_buffer = static_cast<ox::fs::NodeBuffer<size_t, FileStoreItem<size_t>>*>(buff);
+	m_buffer = reinterpret_cast<ox::fs::NodeBuffer<size_t, FileStoreItem<size_t>>*>(buff);
 	if (!m_buffer->valid(buffSize)) {
 		m_buffSize = 0;
 		m_buffer = nullptr;
@@ -137,10 +137,15 @@ FileStoreTemplate<size_t>::FileStoreTemplate(void *buff, size_t buffSize) {
 template<typename size_t>
 Error FileStoreTemplate<size_t>::format() {
 	new (m_buffer) Buffer(m_buffSize);
-	auto data = m_buffer->malloc(sizeof(FileStoreData));
-	if (data.valid()) {
-		new (data->data()) FileStoreData;
-		return 0;
+	auto fsData = m_buffer->malloc(sizeof(FileStoreData));
+	if (fsData.valid()) {
+		auto data = m_buffer->template dataOf<FileStoreData>(fsData);
+		if (data.valid()) {
+			new (data) FileStoreData;
+			return 0;
+		} else {
+			oxTrace("ox::fs::FileStoreTemplate::format::fail") << "Could not read data section of FileStoreData";
+		}
 	}
 	return 1;
 }
@@ -175,6 +180,7 @@ Error FileStoreTemplate<size_t>::decLinks(InodeId_t id) {
 
 template<typename size_t>
 Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSize, uint8_t fileType) {
+	oxTrace("ox::fs::FileStoreTemplate::write") << "Attempting to write to inode" << id;
 	auto existing = find(id);
 	// TODO: try compacting if unable to write
 	if (canWrite(existing, dataSize)) {
@@ -192,18 +198,19 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 			new (dest) FileStoreItem<size_t>(dataSize);
 			dest->id = id;
 			dest->fileType = fileType;
-			auto destData = dest->data();
+			auto destData = m_buffer->template dataOf<uint8_t>(dest);
 			if (destData.valid()) {
 				ox_memcpy(destData, data, dest->size());
 				auto fsData = fileStoreData();
 				if (fsData) {
 					auto root = m_buffer->ptr(fsData->rootNode);
 					if (root.valid()) {
-						oxTrace("ox::fs::FileStoreTemplate::write") << "Placing" << dest->id << "on" << root->id;
+						oxTrace("ox::fs::FileStoreTemplate::write") << "Placing" << dest->id << "on" << root->id << "at" << destData.offset();
 						return placeItem(root, dest);
 					} else {
-						oxTrace("ox::fs::FileStoreTemplate::write") << "Initializing root inode.";
-						fsData->rootNode = dest;
+						oxTrace("ox::fs::FileStoreTemplate::write") << "Initializing root inode with offset of" << dest.offset()
+							<< "and data size of" << destData.size();
+						fsData->rootNode = dest.offset();
 						return 0;
 					}
 				} else {
@@ -218,16 +225,26 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 
 template<typename size_t>
 Error FileStoreTemplate<size_t>::read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size) {
+	oxTrace("ox::fs::FileStoreTemplate::read") << "Attempting to read from inode" << id;
 	auto src = find(id);
 	if (src.valid()) {
-		auto srcData = src->data();
+		auto srcData = m_buffer->template dataOf<uint8_t>(src);
+
+		oxTrace("ox::fs::FileStoreTemplate::read::found") << id << "found at"<< src.offset()
+			<< "with data section at" << srcData.offset();
+		oxTrace("ox::fs::FileStoreTemplate::read::outSize") << srcData.offset() << srcData.size() << dataSize;
 		if (srcData.valid() && srcData.size() <= dataSize) {
 			ox_memcpy(data, srcData, srcData.size());
 			if (size) {
 				*size = src.size();
 			}
 			return 0;
+		} else {
+			oxTrace("ox::fs::FileStoreTemplate::read::fail") << "Could not read data section of item:" << id;
+			oxTrace("ox::fs::FileStoreTemplate::read::fail") << "Item data section size:" << srcData.size();
 		}
+	} else {
+		oxTrace("ox::fs::FileStoreTemplate::read::fail") << "Could not find requested item:" << id;
 	}
 	return 1;
 }
@@ -238,15 +255,21 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart, FsSize_t
 	if (src.valid()) {
 		auto srcData = src->data();
 		if (srcData.valid()) {
-			auto sub = srcData.subPtr(readStart, readSize);
+			auto sub = srcData.template subPtr<uint8_t>(readStart, readSize);
 			if (sub.valid()) {
 				ox_memcpy(data, sub, sub.size());
 				if (size) {
 					*size = sub.size();
 				}
 				return 0;
+			} else {
+				oxTrace("ox::fs::FileStoreTemplate::read::fail") << "Could not read requested data sub-section of item:" << id;
 			}
+		} else {
+			oxTrace("ox::fs::FileStoreTemplate::read::fail") << "Could not read data section of item:" << id;
 		}
+	} else {
+		oxTrace("ox::fs::FileStoreTemplate::read::fail") << "Could not find requested item:" << id;
 	}
 	return 1;
 }
@@ -266,7 +289,7 @@ int FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart,
 					// copying to final destination
 					T tmp;
 					for (size_t i = 0; i < sizeof(T); i++) {
-						*reinterpret_cast<uint8_t*>(&tmp)[i] = *(reinterpret_cast<uint8_t*>(sub.get()) + i);
+						*(reinterpret_cast<uint8_t*>(&tmp)[i]) = *(reinterpret_cast<uint8_t*>(sub.get()) + i);
 					}
 					*(data + i) = tmp;
 				}
@@ -327,7 +350,7 @@ Error FileStoreTemplate<size_t>::placeItem(ItemPtr root, ItemPtr item, int depth
 		if (item->id > root->id) {
 			auto right = m_buffer->ptr(root->right);
 			if (!right.valid() || right->id == item->id) {
-				root->right = root;
+				root->right = root.offset();
 				return 0;
 			} else {
 				return placeItem(right, item, depth + 1);
@@ -335,7 +358,7 @@ Error FileStoreTemplate<size_t>::placeItem(ItemPtr root, ItemPtr item, int depth
 		} else if (item->id < root->id) {
 			auto left = m_buffer->ptr(root->left);
 			if (!left.valid() || left->id == item->id) {
-				root->left = root;
+				root->left = root.offset();
 				return 0;
 			} else {
 				return placeItem(left, item, depth + 1);
@@ -382,6 +405,8 @@ typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(Item
 			} else {
 				return item;
 			}
+		} else {
+			oxTrace("ox::fs::FileStoreTemplate::find::fail") << "item invalid";
 		}
 	} else {
 		oxTrace("ox::fs::FileStoreTemplate::find::fail") << "Excessive recursion depth, stopping before stack overflow. Search for:" << id;

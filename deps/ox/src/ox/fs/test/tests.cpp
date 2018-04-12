@@ -333,13 +333,27 @@ map<string, int(*)(string)> tests = {
 			}
 		},
 		{
+			"Ptr::subPtr",
+			[](string) {
+				constexpr auto buffLen = 5000;
+				uint8_t buff[buffLen];
+				ox::fs::Ptr<uint8_t, uint32_t> p(buff, buffLen, 500, 500);
+				oxAssert(p.valid(), "Ptr::subPtr: Ptr p is invalid.");
+
+				auto subPtr = p.subPtr<uint64_t>(50);
+				oxAssert(subPtr.valid(), "Ptr::subPtr: Ptr subPtr is invalid.");
+				return 0;
+			}
+		},
+		{
 			"NodeBuffer::insert",
 			[](string) {
 				int err = 0;
 				constexpr auto buffLen = 5000;
 				uint8_t buff[buffLen];
 				auto list = new (buff) ox::fs::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
-				err |= !(list->malloc(50).valid());
+				oxAssert(list->malloc(50).valid(), "NodeBuffer::insert: malloc 1 failed");
+				oxAssert(list->malloc(50).valid(), "NodeBuffer::insert: malloc 2 failed");
 				auto first = list->firstItem();
 				oxAssert(first.valid(), "NodeBuffer::insert: Could not access first item");
 				oxAssert(first->size() == 50, "NodeBuffer::insert: First item size invalid");
@@ -351,15 +365,20 @@ map<string, int(*)(string)> tests = {
 			[](string) {
 				constexpr auto buffLen = 5000;
 				constexpr auto str1 = "Hello, World!";
-				constexpr auto str1Len = ox_strlen(str1);
+				constexpr auto str1Len = ox_strlen(str1) + 1;
 				constexpr auto str2 = "Hello, Moon!";
-				constexpr auto str2Len = ox_strlen(str2);
+				constexpr auto str2Len = ox_strlen(str2) + 1;
 				uint8_t buff[buffLen];
 				auto list = new (buff) ox::fs::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
 				ox::fs::FileStore32 fileStore(list, buffLen);
 				oxAssert(fileStore.format() == 0, "FileStore::format failed.");
-				oxAssert(fileStore.write(4, (void*) str1, str1Len, 1) == 0, "FileStore::write 1 failed.");
-				oxAssert(fileStore.write(5, (void*) str2, str2Len, 1) == 0, "FileStore::write 2 failed.");
+				oxAssert(fileStore.write(4, const_cast<char*>(str1), str1Len, 1) == 0, "FileStore::write 1 failed.");
+				oxAssert(fileStore.write(5, const_cast<char*>(str2), str2Len, 1) == 0, "FileStore::write 2 failed.");
+
+				char str1Read[str1Len];
+				size_t str1ReadSize = 0;
+				oxAssert(fileStore.read(4, reinterpret_cast<void*>(str1Read), str1Len, &str1ReadSize) == 0, "FileStore::read 1 failed.");
+
 				return 0;
 			}
 		},

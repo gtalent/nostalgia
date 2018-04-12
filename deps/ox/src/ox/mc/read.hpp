@@ -19,8 +19,8 @@ namespace ox {
 class MetalClawReader {
 
 	private:
-		typedef uint32_t ArrayLength;
-		typedef uint32_t StringLength;
+		using ArrayLength = uint32_t;
+		using StringLength = uint32_t;
 
 		FieldPresenseMask m_fieldPresence;
 		int m_fields = 0;
@@ -88,7 +88,7 @@ int MetalClawReader::op(const char*, ox::BString<L> *val) {
 		// read the length
 		size_t size = 0;
 		if (m_buffIt + sizeof(StringLength) < m_buffLen) {
-			size = ox::bigEndianAdapt(*(reinterpret_cast<StringLength*>(&m_buff[m_buffIt])));
+			size = *reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]);
 			m_buffIt += sizeof(StringLength);
 		} else {
 			err |= MC_BUFFENDED;
@@ -117,7 +117,7 @@ int MetalClawReader::readInteger(I *val) {
 	int err = 0;
 	if (m_fieldPresence.get(m_field)) {
 		if (m_buffIt + sizeof(I) < m_buffLen) {
-			*val = ox::bigEndianAdapt(*(reinterpret_cast<I*>(&m_buff[m_buffIt])));
+			*val = *reinterpret_cast<LittleEndian<I>*>(&m_buff[m_buffIt]);
 			m_buffIt += sizeof(I);
 		} else {
 			err = MC_BUFFENDED;
@@ -136,7 +136,7 @@ int MetalClawReader::op(const char*, T *val, size_t valLen) {
 		// read the length
 		size_t len = 0;
 		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
-			len = ox::bigEndianAdapt(*(reinterpret_cast<ArrayLength*>(&m_buff[m_buffIt])));
+			len = *reinterpret_cast<LittleEndian<ArrayLength>*>(&m_buff[m_buffIt]);
 			m_buffIt += sizeof(ArrayLength);
 		} else {
 			err = MC_BUFFENDED;

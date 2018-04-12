@@ -60,7 +60,7 @@ size_t MetalClawReader::arrayLength(const char*) {
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
 		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
-			len = ox::bigEndianAdapt(*((ArrayLength*) &m_buff[m_buffIt]));
+			len = *reinterpret_cast<LittleEndian<ArrayLength>*>(&m_buff[m_buffIt]);
 		}
 	}
 	return len;
@@ -71,7 +71,7 @@ size_t MetalClawReader::stringLength(const char*) {
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
 		if (m_buffIt + sizeof(StringLength) < m_buffLen) {
-			len = ox::bigEndianAdapt(*((StringLength*) &m_buff[m_buffIt]));
+			len = *reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]);
 		}
 	}
 	return len;

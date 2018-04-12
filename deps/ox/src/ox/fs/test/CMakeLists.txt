@@ -70,7 +70,7 @@ add_test("Test\\ FileSystem32::rmDirectoryEntry\\(string\\)" FSTests "FileSystem
 add_test("Test\\ FileSystem32::remove\\(string,\\ true\\)" FSTests "FileSystem32::remove(string, true)")
 add_test("Test\\ FileSystem32::move" FSTests "FileSystem32::move")
 add_test("Test\\ FileSystem32::stripDirectories" FSTests "FileSystem32::stripDirectories")
-add_test("Test\\ FileSystem32::ls" FSTests "FileSystem32::ls")
+#add_test("Test\\ FileSystem32::ls" FSTests "FileSystem32::ls")
 
 add_test("Test\\ NodeBuffer::insert" FSTests "NodeBuffer::insert")
 add_test("Test\\ FileStore::readWrite" FSTests "FileStore::readWrite")

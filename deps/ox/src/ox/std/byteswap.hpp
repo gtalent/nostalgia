@@ -16,17 +16,17 @@
 namespace ox {
 
 template<typename T>
-constexpr inline T byteSwap(typename enable_if<sizeof(T) == 1, T>::type i) {
+constexpr inline T byteSwap(typename enable_if<sizeof(T) == 1, T>::type i) noexcept {
 	return i;
 }
 
 template<typename T>
-constexpr inline T byteSwap(typename enable_if<sizeof(T) == 2, T>::type i) {
+constexpr inline T byteSwap(typename enable_if<sizeof(T) == 2, T>::type i) noexcept {
 	return (i << 8) | (i >> 8);
 }
 
 template<typename T>
-constexpr inline T byteSwap(typename enable_if<sizeof(T) == 4, T>::type i) {
+constexpr inline T byteSwap(typename enable_if<sizeof(T) == 4, T>::type i) noexcept {
 	return ((i >> 24) & 0x000000ff) |
 	       ((i >>  8) & 0x0000ff00) |
 	       ((i <<  8) & 0x00ff0000) |
@@ -34,7 +34,7 @@ constexpr inline T byteSwap(typename enable_if<sizeof(T) == 4, T>::type i) {
 }
 
 template<typename T>
-constexpr inline T byteSwap(typename enable_if<sizeof(T) == 8, T>::type i) {
+constexpr inline T byteSwap(typename enable_if<sizeof(T) == 8, T>::type i) noexcept {
 	return ((i >> 56) & 0x00000000000000ff) |
 	       ((i >> 40) & 0x000000000000ff00) |
 	       ((i >> 24) & 0x0000000000ff0000) |
@@ -50,7 +50,7 @@ constexpr inline T byteSwap(typename enable_if<sizeof(T) == 8, T>::type i) {
  * Takes an int and byte swaps if the platform is the given condition is true.
  */
 template<typename T, bool byteSwap>
-constexpr inline T conditionalByteSwap(T i) {
+constexpr inline T conditionalByteSwap(T i) noexcept {
 	if constexpr(byteSwap) {
 		return ox::byteSwap<T>(i);
 	} else {
@@ -58,127 +58,118 @@ constexpr inline T conditionalByteSwap(T i) {
 	}
 }
 
-/**
- * Takes an int and byte swaps if the platform is big endian.
- */
-template<typename T>
-constexpr inline T bigEndianAdapt(T i) {
-	return conditionalByteSwap<T, ox::defines::BigEndian>(i);
-}
-
-
 template<typename T, bool byteSwap>
 class __attribute__((packed)) ByteSwapInteger {
 	private:
 		T m_value;
 
 	public:
-		constexpr inline ByteSwapInteger() = default;
+		constexpr inline ByteSwapInteger() noexcept = default;
 
-		constexpr inline ByteSwapInteger(const ByteSwapInteger &other) {
+		constexpr inline ByteSwapInteger(const ByteSwapInteger &other) noexcept {
 			m_value = other.m_value;
 		}
 
-		constexpr inline ByteSwapInteger(T value): m_value(ox::conditionalByteSwap<T, byteSwap>(value)) {
+		constexpr inline ByteSwapInteger(T value) noexcept: m_value(ox::conditionalByteSwap<T, byteSwap>(value)) {
 		}
 
-		constexpr inline const ByteSwapInteger &operator=(const ByteSwapInteger &other) {
+		constexpr inline const ByteSwapInteger &operator=(const ByteSwapInteger &other) noexcept {
 			m_value = other.m_value;
 			return *this;
 		}
 
 		template<typename I>
-		constexpr inline T operator=(I value) {
+		constexpr inline T operator=(I value) noexcept {
 			m_value = ox::conditionalByteSwap<T, byteSwap>(value);
 			return value;
 		}
 
-		constexpr inline operator T() const {
+		constexpr inline operator T() const noexcept {
 			return ox::conditionalByteSwap<T, byteSwap>(m_value);
 		}
 
 		template<typename I>
-		constexpr inline T operator+=(I other) {
+		constexpr inline T operator+=(I other) noexcept {
 			auto newVal = *this + other;
 			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		constexpr inline T operator-=(I other) {
+		constexpr inline T operator-=(I other) noexcept {
 			auto newVal = *this - other;
 			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		constexpr inline T operator*=(I other) {
+		constexpr inline T operator*=(I other) noexcept {
 			auto newVal = *this * other;
 			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		constexpr inline T operator/=(I other) {
+		constexpr inline T operator/=(I other) noexcept {
 			auto newVal = *this / other;
 			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		// Prefix increment
-		constexpr inline T operator++() {
+		constexpr inline T operator++() noexcept {
 			return operator+=(1);
 		}
 
 		// Postfix increment
-		constexpr inline T operator++(int) {
+		constexpr inline T operator++(int) noexcept {
 			auto old = *this;
 			++*this;
 			return old;
 		}
 
 		// Prefix decrement
-		constexpr inline T operator--() {
+		constexpr inline T operator--() noexcept {
 			return operator-=(1);
 		}
 
 		// Postfix decrement
-		constexpr inline T operator--(int) {
+		constexpr inline T operator--(int) noexcept {
 			auto old = *this;
 			--*this;
 			return old;
 		}
 
 		template<typename I>
-		constexpr inline T operator&=(I other) {
+		constexpr inline T operator&=(I other) noexcept {
 			auto newVal = *this & other;
 			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		constexpr inline T operator|=(I other) {
+		constexpr inline T operator|=(I other) noexcept {
 			auto newVal = *this | other;
 			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		constexpr inline T operator^=(I other) {
+		constexpr inline T operator^=(I other) noexcept {
 			auto newVal = *this ^ other;
 			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		constexpr inline T operator>>=(I other) {
+		constexpr inline T operator>>=(I other) noexcept {
 			auto newVal = *this >> other;
 			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
-		constexpr inline T operator<<=(I other) {
+		constexpr inline T operator<<=(I other) noexcept {
 			auto newVal = *this << other;
 			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
@@ -190,6 +181,6 @@ template<typename T>
 using LittleEndian = ByteSwapInteger<T, ox::defines::BigEndian>;
 
 template<typename T>
-using BigEndian = ByteSwapInteger<T, !ox::defines::BigEndian>;
+using BigEndian = ByteSwapInteger<T, ox::defines::LittleEndian>;
 
 }

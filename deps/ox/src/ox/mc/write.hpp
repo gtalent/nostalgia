@@ -75,7 +75,7 @@ int MetalClawWriter::op(const char*, ox::BString<L> *val) {
 		// write the length
 		typedef uint32_t StringLength;
 		if (m_buffIt + sizeof(StringLength) + val->size() < m_buffLen) {
-			*(reinterpret_cast<StringLength*>(&m_buff[m_buffIt])) = ox::bigEndianAdapt(static_cast<StringLength>(val->size()));
+			*reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]) = static_cast<StringLength>(val->size());
 			m_buffIt += sizeof(StringLength);
 
 			// write the string
@@ -89,7 +89,7 @@ int MetalClawWriter::op(const char*, ox::BString<L> *val) {
 	err |= m_fieldPresence.set(m_field, fieldSet);
 	m_field++;
 	return err;
-};
+}
 
 template<typename T>
 int MetalClawWriter::op(const char*, T *val) {
@@ -104,7 +104,7 @@ int MetalClawWriter::op(const char*, T *val) {
 	err |= m_fieldPresence.set(m_field, fieldSet);
 	m_field++;
 	return err;
-};
+}
 
 template<typename I>
 int MetalClawWriter::appendInteger(I val) {
@@ -112,7 +112,7 @@ int MetalClawWriter::appendInteger(I val) {
 	bool fieldSet = false;
 	if (val) {
 		if (m_buffIt + sizeof(I) < m_buffLen) {
-			*(reinterpret_cast<I*>(&m_buff[m_buffIt])) = ox::bigEndianAdapt(val);
+			*reinterpret_cast<LittleEndian<I>*>(&m_buff[m_buffIt]) = val;
 			fieldSet = true;
 			m_buffIt += sizeof(I);
 		} else {
@@ -122,7 +122,7 @@ int MetalClawWriter::appendInteger(I val) {
 	err |= m_fieldPresence.set(m_field, fieldSet);
 	m_field++;
 	return err;
-};
+}
 
 template<typename T>
 int MetalClawWriter::op(const char*, T *val, size_t len) {
@@ -133,7 +133,7 @@ int MetalClawWriter::op(const char*, T *val, size_t len) {
 		// write the length
 		typedef uint32_t ArrayLength;
 		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
-			*reinterpret_cast<ArrayLength*>(&m_buff[m_buffIt]) = ox::bigEndianAdapt(static_cast<ArrayLength>(len));
+			*reinterpret_cast<LittleEndian<ArrayLength>*>(&m_buff[m_buffIt]) = static_cast<ArrayLength>(len);
 			m_buffIt += sizeof(ArrayLength);
 		} else {
 			err = MC_BUFFENDED;
@@ -154,7 +154,7 @@ int MetalClawWriter::op(const char*, T *val, size_t len) {
 	err |= m_fieldPresence.set(m_field, fieldSet);
 	m_field++;
 	return err;
-};
+}
 
 template<typename T>
 int writeMC(uint8_t *buff, size_t buffLen, T *val, size_t *sizeOut = nullptr) {

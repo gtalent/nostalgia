@@ -57,6 +57,12 @@ class Ptr {
 		inline operator size_t() const;
 
 		template<typename SubT>
+		inline const Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset, size_t size) const;
+
+		template<typename SubT>
+		inline const Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset) const;
+
+		template<typename SubT>
 		inline Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset, size_t size);
 
 		template<typename SubT>
@@ -160,6 +166,20 @@ inline Ptr<T, size_t, minOffset>::operator size_t() const {
 		return m_itemOffset;
 	}
 	return 0;
+}
+
+template<typename T, typename size_t, size_t minOffset>
+template<typename SubT>
+inline const Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset, size_t size) const {
+	auto out = Ptr<SubT, size_t, sizeof(T)>(get(), this->size(), offset, size);
+	return out;
+}
+
+template<typename T, typename size_t, size_t minOffset>
+template<typename SubT>
+inline const Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset) const {
+	oxTrace("ox::fs::Ptr::subPtr") << m_itemOffset << this->size() << offset << m_itemSize << (m_itemSize - offset);
+	return subPtr<SubT>(offset, m_itemSize - offset);
 }
 
 template<typename T, typename size_t, size_t minOffset>

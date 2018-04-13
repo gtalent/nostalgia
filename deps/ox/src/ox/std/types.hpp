@@ -8,6 +8,12 @@
 
 #pragma once
 
+#if OX_USE_STDLIB
+
+#include <cstdint>
+
+#else
+
 typedef signed char        int8_t;
 typedef unsigned char      uint8_t;
 typedef short              int16_t;
@@ -15,7 +21,7 @@ typedef unsigned short     uint16_t;
 typedef int                int32_t;
 typedef unsigned int       uint32_t;
 typedef unsigned           uint_t;
-#if defined(_WIN32) || defined(__APPLE__) || defined(__arm__) || defined(__ppc__)
+#if defined(__arm__) || defined(__ppc__)
 typedef long long          int64_t;
 typedef unsigned long long uint64_t;
 typedef __INTMAX_TYPE__    intmax_t;
@@ -26,6 +32,23 @@ typedef unsigned long      uint64_t;
 typedef int64_t            intmax_t;
 typedef uint64_t           uintmax_t;
 #endif
+
+#if defined(_LP64) || defined(__ppc64__) || defined(__aarch64__)
+typedef long          intptr_t;
+typedef unsigned long uintptr_t;
+#elif defined(_WIN64)
+typedef int64_t  intptr_t;
+typedef uint64_t uintptr_t;
+#elif defined(_LP32) || defined(__ppc__) || defined(_WIN32) || defined(__arm__)
+typedef int32_t  intptr_t;
+typedef uint32_t uintptr_t;
+#else
+#error intptr_t, and uintptr_t undefined
+#endif
+
+#endif
+
+
 
 namespace ox {
 
@@ -54,19 +77,6 @@ struct ValErr {
 };
 
 }
-
-#if defined(_LP64) || defined(__ppc64__) || defined(__aarch64__)
-typedef long          intptr_t;
-typedef unsigned long uintptr_t;
-#elif defined(_WIN64)
-typedef int64_t  intptr_t;
-typedef uint64_t uintptr_t;
-#elif defined(_LP32) || defined(__ppc__) || defined(_WIN32) || defined(__arm__)
-typedef int32_t  intptr_t;
-typedef uint32_t uintptr_t;
-#else
-#error intptr_t, and uintptr_t undefined
-#endif
 
 namespace std {
 

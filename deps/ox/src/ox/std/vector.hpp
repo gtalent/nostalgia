@@ -16,13 +16,13 @@ template<typename T>
 class Vector {
 
 	private:
-		size_t m_size = 0;
+		std::size_t m_size = 0;
 		T *m_items = nullptr;
 
 	public:
 		Vector() = default;
 
-		explicit Vector(size_t size);
+		explicit Vector(std::size_t size);
 
 		Vector(Vector &other);
 
@@ -34,18 +34,18 @@ class Vector {
 
 		Vector &operator=(Vector &&other);
 
-		T &operator[](size_t i);
+		T &operator[](std::size_t i);
 
-		const T &operator[](size_t i) const;
+		const T &operator[](std::size_t i) const;
 
-		size_t size() const;
+		std::size_t size() const;
 
-		void resize(size_t size);
+		void resize(std::size_t size);
 
 };
 
 template<typename T>
-Vector<T>::Vector(size_t size) {
+Vector<T>::Vector(std::size_t size) {
 	m_size = size;
 	m_items = new T[m_size];
 }
@@ -54,7 +54,7 @@ template<typename T>
 Vector<T>::Vector(Vector<T> &other) {
 	m_size = other.m_size;
 	m_items = new T[m_size];
-	for (size_t i = 0; i < m_size; i++) {
+	for (std::size_t i = 0; i < m_size; i++) {
 		m_items[i] = other.m_items[i];
 	}
 }
@@ -80,7 +80,7 @@ Vector<T> &Vector<T>::operator=(Vector<T> &other) {
 	~Vector<T>();
 	m_size = other.m_size;
 	m_items = new T[m_size];
-	for (size_t i = 0; i < m_size; i++) {
+	for (std::size_t i = 0; i < m_size; i++) {
 		m_items[i] = other.m_items[i];
 	}
 	return *this;
@@ -97,26 +97,26 @@ Vector<T> &Vector<T>::operator=(Vector<T> &&other) {
 }
 
 template<typename T>
-T &Vector<T>::operator[](size_t i) {
+T &Vector<T>::operator[](std::size_t i) {
 	return *(m_items[i]);
 }
 
 template<typename T>
-const T &Vector<T>::operator[](size_t i) const {
+const T &Vector<T>::operator[](std::size_t i) const {
 	return *(m_items[i]);
 }
 
 template<typename T>
-size_t Vector<T>::size() const {
+std::size_t Vector<T>::size() const {
 	return m_size;
 };
 
 template<typename T>
-void Vector<T>::resize(size_t size) {
+void Vector<T>::resize(std::size_t size) {
 	auto oldItems = m_items;
 	m_items = new T[size];
 	const auto itRange = size > m_size ? m_size : size;
-	for (size_t i = 0; i < itRange; i++) {
+	for (std::size_t i = 0; i < itRange; i++) {
 		m_items[i] = oldItems[i];
 	}
 	m_size = size;

@@ -14,7 +14,7 @@ template class FileSystemTemplate<FileStore16, OxFS_16>;
 template class FileSystemTemplate<FileStore32, OxFS_32>;
 template class FileSystemTemplate<FileStore64, OxFS_64>;
 
-FileSystem *createFileSystem(uint8_t *buff, size_t buffSize, bool ownsBuff) {
+FileSystem *createFileSystem(uint8_t *buff, std::size_t buffSize, bool ownsBuff) {
 	auto version = ((FileStore16*) buff)->version();
 	auto type = ((FileStore16*) buff)->fsType();
 	FileSystem *fs = nullptr;
@@ -45,7 +45,7 @@ FileSystem *createFileSystem(uint8_t *buff, size_t buffSize, bool ownsBuff) {
 	return fs;
 }
 
-FileSystem *expandCopy(FileSystem *fs, size_t size) {
+FileSystem *expandCopy(FileSystem *fs, std::size_t size) {
 	auto fsBuff = fs->buff();
 	FileSystem *retval = nullptr;
 
@@ -61,7 +61,7 @@ FileSystem *expandCopy(FileSystem *fs, size_t size) {
 	return retval;
 }
 
-FileSystem *expandCopyCleanup(FileSystem *fs, size_t size) {
+FileSystem *expandCopyCleanup(FileSystem *fs, std::size_t size) {
 	auto out = expandCopy(fs, size);
 
 	if (!out) {

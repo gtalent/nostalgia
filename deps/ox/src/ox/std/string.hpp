@@ -15,70 +15,70 @@
 namespace ox {
 
 // Bounded String
-template<size_t buffLen>
+template<std::size_t buffLen>
 class BString {
 	private:
 		uint8_t m_buff[buffLen];
 
 	public:
-		BString();
+		BString() noexcept;
 
-		BString(const char *str);
+		BString(const char *str) noexcept;
 
-		const BString &operator=(const char *str);
+		const BString &operator=(const char *str) noexcept;
 
-		const BString &operator=(char *str);
+		const BString &operator=(char *str) noexcept;
 
-		const BString &operator=(int64_t i);
+		const BString &operator=(int64_t i) noexcept;
 
-		const BString &operator+=(const char *str);
+		const BString &operator+=(const char *str) noexcept;
 
-		const BString &operator+=(char *str);
+		const BString &operator+=(char *str) noexcept;
 
-		const BString &operator+=(int64_t i);
+		const BString &operator+=(int64_t i) noexcept;
 
-		bool operator==(const BString &other);
+		bool operator==(const BString &other) noexcept;
 
-		char *data();
+		char *data() noexcept;
 
 		const char *c_str() noexcept;
 
 		/**
 		 * Returns the number of characters in this string.
 		 */
-		size_t len();
+		std::size_t len() noexcept;
 
 		/**
 		 * Returns the number of bytes used for this string.
 		 */
-		size_t size();
+		std::size_t size() noexcept;
 
 		/**
 		 * Returns the capacity of bytes for this string.
 		 */
-		size_t cap();
+		std::size_t cap() noexcept;
 };
 
-template<size_t size>
-BString<size>::BString() {
+template<std::size_t size>
+BString<size>::BString() noexcept {
 	m_buff[0] = 0;
 }
 
-template<size_t size>
-BString<size>::BString(const char *str) {
+template<std::size_t size>
+BString<size>::BString(const char *str) noexcept {
 	*this = str;
 }
 
-template<size_t size>
-const BString<size> &BString<size>::operator=(int64_t i) {
+template<std::size_t size>
+const BString<size> &BString<size>::operator=(int64_t i) noexcept {
 	char str[65];
 	ox_itoa(i, str);
 	return this->operator=(str);
 }
 
-template<size_t size>
-const BString<size> &BString<size>::operator=(const char *str) {
-	size_t strLen = ox_strlen(str) + 1;
+template<std::size_t size>
+const BString<size> &BString<size>::operator=(const char *str) noexcept {
+	std::size_t strLen = ox_strlen(str) + 1;
 	if (cap() < strLen) {
 		strLen = cap();
 	}
@@ -88,14 +88,14 @@ const BString<size> &BString<size>::operator=(const char *str) {
 	return *this;
 }
 
-template<size_t size>
-const BString<size> &BString<size>::operator=(char *str) {
+template<std::size_t size>
+const BString<size> &BString<size>::operator=(char *str) noexcept {
 	return *this = (const char*) str;
 }
 
-template<size_t size>
-const BString<size> &BString<size>::operator+=(const char *str) {
-	size_t strLen = ox_strlen(str) + 1;
+template<std::size_t size>
+const BString<size> &BString<size>::operator+=(const char *str) noexcept {
+	std::size_t strLen = ox_strlen(str) + 1;
 	auto currentLen = len();
 	if (cap() < currentLen + strLen) {
 		strLen = cap() - currentLen;
@@ -106,22 +106,22 @@ const BString<size> &BString<size>::operator+=(const char *str) {
 	return *this;
 }
 
-template<size_t size>
-const BString<size> &BString<size>::operator+=(char *str) {
+template<std::size_t size>
+const BString<size> &BString<size>::operator+=(char *str) noexcept {
 	return *this += (const char*) str;
 }
 
-template<size_t size>
-const BString<size> &BString<size>::operator+=(int64_t i) {
+template<std::size_t size>
+const BString<size> &BString<size>::operator+=(int64_t i) noexcept {
 	char str[65];
 	ox_itoa(i, str);
 	return this->operator+=(str);
 }
 
-template<size_t buffLen>
-bool BString<buffLen>::operator==(const BString<buffLen> &other) {
+template<std::size_t buffLen>
+bool BString<buffLen>::operator==(const BString<buffLen> &other) noexcept {
 	bool retval = true;
-	size_t i = 0;
+	std::size_t i = 0;
 	while (i < buffLen && (m_buff[i] || other.m_buff[i])) {
 		if (m_buff[i] != other.m_buff[i]) {
 			retval = false;
@@ -132,21 +132,21 @@ bool BString<buffLen>::operator==(const BString<buffLen> &other) {
 	return retval;
 }
 
-template<size_t buffLen>
-char *BString<buffLen>::data() {
+template<std::size_t buffLen>
+char *BString<buffLen>::data() noexcept {
 	return (char*) m_buff;
 }
 
-template<size_t buffLen>
+template<std::size_t buffLen>
 const char *BString<buffLen>::c_str() noexcept {
 	return (const char*) m_buff;
 }
 
 
-template<size_t buffLen>
-size_t BString<buffLen>::len() {
-	size_t length = 0;
-	for (size_t i = 0; i < buffLen; i++) {
+template<std::size_t buffLen>
+std::size_t BString<buffLen>::len() noexcept {
+	std::size_t length = 0;
+	for (std::size_t i = 0; i < buffLen; i++) {
 		uint8_t b = m_buff[i];
 		if (b) {
 			if ((b & 128) == 0) { // normal ASCII character
@@ -161,15 +161,15 @@ size_t BString<buffLen>::len() {
 	return length;
 }
 
-template<size_t buffLen>
-size_t BString<buffLen>::size() {
-	size_t i;
+template<std::size_t buffLen>
+std::size_t BString<buffLen>::size() noexcept {
+	std::size_t i;
 	for (i = 0; i < buffLen && m_buff[i]; i++);
 	return i + 1; // add one for null terminator
 }
 
-template<size_t buffLen>
-size_t BString<buffLen>::cap() {
+template<std::size_t buffLen>
+std::size_t BString<buffLen>::cap() noexcept {
 	return buffLen;
 }
 

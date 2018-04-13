@@ -15,26 +15,26 @@ namespace ox {
 class PathIterator {
 	private:
 		const char *m_path = nullptr;
-		size_t m_iterator = 0;
-		size_t m_maxSize = 0;
+		std::size_t m_iterator = 0;
+		std::size_t m_maxSize = 0;
 
 	public:
-		PathIterator(const char *path, size_t maxSize);
+		PathIterator(const char *path, std::size_t maxSize);
 
 		/**
 		 * @return 0 if no error
 		 */
-		int dirPath(char *pathOut, size_t pathOutSize);
+		int dirPath(char *pathOut, std::size_t pathOutSize);
 
 		/**
 		 * @return 0 if no error
 		 */
-		int fileName(char *out, size_t outSize);
+		int fileName(char *out, std::size_t outSize);
 
 		/**
 		 * @return 0 if no error
 		 */
-		int next(char *pathOut, size_t pathOutSize);
+		int next(char *pathOut, std::size_t pathOutSize);
 
 		bool hasNext();
 };

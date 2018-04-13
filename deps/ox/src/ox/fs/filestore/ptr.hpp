@@ -38,15 +38,23 @@ class Ptr {
 
 		inline size_t end();
 
-		inline T *get() const;
+		inline const T *get() const;
 
-		inline T *operator->() const;
+		inline T *get();
 
-		inline operator T*() const;
+		inline const T *operator->() const;
+
+		inline T *operator->();
+
+		inline operator const T*() const;
+
+		inline operator T*();
+
+		inline const T &operator*() const;
+
+		inline T &operator*();
 
 		inline operator size_t() const;
-
-		inline T &operator*() const;
 
 		template<typename SubT>
 		inline Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset, size_t size);
@@ -95,22 +103,55 @@ inline size_t Ptr<T, size_t, minOffset>::end() {
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline T *Ptr<T, size_t, minOffset>::get() const {
+inline const T *Ptr<T, size_t, minOffset>::get() const {
 	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::get())");
 	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::get())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline T *Ptr<T, size_t, minOffset>::operator->() const {
+inline T *Ptr<T, size_t, minOffset>::get() {
+	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::get())");
+	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::get())");
+	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
+}
+
+template<typename T, typename size_t, size_t minOffset>
+inline const T *Ptr<T, size_t, minOffset>::operator->() const {
 	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::operator->())");
 	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::operator->())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline Ptr<T, size_t, minOffset>::operator T*() const {
+inline T *Ptr<T, size_t, minOffset>::operator->() {
+	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::operator->())");
+	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::operator->())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
+}
+
+template<typename T, typename size_t, size_t minOffset>
+inline Ptr<T, size_t, minOffset>::operator const T*() const {
+	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
+}
+
+template<typename T, typename size_t, size_t minOffset>
+inline Ptr<T, size_t, minOffset>::operator T*() {
+	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
+}
+
+template<typename T, typename size_t, size_t minOffset>
+inline const T &Ptr<T, size_t, minOffset>::operator*() const {
+	oxAssert(m_validated, "Unvalidated pointer dereference. (ox::fs::Ptr::operator*())");
+	oxAssert(valid(), "Invalid pointer dereference. (ox::fs::Ptr::operator*())");
+	return *reinterpret_cast<T*>(this);
+}
+
+template<typename T, typename size_t, size_t minOffset>
+inline T &Ptr<T, size_t, minOffset>::operator*() {
+	oxAssert(m_validated, "Unvalidated pointer dereference. (ox::fs::Ptr::operator*())");
+	oxAssert(valid(), "Invalid pointer dereference. (ox::fs::Ptr::operator*())");
+	return *reinterpret_cast<T*>(this);
 }
 
 template<typename T, typename size_t, size_t minOffset>
@@ -119,13 +160,6 @@ inline Ptr<T, size_t, minOffset>::operator size_t() const {
 		return m_itemOffset;
 	}
 	return 0;
-}
-
-template<typename T, typename size_t, size_t minOffset>
-inline T &Ptr<T, size_t, minOffset>::operator*() const {
-	oxAssert(m_validated, "Unvalidated pointer dereference. (ox::fs::Ptr::operator*())");
-	oxAssert(valid(), "Invalid pointer dereference. (ox::fs::Ptr::operator*())");
-	return *reinterpret_cast<T*>(this);
 }
 
 template<typename T, typename size_t, size_t minOffset>

@@ -9,11 +9,11 @@
 
 #include "types.hpp"
 
-int ox_memcmp(const void *ptr1, const void *ptr2, size_t size) {
+int ox_memcmp(const void *ptr1, const void *ptr2, std::size_t size) noexcept {
 	int retval = 0;
 	auto block1 = reinterpret_cast<const uint8_t*>(ptr1);
 	auto block2 = reinterpret_cast<const uint8_t*>(ptr2);
-	for (size_t i = 0; i < size; i++) {
+	for (std::size_t i = 0; i < size; i++) {
 		if (block1[i] < block2[i]) {
 			retval = -1;
 			break;
@@ -25,7 +25,7 @@ int ox_memcmp(const void *ptr1, const void *ptr2, size_t size) {
 	return retval;
 }
 
-void *ox_memcpy(void *dest, const void *src, int64_t size) {
+void *ox_memcpy(void *dest, const void *src, int64_t size) noexcept {
 	char *srcBuf = (char*) src;
 	char *dstBuf = (char*) dest;
 	for (int64_t i = 0; i < size; i++) {
@@ -34,7 +34,7 @@ void *ox_memcpy(void *dest, const void *src, int64_t size) {
 	return dest;
 }
 
-void *ox_memset(void *ptr, int val, int64_t size) {
+void *ox_memset(void *ptr, int val, int64_t size) noexcept {
 	char *buf = (char*) ptr;
 	for (int64_t i = 0; i < size; i++) {
 		buf[i] = val;

@@ -12,7 +12,7 @@
 
 namespace ox {
 
-FieldPresenseMask::FieldPresenseMask(uint8_t *mask, size_t maxLen) {
+FieldPresenseMask::FieldPresenseMask(uint8_t *mask, std::size_t maxLen) {
 	m_mask = mask;
 	m_maxLen = maxLen;
 }

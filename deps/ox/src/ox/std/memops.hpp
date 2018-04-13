@@ -9,8 +9,8 @@
 
 #include "types.hpp"
 
-int ox_memcmp(const void *ptr1, const void *ptr2, size_t size);
+int ox_memcmp(const void *ptr1, const void *ptr2, std::size_t size) noexcept;
 
-void *ox_memcpy(void *dest, const void *src, int64_t size);
+void *ox_memcpy(void *dest, const void *src, int64_t size) noexcept;
 
-void *ox_memset(void *ptr, int val, int64_t size);
+void *ox_memset(void *ptr, int val, int64_t size) noexcept;

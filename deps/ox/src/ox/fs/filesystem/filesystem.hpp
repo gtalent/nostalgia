@@ -33,13 +33,13 @@ class FileSystem {
 		template<typename List>
 		int ls(const char *path, List *list);
 
-		virtual int read(const char *path, void *buffer, size_t buffSize) = 0;
+		virtual int read(const char *path, void *buffer, std::size_t buffSize) = 0;
 
-		virtual int read(uint64_t inode, void *buffer, size_t size) = 0;
+		virtual int read(uint64_t inode, void *buffer, std::size_t size) = 0;
 
-		virtual int read(uint64_t inode, size_t readStart, size_t readSize, void *buffer, size_t *size) = 0;
+		virtual int read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) = 0;
 
-		virtual uint8_t *read(uint64_t inode, size_t *size) = 0;
+		virtual uint8_t *read(uint64_t inode, std::size_t *size) = 0;
 
 		virtual int remove(uint64_t inode, bool recursive = false) = 0;
 
@@ -75,7 +75,7 @@ int FileSystem::ls(const char *path, List *list) {
 	int err = 0;
 	auto s = stat(path);
 	if (s.fileType == FileType_Directory) {
-		uint8_t dirBuff[max(static_cast<size_t>(s.size), sizeof(Dir)) * 4];
+		uint8_t dirBuff[max(static_cast<std::size_t>(s.size), sizeof(Dir)) * 4];
 		auto dir = (Directory<uint64_t, uint64_t>*) dirBuff;
 		err |= readDirectory(path, dir);
 		if (!err) {
@@ -85,7 +85,7 @@ int FileSystem::ls(const char *path, List *list) {
 	return err;
 }
 
-FileSystem *createFileSystem(uint8_t *buff, size_t buffSize, bool ownsBuff = false);
+FileSystem *createFileSystem(uint8_t *buff, std::size_t buffSize, bool ownsBuff = false);
 
 /**
  * Creates a larger version of the given FileSystem.
@@ -96,6 +96,6 @@ FileSystem *expandCopy(FileSystem *src);
  * Calls expandCopy and deletes the original FileSystem and buff a resize was
  * performed.
  */
-FileSystem *expandCopyCleanup(FileSystem *fs, size_t size);
+FileSystem *expandCopyCleanup(FileSystem *fs, std::size_t size);
 
 }

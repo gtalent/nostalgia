@@ -18,7 +18,7 @@ class FieldPresenseMask {
 		int m_maxLen = 0;
 
 	public:
-		FieldPresenseMask(uint8_t *mask, size_t maxLen);
+		FieldPresenseMask(uint8_t *mask, std::size_t maxLen);
 
 		bool get(int i);
 

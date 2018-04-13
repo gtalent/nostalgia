@@ -75,8 +75,6 @@ using size_t = decltype(alignof(int));
 
 }
 
-using std::size_t;
-
 static_assert(sizeof(int8_t)   == 1, "int8_t is wrong size");
 static_assert(sizeof(int16_t)  == 2, "int16_t is wrong size");
 static_assert(sizeof(int32_t)  == 4, "int32_t is wrong size");

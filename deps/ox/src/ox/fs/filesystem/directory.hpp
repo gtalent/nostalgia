@@ -86,7 +86,7 @@ struct __attribute__((packed)) Directory {
 
 	uint64_t getFileInode(const char *name);
 
-	int getChildrenInodes(InodeId_t *inodes, size_t inodesLen);
+	int getChildrenInodes(InodeId_t *inodes, std::size_t inodesLen);
 
 	int rmFile(const char *name);
 
@@ -123,7 +123,7 @@ uint64_t Directory<InodeId_t, FsSize_t>::getFileInode(const char *name) {
 }
 
 template<typename InodeId_t, typename FsSize_t>
-int Directory<InodeId_t, FsSize_t>::getChildrenInodes(InodeId_t *inodes, size_t inodesLen) {
+int Directory<InodeId_t, FsSize_t>::getChildrenInodes(InodeId_t *inodes, std::size_t inodesLen) {
 	if (inodesLen >= this->children) {
 		auto current = files();
 		if (current) {

@@ -12,19 +12,19 @@
 #include "types.hpp"
 #include "typetraits.hpp"
 
-constexpr int ox_strlen(const char *str1) {
+constexpr int ox_strlen(const char *str1) noexcept {
 	int len = 0;
 	for (; str1[len]; len++);
 	return len;
 }
 
-constexpr int ox_strlen(char *str1) {
+constexpr int ox_strlen(char *str1) noexcept {
 	int len = 0;
 	for (; str1[len]; len++);
 	return len;
 }
 
-constexpr int ox_strcmp(const char *str1, const char *str2) {
+constexpr int ox_strcmp(const char *str1, const char *str2) noexcept {
 	auto retval = 0;
 	auto i = 0;
 	while (str1[i] || str2[i]) {
@@ -40,8 +40,8 @@ constexpr int ox_strcmp(const char *str1, const char *str2) {
 	return retval;
 }
 
-constexpr const char *ox_strchr(const char *str, int character, size_t maxLen = 0xFFFFFFFF) {
-	for (size_t i = 0; i <= maxLen; i++) {
+constexpr const char *ox_strchr(const char *str, int character, std::size_t maxLen = 0xFFFFFFFF) noexcept {
+	for (std::size_t i = 0; i <= maxLen; i++) {
 		if (str[i] == character) {
 			return &str[i];
 		} else if (str[i] == 0) {
@@ -51,8 +51,8 @@ constexpr const char *ox_strchr(const char *str, int character, size_t maxLen = 
 	return nullptr;
 }
 
-constexpr char *ox_strchr(char *str, int character, size_t maxLen = 0xFFFFFFFF) {
-	for (size_t i = 0; i < maxLen; i++) {
+constexpr char *ox_strchr(char *str, int character, std::size_t maxLen = 0xFFFFFFFF) noexcept {
+	for (std::size_t i = 0; i < maxLen; i++) {
 		if (str[i] == character) {
 			return &str[i];
 		} else if (str[i] == 0) {
@@ -62,7 +62,7 @@ constexpr char *ox_strchr(char *str, int character, size_t maxLen = 0xFFFFFFFF) 
 	return nullptr;
 }
 
-constexpr int ox_lastIndexOf(const char *str, int character, int maxLen = 0xFFFFFFFF) {
+constexpr int ox_lastIndexOf(const char *str, int character, int maxLen = 0xFFFFFFFF) noexcept {
 	int retval = -1;
 	for (int i = 0; i < maxLen && str[i]; i++) {
 		if (str[i] == character) {
@@ -72,7 +72,7 @@ constexpr int ox_lastIndexOf(const char *str, int character, int maxLen = 0xFFFF
 	return retval;
 }
 
-constexpr int ox_lastIndexOf(char *str, int character, int maxLen = 0xFFFFFFFF) {
+constexpr int ox_lastIndexOf(char *str, int character, int maxLen = 0xFFFFFFFF) noexcept {
 	int retval = -1;
 	for (int i = 0; i < maxLen && str[i]; i++) {
 		if (str[i] == character) {
@@ -82,7 +82,7 @@ constexpr int ox_lastIndexOf(char *str, int character, int maxLen = 0xFFFFFFFF) 
 	return retval;
 }
 
-constexpr int ox_atoi(const char *str) {
+constexpr int ox_atoi(const char *str) noexcept {
 	int total = 0;
 	int multiplier = 1;
 
@@ -94,7 +94,7 @@ constexpr int ox_atoi(const char *str) {
 	return total;
 }
 
-constexpr char *ox_itoa(int64_t v, char *str) {
+constexpr char *ox_itoa(int64_t v, char *str) noexcept {
 	if (v) {
 		auto mod = 1000000000000000000;
 		constexpr auto base = 10;

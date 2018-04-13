@@ -12,7 +12,7 @@
 
 namespace ox {
 
-MetalClawReader::MetalClawReader(uint8_t *buff, size_t buffLen): m_fieldPresence(buff, buffLen) {
+MetalClawReader::MetalClawReader(uint8_t *buff, std::size_t buffLen): m_fieldPresence(buff, buffLen) {
 	m_buff = buff;
 	m_buffLen = buffLen;
 }
@@ -55,8 +55,8 @@ int MetalClawReader::op(const char*, bool *val) {
 	return 0;
 }
 
-size_t MetalClawReader::arrayLength(const char*) {
-	size_t len = 0;
+std::size_t MetalClawReader::arrayLength(const char*) {
+	std::size_t len = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
 		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
@@ -66,8 +66,8 @@ size_t MetalClawReader::arrayLength(const char*) {
 	return len;
 }
 
-size_t MetalClawReader::stringLength(const char*) {
-	size_t len = 0;
+std::size_t MetalClawReader::stringLength(const char*) {
+	std::size_t len = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
 		if (m_buffIt + sizeof(StringLength) < m_buffLen) {

@@ -12,7 +12,7 @@
 
 namespace ox {
 
-MetalClawWriter::MetalClawWriter(uint8_t *buff, size_t buffLen): m_fieldPresence(buff, buffLen) {
+MetalClawWriter::MetalClawWriter(uint8_t *buff, std::size_t buffLen): m_fieldPresence(buff, buffLen) {
 	m_buff = buff;
 	m_buffLen = buffLen;
 }
@@ -60,7 +60,7 @@ void MetalClawWriter::setFields(int fields) {
 	m_fieldPresence.setMaxLen(m_buffIt);
 }
 
-size_t MetalClawWriter::size() {
+std::size_t MetalClawWriter::size() {
 	return m_buffIt;
 }
 

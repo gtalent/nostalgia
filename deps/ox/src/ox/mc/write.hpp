@@ -23,12 +23,12 @@ class MetalClawWriter {
 		FieldPresenseMask m_fieldPresence;
 		int m_fields = 0;
 		int m_field = 0;
-		size_t m_buffIt = 0;
-		size_t m_buffLen = 0;
+		std::size_t m_buffIt = 0;
+		std::size_t m_buffLen = 0;
 		uint8_t *m_buff = nullptr;
 
 	public:
-		MetalClawWriter(uint8_t *buff, size_t buffLen);
+		MetalClawWriter(uint8_t *buff, std::size_t buffLen);
 
 		int op(const char*, int8_t *val);
 		int op(const char*, int16_t *val);
@@ -43,12 +43,12 @@ class MetalClawWriter {
 		int op(const char*, bool *val);
 
 		template<typename T>
-		int op(const char*, T *val, size_t len);
+		int op(const char*, T *val, std::size_t len);
 
-		template<size_t L>
+		template<std::size_t L>
 		int op(const char*, const char *val);
 
-		template<size_t L>
+		template<std::size_t L>
 		int op(const char*, ox::BString<L> *val);
 
 		template<typename T>
@@ -56,7 +56,7 @@ class MetalClawWriter {
 
 		void setFields(int fields);
 
-		size_t size();
+		std::size_t size();
 
       OpType opType() {
           return OpType::Write;
@@ -67,7 +67,7 @@ class MetalClawWriter {
 		int appendInteger(I val);
 };
 
-template<size_t L>
+template<std::size_t L>
 int MetalClawWriter::op(const char*, ox::BString<L> *val) {
 	int err = 0;
 	bool fieldSet = false;
@@ -97,7 +97,7 @@ int MetalClawWriter::op(const char*, T *val) {
 	bool fieldSet = false;
 	MetalClawWriter writer(m_buff + m_buffIt, m_buffLen - m_buffIt);
 	err |= ioOp(&writer, val);
-	if (static_cast<size_t>(writer.m_fieldPresence.getMaxLen()) < writer.m_buffIt) {
+	if (static_cast<std::size_t>(writer.m_fieldPresence.getMaxLen()) < writer.m_buffIt) {
 		m_buffIt += writer.m_buffIt;
 		fieldSet = true;
 	}
@@ -125,7 +125,7 @@ int MetalClawWriter::appendInteger(I val) {
 }
 
 template<typename T>
-int MetalClawWriter::op(const char*, T *val, size_t len) {
+int MetalClawWriter::op(const char*, T *val, std::size_t len) {
 	int err = 0;
 	bool fieldSet = false;
 
@@ -143,7 +143,7 @@ int MetalClawWriter::op(const char*, T *val, size_t len) {
 		writer.setFields(len);
 
 		// write the array
-		for (size_t i = 0; i < len; i++) {
+		for (std::size_t i = 0; i < len; i++) {
 			err |= writer.op("", &val[i]);
 		}
 
@@ -157,7 +157,7 @@ int MetalClawWriter::op(const char*, T *val, size_t len) {
 }
 
 template<typename T>
-int writeMC(uint8_t *buff, size_t buffLen, T *val, size_t *sizeOut = nullptr) {
+int writeMC(uint8_t *buff, std::size_t buffLen, T *val, std::size_t *sizeOut = nullptr) {
 	MetalClawWriter writer(buff, buffLen);
 	auto err = ioOp(&writer, val);
 	if (sizeOut) {

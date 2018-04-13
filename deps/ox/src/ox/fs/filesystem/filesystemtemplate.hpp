@@ -33,13 +33,13 @@ class FileSystemTemplate: public FileSystem {
 
 		int mkdir(const char *path, bool recursive = false) override;
 
-		int read(const char *path, void *buffer, size_t buffSize) override;
+		int read(const char *path, void *buffer, std::size_t buffSize) override;
 
-		int read(uint64_t inode, void *buffer, size_t buffSize) override;
+		int read(uint64_t inode, void *buffer, std::size_t buffSize) override;
 
-		int read(uint64_t inode, size_t readStart, size_t readSize, void *buffer, size_t *size) override;
+		int read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) override;
 
-		uint8_t *read(uint64_t inode, size_t *size) override;
+		uint8_t *read(uint64_t inode, std::size_t *size) override;
 
 		void resize(uint64_t size = 0) override;
 
@@ -201,7 +201,7 @@ FileStat FileSystemTemplate<FileStore, FS_TYPE>::stat(uint64_t inode) {
 #pragma warning(disable:4244)
 #endif
 template<typename FileStore, FsType FS_TYPE>
-int FileSystemTemplate<FileStore, FS_TYPE>::read(const char *path, void *buffer, size_t buffSize) {
+int FileSystemTemplate<FileStore, FS_TYPE>::read(const char *path, void *buffer, std::size_t buffSize) {
 	int retval = -1;
 
 	// find the inode for the given path
@@ -222,7 +222,7 @@ int FileSystemTemplate<FileStore, FS_TYPE>::read(const char *path, void *buffer,
 #pragma warning(disable:4244)
 #endif
 template<typename FileStore, FsType FS_TYPE>
-int FileSystemTemplate<FileStore, FS_TYPE>::read(uint64_t inode, void *buffer, size_t buffSize) {
+int FileSystemTemplate<FileStore, FS_TYPE>::read(uint64_t inode, void *buffer, std::size_t buffSize) {
 	auto stat = m_store->stat(inode);
 	if (stat.size <= buffSize) {
 		return m_store->read(inode, buffer, nullptr);
@@ -237,9 +237,9 @@ int FileSystemTemplate<FileStore, FS_TYPE>::read(uint64_t inode, void *buffer, s
 #pragma warning(disable:4244)
 #endif
 template<typename FileStore, FsType FS_TYPE>
-int FileSystemTemplate<FileStore, FS_TYPE>::read(uint64_t inode, size_t readStart,
-                                                 size_t readSize, void *buffer,
-                                                 size_t *size) {
+int FileSystemTemplate<FileStore, FS_TYPE>::read(uint64_t inode, std::size_t readStart,
+                                                 std::size_t readSize, void *buffer,
+                                                 std::size_t *size) {
 	if (size) {
 		auto stat = m_store->stat(inode);
 		*size = stat.size;
@@ -254,7 +254,7 @@ int FileSystemTemplate<FileStore, FS_TYPE>::read(uint64_t inode, size_t readStar
 #pragma warning(disable:4244)
 #endif
 template<typename FileStore, FsType FS_TYPE>
-uint8_t *FileSystemTemplate<FileStore, FS_TYPE>::read(uint64_t inode, size_t *size) {
+uint8_t *FileSystemTemplate<FileStore, FS_TYPE>::read(uint64_t inode, std::size_t *size) {
 	auto s = m_store->stat(inode);
 	auto buff = new uint8_t[s.size];
 	if (size) {
@@ -329,7 +329,7 @@ int FileSystemTemplate<FileStore, FS_TYPE>::remove(uint64_t inode, bool recursiv
 template<typename FileStore, FsType FS_TYPE>
 int FileSystemTemplate<FileStore, FS_TYPE>::write(const char *path, void *buffer, uint64_t size, uint8_t fileType) {
 	int err = 0;
-	size_t pathLen = ox_strlen(path);
+	std::size_t pathLen = ox_strlen(path);
 	char dirPath[pathLen];
 	char fileName[pathLen];
 	PathIterator pathReader(path, pathLen);
@@ -484,7 +484,7 @@ int FileSystemTemplate<FileStore, FS_TYPE>::insertDirectoryEntry(const char *dir
 	auto s = stat(dirPath);
 	if (s.inode) {
 		auto spaceNeeded = DirectoryEntry<typename FileStore::InodeId_t>::spaceNeeded(fileName);
-		size_t dirBuffSize = s.size + spaceNeeded;
+		std::size_t dirBuffSize = s.size + spaceNeeded;
 		uint8_t dirBuff[dirBuffSize];
 		int err = read(s.inode, dirBuff, dirBuffSize);
 
@@ -515,7 +515,7 @@ int FileSystemTemplate<FileStore, FS_TYPE>::move(const char *src, const char *de
 	if (inode && !stat(dest).inode) {
 		int err = 0;
 
-		size_t srcLen = ox_strlen(src);
+		std::size_t srcLen = ox_strlen(src);
 		char srcDirPath[srcLen];
 		char srcFileName[srcLen];
 		PathIterator srcPathReader(src, srcLen);
@@ -525,7 +525,7 @@ int FileSystemTemplate<FileStore, FS_TYPE>::move(const char *src, const char *de
 			return err;
 		}
 
-		size_t destLen = ox_strlen(dest);
+		std::size_t destLen = ox_strlen(dest);
 		char destDirPath[destLen];
 		char destFileName[destLen];
 		PathIterator destPathReader(dest, destLen);
@@ -554,7 +554,7 @@ int FileSystemTemplate<FileStore, FS_TYPE>::move(const char *src, const char *de
 template<typename FileStore, FsType FS_TYPE>
 int FileSystemTemplate<FileStore, FS_TYPE>::rmDirectoryEntry(const char *path) {
 	int err = 0;
-	size_t pathLen = ox_strlen(path);
+	std::size_t pathLen = ox_strlen(path);
 	char dirPath[pathLen];
 	char fileName[pathLen];
 	PathIterator pathReader(path, pathLen);
@@ -592,7 +592,7 @@ int FileSystemTemplate<FileStore, FS_TYPE>::readDirectory(const char *path, Dire
 	typedef Directory<typename FileStore::InodeId_t, typename FileStore::FsSize_t> Dir;
 	int err = 0;
 	auto dirStat = stat(path);
-	auto dirBuffLen = ox::max(static_cast<size_t>(dirStat.size), sizeof(Dir));
+	auto dirBuffLen = ox::max(static_cast<std::size_t>(dirStat.size), sizeof(Dir));
 	uint8_t dirBuff[dirBuffLen];
 	auto dir = (Dir*) dirBuff;
 

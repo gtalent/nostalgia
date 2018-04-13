@@ -66,7 +66,7 @@ class StdOutStream {
 		~StdOutStream();
 
 		template<typename T>
-		inline StdOutStream &operator<<(T v) {
+		inline StdOutStream &operator<<(const T &v) {
 			m_msg.msg += " ";
 			m_msg.msg += v;
 			return *this;

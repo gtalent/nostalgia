@@ -25,12 +25,12 @@ class MetalClawReader {
 		FieldPresenseMask m_fieldPresence;
 		int m_fields = 0;
 		int m_field = 0;
-		size_t m_buffIt = 0;
-		size_t m_buffLen = 0;
+		std::size_t m_buffIt = 0;
+		std::size_t m_buffLen = 0;
 		uint8_t *m_buff = nullptr;
 
 	public:
-		MetalClawReader(uint8_t *buff, size_t buffLen);
+		MetalClawReader(uint8_t *buff, std::size_t buffLen);
 
 		int op(const char*, int8_t *val);
 		int op(const char*, int16_t *val);
@@ -45,18 +45,18 @@ class MetalClawReader {
 		int op(const char*, bool *val);
 
 		template<typename T>
-		int op(const char*, T *val, size_t len);
+		int op(const char*, T *val, std::size_t len);
 
 		template<typename T>
 		int op(const char*, T *val);
 
-		template<size_t L>
+		template<std::size_t L>
 		int op(const char*, ox::BString<L> *val);
 
-		size_t arrayLength(const char*);
+		std::size_t arrayLength(const char*);
 
 		// stringLength returns the length of the string, including the null terminator.
-		size_t stringLength(const char*);
+		std::size_t stringLength(const char*);
 
 		void setFields(int fields);
 
@@ -81,12 +81,12 @@ int MetalClawReader::op(const char*, T *val) {
 	return err;
 };
 
-template<size_t L>
+template<std::size_t L>
 int MetalClawReader::op(const char*, ox::BString<L> *val) {
 	int err = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
-		size_t size = 0;
+		std::size_t size = 0;
 		if (m_buffIt + sizeof(StringLength) < m_buffLen) {
 			size = *reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]);
 			m_buffIt += sizeof(StringLength);
@@ -130,11 +130,11 @@ int MetalClawReader::readInteger(I *val) {
 };
 
 template<typename T>
-int MetalClawReader::op(const char*, T *val, size_t valLen) {
+int MetalClawReader::op(const char*, T *val, std::size_t valLen) {
 	int err = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
-		size_t len = 0;
+		std::size_t len = 0;
 		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
 			len = *reinterpret_cast<LittleEndian<ArrayLength>*>(&m_buff[m_buffIt]);
 			m_buffIt += sizeof(ArrayLength);
@@ -146,7 +146,7 @@ int MetalClawReader::op(const char*, T *val, size_t valLen) {
 		if (valLen >= len) {
 			MetalClawReader reader(m_buff + m_buffIt, m_buffLen - m_buffIt);
 			reader.setFields(len);
-			for (size_t i = 0; i < len; i++) {
+			for (std::size_t i = 0; i < len; i++) {
 				err |= reader.op("", &val[i]);
 			}
 			m_buffIt += reader.m_buffIt;
@@ -159,7 +159,7 @@ int MetalClawReader::op(const char*, T *val, size_t valLen) {
 };
 
 template<typename T>
-int readMC(uint8_t *buff, size_t buffLen, T *val) {
+int readMC(uint8_t *buff, std::size_t buffLen, T *val) {
 	MetalClawReader reader(buff, buffLen);
 	return ioOp(&reader, val);
 }

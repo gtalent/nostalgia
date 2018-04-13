@@ -56,27 +56,26 @@ struct ValErr {
 }
 
 #if defined(_LP64) || defined(__ppc64__) || defined(__aarch64__)
-typedef unsigned long size_t;
 typedef long          intptr_t;
 typedef unsigned long uintptr_t;
 #elif defined(_WIN64)
-typedef uint64_t size_t;
 typedef int64_t  intptr_t;
 typedef uint64_t uintptr_t;
 #elif defined(_LP32) || defined(__ppc__) || defined(_WIN32) || defined(__arm__)
-typedef uint32_t size_t;
 typedef int32_t  intptr_t;
 typedef uint32_t uintptr_t;
 #else
-#error size_t, intptr_t, and uintptr_t undefined
+#error intptr_t, and uintptr_t undefined
 #endif
 
 namespace std {
 
-typedef decltype(nullptr) nullptr_t;
-typedef ::size_t size_t;
+using nullptr_t = decltype(nullptr);
+using size_t = decltype(alignof(int));
 
 }
+
+using std::size_t;
 
 static_assert(sizeof(int8_t)   == 1, "int8_t is wrong size");
 static_assert(sizeof(int16_t)  == 2, "int16_t is wrong size");
@@ -89,5 +88,3 @@ static_assert(sizeof(uint16_t)  == 2, "uint16_t is wrong size");
 static_assert(sizeof(uint32_t)  == 4, "uint32_t is wrong size");
 static_assert(sizeof(uint64_t)  == 8, "uint64_t is wrong size");
 static_assert(sizeof(uintptr_t) == sizeof(void*), "uintptr_t is wrong size");
-
-static_assert(sizeof(size_t)    == sizeof(void*), "size_t is wrong size");

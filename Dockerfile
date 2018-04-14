@@ -1,8 +1,5 @@
 FROM fedora:27
 
-ENV DEVKITPRO /opt/devkitPro
-ENV DEVKITARM ${DEVKITPRO}/devkitARM
-
 RUN dnf update -y
 
 ###############################################################################
@@ -40,6 +37,7 @@ RUN dnf install -y lbzip2
 RUN curl -o /tmp/devkitArm.tar.bz2 -SL https://phoenixnap.dl.sourceforge.net/project/devkitpro/devkitARM/devkitARM_r47/devkitARM_r47-x86_64-linux.tar.bz2
 WORKDIR /opt
 RUN tar xf /tmp/devkitArm.tar.bz2
+ENV DEVKITARM /opt/devkitARM
 
 ###############################################################################
 # Setup sudoers

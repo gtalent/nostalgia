@@ -19,17 +19,9 @@ set(CMAKE_FIND_LIBRARY_PREFIXES lib)
 set(CMAKE_FIND_LIBRARY_SUFFIXES .a)
 
 set(LINKER_FLAGS "-specs=gba.specs")
-add_definitions (
-	-DARM7
-)
-
-function(BuildStaticLib LIBNAME SRCFILES)
-	add_library(${LIBNAME} OBJECT ${SRCFILES})
-	set(OBJS ${OBJS} $<TARGET_OBJECTS:${LIBNAME}>)
-endfunction()
+add_definitions(-DARM7)
 
 include(FindPackageHandleStandardArgs)
-
 
 macro(OBJCOPY_FILE EXE_NAME)
 	set(FO ${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}.bin)

@@ -43,7 +43,7 @@ gdb-studio: install
 
 devenv-image:
 	docker build . -t ${DEVENV_IMAGE}
-devenv:
+devenv-create:
 	docker run -d \
 		-e LOCAL_USER_ID=$(shell id -u ${USER}) \
 		-e DISPLAY=$(DISPLAY) \

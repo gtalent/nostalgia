@@ -2,11 +2,6 @@ OS=$(shell uname | tr [:upper:] [:lower:])
 HOST_ENV=${OS}-$(shell uname -m)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=wombatant/devenv
-ifneq ($(shell which gmake),)
-	MAKE=gmake -s
-else
-	MAKE=make -s
-endif
 ifneq ($(shell which docker 2>&1),)
 	ifeq ($(shell docker inspect --format="{{.State.Status}}" ${DEVENV} 2>&1),running)
 		ENV_RUN=docker exec -i -t --user $(shell id -u ${USER}) ${DEVENV}
@@ -14,17 +9,17 @@ ifneq ($(shell which docker 2>&1),)
 endif
 
 make:
-	${ENV_RUN} ${MAKE} -j -C build HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ./scripts/run-make build
 preinstall:
-	${ENV_RUN} ${MAKE} -j -C build ARGS="preinstall" HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ./scripts/run-make build preinstall
 install:
-	${ENV_RUN} ${MAKE} -j -C build ARGS="install" HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ./scripts/run-make build install
 clean:
-	${ENV_RUN} ${MAKE} -j -C build ARGS="clean" HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ./scripts/run-make build clean
 purge:
 	${ENV_RUN} rm -rf $(shell find build -mindepth 1 -maxdepth 1 -type d)
 test:
-	${ENV_RUN} ${MAKE} -j -C build ARGS="test" HOST_ENV=${HOST_ENV}
+	${ENV_RUN} ./scripts/run-make build test
 
 devenv:
 	docker pull ${DEVENV_IMAGE}
@@ -53,7 +48,7 @@ asan:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-asan
 	${ENV_RUN} ./scripts/setup_build ${HOST_ENV} asan
 	${ENV_RUN} rm -f build/current
-	${ENV_RUN} ln -s ${HOST_ENV}-debug build/current
+	${ENV_RUN} ln -s ${HOST_ENV}-asan build/current
 
 windows:
 	${ENV_RUN} rm -rf build/windows

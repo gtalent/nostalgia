@@ -17,7 +17,7 @@ install:
 clean:
 	${ENV_RUN} ./scripts/run-make build clean
 purge:
-	${ENV_RUN} rm -rf $(shell find build -mindepth 1 -maxdepth 1 -type d)
+	${ENV_RUN} rm -rf build
 test:
 	${ENV_RUN} ./scripts/run-make build test
 

@@ -337,7 +337,7 @@ map<string, int(*)(string)> tests = {
 			[](string) {
 				constexpr auto buffLen = 5000;
 				uint8_t buff[buffLen];
-				ox::fs::Ptr<uint8_t, uint32_t> p(buff, buffLen, 500, 500);
+				ox::ptrarith::Ptr<uint8_t, uint32_t> p(buff, buffLen, 500, 500);
 				oxAssert(p.valid(), "Ptr::subPtr: Ptr p is invalid.");
 
 				auto subPtr = p.subPtr<uint64_t>(50);
@@ -351,7 +351,7 @@ map<string, int(*)(string)> tests = {
 				int err = 0;
 				constexpr auto buffLen = 5000;
 				uint8_t buff[buffLen];
-				auto list = new (buff) ox::fs::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
+				auto list = new (buff) ox::ptrarith::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
 				oxAssert(list->malloc(50).valid(), "NodeBuffer::insert: malloc 1 failed");
 				oxAssert(list->malloc(50).valid(), "NodeBuffer::insert: malloc 2 failed");
 				auto first = list->firstItem();
@@ -369,7 +369,7 @@ map<string, int(*)(string)> tests = {
 				constexpr auto str2 = "Hello, Moon!";
 				constexpr auto str2Len = ox_strlen(str2) + 1;
 				uint8_t buff[buffLen];
-				auto list = new (buff) ox::fs::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
+				auto list = new (buff) ox::ptrarith::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
 				ox::fs::FileStore32 fileStore(list, buffLen);
 				oxAssert(fileStore.format() == 0, "FileStore::format failed.");
 				oxAssert(fileStore.write(4, const_cast<char*>(str1), str1Len, 1) == 0, "FileStore::write 1 failed.");

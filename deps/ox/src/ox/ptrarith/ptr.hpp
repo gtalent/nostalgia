@@ -10,7 +10,7 @@
 
 #include <ox/std/std.hpp>
 
-namespace ox::fs {
+namespace ox::ptrarith {
 
 template<typename T, typename size_t, size_t minOffset = 1>
 class Ptr {

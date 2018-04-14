@@ -8,20 +8,21 @@
 
 #pragma once
 
+#include <ox/ptrarith/nodebuffer.hpp>
+
 #include "filestore.hpp"
-#include "nodebuffer.hpp"
 
 namespace ox::fs {
 
 template<typename size_t>
-struct __attribute__((packed)) FileStoreItem: public Item<size_t> {
+struct __attribute__((packed)) FileStoreItem: public ptrarith::Item<size_t> {
 	ox::LittleEndian<size_t> id = 0;
 	ox::LittleEndian<uint8_t> fileType = 0;
 	ox::LittleEndian<size_t> links = 0;
 	ox::LittleEndian<size_t> left = 0;
 	ox::LittleEndian<size_t> right = 0;
 
-	explicit FileStoreItem(size_t size): Item<size_t>(size) {
+	explicit FileStoreItem(size_t size): ptrarith::Item<size_t>(size) {
 	}
 
 	/**
@@ -31,8 +32,8 @@ struct __attribute__((packed)) FileStoreItem: public Item<size_t> {
 		return sizeof(*this) + this->size();
 	}
 
-	ox::fs::Ptr<uint8_t, size_t> data() {
-		return Ptr<uint8_t, size_t>(this, this->size(), sizeof(*this), this->size() - sizeof(*this));
+	ox::ptrarith::Ptr<uint8_t, size_t> data() {
+		return ptrarith::Ptr<uint8_t, size_t>(this, this->size(), sizeof(*this), this->size() - sizeof(*this));
 	}
 };
 
@@ -41,8 +42,8 @@ template<typename size_t>
 class FileStoreTemplate: public FileStore {
 
 	private:
-		using ItemPtr = typename ox::fs::NodeBuffer<size_t, FileStoreItem<size_t>>::ItemPtr;
-		using Buffer = ox::fs::NodeBuffer<size_t, FileStoreItem<size_t>>;
+		using ItemPtr = typename ox::ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>::ItemPtr;
+		using Buffer = ox::ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>;
 
 		struct __attribute__((packed)) FileStoreData {
 			ox::LittleEndian<size_t> rootNode = 0;
@@ -127,7 +128,7 @@ class FileStoreTemplate: public FileStore {
 template<typename size_t>
 FileStoreTemplate<size_t>::FileStoreTemplate(void *buff, size_t buffSize) {
 	m_buffSize = buffSize;
-	m_buffer = reinterpret_cast<ox::fs::NodeBuffer<size_t, FileStoreItem<size_t>>*>(buff);
+	m_buffer = reinterpret_cast<ox::ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>*>(buff);
 	if (!m_buffer->valid(buffSize)) {
 		m_buffSize = 0;
 		m_buffer = nullptr;

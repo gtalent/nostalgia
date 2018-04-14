@@ -6,7 +6,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#pragma once
+#include <ox/fs/filesystem/pathiterator.hpp>
+#include <ox/fs/filestore.hpp>
 
-#include "filesystem/filesystemtemplate.hpp"
-#include "filesystem2/directory.hpp"
+namespace ox::fs {
+
+struct DirectoryData {
+};
+
+class Directory {
+
+	Error add(const PathIterator &it, uint64_t inode);
+
+	Error rm(PathIterator &it);
+
+};
+
+}

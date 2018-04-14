@@ -12,7 +12,7 @@
 
 #include "ptr.hpp"
 
-namespace ox::fs {
+namespace ox::ptrarith {
 
 template<typename size_t, typename Item>
 class __attribute__((packed)) NodeBuffer {
@@ -24,7 +24,7 @@ class __attribute__((packed)) NodeBuffer {
 			ox::LittleEndian<size_t> firstItem = 0;
 		};
 
-		using ItemPtr = ox::fs::Ptr<Item, size_t, sizeof(Header)>;
+		using ItemPtr = ox::ptrarith::Ptr<Item, size_t, sizeof(Header)>;
 
 		Header m_header;
 

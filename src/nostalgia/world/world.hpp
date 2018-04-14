@@ -51,7 +51,7 @@ struct Zone {
 
 		void draw(core::Context *ctx);
 
-		size_t size();
+		std::size_t size();
 
 		Tile *tile(int x, int y);
 

@@ -7,5 +7,10 @@ pipeline {
 				sh 'make'
 			}
 		}
+		stage('Test') {
+			steps {
+				sh 'make test'
+			}
+		}
 	}
 }

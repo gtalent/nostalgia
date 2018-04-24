@@ -6,6 +6,7 @@ add_library(
 		filestore/filestoretemplate.cpp
 		filesystem/filesystem.cpp
 		filesystem/pathiterator.cpp
+		filesystem2/directory.cpp
 )
 
 set_property(
@@ -36,14 +37,6 @@ install(
 		filestore.hpp
 	DESTINATION
 		include/ox/fs
-)
-
-install(
-	FILES
-		filestore/nodebuffer.hpp
-		filestore/ptr.hpp
-	DESTINATION
-		include/ox/fs/filestore
 )
 
 install(

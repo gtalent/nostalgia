@@ -24,7 +24,51 @@ class __attribute__((packed)) NodeBuffer {
 			ox::LittleEndian<size_t> firstItem = 0;
 		};
 
-		using ItemPtr = ox::ptrarith::Ptr<Item, size_t, sizeof(Header)>;
+		using ItemPtr = Ptr<Item, size_t, sizeof(Header)>;
+
+		class Iterator {
+			private:
+				NodeBuffer *m_buffer = nullptr;
+				ItemPtr m_current;
+				size_t m_it = 0;
+
+			public:
+				Iterator(NodeBuffer *buffer, ItemPtr current) {
+					m_buffer = buffer;
+					m_current = current;
+					oxTrace("ox::ptrarith::Iterator::start") << current.offset();
+				}
+
+				operator const Item*() const {
+					return m_current;
+				}
+
+				operator Item*() {
+					return m_current;
+				}
+
+				const Item *operator->() const {
+					return m_current;
+				}
+
+				Item *operator->() {
+					return m_current;
+				}
+
+				bool hasNext() {
+					if (m_current.valid()) {
+						oxTrace("ox::ptrarith::NodeBuffer::Iterator::hasNext::current") << m_current.offset();
+						auto next = m_buffer->next(m_current);
+						return next.valid() && m_buffer->firstItem() != next;
+					}
+					return false;
+				}
+
+				void next() {
+					oxTrace("ox::ptrarith::NodeBuffer::Iterator::next") << m_it++;
+					m_current = m_buffer->next(m_current);
+				}
+		};
 
 		Header m_header;
 
@@ -32,6 +76,10 @@ class __attribute__((packed)) NodeBuffer {
 		NodeBuffer() = default;
 
 		explicit NodeBuffer(size_t size);
+
+		const Iterator iterator() const;
+
+		Iterator iterator();
 
 		ItemPtr firstItem();
 
@@ -85,7 +133,19 @@ NodeBuffer<size_t, Item>::NodeBuffer(size_t size) {
 }
 
 template<typename size_t, typename Item>
+const typename NodeBuffer<size_t, Item>::Iterator NodeBuffer<size_t, Item>::iterator() const {
+	return Iterator(this, firstItem());
+}
+
+template<typename size_t, typename Item>
+typename NodeBuffer<size_t, Item>::Iterator NodeBuffer<size_t, Item>::iterator() {
+	oxTrace("ox::ptrarith::NodeBuffer::iterator::size") << m_header.size;
+	return Iterator(this, firstItem());
+}
+
+template<typename size_t, typename Item>
 typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::firstItem() {
+	oxTrace("ox::ptrarith::NodeBuffer::firstItem") << m_header.firstItem;
 	return ptr(m_header.firstItem);
 }
 
@@ -121,12 +181,14 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t 
 	// make sure this can be read as an Item, and then use Item::size for the size
 	auto itemSpace = m_header.size - itemOffset;
 	auto item = reinterpret_cast<Item*>(reinterpret_cast<uint8_t*>(this) + itemOffset);
+	oxTrace("ox::ptrarith::NodeBuffer::ptr::itemOffset") << itemOffset << m_header.size - sizeof(Item);
 	if (itemOffset >= sizeof(Header) and
 		 itemOffset < m_header.size - sizeof(Item) and
 		 itemSpace >= static_cast<size_t>(sizeof(Item)) and
 		 itemSpace >= item->fullSize()) {
 		return ItemPtr(this, m_header.size, itemOffset, item->fullSize());
 	} else {
+		oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << itemOffset;
 		return ItemPtr(this, m_header.size, 0, 0);
 	}
 }
@@ -271,7 +333,7 @@ struct __attribute__((packed)) Item {
 			this->m_size = size;
 		}
 
-		size_t size() const {
+		virtual size_t size() const {
 			return m_size;
 		}
 };

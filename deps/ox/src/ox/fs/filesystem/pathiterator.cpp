@@ -12,9 +12,13 @@
 
 namespace ox {
 
-PathIterator::PathIterator(const char *path, std::size_t maxSize) {
+PathIterator::PathIterator(const char *path, std::size_t maxSize, std::size_t iterator) {
 	m_path = path;
 	m_maxSize = maxSize;
+	m_iterator = iterator;
+}
+
+PathIterator::PathIterator(const char *path): PathIterator(path, ox_strlen(path)) {
 }
 
 /**
@@ -85,7 +89,30 @@ int PathIterator::next(char *pathOut, std::size_t pathOutSize) {
 	return retval;
 }
 
-bool PathIterator::hasNext() {
+ValErr<std::size_t> PathIterator::nextSize() const {
+	std::size_t size = 0;
+	Error retval = 1;
+	auto it = m_iterator;
+	if (it < m_maxSize && ox_strlen(&m_path[it])) {
+		retval = 0;
+		if (m_path[it] == '/') {
+			it++;
+		}
+		std::size_t start = it;
+		// end is at the next /
+		const char *substr = ox_strchr(&m_path[start], '/', m_maxSize - start);
+		// correct end if it is invalid, which happens if there is no next /
+		if (!substr) {
+			substr = ox_strchr(&m_path[start], 0, m_maxSize - start);
+		}
+		std::size_t end = substr - m_path;
+		size = end - start;
+	}
+	it += size;
+	return {size, retval};
+}
+
+bool PathIterator::hasNext() const {
 	std::size_t size = 0;
 	if (m_iterator < m_maxSize && ox_strlen(&m_path[m_iterator])) {
 		std::size_t start = m_iterator;
@@ -102,6 +129,14 @@ bool PathIterator::hasNext() {
 		size = end - start;
 	}
 	return size > 0;
+}
+
+PathIterator PathIterator::operator+(int i) {
+	return PathIterator(m_path, m_maxSize, m_iterator + i);
+}
+
+PathIterator PathIterator::operator-(int i) {
+	return PathIterator(m_path, m_maxSize, m_iterator - i);
 }
 
 }

@@ -13,10 +13,10 @@
 namespace ox::trace {
 
 struct TraceMsg {
-	ox::BString<150> file = "";
+	ox::BString<255> file = "";
 	int line = 0;
 	uint64_t time = 0;
-	ox::BString<50> ch = "";
+	ox::BString<75> ch = "";
 	ox::BString<100> msg;
 };
 
@@ -93,4 +93,4 @@ class NullStream {
 
 }
 
-#define oxTrace(ch) ox::trace::NullStream(__FILE__, __LINE__, ch)
+#define oxTrace(ch) ox::trace::StdOutStream(__FILE__, __LINE__, ch)

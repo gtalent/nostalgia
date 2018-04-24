@@ -56,6 +56,10 @@ class Ptr {
 
 		inline operator size_t() const;
 
+		inline bool operator==(const Ptr<T, size_t, minOffset> &other) const;
+
+		inline bool operator!=(const Ptr<T, size_t, minOffset> &other) const;
+
 		template<typename SubT>
 		inline const Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset, size_t size) const;
 
@@ -166,6 +170,20 @@ inline Ptr<T, size_t, minOffset>::operator size_t() const {
 		return m_itemOffset;
 	}
 	return 0;
+}
+
+template<typename T, typename size_t, size_t minOffset>
+inline bool Ptr<T, size_t, minOffset>::operator==(const Ptr<T, size_t, minOffset> &other) const {
+	return m_dataStart == other.m_dataStart &&
+	       m_itemOffset == other.m_itemOffset &&
+	       m_itemSize == other.m_itemSize;
+}
+
+template<typename T, typename size_t, size_t minOffset>
+inline bool Ptr<T, size_t, minOffset>::operator!=(const Ptr<T, size_t, minOffset> &other) const {
+	return m_dataStart != other.m_dataStart ||
+	       m_itemOffset != other.m_itemOffset ||
+	       m_itemSize != other.m_itemSize;
 }
 
 template<typename T, typename size_t, size_t minOffset>

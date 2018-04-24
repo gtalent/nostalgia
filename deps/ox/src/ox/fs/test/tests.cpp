@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <assert.h>
+#include <array>
 #include <map>
 #include <vector>
 #include <string>
@@ -379,6 +380,19 @@ map<string, int(*)(string)> tests = {
 				size_t str1ReadSize = 0;
 				oxAssert(fileStore.read(4, reinterpret_cast<void*>(str1Read), str1Len, &str1ReadSize) == 0, "FileStore::read 1 failed.");
 
+				return 0;
+			}
+		},
+		{
+			"Directory",
+			[](string) {
+				std::array<uint8_t, 1000> buff;
+				ox::fs::Directory32 dir(buff.data(), buff.size());
+				dir.init();
+				dir.write("/file1", 1);
+				//oxAssert(dir.find("/file1") == 1, "Could not find /file1");
+				dir.write("/file3", 3);
+				dir.write("/file2", 2);
 				return 0;
 			}
 		},

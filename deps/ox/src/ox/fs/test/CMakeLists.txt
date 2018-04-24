@@ -74,3 +74,5 @@ add_test("Test\\ FileSystem32::stripDirectories" FSTests "FileSystem32::stripDir
 
 add_test("Test\\ NodeBuffer::insert" FSTests "NodeBuffer::insert")
 add_test("Test\\ FileStore::readWrite" FSTests "FileStore::readWrite")
+
+add_test("Test\\ Directory" FSTests "Directory")

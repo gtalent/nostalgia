@@ -66,11 +66,15 @@ struct ValErr {
 		this->error = error;
 	}
 
+	inline constexpr operator const T&() const {
+		return value;
+	}
+
 	inline constexpr operator T&() {
 		return value;
 	}
 
-	inline constexpr bool ok() {
+	inline constexpr bool ok() const {
 		return error == 0;
 	}
 

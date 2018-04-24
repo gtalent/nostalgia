@@ -32,7 +32,7 @@ struct __attribute__((packed)) FileStoreItem: public ptrarith::Item<size_t> {
 		return sizeof(*this) + this->size();
 	}
 
-	ox::ptrarith::Ptr<uint8_t, size_t> data() {
+	ptrarith::Ptr<uint8_t, size_t> data() {
 		return ptrarith::Ptr<uint8_t, size_t>(this, this->size(), sizeof(*this), this->size() - sizeof(*this));
 	}
 };
@@ -42,8 +42,8 @@ template<typename size_t>
 class FileStoreTemplate: public FileStore {
 
 	private:
-		using ItemPtr = typename ox::ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>::ItemPtr;
-		using Buffer = ox::ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>;
+		using ItemPtr = typename ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>::ItemPtr;
+		using Buffer = ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>;
 
 		struct __attribute__((packed)) FileStoreData {
 			ox::LittleEndian<size_t> rootNode = 0;
@@ -128,7 +128,7 @@ class FileStoreTemplate: public FileStore {
 template<typename size_t>
 FileStoreTemplate<size_t>::FileStoreTemplate(void *buff, size_t buffSize) {
 	m_buffSize = buffSize;
-	m_buffer = reinterpret_cast<ox::ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>*>(buff);
+	m_buffer = reinterpret_cast<ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>*>(buff);
 	if (!m_buffer->valid(buffSize)) {
 		m_buffSize = 0;
 		m_buffer = nullptr;

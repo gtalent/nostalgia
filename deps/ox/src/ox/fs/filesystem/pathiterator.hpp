@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <ox/std/strops.hpp>
 #include <ox/std/types.hpp>
 
 namespace ox {
@@ -19,7 +20,9 @@ class PathIterator {
 		std::size_t m_maxSize = 0;
 
 	public:
-		PathIterator(const char *path, std::size_t maxSize);
+		PathIterator(const char *path, std::size_t maxSize, std::size_t iterator = 0);
+
+		PathIterator(const char *path);
 
 		/**
 		 * @return 0 if no error
@@ -36,7 +39,17 @@ class PathIterator {
 		 */
 		int next(char *pathOut, std::size_t pathOutSize);
 
-		bool hasNext();
+		/**
+		 * @return 0 if no error
+		 */
+		ValErr<std::size_t> nextSize() const;
+
+		bool hasNext() const;
+
+		PathIterator operator+(int i);
+
+		PathIterator operator-(int i);
+
 };
 
 }

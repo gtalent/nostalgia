@@ -8,10 +8,11 @@
 
 #pragma once
 
-#include <ox/std/strops.hpp>
-#include <ox/std/types.hpp>
+#include <ox/std/std.hpp>
 
 namespace ox {
+
+constexpr auto MaxFileNameLength = 255;
 
 class PathIterator {
 	private:
@@ -38,6 +39,11 @@ class PathIterator {
 		 * @return 0 if no error
 		 */
 		int next(char *pathOut, std::size_t pathOutSize);
+
+		/**
+		 * @return 0 if no error
+		 */
+		int next(BString<MaxFileNameLength> *fileName);
 
 		/**
 		 * @return 0 if no error

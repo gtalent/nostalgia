@@ -22,7 +22,10 @@ struct __attribute__((packed)) FileStoreItem: public ptrarith::Item<size_t> {
 	ox::LittleEndian<size_t> left = 0;
 	ox::LittleEndian<size_t> right = 0;
 
-	explicit FileStoreItem(size_t size): ptrarith::Item<size_t>(size) {
+	FileStoreItem() = default;
+
+	explicit FileStoreItem(size_t size) {
+		this->setSize(size);
 	}
 
 	/**
@@ -35,6 +38,7 @@ struct __attribute__((packed)) FileStoreItem: public ptrarith::Item<size_t> {
 	ptrarith::Ptr<uint8_t, size_t> data() {
 		return ptrarith::Ptr<uint8_t, size_t>(this, this->size(), sizeof(*this), this->size() - sizeof(*this));
 	}
+
 };
 
 
@@ -42,6 +46,7 @@ template<typename size_t>
 class FileStoreTemplate: public FileStore {
 
 	private:
+		using Item = FileStoreItem<size_t>;
 		using ItemPtr = typename ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>::ItemPtr;
 		using Buffer = ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>;
 
@@ -68,6 +73,8 @@ class FileStoreTemplate: public FileStore {
 		Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size);
 
 		Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size);
+
+		ValErr<const uint8_t*> read(InodeId_t id);
 
 		/**
 		 * Reads the "file" at the given id. You are responsible for freeing
@@ -302,6 +309,11 @@ int FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart,
 		}
 	}
 	return 1;
+}
+
+template<typename size_t>
+ValErr<const uint8_t*> FileStoreTemplate<size_t>::read(InodeId_t id) {
+	return reinterpret_cast<uint8_t*>(find(id).get());
 }
 
 template<typename size_t>

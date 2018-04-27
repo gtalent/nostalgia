@@ -61,9 +61,7 @@ struct ValErr {
 
 	inline constexpr ValErr() = default;
 
-	inline constexpr ValErr(T value, Error error = 0) {
-		this->value = value;
-		this->error = error;
+	inline constexpr ValErr(T value, Error error = 0): value(value), error(error) {
 	}
 
 	inline constexpr operator const T&() const {

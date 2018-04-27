@@ -18,7 +18,7 @@ namespace ox {
 template<std::size_t buffLen>
 class BString {
 	private:
-		uint8_t m_buff[buffLen];
+		uint8_t m_buff[buffLen + 1];
 
 	public:
 		BString() noexcept;

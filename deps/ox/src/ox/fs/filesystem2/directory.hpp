@@ -9,7 +9,7 @@
 #pragma once
 
 #include <ox/fs/filesystem/pathiterator.hpp>
-#include <ox/fs/filestore.hpp>
+#include <ox/fs/filestore/filestore.hpp>
 #include <ox/ptrarith/nodebuffer.hpp>
 #include <ox/std/std.hpp>
 
@@ -19,12 +19,14 @@ template<typename InodeId_t>
 struct __attribute__((packed)) DirectoryEntry {
 
 	// NodeBuffer fields
-	ox::LittleEndian<std::size_t> prev = 0;
-	ox::LittleEndian<std::size_t> next = 0;
+	LittleEndian<InodeId_t> prev = 0;
+	LittleEndian<InodeId_t> next = 0;
 
 	// DirectoryEntry fields
-	ox::LittleEndian<InodeId_t> inode = 0;
-	BString<255> name;
+	LittleEndian<InodeId_t> inode = 0;
+	BString<MaxFileNameLength> name;
+
+	DirectoryEntry() = default;
 
 	explicit DirectoryEntry(const char *name) {
 		this->name = name;
@@ -41,6 +43,10 @@ struct __attribute__((packed)) DirectoryEntry {
 		return fullSize() - offsetof(DirectoryEntry, inode);
 	}
 
+	void setSize(InodeId_t) {
+		// ignore set value
+	}
+
 	ptrarith::Ptr<uint8_t, InodeId_t> data() {
 		return ptrarith::Ptr<uint8_t, InodeId_t>(this, this->size(), sizeof(*this), this->size() - sizeof(*this));
 	}
@@ -55,9 +61,10 @@ class Directory {
 		using Buffer = ptrarith::NodeBuffer<InodeId_t, DirectoryEntry<InodeId_t>>;
 		std::size_t m_size = 0;
 		Buffer *m_buff = nullptr;
+		FileStore *m_fs = nullptr;
 
 	public:
-		Directory(uint8_t *buff, std::size_t size);
+		Directory(fs::FileStore *fs, InodeId_t inode);
 
 		/**
 		 * Initializes Directory.
@@ -73,9 +80,10 @@ class Directory {
 };
 
 template<typename InodeId_t>
-Directory<InodeId_t>::Directory(uint8_t *buff, std::size_t size) {
-	m_size = size;
-	m_buff = reinterpret_cast<decltype(m_buff)>(buff);
+Directory<InodeId_t>::Directory(fs::FileStore *fs, InodeId_t) {
+	m_fs = fs;
+	//m_size = size;
+	//m_buff = reinterpret_cast<decltype(m_buff)>(buff);
 }
 
 template<typename InodeId_t>
@@ -88,16 +96,25 @@ Error Directory<InodeId_t>::init() noexcept {
 }
 
 template<typename InodeId_t>
-Error Directory<InodeId_t>::write(PathIterator it, InodeId_t inode) noexcept {
-	if (it.hasNext()) {
-		return write(it + 1, inode);
-	} else {
-		auto current = find(it);
-		if (current.ok()) {
-		} else {
+Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode) noexcept {
+	// find existing entry and update if exists
+
+	if (!path.hasNext()) {
+		BString<MaxFileNameLength> name;
+		path.next(&name);
+
+		auto val = m_buff->malloc(name.size());
+		if (val.valid()) {
+			new (val) DirectoryEntry<InodeId_t>(name.data());
+			val->name = name;
+			val->inode = inode;
+			return 0;
 		}
+		return 1;
 	}
-	return 1;
+
+	// TODO: get sub directory and call its write instead of recursing on this directory
+	return write(path + 1, inode);
 }
 
 template<typename InodeId_t>

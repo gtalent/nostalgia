@@ -39,6 +39,8 @@ class FileStore {
 
 		virtual Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size) = 0;
 
+		virtual ValErr<const uint8_t*> read(InodeId_t id) = 0;
+
 		virtual StatInfo stat(InodeId_t id) = 0;
 
 		virtual InodeId_t spaceNeeded(FsSize_t size) = 0;

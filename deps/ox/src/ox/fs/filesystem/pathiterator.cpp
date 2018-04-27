@@ -89,6 +89,13 @@ int PathIterator::next(char *pathOut, std::size_t pathOutSize) {
 	return retval;
 }
 
+/**
+ * @return 0 if no error
+ */
+int PathIterator::next(BString<MaxFileNameLength> *fileName) {
+	return next(fileName->data(), fileName->cap());
+}
+
 ValErr<std::size_t> PathIterator::nextSize() const {
 	std::size_t size = 0;
 	Error retval = 1;

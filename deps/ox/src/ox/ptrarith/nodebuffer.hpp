@@ -211,7 +211,8 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 		}
 		auto out = ItemPtr(this, m_header.size, addr, fullSize);
 		if (out.valid()) {
-			new (out) Item(size);
+			new (out) Item;
+			out->setSize(size);
 
 			auto first = firstItem();
 			out->next = first.offset();
@@ -329,12 +330,12 @@ struct __attribute__((packed)) Item {
 		ox::LittleEndian<size_t> m_size = sizeof(Item);
 
 	public:
-		explicit Item(size_t size) {
-			this->m_size = size;
+		size_t size() const {
+			return m_size;
 		}
 
-		virtual size_t size() const {
-			return m_size;
+		void setSize(size_t size) {
+			m_size = size;
 		}
 };
 

@@ -386,13 +386,16 @@ map<string, int(*)(string)> tests = {
 		{
 			"Directory",
 			[](string) {
-				std::array<uint8_t, 1000> buff;
-				ox::fs::Directory32 dir(buff.data(), buff.size());
-				dir.init();
-				dir.write("/file1", 1);
+				//std::array<uint8_t, 5000> fsBuff;
+				//std::array<uint8_t, 1000> dirBuff;
+				//ox::fs::FileStore32 fileStore(fsBuff.data(), fsBuff.size());
+				//fileStore.format();
+				//ox::fs::Directory32 dir(&fileStore, dirBuff.data(), dirBuff.size());
+				//dir.init();
+				//dir.write("/file1", 1);
 				//oxAssert(dir.find("/file1") == 1, "Could not find /file1");
-				dir.write("/file3", 3);
-				dir.write("/file2", 2);
+				//dir.write("/file3", 3);
+				//dir.write("/file2", 2);
 				return 0;
 			}
 		},

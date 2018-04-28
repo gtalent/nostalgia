@@ -21,13 +21,17 @@ install(
 		assert.hpp
 		bitops.hpp
 		byteswap.hpp
+		math.hpp
 		memops.hpp
+		new.hpp
 		random.hpp
 		string.hpp
 		strops.hpp
 		std.hpp
+		stddef.hpp
 		types.hpp
 		typetraits.hpp
+		vector.hpp
 	DESTINATION
 		include/ox/std
 )

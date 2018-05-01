@@ -12,8 +12,10 @@
 
 namespace ox {
 
-inline uint64_t rotateLeft(uint64_t i, int shift) {
-	return (i << shift) | (i >> (64 - shift));
+template<typename T>
+inline constexpr T rotateLeft(T i, int shift) {
+	constexpr auto bits = sizeof(i) * 8;
+	return (i << shift) | (i >> (bits - shift));
 }
 
 }

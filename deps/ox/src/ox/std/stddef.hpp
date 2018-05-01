@@ -8,6 +8,8 @@
 
 #pragma once
 
-#if !defined(offsetof)
+#if OX_USE_STDLIB
+#include <cstddef>
+#else
 #define offsetof(type, member) __builtin_offsetof(type, member)
 #endif

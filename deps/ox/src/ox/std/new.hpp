@@ -29,7 +29,7 @@ constexpr auto MaxAllocaSize = 10 * 1024;
 }
 
 #if defined(OX_USE_STDLIB)
-#define ox_malloca(size) size > MaxAllocaSize ? malloc(MaxAllocaSize) : ox_alloca(size)
+#define ox_malloca(size) size > MaxAllocaSize ? malloc(size) : ox_alloca(size)
 #else
 #define ox_malloca(size) ox_alloca(size)
 #endif

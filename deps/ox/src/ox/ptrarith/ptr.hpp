@@ -17,6 +17,7 @@ class Ptr {
 
 	private:
 		uint8_t *m_dataStart = nullptr;
+		size_t m_dataSize = 0;
 		size_t m_itemOffset = 0;
 		size_t m_itemSize = 0;
 		// this should be removed later on, but the excessive validation is
@@ -72,6 +73,9 @@ class Ptr {
 		template<typename SubT>
 		inline Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset);
 
+		template<typename SubT>
+		inline const Ptr<SubT, size_t, minOffset> to() const;
+
 };
 
 template<typename T, typename size_t, size_t minOffset>
@@ -86,6 +90,7 @@ inline Ptr<T, size_t, minOffset>::Ptr(void *dataStart, size_t dataSize, size_t i
 	    itemStart >= minOffset and
 	    itemStart + itemSize <= dataSize) {
 		m_dataStart = reinterpret_cast<uint8_t*>(dataStart);
+		m_dataSize = dataSize;
 		m_itemOffset = itemStart;
 		m_itemSize = itemSize;
 	}
@@ -189,8 +194,7 @@ inline bool Ptr<T, size_t, minOffset>::operator!=(const Ptr<T, size_t, minOffset
 template<typename T, typename size_t, size_t minOffset>
 template<typename SubT>
 inline const Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset, size_t size) const {
-	auto out = Ptr<SubT, size_t, sizeof(T)>(get(), this->size(), offset, size);
-	return out;
+	return Ptr<SubT, size_t, sizeof(T)>(get(), this->size(), offset, size);
 }
 
 template<typename T, typename size_t, size_t minOffset>
@@ -203,8 +207,7 @@ inline const Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size
 template<typename T, typename size_t, size_t minOffset>
 template<typename SubT>
 inline Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset, size_t size) {
-	auto out = Ptr<SubT, size_t, sizeof(T)>(get(), this->size(), offset, size);
-	return out;
+	return Ptr<SubT, size_t, sizeof(T)>(get(), this->size(), offset, size);
 }
 
 template<typename T, typename size_t, size_t minOffset>
@@ -212,6 +215,12 @@ template<typename SubT>
 inline Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset) {
 	oxTrace("ox::fs::Ptr::subPtr") << m_itemOffset << this->size() << offset << m_itemSize << (m_itemSize - offset);
 	return subPtr<SubT>(offset, m_itemSize - offset);
+}
+
+template<typename T, typename size_t, size_t minOffset>
+template<typename SubT>
+inline const Ptr<SubT, size_t, minOffset> Ptr<T, size_t, minOffset>::to() const {
+	return Ptr<SubT, size_t, minOffset>(m_dataStart, m_dataSize, m_itemOffset, m_itemSize);
 }
 
 }

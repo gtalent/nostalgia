@@ -24,8 +24,8 @@ OutStream::OutStream(const char *file, int line, const char *ch, const char *msg
 }
 
 OutStream::~OutStream() {
-	constexpr size_t buffLen = 1024;
-	size_t size = 0;
+	constexpr std::size_t buffLen = 1024;
+	std::size_t size = 0;
 	uint8_t buff[buffLen];
 	writeMC(buff, buffLen, &m_msg, &size);
 }

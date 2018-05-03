@@ -75,6 +75,8 @@ class __attribute__((packed)) NodeBuffer {
 	public:
 		NodeBuffer() = default;
 
+		NodeBuffer(const NodeBuffer &other);
+
 		explicit NodeBuffer(size_t size);
 
 		const Iterator iterator() const;
@@ -120,9 +122,11 @@ class __attribute__((packed)) NodeBuffer {
 		 */
 		size_t spaceNeeded(size_t size);
 
-	private:
-		void compact(void (*cb)(ItemPtr itemMoved));
+		void compact(void (*cb)(ItemPtr itemMoved) = nullptr);
 
+		void truncate();
+
+	private:
 		uint8_t *data();
 
 };
@@ -130,6 +134,11 @@ class __attribute__((packed)) NodeBuffer {
 template<typename size_t, typename Item>
 NodeBuffer<size_t, Item>::NodeBuffer(size_t size) {
 	m_header.size = size;
+}
+
+template<typename size_t, typename Item>
+NodeBuffer<size_t, Item>::NodeBuffer(const NodeBuffer &other) {
+	ox_memcpy(this, &other, other.size());
 }
 
 template<typename size_t, typename Item>
@@ -312,6 +321,11 @@ void NodeBuffer<size_t, Item>::compact(void (*cb)(ItemPtr)) {
 		src = ptr(dest->next);
 		dest = ptr(dest.offset() + dest.size());
 	}
+}
+
+template<typename size_t, typename Item>
+void NodeBuffer<size_t, Item>::truncate() {
+	m_header.size = m_header.bytesUsed;
 }
 
 template<typename size_t, typename Item>

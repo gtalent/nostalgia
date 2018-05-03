@@ -11,7 +11,9 @@
         "__string": "cpp",
         "algorithm": "cpp",
         "string": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "iterator": "cpp",
+        "vector": "cpp"
     },
     "editor.insertSpaces": false,
     "editor.tabSize": 3,

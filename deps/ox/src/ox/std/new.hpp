@@ -39,7 +39,7 @@ constexpr auto MallocaStackLimit = 1024;
 #if defined(OX_USE_STDLIB)
 #define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(size, new (size > MallocaStackLimit ? new uint8_t[size] : ox_alloca(size)) Type(__VA_ARGS__))
 #else                          
-#define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(size, ox_alloca(size))
+#define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(size, new (ox_alloca(size)) Type(__VA_ARGS__))
 #endif
 
 namespace ox {
@@ -75,6 +75,14 @@ class MallocaPtr {
 					delete[] reinterpret_cast<uint8_t*>(m_val);
 				}
 			}
+		}
+
+		inline const T *get() const noexcept {
+			return reinterpret_cast<T*>(m_val);
+		}
+
+		inline T *get() noexcept {
+			return reinterpret_cast<T*>(m_val);
 		}
 
 		inline const T *operator->() const noexcept {

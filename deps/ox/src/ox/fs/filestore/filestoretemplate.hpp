@@ -35,8 +35,8 @@ struct __attribute__((packed)) FileStoreItem: public ptrarith::Item<size_t> {
 		return sizeof(*this) + this->size();
 	}
 
-	ptrarith::Ptr<uint8_t, size_t> data() {
-		return ptrarith::Ptr<uint8_t, size_t>(this, this->size(), sizeof(*this), this->size() - sizeof(*this));
+	ptrarith::Ptr<uint8_t, std::size_t> data() {
+		return ptrarith::Ptr<uint8_t, std::size_t>(this, this->fullSize(), sizeof(*this), this->size());
 	}
 
 };
@@ -74,7 +74,7 @@ class FileStoreTemplate: public FileStore {
 
 		Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size);
 
-		ValErr<const uint8_t*> read(InodeId_t id);
+		const ptrarith::Ptr<uint8_t, std::size_t> read(InodeId_t id);
 
 		/**
 		 * Reads the "file" at the given id. You are responsible for freeing
@@ -100,6 +100,8 @@ class FileStoreTemplate: public FileStore {
 		InodeId_t available();
 
 	private:
+		void compact();
+
 		FileStoreData *fileStoreData();
 
 		/**
@@ -201,14 +203,20 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 		// write the given data
 		auto dest = m_buffer->malloc(dataSize);
 		// if first malloc failed, compact and try again
-		dest = m_buffer->malloc(dataSize);
+		if (!dest.valid()) {
+			compact();
+			dest = m_buffer->malloc(dataSize);
+		}
 		if (dest.valid()) {
 			new (dest) FileStoreItem<size_t>(dataSize);
 			dest->id = id;
 			dest->fileType = fileType;
 			auto destData = m_buffer->template dataOf<uint8_t>(dest);
 			if (destData.valid()) {
-				ox_memcpy(destData, data, dest->size());
+				// write data if any was provided
+				if (data != nullptr) {
+					ox_memcpy(destData, data, dest->size());
+				}
 				auto fsData = fileStoreData();
 				if (fsData) {
 					auto root = m_buffer->ptr(fsData->rootNode);
@@ -312,8 +320,13 @@ int FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart,
 }
 
 template<typename size_t>
-ValErr<const uint8_t*> FileStoreTemplate<size_t>::read(InodeId_t id) {
-	return reinterpret_cast<uint8_t*>(find(id).get());
+const ptrarith::Ptr<uint8_t, std::size_t> FileStoreTemplate<size_t>::read(InodeId_t id) {
+	auto item = find(id);
+	if (item.valid()) {
+		return item->data();
+	} else {
+		return nullptr;
+	}
 }
 
 template<typename size_t>
@@ -343,6 +356,10 @@ InodeId_t FileStoreTemplate<size_t>::size() {
 template<typename size_t>
 InodeId_t FileStoreTemplate<size_t>::available() {
 	return m_buffer->available();
+}
+
+template<typename size_t>
+void FileStoreTemplate<size_t>::compact() {
 }
 
 template<typename size_t>

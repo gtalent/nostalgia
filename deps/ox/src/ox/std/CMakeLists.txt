@@ -5,7 +5,6 @@ add_library(
 		assert.cpp
 		byteswap.cpp
 		memops.cpp
-		new.cpp
 		random.cpp
 		strops.cpp
 )

@@ -39,15 +39,6 @@ constexpr auto MallocaStackLimit = 1024;
 #define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(size, ox_alloca(size))
 #endif
 
-inline constexpr void ox_freea(std::size_t size, void *ptr) {
-	if constexpr(ox::defines::UseStdLib) {
-		if (size > ox::MallocaStackLimit) {
-			delete[] reinterpret_cast<uint8_t*>(ptr);
-		}
-	}
-}
-
-
 namespace ox {
 
 template<typename T>
@@ -112,7 +103,5 @@ class MallocaPtr {
 		}
 
 };
-
-extern template class MallocaPtr<int>;
 
 }

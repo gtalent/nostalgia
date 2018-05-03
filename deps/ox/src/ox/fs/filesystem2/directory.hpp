@@ -142,7 +142,6 @@ Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode) noexcept {
 				new (val) DirectoryEntry<InodeId_t>(inode, name.data());
 				err = m_fs->write(m_inodeId, cpy, cpy->size());
 			}
-			ox_freea(newSize, cpy);
 		}
 		return err;
 	}

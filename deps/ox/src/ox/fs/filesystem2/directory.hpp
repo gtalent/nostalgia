@@ -135,7 +135,7 @@ Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode) noexcept {
 		auto old = m_fs->read(m_inodeId);
 		if (old.valid()) {
 			const auto newSize = m_size + DirectoryEntry<InodeId_t>::spaceNeeded(name.size());
-			auto cpy = new (ox_malloca(newSize)) Buffer(old);
+			auto cpy = ox_malloca(newSize, Buffer, old);
 			cpy->setSize(newSize);
 			auto val = cpy->malloc(name.size());
 			if (val.valid()) {

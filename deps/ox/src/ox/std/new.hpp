@@ -33,6 +33,9 @@ constexpr auto MallocaStackLimit = 1024;
 
 }
 
+/**
+ * @return an ox::MallocaPtr of the given type pointing to the requested size memory allocation
+ */
 #if defined(OX_USE_STDLIB)
 #define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(size, new (size > MallocaStackLimit ? new uint8_t[size] : ox_alloca(size)) Type(__VA_ARGS__))
 #else                          
@@ -41,6 +44,10 @@ constexpr auto MallocaStackLimit = 1024;
 
 namespace ox {
 
+/**
+ * MallocaPtr will automatically cleanup the pointed to address upon
+ * destruction if the size of the allocation is greater than MallocaStackLimit.
+ */
 template<typename T>
 class MallocaPtr {
 

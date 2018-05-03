@@ -27,12 +27,6 @@
 void *operator new(std::size_t, void*) noexcept;
 
 
-namespace ox {
-
-constexpr auto MallocaStackLimit = 1024;
-
-}
-
 /**
  * @return an ox::MallocaPtr of the given type pointing to the requested size memory allocation
  */
@@ -43,6 +37,8 @@ constexpr auto MallocaStackLimit = 1024;
 #endif
 
 namespace ox {
+
+constexpr auto MallocaStackLimit = 1024;
 
 /**
  * MallocaPtr will automatically cleanup the pointed to address upon

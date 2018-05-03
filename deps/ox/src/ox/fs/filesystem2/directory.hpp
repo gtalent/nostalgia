@@ -159,12 +159,12 @@ template<typename InodeId_t>
 ValErr<InodeId_t> Directory<InodeId_t>::find(PathIterator it) const noexcept {
 	ValErr<InodeId_t> retval = {0, 1};
 	auto size = it.nextSize();
-	auto name = reinterpret_cast<char*>(ox_alloca(size + 1));
+	auto name = ox_malloca(size + 1, char);
 	it.next(name, size);
 	auto buff = m_fs->read(m_inodeId).template to<Buffer>();
 	for (auto i = buff->iterator(); i.hasNext(); i.next()) {
 		auto data = i->data();
-		if (data.valid() && data->name == name) {
+		if (data.valid() && data->name == name.get()) {
 			retval = static_cast<InodeId_t>(data->inode);
 		}
 	}

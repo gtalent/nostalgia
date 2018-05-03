@@ -18,37 +18,55 @@ namespace ox::fs {
 template<typename InodeId_t>
 struct __attribute__((packed)) DirectoryEntry {
 
+	struct __attribute__((packed)) DirectoryEntryData {
+		// DirectoryEntry fields
+		LittleEndian<InodeId_t> inode = 0;
+		BString<MaxFileNameLength> name;
+	};
+
 	// NodeBuffer fields
 	LittleEndian<InodeId_t> prev = 0;
 	LittleEndian<InodeId_t> next = 0;
 
-	// DirectoryEntry fields
-	LittleEndian<InodeId_t> inode = 0;
-	BString<MaxFileNameLength> name;
-
 	DirectoryEntry() = default;
 
-	explicit DirectoryEntry(const char *name) {
-		this->name = name;
+	explicit DirectoryEntry(InodeId_t inode, const char *name) {
+		auto d = data();
+		if (d.valid()) {
+			d->inode = inode;
+			d->name = name;
+		}
+	}
+
+	ptrarith::Ptr<DirectoryEntryData, InodeId_t> data() {
+		return ptrarith::Ptr<DirectoryEntryData, InodeId_t>(this, this->fullSize(), sizeof(*this), this->size());
+	}
+
+	const ptrarith::Ptr<DirectoryEntryData, InodeId_t> data() const {
+		return ptrarith::Ptr<DirectoryEntryData, InodeId_t>(const_cast<DirectoryEntry*>(this), this->fullSize(), sizeof(*this), this->size());
 	}
 
 	/**
 	 * @return the size of the data + the size of the Item type
 	 */
 	InodeId_t fullSize() const {
-		return offsetof(DirectoryEntry, name) + name.size();
+		auto d = data();
+		if (d.valid()) {
+			return sizeof(*this) + offsetof(DirectoryEntryData, name) + d->name.size();
+		}
+		return 0;
 	}
 
 	InodeId_t size() const {
-		return fullSize() - offsetof(DirectoryEntry, inode);
+		return fullSize() - offsetof(DirectoryEntryData, inode);
 	}
 
 	void setSize(InodeId_t) {
 		// ignore set value
 	}
 
-	ptrarith::Ptr<uint8_t, InodeId_t> data() {
-		return ptrarith::Ptr<uint8_t, InodeId_t>(this, this->size(), sizeof(*this), this->size() - sizeof(*this));
+	static std::size_t spaceNeeded(std::size_t chars) {
+		return sizeof(DirectoryEntry) + chars;
 	}
 
 };
@@ -59,6 +77,8 @@ class Directory {
 
 	private:
 		using Buffer = ptrarith::NodeBuffer<InodeId_t, DirectoryEntry<InodeId_t>>;
+
+		InodeId_t m_inodeId = 0;
 		std::size_t m_size = 0;
 		Buffer *m_buff = nullptr;
 		FileStore *m_fs = nullptr;
@@ -80,16 +100,23 @@ class Directory {
 };
 
 template<typename InodeId_t>
-Directory<InodeId_t>::Directory(fs::FileStore *fs, InodeId_t) {
+Directory<InodeId_t>::Directory(fs::FileStore *fs, InodeId_t id) {
 	m_fs = fs;
-	//m_size = size;
-	//m_buff = reinterpret_cast<decltype(m_buff)>(buff);
+	m_inodeId = id;
+	auto buff = fs->read(id).template to<Buffer>();
+	if (buff.valid()) {
+		m_size = buff.size();
+		m_buff = buff;
+	}
 }
 
 template<typename InodeId_t>
 Error Directory<InodeId_t>::init() noexcept {
-	if (m_size >= sizeof(Buffer)) {
-		new (m_buff) Buffer(m_size);
+	constexpr auto Size = sizeof(Buffer);
+	m_fs->write(m_inodeId, nullptr, Size);
+	auto buff = m_fs->read(m_inodeId);
+	if (buff.valid()) {
+		new (buff) Buffer(Size);
 		return 0;
 	}
 	return 1;
@@ -100,17 +127,24 @@ Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode) noexcept {
 	// find existing entry and update if exists
 
 	if (!path.hasNext()) {
+		Error err = 1;
 		BString<MaxFileNameLength> name;
 		path.next(&name);
 
-		auto val = m_buff->malloc(name.size());
-		if (val.valid()) {
-			new (val) DirectoryEntry<InodeId_t>(name.data());
-			val->name = name;
-			val->inode = inode;
-			return 0;
+		// find existing version of directory
+		auto old = m_fs->read(m_inodeId);
+		if (old.valid()) {
+			const auto newSize = m_size + DirectoryEntry<InodeId_t>::spaceNeeded(name.size());
+			auto cpy = new (ox_malloca(newSize)) Buffer(old);
+			cpy->setSize(newSize);
+			auto val = cpy->malloc(name.size());
+			if (val.valid()) {
+				new (val) DirectoryEntry<InodeId_t>(inode, name.data());
+				err = m_fs->write(m_inodeId, cpy, cpy->size());
+			}
+			ox_freea(newSize, cpy);
 		}
-		return 1;
+		return err;
 	}
 
 	// TODO: get sub directory and call its write instead of recursing on this directory
@@ -124,15 +158,18 @@ Error Directory<InodeId_t>::rm(PathIterator) noexcept {
 
 template<typename InodeId_t>
 ValErr<InodeId_t> Directory<InodeId_t>::find(PathIterator it) const noexcept {
+	ValErr<InodeId_t> retval = {0, 1};
 	auto size = it.nextSize();
-	char name[size + 1];
+	auto name = reinterpret_cast<char*>(ox_alloca(size + 1));
 	it.next(name, size);
-	for (auto i = m_buff->iterator(); i.hasNext(); i.next()) {
-		if (i->name == name) {
-			return static_cast<InodeId_t>(i->inode);
+	auto buff = m_fs->read(m_inodeId).template to<Buffer>();
+	for (auto i = buff->iterator(); i.hasNext(); i.next()) {
+		auto data = i->data();
+		if (data.valid() && data->name == name) {
+			retval = static_cast<InodeId_t>(data->inode);
 		}
 	}
-	return {0, 1};
+	return retval;
 }
 
 

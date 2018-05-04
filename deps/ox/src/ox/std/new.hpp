@@ -32,7 +32,7 @@ void *operator new(std::size_t, void*) noexcept;
  */
 #if defined(OX_USE_STDLIB)
 #define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(size, new (size > MallocaStackLimit ? new uint8_t[size] : ox_alloca(size)) Type(__VA_ARGS__))
-#else                          
+#else
 #define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(size, new (ox_alloca(size)) Type(__VA_ARGS__))
 #endif
 
@@ -53,6 +53,8 @@ class MallocaPtr {
 
 	public:
 		inline MallocaPtr() noexcept = default;
+
+		inline MallocaPtr(MallocaPtr &other) = delete;
 
 		inline MallocaPtr(MallocaPtr &&other) noexcept {
 			m_size = other.m_size;
@@ -79,6 +81,15 @@ class MallocaPtr {
 
 		inline T *get() noexcept {
 			return reinterpret_cast<T*>(m_val);
+		}
+
+		inline const T &operator=(MallocaPtr &other) = delete;
+
+		inline const T &operator=(MallocaPtr &&other) noexcept {
+			m_size = other.m_size;
+			m_val = other.m_val;
+			other.m_size = 0;
+			other.m_val = nullptr;
 		}
 
 		inline const T *operator->() const noexcept {

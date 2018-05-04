@@ -12,13 +12,12 @@
 
 #include "types.hpp"
 
-#if defined(_MSC_VER)
+#if !defined(OX_USE_STDLIB)
+#define ox_alloca(size) __builtin_alloca(size)
+#elif defined(_MSC_VER)
 #include <malloc.h>
 #define ox_alloca(size) _alloca(size)
-#elif !defined(OX_USE_STDLIB)
-#define ox_alloca(size) __builtin_alloca(size)
-#else
-#include <cstdlib>
+#elif __has_include(<alloca.h>)
 #include <alloca.h>
 #define ox_alloca(size) alloca(size)
 #endif

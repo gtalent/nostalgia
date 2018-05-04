@@ -12,6 +12,19 @@
 #include "types.hpp"
 #include "typetraits.hpp"
 
+constexpr char *ox_strncpy(char *dest, const char *src, std::size_t maxLen) noexcept {
+	for (std::size_t i = 0; i < maxLen && src[i]; i++) {
+		dest[i] = src[i];
+	}
+	return dest;
+}
+
+constexpr int ox_strnlen(const char *str1, int maxLen) noexcept {
+	int len = 0;
+	for (; len < maxLen && str1[len]; len++);
+	return len;
+}
+
 constexpr int ox_strlen(const char *str1) noexcept {
 	int len = 0;
 	for (; str1[len]; len++);

@@ -21,7 +21,7 @@ struct __attribute__((packed)) DirectoryEntry {
 	struct __attribute__((packed)) DirectoryEntryData {
 		// DirectoryEntry fields
 		LittleEndian<InodeId_t> inode = 0;
-		BString<MaxFileNameLength> name;
+		char name[MaxFileNameLength];
 	};
 
 	// NodeBuffer fields
@@ -30,11 +30,11 @@ struct __attribute__((packed)) DirectoryEntry {
 
 	DirectoryEntry() = default;
 
-	explicit DirectoryEntry(InodeId_t inode, const char *name) {
+	DirectoryEntry(InodeId_t inode, const char *name) {
 		auto d = data();
 		if (d.valid()) {
 			d->inode = inode;
-			d->name = name;
+			ox_strncpy(d->name, name, MaxFileNameLength);
 		}
 	}
 
@@ -42,17 +42,13 @@ struct __attribute__((packed)) DirectoryEntry {
 		return ptrarith::Ptr<DirectoryEntryData, InodeId_t>(this, this->fullSize(), sizeof(*this), this->size());
 	}
 
-	const ptrarith::Ptr<DirectoryEntryData, InodeId_t> data() const {
-		return ptrarith::Ptr<DirectoryEntryData, InodeId_t>(const_cast<DirectoryEntry*>(this), this->fullSize(), sizeof(*this), this->size());
-	}
-
 	/**
 	 * @return the size of the data + the size of the Item type
 	 */
 	InodeId_t fullSize() const {
-		auto d = data();
+		const auto d = const_cast<DirectoryEntry*>(this)->data();
 		if (d.valid()) {
-			return sizeof(*this) + offsetof(DirectoryEntryData, name) + d->name.size();
+			return sizeof(*this) + offsetof(DirectoryEntryData, name) + ox_strnlen(d->name, MaxFileNameLength);
 		}
 		return 0;
 	}
@@ -84,7 +80,7 @@ class Directory {
 		FileStore *m_fs = nullptr;
 
 	public:
-		Directory(fs::FileStore *fs, InodeId_t inode);
+		Directory(FileStore *fs, InodeId_t inode);
 
 		/**
 		 * Initializes Directory.
@@ -100,7 +96,7 @@ class Directory {
 };
 
 template<typename InodeId_t>
-Directory<InodeId_t>::Directory(fs::FileStore *fs, InodeId_t id) {
+Directory<InodeId_t>::Directory(FileStore *fs, InodeId_t id) {
 	m_fs = fs;
 	m_inodeId = id;
 	auto buff = fs->read(id).template to<Buffer>();
@@ -136,11 +132,13 @@ Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode) noexcept {
 		if (old.valid()) {
 			const auto newSize = m_size + DirectoryEntry<InodeId_t>::spaceNeeded(name.size());
 			auto cpy = ox_malloca(newSize, Buffer, old);
-			cpy->setSize(newSize);
-			auto val = cpy->malloc(name.size());
-			if (val.valid()) {
-				new (val) DirectoryEntry<InodeId_t>(inode, name.data());
-				err = m_fs->write(m_inodeId, cpy, cpy->size());
+			if (cpy != nullptr) {
+				cpy->setSize(newSize);
+				auto val = cpy->malloc(name.size());
+				if (val.valid()) {
+					new (val) DirectoryEntry<InodeId_t>(inode, name.data());
+					err = m_fs->write(m_inodeId, cpy, cpy->size());
+				}
 			}
 		}
 		return err;

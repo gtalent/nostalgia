@@ -17,19 +17,19 @@ set_property(
 )
 
 if(OX_BUILD_EXEC STREQUAL "ON")
-	add_executable(
-		oxfstool
-			toollib.cpp
-			oxfstool.cpp
-	)
-	set_target_properties(oxfstool PROPERTIES OUTPUT_NAME oxfs)
-	target_link_libraries(
-		oxfstool
-			OxFS
-			OxTrace
-			OxMetalClaw
-			OxStd
-	)
+	#add_executable(
+	#	oxfstool
+	#		toollib.cpp
+	#		oxfstool.cpp
+	#)
+	#set_target_properties(oxfstool PROPERTIES OUTPUT_NAME oxfs)
+	#target_link_libraries(
+	#	oxfstool
+	#		OxFS
+	#		OxTrace
+	#		OxMetalClaw
+	#		OxStd
+	#)
 endif()
 
 install(
@@ -58,7 +58,7 @@ if(OX_BUILD_EXEC STREQUAL "ON")
 	if(OX_RUN_TESTS STREQUAL "ON")
 		add_subdirectory(test)
 	endif()
-	install(TARGETS oxfstool
-			  RUNTIME DESTINATION bin
-	)
+	#install(TARGETS oxfstool
+	#		  RUNTIME DESTINATION bin
+	#)
 endif()

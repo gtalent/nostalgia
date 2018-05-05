@@ -91,7 +91,7 @@ class Directory {
 
 		Error rm(PathIterator it) noexcept;
 
-		ValErr<InodeId_t> find(PathIterator it) const noexcept;
+		ValErr<InodeId_t> find(const char *name) const noexcept;
 
 };
 
@@ -154,15 +154,12 @@ Error Directory<InodeId_t>::rm(PathIterator) noexcept {
 }
 
 template<typename InodeId_t>
-ValErr<InodeId_t> Directory<InodeId_t>::find(PathIterator it) const noexcept {
+ValErr<InodeId_t> Directory<InodeId_t>::find(const char *name) const noexcept {
 	ValErr<InodeId_t> retval = {0, 1};
-	auto size = it.nextSize();
-	auto name = ox_malloca(size + 1, char);
-	it.next(name, size);
 	auto buff = m_fs->read(m_inodeId).template to<Buffer>();
 	for (auto i = buff->iterator(); i.hasNext(); i.next()) {
 		auto data = i->data();
-		if (data.valid() && data->name == name.get()) {
+		if (data.valid() && data->name == name) {
 			retval = static_cast<InodeId_t>(data->inode);
 		}
 	}

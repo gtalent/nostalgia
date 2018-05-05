@@ -88,7 +88,7 @@ inline Ptr<T, size_t, minOffset>::Ptr(void *dataStart, size_t dataSize, size_t i
 	if (itemSize >= sizeof(T) and
 	    dataStart and
 	    itemStart >= minOffset and
-	    itemStart + itemSize <= dataSize) {
+	    static_cast<std::size_t>(itemStart + itemSize) <= dataSize) {
 		m_dataStart = reinterpret_cast<uint8_t*>(dataStart);
 		m_dataSize = dataSize;
 		m_itemOffset = itemStart;

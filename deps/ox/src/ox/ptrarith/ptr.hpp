@@ -85,9 +85,9 @@ inline Ptr<T, size_t, minOffset>::Ptr(std::nullptr_t) {
 template<typename T, typename size_t, size_t minOffset>
 inline Ptr<T, size_t, minOffset>::Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize) {
 	// do some sanity checks before assuming this is valid
-	if (itemSize >= sizeof(T) and
-	    dataStart and
-	    itemStart >= minOffset and
+	if (itemSize >= sizeof(T) &&
+	    dataStart &&
+	    itemStart >= minOffset &&
 	    static_cast<std::size_t>(itemStart + itemSize) <= dataSize) {
 		m_dataStart = reinterpret_cast<uint8_t*>(dataStart);
 		m_dataSize = dataSize;
@@ -171,7 +171,7 @@ inline T &Ptr<T, size_t, minOffset>::operator*() {
 
 template<typename T, typename size_t, size_t minOffset>
 inline Ptr<T, size_t, minOffset>::operator size_t() const {
-	if (m_dataStart and m_itemOffset) {
+	if (m_dataStart && m_itemOffset) {
 		return m_itemOffset;
 	}
 	return 0;

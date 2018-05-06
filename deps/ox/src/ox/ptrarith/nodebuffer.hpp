@@ -191,9 +191,9 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t 
 	auto itemSpace = m_header.size - itemOffset;
 	auto item = reinterpret_cast<Item*>(reinterpret_cast<uint8_t*>(this) + itemOffset);
 	oxTrace("ox::ptrarith::NodeBuffer::ptr::itemOffset") << itemOffset << m_header.size - sizeof(Item);
-	if (itemOffset >= sizeof(Header) and
-		 itemOffset < m_header.size - sizeof(Item) and
-		 itemSpace >= static_cast<size_t>(sizeof(Item)) and
+	if (itemOffset >= sizeof(Header) &&
+		 itemOffset < m_header.size - sizeof(Item) &&
+		 itemSpace >= static_cast<size_t>(sizeof(Item)) &&
 		 itemSpace >= item->fullSize()) {
 		return ItemPtr(this, m_header.size, itemOffset, item->fullSize());
 	} else {
@@ -270,7 +270,7 @@ void NodeBuffer<size_t, Item>::free(ItemPtr item) {
 template<typename size_t, typename Item>
 Error NodeBuffer<size_t, Item>::setSize(size_t size) {
 	auto last = lastItem();
-	if ((last.valid() and last.end() >= size) or size < sizeof(m_header)) {
+	if ((last.valid() && last.end() >= size) || size < sizeof(m_header)) {
 		return 1;
 	} else {
 		m_header.size = size;

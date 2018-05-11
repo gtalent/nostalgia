@@ -55,6 +55,8 @@ class MallocaPtr {
 
 		inline MallocaPtr(MallocaPtr &other) = delete;
 
+		inline MallocaPtr(const MallocaPtr &other) = delete;
+
 		inline MallocaPtr(MallocaPtr &&other) noexcept {
 			m_size = other.m_size;
 			m_val = other.m_val;
@@ -84,7 +86,14 @@ class MallocaPtr {
 
 		inline const T &operator=(MallocaPtr &other) = delete;
 
+		inline const T &operator=(const MallocaPtr &other) = delete;
+
 		inline const T &operator=(MallocaPtr &&other) noexcept {
+			if constexpr(ox::defines::UseStdLib) {
+				if (m_size > ox::MallocaStackLimit) {
+					delete[] reinterpret_cast<uint8_t*>(m_val);
+				}
+			}
 			m_size = other.m_size;
 			m_val = other.m_val;
 			other.m_size = 0;

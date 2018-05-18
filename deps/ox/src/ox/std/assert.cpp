@@ -19,7 +19,7 @@ namespace ox {
 void _assert([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]bool pass, [[maybe_unused]]const char *msg) {
 #if defined(OX_USE_STDLIB)
 	if (!pass) {
-		std::cerr << '(' << file << ':' << line << "): " << msg << std::endl;
+		std::cerr << "\033[31;1;1mASSERT FAILURE:\033[0m (" << file << ':' << line << "): " << msg << std::endl;
 		std::abort();
 	}
 #endif

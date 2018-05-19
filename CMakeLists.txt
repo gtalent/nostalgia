@@ -53,6 +53,10 @@ if(NOSTALGIA_IDE_BUILD STREQUAL "ON")
 	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 endif()
 
+if(NOT NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
+	add_definitions(-DOX_USE_STDLIB)
+endif()
+
 if(APPLE)
 	set(CMAKE_MACOSX_RPATH OFF)
 	set(CMAKE_INSTALL_NAME_DIR "@executable_path/../Library/nostalgia")

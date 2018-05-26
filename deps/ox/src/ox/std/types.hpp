@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "bitops.hpp"
+
 #if OX_USE_STDLIB
 
 #include <cstdint>
@@ -52,7 +54,39 @@ typedef uint32_t uintptr_t;
 
 namespace ox {
 
-using Error = uint32_t;
+using Error = uint64_t;
+
+struct ErrorInfo {
+	const char *file = nullptr;
+	int line = -1;
+	Error errCode = 0;
+
+	ErrorInfo() = default;
+
+	ErrorInfo(Error err) {
+		this->file = reinterpret_cast<const char*>(err & onMask<Error>(48));
+		this->line = static_cast<int>((err >> 48) & onMask<Error>(5));
+		this->errCode = (err >> 59) & onMask<Error>(11);
+	}
+};
+
+constexpr Error ErrorTags(Error line, Error errCode) {
+	line &= onMask<Error>(5);
+	line <<= 48;
+	errCode &= onMask<Error>(11);
+	errCode <<= 59;
+	return errCode | line;
+}
+
+}
+
+#ifdef DEBUG
+#define OxError(x) reinterpret_cast<uint64_t>(__FILE__) | ErrorTags(__LINE__, x)
+#else
+#define OxError(x) x
+#endif
+
+namespace ox {
 
 template<typename T>
 struct ValErr {

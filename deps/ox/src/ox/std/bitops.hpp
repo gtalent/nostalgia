@@ -8,14 +8,21 @@
 
 #pragma once
 
-#include "types.hpp"
-
 namespace ox {
 
 template<typename T>
 inline constexpr T rotateLeft(T i, int shift) {
 	constexpr auto bits = sizeof(i) * 8;
 	return (i << shift) | (i >> (bits - shift));
+}
+
+template<typename T>
+constexpr T onMask(int bits) {
+	T out = 0;
+	for (auto i = 0; i < bits; i++) {
+		out |= 1 << i;
+	}
+	return out;
 }
 
 }

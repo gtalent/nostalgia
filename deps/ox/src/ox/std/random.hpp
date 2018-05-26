@@ -8,15 +8,13 @@
 
 #pragma once
 
-uint64_t ox_rand();
+#include "types.hpp"
 
 namespace ox {
 
-typedef uint64_t RandomSeed[2];
+using RandomSeed = uint64_t[2];
 
 class Random {
-	public:
-
 	private:
 		RandomSeed m_seed;
 

@@ -20,9 +20,14 @@ template<typename T>
 constexpr T onMask(int bits) {
 	T out = 0;
 	for (auto i = 0; i < bits; i++) {
-		out |= 1 << i;
+		out |= static_cast<T>(1) << i;
 	}
 	return out;
 }
+
+static_assert(onMask<int>(1) == 1);
+static_assert(onMask<int>(2) == 3);
+static_assert(onMask<int>(3) == 7);
+static_assert(onMask<int>(4) == 15);
 
 }

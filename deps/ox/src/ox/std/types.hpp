@@ -65,15 +65,15 @@ struct ErrorInfo {
 
 	ErrorInfo(Error err) {
 		this->file = reinterpret_cast<const char*>(err & onMask<Error>(48));
-		this->line = static_cast<int>((err >> 48) & onMask<Error>(5));
-		this->errCode = (err >> 59) & onMask<Error>(11);
+		this->line = static_cast<int>((err >> 48) & onMask<Error>(11));
+		this->errCode = (err >> 58) & onMask<Error>(5);
 	}
 };
 
 constexpr Error ErrorTags(Error line, Error errCode) {
-	line &= onMask<Error>(5);
+	line &= onMask<Error>(11);
 	line <<= 48;
-	errCode &= onMask<Error>(11);
+	errCode &= onMask<Error>(5);
 	errCode <<= 59;
 	return errCode | line;
 }
@@ -81,7 +81,7 @@ constexpr Error ErrorTags(Error line, Error errCode) {
 }
 
 #ifdef DEBUG
-#define OxError(x) reinterpret_cast<uint64_t>(__FILE__) | ErrorTags(__LINE__, x)
+#define OxError(x) x ? reinterpret_cast<uint64_t>(__FILE__) | ErrorTags(__LINE__, x) : 0
 #else
 #define OxError(x) x
 #endif

@@ -8,14 +8,30 @@
 
 #pragma once
 
+#if defined(OX_USE_STDLIB)
+#include <iostream>
+#endif
+
+#include <ox/__buildinfo/defines.hpp>
+
+#include "types.hpp"
+
 namespace ox {
 
-void _assert(const char *file, int line, bool pass, const char *msg);
+template<typename T>
+void _assert(const char*, int, T, const char*) {
+}
+
+template<>
+void _assert<bool>(const char *file, int line, bool pass, const char *msg);
+
+template<>
+void _assert<Error>(const char *file, int line, Error err, const char*);
 
 }
 
 #ifndef NDEBUG
-#define oxAssert(pass, msg) ox::_assert(__FILE__, __LINE__, pass, msg)
+#define oxAssert(pass, msg) ox::_assert<decltype(pass)>(__FILE__, __LINE__, pass, msg)
 #else
 #define oxAssert(pass, msg)
 #endif

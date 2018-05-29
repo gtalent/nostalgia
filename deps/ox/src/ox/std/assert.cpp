@@ -6,20 +6,38 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#if defined(OX_USE_STDLIB)
+#include <bitset>
+#include <iostream>
+#endif
+
 #include <ox/__buildinfo/defines.hpp>
 
-#if defined(OX_USE_STDLIB)
-
-#include <iostream>
-
-#endif
+#include "assert.hpp"
 
 namespace ox {
 
-void _assert([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]bool pass, [[maybe_unused]]const char *msg) {
+template<>
+void _assert<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]bool pass, [[maybe_unused]]const char *msg) {
 #if defined(OX_USE_STDLIB)
 	if (!pass) {
 		std::cerr << "\033[31;1;1mASSERT FAILURE:\033[0m (" << file << ':' << line << "): " << msg << std::endl;
+		std::abort();
+	}
+#endif
+}
+
+template<>
+void _assert<Error>([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]Error err, [[maybe_unused]]const char *msg) {
+#if defined(OX_USE_STDLIB)
+	if (err) {
+		auto ei = ErrorInfo(err);
+		std::cerr << "\033[31;1;1mASSERT FAILURE:\033[0m (" << file << ':' << line << "): " << msg << '\n';
+		std::cerr <<  "\tError Info: " << ei.errCode;
+		if (ei.file != nullptr) {
+			std::cerr << " (" << reinterpret_cast<const char*>(ei.file) << ':' << ei.line << ')';
+		}
+		std::cerr << std::endl;
 		std::abort();
 	}
 #endif

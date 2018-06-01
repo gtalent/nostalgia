@@ -24,22 +24,22 @@ PathIterator::PathIterator(const char *path): PathIterator(path, ox_strlen(path)
 /**
  * @return 0 if no error
  */
-int PathIterator::dirPath(char *out, std::size_t outSize) {
+Error PathIterator::dirPath(char *out, std::size_t outSize) {
 	int idx = ox_lastIndexOf(m_path, '/', m_maxSize);
 	std::size_t size = idx + 1;
 	if (idx >= 0 && size < outSize) {
 		ox_memcpy(out, m_path, size);
 		out[size] = 0;
-		return 0;
+		return OxError(0);
 	} else {
-		return 1;
+		return OxError(1);
 	}
 }
 
 /**
  * @return 0 if no error
  */
-int PathIterator::fileName(char *out, std::size_t outSize) {
+Error PathIterator::fileName(char *out, std::size_t outSize) {
 	auto idx = ox_lastIndexOf(m_path, '/', m_maxSize);
 	if (idx >= 0) {
 		idx++; // pass up the preceding /
@@ -47,19 +47,51 @@ int PathIterator::fileName(char *out, std::size_t outSize) {
 		if (fileNameSize < outSize) {
 			ox_memcpy(out, &m_path[idx], fileNameSize);
 			out[fileNameSize] = 0;
-			return 0;
+			return OxError(0);
 		} else {
-			return 1;
+			return OxError(1);
 		}
 	} else {
-		return 2;
+		return OxError(2);
 	}
 }
 
-// Gets the next item in the path
-int PathIterator::next(char *pathOut, std::size_t pathOutSize) {
+// Gets the get item in the path
+Error PathIterator::get(char *pathOut, std::size_t pathOutSize) {
 	std::size_t size = 0;
-	int retval = 1;
+	Error retval = 1;
+	if (m_iterator < m_maxSize && ox_strlen(&m_path[m_iterator])) {
+		retval = 0;
+		auto start = m_iterator;
+		if (m_path[start] == '/') {
+			start++;
+		}
+		// end is at the next /
+		const char *substr = ox_strchr(&m_path[start], '/', m_maxSize - start);
+		// correct end if it is invalid, which happens if there is no next /
+		if (!substr) {
+			substr = ox_strchr(&m_path[start], 0, m_maxSize - start);
+		}
+		std::size_t end = substr - m_path;
+		size = end - start;
+		// cannot fit the output in the output parameter
+		if (size >= pathOutSize) {
+			return OxError(1);
+		}
+		ox_memcpy(pathOut, &m_path[start], size);
+	}
+	// truncate trailing /
+	if (size && pathOut[size - 1] == '/') {
+		size--;
+	}
+	pathOut[size] = 0; // end with null terminator
+	return OxError(retval);
+}
+
+// Gets the get item in the path
+Error PathIterator::next(char *pathOut, std::size_t pathOutSize) {
+	std::size_t size = 0;
+	Error retval = 1;
 	if (m_iterator < m_maxSize && ox_strlen(&m_path[m_iterator])) {
 		retval = 0;
 		if (m_path[m_iterator] == '/') {
@@ -76,7 +108,7 @@ int PathIterator::next(char *pathOut, std::size_t pathOutSize) {
 		size = end - start;
 		// cannot fit the output in the output parameter
 		if (size >= pathOutSize) {
-			return -1;
+			return OxError(1);
 		}
 		ox_memcpy(pathOut, &m_path[start], size);
 	}
@@ -86,13 +118,20 @@ int PathIterator::next(char *pathOut, std::size_t pathOutSize) {
 	}
 	pathOut[size] = 0; // end with null terminator
 	m_iterator += size;
-	return retval;
+	return OxError(retval);
 }
 
 /**
  * @return 0 if no error
  */
-int PathIterator::next(BString<MaxFileNameLength> *fileName) {
+Error PathIterator::get(BString<MaxFileNameLength> *fileName) {
+	return get(fileName->data(), fileName->cap());
+}
+
+/**
+ * @return 0 if no error
+ */
+Error PathIterator::next(BString<MaxFileNameLength> *fileName) {
 	return next(fileName->data(), fileName->cap());
 }
 
@@ -116,7 +155,7 @@ ValErr<std::size_t> PathIterator::nextSize() const {
 		size = end - start;
 	}
 	it += size;
-	return {size, retval};
+	return {size, OxError(retval)};
 }
 
 bool PathIterator::hasNext() const {
@@ -138,12 +177,31 @@ bool PathIterator::hasNext() const {
 	return size > 0;
 }
 
-PathIterator PathIterator::operator+(int i) {
-	return PathIterator(m_path, m_maxSize, m_iterator + i);
+bool PathIterator::valid() const {
+	return m_path[m_iterator] != 0;
 }
 
-PathIterator PathIterator::operator-(int i) {
-	return PathIterator(m_path, m_maxSize, m_iterator - i);
+PathIterator PathIterator::operator+(int i) const {
+	std::size_t size = 0;
+	Error retval = 1;
+	auto iterator = m_iterator;
+	if (iterator < m_maxSize && ox_strlen(&m_path[iterator])) {
+		retval = 0;
+		if (m_path[iterator] == '/') {
+			iterator++;
+		}
+		std::size_t start = iterator;
+		// end is at the next /
+		const char *substr = ox_strchr(&m_path[start], '/', m_maxSize - start);
+		// correct end if it is invalid, which happens if there is no next /
+		if (!substr) {
+			substr = ox_strchr(&m_path[start], 0, m_maxSize - start);
+		}
+		std::size_t end = substr - m_path;
+		size = end - start;
+	}
+	iterator += size;
+	return PathIterator(m_path, m_maxSize, iterator + i);
 }
 
 }

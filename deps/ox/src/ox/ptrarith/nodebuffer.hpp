@@ -55,6 +55,10 @@ class __attribute__((packed)) NodeBuffer {
 					return m_current;
 				}
 
+				bool valid() {
+					return m_current.valid();
+				}
+
 				bool hasNext() {
 					if (m_current.valid()) {
 						oxTrace("ox::ptrarith::NodeBuffer::Iterator::hasNext::current") << m_current.offset();
@@ -190,7 +194,6 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t 
 	// make sure this can be read as an Item, and then use Item::size for the size
 	auto itemSpace = m_header.size - itemOffset;
 	auto item = reinterpret_cast<Item*>(reinterpret_cast<uint8_t*>(this) + itemOffset);
-	oxTrace("ox::ptrarith::NodeBuffer::ptr::itemOffset") << itemOffset << m_header.size - sizeof(Item);
 	if (itemOffset >= sizeof(Header) &&
 		 itemOffset < m_header.size - sizeof(Item) &&
 		 itemSpace >= static_cast<size_t>(sizeof(Item)) &&
@@ -271,10 +274,10 @@ template<typename size_t, typename Item>
 Error NodeBuffer<size_t, Item>::setSize(size_t size) {
 	auto last = lastItem();
 	if ((last.valid() && last.end() >= size) || size < sizeof(m_header)) {
-		return 1;
+		return OxError(1);
 	} else {
 		m_header.size = size;
-		return 0;
+		return OxError(0);
 	}
 }
 

@@ -28,22 +28,32 @@ class PathIterator {
 		/**
 		 * @return 0 if no error
 		 */
-		int dirPath(char *pathOut, std::size_t pathOutSize);
+		Error dirPath(char *pathOut, std::size_t pathOutSize);
 
 		/**
 		 * @return 0 if no error
 		 */
-		int fileName(char *out, std::size_t outSize);
+		Error fileName(char *out, std::size_t outSize);
 
 		/**
 		 * @return 0 if no error
 		 */
-		int next(char *pathOut, std::size_t pathOutSize);
+		Error next(char *pathOut, std::size_t pathOutSize);
 
 		/**
 		 * @return 0 if no error
 		 */
-		int next(BString<MaxFileNameLength> *fileName);
+		Error get(char *pathOut, std::size_t pathOutSize);
+
+		/**
+		 * @return 0 if no error
+		 */
+		Error next(BString<MaxFileNameLength> *fileName);
+
+		/**
+		 * @return 0 if no error
+		 */
+		Error get(BString<MaxFileNameLength> *fileName);
 
 		/**
 		 * @return 0 if no error
@@ -52,9 +62,9 @@ class PathIterator {
 
 		bool hasNext() const;
 
-		PathIterator operator+(int i);
+		bool valid() const;
 
-		PathIterator operator-(int i);
+		PathIterator operator+(int i) const;
 
 };
 

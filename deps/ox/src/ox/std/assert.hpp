@@ -14,7 +14,7 @@
 
 #include <ox/__buildinfo/defines.hpp>
 
-#include "types.hpp"
+#include "error.hpp"
 
 namespace ox {
 

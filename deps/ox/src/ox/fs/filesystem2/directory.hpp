@@ -18,52 +18,55 @@ namespace ox::fs {
 template<typename InodeId_t>
 struct __attribute__((packed)) DirectoryEntry {
 
-	struct __attribute__((packed)) DirectoryEntryData {
-		// DirectoryEntry fields
-		LittleEndian<InodeId_t> inode = 0;
-		char name[MaxFileNameLength];
-	};
+	public:
+		struct __attribute__((packed)) DirectoryEntryData {
+			// DirectoryEntry fields
+			LittleEndian<InodeId_t> inode = 0;
+			char name[MaxFileNameLength];
+		};
 
-	// NodeBuffer fields
-	LittleEndian<InodeId_t> prev = 0;
-	LittleEndian<InodeId_t> next = 0;
+		// NodeBuffer fields
+		LittleEndian<InodeId_t> prev = 0;
+		LittleEndian<InodeId_t> next = 0;
 
-	DirectoryEntry() = default;
 
-	DirectoryEntry(InodeId_t inode, const char *name) {
-		auto d = data();
-		if (d.valid()) {
-			d->inode = inode;
-			ox_strncpy(d->name, name, MaxFileNameLength);
+	private:
+		LittleEndian<InodeId_t> m_bufferSize = sizeof(DirectoryEntry);
+
+	public:
+		DirectoryEntry() = default;
+
+		DirectoryEntry(InodeId_t inode, const char *name, InodeId_t bufferSize) {
+			auto d = data();
+			if (d.valid()) {
+				d->inode = inode;
+				ox_strncpy(d->name, name, MaxFileNameLength);
+				m_bufferSize = bufferSize;
+			}
 		}
-	}
 
-	ptrarith::Ptr<DirectoryEntryData, InodeId_t> data() {
-		return ptrarith::Ptr<DirectoryEntryData, InodeId_t>(this, this->fullSize(), sizeof(*this), this->size());
-	}
-
-	/**
-	 * @return the size of the data + the size of the Item type
-	 */
-	InodeId_t fullSize() const {
-		const auto d = const_cast<DirectoryEntry*>(this)->data();
-		if (d.valid()) {
-			return sizeof(*this) + offsetof(DirectoryEntryData, name) + ox_strnlen(d->name, MaxFileNameLength);
+		ptrarith::Ptr<DirectoryEntryData, InodeId_t> data() {
+			return ptrarith::Ptr<DirectoryEntryData, InodeId_t>(this, this->fullSize(), sizeof(*this), this->size());
 		}
-		return 0;
-	}
 
-	InodeId_t size() const {
-		return fullSize() - offsetof(DirectoryEntryData, inode);
-	}
+		/**
+		 * @return the size of the data + the size of the Item type
+		 */
+		InodeId_t fullSize() const {
+			return m_bufferSize;
+		}
 
-	void setSize(InodeId_t) {
-		// ignore set value
-	}
+		InodeId_t size() const {
+			return fullSize() - offsetof(DirectoryEntryData, inode);
+		}
 
-	static std::size_t spaceNeeded(std::size_t chars) {
-		return sizeof(DirectoryEntry) + chars;
-	}
+		void setSize(InodeId_t) {
+			// ignore set value
+		}
+
+		static std::size_t spaceNeeded(std::size_t chars) {
+			return sizeof(DirectoryEntry) + offsetof(DirectoryEntryData, name) + chars;
+		}
 
 };
 
@@ -76,7 +79,6 @@ class Directory {
 
 		InodeId_t m_inodeId = 0;
 		std::size_t m_size = 0;
-		Buffer *m_buff = nullptr;
 		FileStore *m_fs = nullptr;
 
 	public:
@@ -91,18 +93,17 @@ class Directory {
 
 		Error rm(PathIterator it) noexcept;
 
-		ValErr<InodeId_t> find(const char *name) const noexcept;
+		ValErr<InodeId_t> find(const BString<MaxFileNameLength> &name) const noexcept;
 
 };
 
 template<typename InodeId_t>
-Directory<InodeId_t>::Directory(FileStore *fs, InodeId_t id) {
+Directory<InodeId_t>::Directory(FileStore *fs, InodeId_t inodeId) {
 	m_fs = fs;
-	m_inodeId = id;
-	auto buff = fs->read(id).template to<Buffer>();
+	m_inodeId = inodeId;
+	auto buff = fs->read(inodeId).template to<Buffer>();
 	if (buff.valid()) {
 		m_size = buff.size();
-		m_buff = buff;
 	}
 }
 
@@ -113,17 +114,37 @@ Error Directory<InodeId_t>::init() noexcept {
 	auto buff = m_fs->read(m_inodeId);
 	if (buff.valid()) {
 		new (buff) Buffer(Size);
-		return 0;
+		m_size = Size;
+		return OxError(0);
 	}
-	return 1;
+	m_size = 0;
+	return OxError(1);
 }
 
 template<typename InodeId_t>
 Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode) noexcept {
-	// find existing entry and update if exists
+	InodeId_t nextChild = 0;
+	if ((path + 1).hasNext()) {
+		oxTrace("ox::fs::Directory::write") << "Attempting to write to next sub-Directory";
 
-	if (!path.hasNext()) {
-		Error err = 1;
+		// read the name and pop it off the stack as soon as possible to help
+		// avoid a stack overflow in the recursive calls
+		{
+			BString<MaxFileNameLength> name;
+			path.get(&name);
+			nextChild = find(name);
+		}
+
+		// It's important for the recursive call to be outside the block where name
+		// lived. This avoids allocation several BString<MaxFileNameLength>s on the
+		// stack at once, while also avoiding the use of heap memory.
+		if (nextChild) {
+			return Directory(m_fs, nextChild).write(path + 1, inode);
+		}
+	} else {
+		// insert the new entry on this directory
+
+		// get the name
 		BString<MaxFileNameLength> name;
 		path.next(&name);
 
@@ -133,37 +154,50 @@ Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode) noexcept {
 			const auto newSize = m_size + DirectoryEntry<InodeId_t>::spaceNeeded(name.size());
 			auto cpy = ox_malloca(newSize, Buffer, old);
 			if (cpy != nullptr) {
+				// TODO: look for old version of this entry and delete it
+
 				cpy->setSize(newSize);
 				auto val = cpy->malloc(name.size());
 				if (val.valid()) {
-					new (val) DirectoryEntry<InodeId_t>(inode, name.data());
-					err = m_fs->write(m_inodeId, cpy, cpy->size());
+					oxTrace("ox::fs::Directory::write") << "Attempting to write Directory to FileStore";
+					new (val) DirectoryEntry<InodeId_t>(inode, name.data(), newSize);
+					return m_fs->write(m_inodeId, cpy, cpy->size());
+				} else {
+					oxTrace("ox::fs::Directory::write::fail") << "Could not allocate memory for new directory entry";
 				}
+			} else {
+				oxTrace("ox::fs::Directory::write::fail") << "Could not allocate memory for copy of Directory";
 			}
+		} else {
+			oxTrace("ox::fs::Directory::write::fail") << "Could not read existing version of Directory";
 		}
-		return err;
 	}
-
-	// TODO: get sub directory and call its write instead of recursing on this directory
-	return write(path + 1, inode);
+	return OxError(1);
 }
 
 template<typename InodeId_t>
 Error Directory<InodeId_t>::rm(PathIterator) noexcept {
-	return 1;
+	return OxError(1);
 }
 
 template<typename InodeId_t>
-ValErr<InodeId_t> Directory<InodeId_t>::find(const char *name) const noexcept {
-	ValErr<InodeId_t> retval = {0, 1};
+ValErr<InodeId_t> Directory<InodeId_t>::find(const BString<MaxFileNameLength> &name) const noexcept {
+	oxTrace("ox::fs::Directory::find") << name.c_str();
 	auto buff = m_fs->read(m_inodeId).template to<Buffer>();
-	for (auto i = buff->iterator(); i.hasNext(); i.next()) {
-		auto data = i->data();
-		if (data.valid() && data->name == name) {
-			retval = static_cast<InodeId_t>(data->inode);
+	if (buff.valid()) {
+		oxTrace("ox::fs::Directory::find") << "Found directory buffer.";
+		for (auto i = buff->iterator(); i.valid(); i.next()) {
+			auto data = i->data();
+			oxTrace("ox::fs::Directory::find::name") << name.c_str();
+			if (data.valid() && data->name == name.c_str()) {
+				return static_cast<InodeId_t>(data->inode);
+			}
 		}
+		oxTrace("ox::fs::Directory::find::fail");
+	} else {
+		oxTrace("ox::fs::Directory::find::fail") << "Could not find directory buffer";
 	}
-	return retval;
+	return {0, OxError(1)};
 }
 
 

@@ -60,6 +60,7 @@ add_test("Test\\ PathIterator::next2" FSTests PathIterator::next2)
 add_test("Test\\ PathIterator::next3" FSTests PathIterator::next3)
 add_test("Test\\ PathIterator::next4" FSTests PathIterator::next4)
 add_test("Test\\ PathIterator::next5" FSTests PathIterator::next5)
+add_test("Test\\ PathIterator::hasNext" FSTests PathIterator::hasNext)
 
 add_test("Test\\ PathIterator::dirPath" FSTests PathIterator::dirPath)
 add_test("Test\\ PathIterator::fileName" FSTests PathIterator::fileName)

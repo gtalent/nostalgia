@@ -33,11 +33,11 @@ void _assert<Error>([[maybe_unused]]const char *file, [[maybe_unused]]int line, 
 	if (err) {
 		auto ei = ErrorInfo(err);
 		std::cerr << "\033[31;1;1mASSERT FAILURE:\033[0m (" << file << ':' << line << "): " << msg << '\n';
-		std::cerr <<  "\tError Info: " << ei.errCode;
+		std::cerr <<  "\tError Code:\t" << ei.errCode << '\n';
 		if (ei.file != nullptr) {
-			std::cerr << " (" << reinterpret_cast<const char*>(ei.file) << ':' << ei.line << ')';
+			std::cerr << "\tError Location:\t" << reinterpret_cast<const char*>(ei.file) << ':' << ei.line << '\n';
 		}
-		std::cerr << std::endl;
+		std::cerr << std::flush;
 		std::abort();
 	}
 #endif

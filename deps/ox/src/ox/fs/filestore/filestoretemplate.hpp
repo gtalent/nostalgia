@@ -87,7 +87,7 @@ class FileStoreTemplate: public FileStore {
 		 * @return 0 if read is a success
 		 */
 		template<typename T>
-		int read(InodeId_t id, FsSize_t readStart,
+		Error read(InodeId_t id, FsSize_t readStart,
 		         FsSize_t readSize, T *data,
 		         FsSize_t *size);
 
@@ -108,7 +108,19 @@ class FileStoreTemplate: public FileStore {
 		 * Places the given Item at the given ID. If it already exists, the
 		 * existing value will be overwritten.
 		 */
+		Error placeItem(ItemPtr item);
+
+		/**
+		 * Places the given Item at the given ID. If it already exists, the
+		 * existing value will be overwritten.
+		 */
 		Error placeItem(ItemPtr root, ItemPtr item, int depth = 0);
+
+		/**
+		 * Removes the given Item at the given ID. If it already exists, the
+		 * existing value will be overwritten.
+		 */
+		Error unplaceItem(ItemPtr root, ItemPtr item, int depth = 0);
 
 		/**
 		 * Finds the parent an inode by its ID.
@@ -152,12 +164,12 @@ Error FileStoreTemplate<size_t>::format() {
 		auto data = m_buffer->template dataOf<FileStoreData>(fsData);
 		if (data.valid()) {
 			new (data) FileStoreData;
-			return 0;
+			return OxError(0);
 		} else {
 			oxTrace("ox::fs::FileStoreTemplate::format::fail") << "Could not read data section of FileStoreData";
 		}
 	}
-	return 1;
+	return OxError(1);
 }
 
 template<typename size_t>
@@ -165,7 +177,7 @@ Error FileStoreTemplate<size_t>::setSize(InodeId_t size) {
 	if (m_buffSize >= size) {
 		return m_buffer->setSize(size);
 	}
-	return 1;
+	return OxError(1);
 }
 
 template<typename size_t>
@@ -173,9 +185,9 @@ Error FileStoreTemplate<size_t>::incLinks(InodeId_t id) {
 	auto item = find(id);
 	if (item.valid()) {
 		item->links++;
-		return 0;
+		return OxError(0);
 	}
-	return 1;
+	return OxError(1);
 }
 
 template<typename size_t>
@@ -183,9 +195,9 @@ Error FileStoreTemplate<size_t>::decLinks(InodeId_t id) {
 	auto item = find(id);
 	if (item.valid()) {
 		item->links--;
-		return 0;
+		return OxError(0);
 	}
-	return 1;
+	return OxError(1);
 }
 
 template<typename size_t>
@@ -222,12 +234,12 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 					auto root = m_buffer->ptr(fsData->rootNode);
 					if (root.valid()) {
 						oxTrace("ox::fs::FileStoreTemplate::write") << "Placing" << dest->id << "on" << root->id << "at" << destData.offset();
-						return placeItem(root, dest);
+						return placeItem(dest);
 					} else {
-						oxTrace("ox::fs::FileStoreTemplate::write") << "Initializing root inode with offset of" << dest.offset()
-							<< "and data size of" << destData.size();
+						oxTrace("ox::fs::FileStoreTemplate::write") << "Initializing root inode ( offset:" << dest.offset()
+						                                            << ", data size:" << destData.size() << ")";
 						fsData->rootNode = dest.offset();
-						return 0;
+						return OxError(0);
 					}
 				} else {
 					oxTrace("ox::fs::FileStoreTemplate::write::fail") << "Could not place item due to absence of FileStore header.";
@@ -236,7 +248,7 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 		}
 		m_buffer->free(dest);
 	}
-	return 1;
+	return OxError(1);
 }
 
 template<typename size_t>
@@ -254,7 +266,7 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, void *data, FsSize_t dataSiz
 			if (size) {
 				*size = src.size();
 			}
-			return 0;
+			return OxError(0);
 		} else {
 			oxTrace("ox::fs::FileStoreTemplate::read::fail") << "Could not read data section of item:" << id;
 			oxTrace("ox::fs::FileStoreTemplate::read::fail") << "Item data section size:" << srcData.size();
@@ -262,7 +274,7 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, void *data, FsSize_t dataSiz
 	} else {
 		oxTrace("ox::fs::FileStoreTemplate::read::fail") << "Could not find requested item:" << id;
 	}
-	return 1;
+	return OxError(1);
 }
 
 template<typename size_t>
@@ -277,7 +289,7 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart, FsSize_t
 				if (size) {
 					*size = sub.size();
 				}
-				return 0;
+				return OxError(0);
 			} else {
 				oxTrace("ox::fs::FileStoreTemplate::read::fail") << "Could not read requested data sub-section of item:" << id;
 			}
@@ -287,12 +299,12 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart, FsSize_t
 	} else {
 		oxTrace("ox::fs::FileStoreTemplate::read::fail") << "Could not find requested item:" << id;
 	}
-	return 1;
+	return OxError(1);
 }
 
 template<typename size_t>
 template<typename T>
-int FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart,
+Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart,
                                     FsSize_t readSize, T *data, FsSize_t *size) {
 	auto src = find(id);
 	if (src.valid()) {
@@ -312,11 +324,11 @@ int FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart,
 				if (size) {
 					*size = sub.size();
 				}
-				return 0;
+				return OxError(0);
 			}
 		}
 	}
-	return 1;
+	return OxError(1);
 }
 
 template<typename size_t>
@@ -375,29 +387,92 @@ typename FileStoreTemplate<size_t>::FileStoreData *FileStoreTemplate<size_t>::fi
 }
 
 template<typename size_t>
+Error FileStoreTemplate<size_t>::placeItem(ItemPtr item) {
+	auto fsData = fileStoreData();
+	if (fsData) {
+		auto root = m_buffer->ptr(fsData->rootNode);
+		if (root.valid()) {
+			if (root->id == item->id) {
+				fsData->rootNode = item;
+				item->left = root->left;
+				item->right = root->right;
+				oxTrace("ox::fs::FileStoreTemplate::placeItem") << "Overwrote Root Item:" << item->id;
+				return 0;
+			} else {
+				return placeItem(root, item);
+			}
+		}
+	}
+	return OxError(1);
+}
+
+template<typename size_t>
 Error FileStoreTemplate<size_t>::placeItem(ItemPtr root, ItemPtr item, int depth) {
 	if (depth < 5000) {
 		if (item->id > root->id) {
 			auto right = m_buffer->ptr(root->right);
 			if (!right.valid() || right->id == item->id) {
-				root->right = root.offset();
-				return 0;
+				root->right = item.offset();
+				if (right.valid()) {
+					item->left = right->left;
+					item->right = right->right;
+				}
+				oxTrace("ox::fs::FileStoreTemplate::placeItem") << "Placed Item:" << item->id;
+				return OxError(0);
 			} else {
 				return placeItem(right, item, depth + 1);
 			}
 		} else if (item->id < root->id) {
 			auto left = m_buffer->ptr(root->left);
 			if (!left.valid() || left->id == item->id) {
-				root->left = root.offset();
-				return 0;
+				root->left = item.offset();
+				if (left.valid()) {
+					item->left = left->left;
+					item->right = left->right;
+				}
+				oxTrace("ox::fs::FileStoreTemplate::placeItem") << "Placed Item:" << item->id;
+				return OxError(0);
 			} else {
 				return placeItem(left, item, depth + 1);
 			}
+		} else {
+			oxTrace("ox::fs::FileStoreTemplate::placeItem::fail") << "Cannot insert an item on itself.";
+			return OxError(1);
 		}
 	} else {
 		oxTrace("ox::fs::FileStoreTemplate::placeItem::fail") << "Excessive recursion depth, stopping before stack overflow.";
+		return OxError(2);
 	}
-	return 1;
+}
+
+template<typename size_t>
+Error FileStoreTemplate<size_t>::unplaceItem(ItemPtr root, ItemPtr item, int depth) {
+	if (depth < 5000) {
+		if (item->id > root->id) {
+			auto right = m_buffer->ptr(root->right);
+			if (!right.valid() || right->id == item->id) {
+				root->right = item.offset();
+				oxTrace("ox::fs::FileStoreTemplate::unplaceItem") << "Placed Item:" << item->id;
+				return OxError(0);
+			} else {
+				return unplaceItem(right, item, depth + 1);
+			}
+		} else if (item->id < root->id) {
+			auto left = m_buffer->ptr(root->left);
+			if (!left.valid() || left->id == item->id) {
+				root->left = item.offset();
+				oxTrace("ox::fs::FileStoreTemplate::unplaceItem") << "Placed Item:" << item->id;
+				return OxError(0);
+			} else {
+				return unplaceItem(left, item, depth + 1);
+			}
+		} else {
+			oxTrace("ox::fs::FileStoreTemplate::unplaceItem::fail") << "Item already exists.";
+		}
+	} else {
+		oxTrace("ox::fs::FileStoreTemplate::unplaceItem::fail") << "Excessive recursion depth, stopping before stack overflow.";
+	}
+	return OxError(1);
 }
 
 template<typename size_t>

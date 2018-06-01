@@ -11,6 +11,7 @@
 #include "assert.hpp"
 #include "bitops.hpp"
 #include "byteswap.hpp"
+#include "error.hpp"
 #include "math.hpp"
 #include "memops.hpp"
 #include "new.hpp"

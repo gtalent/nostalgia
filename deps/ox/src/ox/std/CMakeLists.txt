@@ -21,6 +21,7 @@ install(
 		assert.hpp
 		bitops.hpp
 		byteswap.hpp
+		error.hpp
 		math.hpp
 		memops.hpp
 		new.hpp

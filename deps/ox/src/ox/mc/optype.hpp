@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "ox/std/error.hpp"
+
 namespace ox {
 
 enum class OpType {

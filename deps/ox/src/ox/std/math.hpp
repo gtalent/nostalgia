@@ -13,17 +13,17 @@
 namespace ox {
 
 template<typename T>
-inline const T &min(const T &a, const T &b) {
+inline constexpr const T &min(const T &a, const T &b) {
 	return a < b ? a : b;
 }
 
 template<typename T>
-inline const T &max(const T &a, const T &b) {
+inline constexpr const T &max(const T &a, const T &b) {
 	return a > b ? a : b;
 }
 
 template<typename I>
-inline I pow(I v, int e) {
+inline constexpr I pow(I v, int e) {
 	I out = 1;
 	for (I i = 0; i < e; i++) {
 		out *= v;

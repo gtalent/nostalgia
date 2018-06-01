@@ -32,9 +32,7 @@ map<string, int(*)(string)> tests = {
 				int retval = 0;
 				string path = "/usr/share/charset.gbag";
 				PathIterator it(path.c_str(), path.size());
-				const auto buffSize = 1024;
-				char buff[buffSize];
-				assert(buffSize >= path.size());
+				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
 				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "usr") == 0);
 				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "share") == 0);
 				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "charset.gbag") == 0);
@@ -47,9 +45,7 @@ map<string, int(*)(string)> tests = {
 				int retval = 0;
 				string path = "/usr/share/";
 				PathIterator it(path.c_str(), path.size());
-				const auto buffSize = 1024;
-				char buff[buffSize];
-				assert(buffSize >= path.size());
+				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
 				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "usr") == 0);
 				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "share") == 0);
 				return retval;
@@ -61,9 +57,7 @@ map<string, int(*)(string)> tests = {
 				int retval = 0;
 				string path = "/";
 				PathIterator it(path.c_str(), path.size());
-				const auto buffSize = 1024;
-				char buff[buffSize];
-				assert(buffSize >= path.size());
+				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
 				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "\0") == 0);
 				return retval;
 			}
@@ -74,9 +68,7 @@ map<string, int(*)(string)> tests = {
 				int retval = 0;
 				string path = "usr/share/charset.gbag";
 				PathIterator it(path.c_str(), path.size());
-				const auto buffSize = 1024;
-				char buff[buffSize];
-				assert(buffSize >= path.size());
+				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
 				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "usr") == 0);
 				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "share") == 0);
 				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "charset.gbag") == 0);
@@ -89,9 +81,7 @@ map<string, int(*)(string)> tests = {
 				int retval = 0;
 				string path = "usr/share/";
 				PathIterator it(path.c_str(), path.size());
-				const auto buffSize = 1024;
-				char buff[buffSize];
-				assert(buffSize >= path.size());
+				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
 				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "usr") == 0);
 				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "share") == 0);
 				return retval;
@@ -103,9 +93,7 @@ map<string, int(*)(string)> tests = {
 				int retval = 0;
 				string path = "/usr/share/charset.gbag";
 				PathIterator it(path.c_str(), path.size());
-				const auto buffSize = 1024;
-				char buff[buffSize];
-				assert(buffSize >= path.size());
+				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
 				retval |= !(it.dirPath(buff, path.size()) == 0 && ox_strcmp(buff, "/usr/share/") == 0);
 				return retval;
 			}
@@ -116,10 +104,19 @@ map<string, int(*)(string)> tests = {
 				int retval = 0;
 				string path = "/usr/share/charset.gbag";
 				PathIterator it(path.c_str(), path.size());
-				const auto buffSize = 1024;
-				char buff[buffSize];
-				assert(buffSize >= path.size());
+				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
 				retval |= !(it.fileName(buff, path.size()) == 0 && ox_strcmp(buff, "charset.gbag") == 0);
+				return retval;
+			}
+		},
+		{
+			"PathIterator::hasNext",
+			[](string) {
+				int retval = 0;
+				const auto path = "/file1";
+				PathIterator it(path, ox_strlen(path));
+				oxAssert(it.hasNext(), "PathIterator shows incorrect hasNext");
+				oxAssert(!(it + 1).hasNext(), "PathIterator shows incorrect hasNext");
 				return retval;
 			}
 		},
@@ -383,16 +380,27 @@ map<string, int(*)(string)> tests = {
 		{
 			"Directory",
 			[](string) {
-				//std::array<uint8_t, 5000> fsBuff;
-				//std::array<uint8_t, 1000> dirBuff;
-				//ox::fs::FileStore32 fileStore(fsBuff.data(), fsBuff.size());
-				//fileStore.format();
-				//ox::fs::Directory32 dir(&fileStore, dirBuff.data(), dirBuff.size());
-				//dir.init();
-				//dir.write("/file1", 1);
-				//oxAssert(dir.find("/file1") == 1, "Could not find /file1");
-				//dir.write("/file3", 3);
-				//dir.write("/file2", 2);
+				std::array<uint8_t, 5000> fsBuff;
+				ox::fs::FileStore32 fileStore(fsBuff.data(), fsBuff.size());
+				fileStore.format();
+				auto dir = ox_malloca(1000, ox::fs::Directory32, &fileStore, 100);
+
+				oxTrace("ox::fs::test::Directory") << "Init";
+				oxAssert(dir->init(), "Init failed");
+
+				oxTrace("ox::fs::test::Directory") << "write 1";
+				oxAssert(dir->write("/file1", 1), "Directory write of file1 failed");
+
+				oxTrace("ox::fs::test::Directory") << "find";
+				oxAssert(dir->find("file1").error, "Could not find file1");
+				oxAssert(dir->find("file1") == 1, "Could not find file1");
+
+				//oxTrace("ox::fs::test::Directory") << "write 2";
+				//oxAssert(dir->write("/file3", 3) == 0, "Directory write of file3 failed");
+
+				//oxTrace("ox::fs::test::Directory") << "write 3";
+				//oxAssert(dir->write("/file2", 2) == 0, "Directory write of file2 failed");
+
 				return 0;
 			}
 		},

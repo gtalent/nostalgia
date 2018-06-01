@@ -54,4 +54,16 @@ NullStream::NullStream(const char*, int, const char*, const char*) {
 NullStream::~NullStream() {
 }
 
+
+void logError(const char *file, int line, Error err) {
+	if (err) {
+		ErrorInfo ei(err);
+		TraceStream trc(file, line, "ox::error");
+		trc <<  "\tError:\t" << ei.errCode;
+		if (ei.file != nullptr) {
+			trc << " (" << reinterpret_cast<const char*>(ei.file) << ':' << ei.line << ')';
+		}
+	}
+}
+
 }

@@ -91,6 +91,12 @@ class NullStream {
 
 };
 
+using TraceStream = StdOutStream;
+
+void logError(const char *file, int line, Error err);
+
 }
 
-#define oxTrace(ch) ox::trace::StdOutStream(__FILE__, __LINE__, ch)
+#define oxLogError(err) ox::trace::logError(__FILE__, __LINE__, err)
+
+#define oxTrace(ch) ox::trace::TraceStream(__FILE__, __LINE__, ch)

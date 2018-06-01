@@ -61,6 +61,7 @@ class MallocaPtr {
 			m_size = other.m_size;
 			m_val = other.m_val;
 			other.m_size = 0;
+			other.m_val = nullptr;
 		}
 
 		inline MallocaPtr(std::size_t size, T *val) noexcept {

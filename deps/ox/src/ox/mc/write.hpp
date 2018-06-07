@@ -74,13 +74,13 @@ int MetalClawWriter::op(const char*, ox::BString<L> *val) {
 	if (val->len()) {
 		// write the length
 		typedef uint32_t StringLength;
-		if (m_buffIt + sizeof(StringLength) + val->size() < m_buffLen) {
-			*reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]) = static_cast<StringLength>(val->size());
+		if (m_buffIt + sizeof(StringLength) + val->bytes() < m_buffLen) {
+			*reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]) = static_cast<StringLength>(val->bytes());
 			m_buffIt += sizeof(StringLength);
 
 			// write the string
-			ox_memcpy(&m_buff[m_buffIt], val, val->size());
-			m_buffIt += val->size();
+			ox_memcpy(&m_buff[m_buffIt], val, val->bytes());
+			m_buffIt += val->bytes();
 			fieldSet = true;
 		} else {
 			err = MC_BUFFENDED;

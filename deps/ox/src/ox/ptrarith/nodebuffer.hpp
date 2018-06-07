@@ -43,6 +43,10 @@ class __attribute__((packed)) NodeBuffer {
 					return m_current;
 				}
 
+				Item *get() {
+					return m_current;
+				}
+
 				operator Item*() {
 					return m_current;
 				}
@@ -55,7 +59,7 @@ class __attribute__((packed)) NodeBuffer {
 					return m_current;
 				}
 
-				bool valid() {
+				bool valid() const noexcept {
 					return m_current.valid();
 				}
 
@@ -70,7 +74,11 @@ class __attribute__((packed)) NodeBuffer {
 
 				void next() {
 					oxTrace("ox::ptrarith::NodeBuffer::Iterator::next") << m_it++;
-					m_current = m_buffer->next(m_current);
+					if (hasNext()) {
+						m_current = m_buffer->next(m_current);
+					} else {
+						m_current = nullptr;
+					}
 				}
 		};
 
@@ -107,7 +115,7 @@ class __attribute__((packed)) NodeBuffer {
 
 		ItemPtr malloc(size_t size);
 
-		void free(ItemPtr item);
+		Error free(ItemPtr item);
 
 		bool valid(size_t maxSize);
 
@@ -192,11 +200,10 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::next(Item *
 template<typename size_t, typename Item>
 typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t itemOffset) {
 	// make sure this can be read as an Item, and then use Item::size for the size
-	auto itemSpace = m_header.size - itemOffset;
+	std::size_t itemSpace = m_header.size - itemOffset;
 	auto item = reinterpret_cast<Item*>(reinterpret_cast<uint8_t*>(this) + itemOffset);
 	if (itemOffset >= sizeof(Header) &&
-		 itemOffset < m_header.size - sizeof(Item) &&
-		 itemSpace >= static_cast<size_t>(sizeof(Item)) &&
+		 itemSpace >= sizeof(Item) &&
 		 itemSpace >= item->fullSize()) {
 		return ItemPtr(this, m_header.size, itemOffset, item->fullSize());
 	} else {
@@ -207,6 +214,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t 
 
 template<typename size_t, typename Item>
 typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size_t size) {
+	oxTrace("ox::ptrarith::NodeBuffer::malloc") << "Size:" << size;
 	size_t fullSize = size + sizeof(Item);
 	if (m_header.size - m_header.bytesUsed >= fullSize) {
 		auto last = lastItem();
@@ -216,7 +224,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 		} else {
 			// there is no first item, so this may be the first item
 			if (!m_header.firstItem) {
-				oxTrace("ox::fs::NodeBuffer::malloc") << "No first item, initializing.";
+				oxTrace("ox::ptrarith::NodeBuffer::malloc") << "No first item, initializing.";
 				m_header.firstItem = sizeof(m_header);
 				addr = m_header.firstItem;
 			}
@@ -231,7 +239,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 			if (first.valid()) {
 				first->prev = out.offset();
 			} else {
-				oxTrace("ox::fs::NodeBuffer::malloc::fail") << "NodeBuffer malloc failed due to invalid first element pointer.";
+				oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "NodeBuffer malloc failed due to invalid first element pointer.";
 				return nullptr;
 			}
 
@@ -240,34 +248,37 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 			if (last.valid()) {
 				last->next = out.offset();
 			} else {
-				oxTrace("ox::fs::NodeBuffer::malloc::fail") << "NodeBuffer malloc failed due to invalid last element pointer.";
+				oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "NodeBuffer malloc failed due to invalid last element pointer.";
 				return nullptr;
 			}
 			m_header.bytesUsed += out.size();
 		} else {
-			oxTrace("ox::fs::NodeBuffer::malloc::fail") << "Unknown";
+			oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "Unknown";
 		}
 		return out;
 	}
-	oxTrace("ox::fs::NodeBuffer::malloc::fail") << "Insufficient space:" << fullSize << "needed," << available() << "available";
+	oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "Insufficient space:" << fullSize << "needed," << available() << "available";
 	return nullptr;
 }
 
 template<typename size_t, typename Item>
-void NodeBuffer<size_t, Item>::free(ItemPtr item) {
+Error NodeBuffer<size_t, Item>::free(ItemPtr item) {
 	auto prev = this->prev(item);
 	auto next = this->next(item);
-	if (prev.valid()) {
+	if (prev.valid() && next.valid()) {
 		prev->next = next.offset();
-	} else {
-		oxTrace("ox::fs::NodeBuffer::free::fail") << "NodeBuffer free failed due to invalid prev element pointer.";
-	}
-	if (next.valid()) {
 		next->prev = prev.offset();
 	} else {
-		oxTrace("ox::fs::NodeBuffer::free::fail") << "NodeBuffer free failed due to invalid next element pointer.";
+		if (!prev.valid()) {
+			oxTrace("ox::ptrarith::NodeBuffer::free::fail") << "NodeBuffer free failed due to invalid prev element pointer:" << prev.offset();
+		}
+		if (!next.valid()) {
+			oxTrace("ox::ptrarith::NodeBuffer::free::fail") << "NodeBuffer free failed due to invalid next element pointer:" << next.offset();
+		}
+		return OxError(1);
 	}
 	m_header.bytesUsed -= item.size();
+	return OxError(0);
 }
 
 template<typename size_t, typename Item>

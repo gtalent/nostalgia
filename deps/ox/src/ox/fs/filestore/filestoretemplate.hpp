@@ -208,7 +208,12 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 	if (canWrite(existing, dataSize)) {
 		// delete the old node if it exists
 		if (existing.valid()) {
-			m_buffer->free(existing);
+			oxTrace("ox::fs::FileStoreTemplate::write") << "Freeing old version of inode found at offset:" << existing.offset();
+			auto err = m_buffer->free(existing);
+			if (err) {
+				oxTrace("ox::fs::FileStoreTemplate::write::fail") << "Free of old version of inode failed";
+				return err;
+			}
 			existing = nullptr;
 		}
 
@@ -220,7 +225,6 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 			dest = m_buffer->malloc(dataSize);
 		}
 		if (dest.valid()) {
-			new (dest) FileStoreItem<size_t>(dataSize);
 			dest->id = id;
 			dest->fileType = fileType;
 			auto destData = m_buffer->template dataOf<uint8_t>(dest);
@@ -507,7 +511,7 @@ typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(Item
 				return find(m_buffer->ptr(item->right), id, depth + 1);
 			} else if (id < item->id) {
 				return find(m_buffer->ptr(item->left), id, depth + 1);
-			} else {
+			} else if (id == item->id) {
 				return item;
 			}
 		} else {

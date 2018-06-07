@@ -51,7 +51,7 @@ class BString {
 		/**
 		 * Returns the number of bytes used for this string.
 		 */
-		std::size_t size() const noexcept;
+		std::size_t bytes() const noexcept;
 
 		/**
 		 * Returns the capacity of bytes for this string.
@@ -162,7 +162,7 @@ std::size_t BString<buffLen>::len() const noexcept {
 }
 
 template<std::size_t buffLen>
-std::size_t BString<buffLen>::size() const noexcept {
+std::size_t BString<buffLen>::bytes() const noexcept {
 	std::size_t i;
 	for (i = 0; i < buffLen && m_buff[i]; i++);
 	return i + 1; // add one for null terminator

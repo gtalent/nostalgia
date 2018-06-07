@@ -41,17 +41,10 @@ StdOutStream::StdOutStream(const char *file, int line, const char *ch, const cha
 
 StdOutStream::~StdOutStream() {
 #if defined(OX_USE_STDLIB)
-	std::cout << std::setw(50) << std::left << m_msg.ch.c_str() << '|';
-	std::cout << std::setw(60) << std::left << m_msg.msg.c_str() << '|';
+	std::cout << std::setw(53) << std::left << m_msg.ch.c_str() << '|';
+	std::cout << std::setw(65) << std::left << m_msg.msg.c_str() << '|';
 	std::cout << " " << m_msg.file.c_str() << ':' << m_msg.line << "\n";
 #endif
-}
-
-
-NullStream::NullStream(const char*, int, const char*, const char*) {
-}
-
-NullStream::~NullStream() {
 }
 
 

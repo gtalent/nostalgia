@@ -53,6 +53,22 @@ constexpr int ox_strcmp(const char *str1, const char *str2) noexcept {
 	return retval;
 }
 
+constexpr int ox_strncmp(const char *str1, const char *str2, std::size_t len) noexcept {
+	auto retval = 0;
+	std::size_t i = 0;
+	while (i < len && (str1[i] || str2[i])) {
+		if (str1[i] < str2[i]) {
+			retval = -1;
+			break;
+		} else if (str1[i] > str2[i]) {
+			retval = 1;
+			break;
+		}
+		i++;
+	}
+	return retval;
+}
+
 constexpr const char *ox_strchr(const char *str, int character, std::size_t maxLen = 0xFFFFFFFF) noexcept {
 	for (std::size_t i = 0; i <= maxLen; i++) {
 		if (str[i] == character) {

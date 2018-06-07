@@ -66,7 +66,7 @@ class StdOutStream {
 		~StdOutStream();
 
 		template<typename T>
-		inline StdOutStream &operator<<(const T &v) {
+		constexpr inline StdOutStream &operator<<(const T &v) {
 			m_msg.msg += " ";
 			m_msg.msg += v;
 			return *this;
@@ -78,20 +78,25 @@ class StdOutStream {
 class NullStream {
 
 	public:
-		NullStream() = default;
+		constexpr NullStream() = default;
 
-		NullStream(const char *file, int line, const char *ch, const char *msg = "");
+		constexpr NullStream(const char*, int, const char*, const char* = "") {
+		}
 
-		~NullStream();
+		~NullStream() = default;
 
 		template<typename T>
-		inline NullStream &operator<<(const T&) {
+		constexpr inline NullStream &operator<<(const T&) {
 			return *this;
 		}
 
 };
 
+#ifdef DEBUG
 using TraceStream = StdOutStream;
+#else
+using TraceStream = NullStream;
+#endif
 
 void logError(const char *file, int line, Error err);
 

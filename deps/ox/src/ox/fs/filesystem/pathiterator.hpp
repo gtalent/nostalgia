@@ -12,7 +12,8 @@
 
 namespace ox {
 
-constexpr auto MaxFileNameLength = 255;
+constexpr std::size_t MaxFileNameLength = 255;
+using FileName = BString<MaxFileNameLength>;
 
 class PathIterator {
 	private:
@@ -48,12 +49,12 @@ class PathIterator {
 		/**
 		 * @return 0 if no error
 		 */
-		Error next(BString<MaxFileNameLength> *fileName);
+		Error next(FileName *fileName);
 
 		/**
 		 * @return 0 if no error
 		 */
-		Error get(BString<MaxFileNameLength> *fileName);
+		Error get(FileName *fileName);
 
 		/**
 		 * @return 0 if no error

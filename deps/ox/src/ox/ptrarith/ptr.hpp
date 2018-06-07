@@ -29,7 +29,7 @@ class Ptr {
 
 		inline Ptr(std::nullptr_t);
 
-		inline Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize = sizeof(T));
+		inline Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize = sizeof(T), size_t itemTypeSize = sizeof(T));
 
 		inline bool valid() const;
 
@@ -83,12 +83,12 @@ inline Ptr<T, size_t, minOffset>::Ptr(std::nullptr_t) {
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline Ptr<T, size_t, minOffset>::Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize) {
+inline Ptr<T, size_t, minOffset>::Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize, size_t itemTypeSize) {
 	// do some sanity checks before assuming this is valid
-	if (itemSize >= sizeof(T) &&
+	if (itemSize >= itemTypeSize &&
 	    dataStart &&
 	    itemStart >= minOffset &&
-	    static_cast<std::size_t>(itemStart + itemSize) <= dataSize) {
+	    itemStart + itemSize <= dataSize) {
 		m_dataStart = reinterpret_cast<uint8_t*>(dataStart);
 		m_dataSize = dataSize;
 		m_itemOffset = itemStart;

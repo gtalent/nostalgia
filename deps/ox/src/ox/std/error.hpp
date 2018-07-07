@@ -16,6 +16,8 @@
 #define OxError(x) x
 #endif
 
+#define oxReturnError(x) if (const auto err = x) return OxError(err)
+
 namespace ox {
 
 using Error = uint64_t;

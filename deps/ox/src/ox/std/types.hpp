@@ -51,6 +51,13 @@ typedef uint32_t uintptr_t;
 #endif
 
 
+namespace ox {
+
+template<typename T>
+constexpr auto MaxValue = onMask<T>();
+
+}
+
 
 namespace std {
 

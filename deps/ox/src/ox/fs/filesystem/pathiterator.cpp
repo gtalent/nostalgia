@@ -183,10 +183,8 @@ bool PathIterator::valid() const {
 
 PathIterator PathIterator::operator+(int i) const {
 	std::size_t size = 0;
-	Error retval = 1;
 	auto iterator = m_iterator;
 	if (iterator < m_maxSize && ox_strlen(&m_path[iterator])) {
-		retval = 0;
 		if (m_path[iterator] == '/') {
 			iterator++;
 		}
@@ -202,6 +200,10 @@ PathIterator PathIterator::operator+(int i) const {
 	}
 	iterator += size;
 	return PathIterator(m_path, m_maxSize, iterator + i);
+}
+
+const char *PathIterator::fullPath() const {
+	return m_path;
 }
 
 }

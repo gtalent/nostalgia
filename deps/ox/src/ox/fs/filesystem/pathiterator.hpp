@@ -67,6 +67,8 @@ class PathIterator {
 
 		PathIterator operator+(int i) const;
 
+		const char *fullPath() const;
+
 };
 
 }

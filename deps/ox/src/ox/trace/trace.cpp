@@ -52,9 +52,9 @@ void logError(const char *file, int line, Error err) {
 	if (err) {
 		ErrorInfo ei(err);
 		TraceStream trc(file, line, "ox::error");
-		trc <<  "Error:\t" << ei.errCode;
+		trc <<  "Error:" << ei.errCode;
 		if (ei.file != nullptr) {
-			trc << " (" << reinterpret_cast<const char*>(ei.file) << ":" << ei.line << ")";
+			trc << "(" << reinterpret_cast<const char*>(ei.file) << ":" << ei.line << ")";
 		}
 	}
 }

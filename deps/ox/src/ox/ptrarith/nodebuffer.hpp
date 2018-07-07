@@ -47,6 +47,10 @@ class __attribute__((packed)) NodeBuffer {
 					return m_current;
 				}
 
+				operator ItemPtr() {
+					return m_current;
+				}
+
 				operator Item*() {
 					return m_current;
 				}
@@ -207,7 +211,10 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t 
 		 itemSpace >= item->fullSize()) {
 		return ItemPtr(this, m_header.size, itemOffset, item->fullSize());
 	} else {
-		oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << itemOffset;
+		oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemOffset:" << itemOffset;
+		oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemOffset >= sizeof(Header):" << (itemOffset >= sizeof(Header));
+		oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemSpace >= sizeof(Item):" << (itemSpace >= sizeof(Item));
+		oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemSpace >= item->fullSize():" << (itemSpace >= item->fullSize());
 		return ItemPtr(this, m_header.size, 0, 0);
 	}
 }

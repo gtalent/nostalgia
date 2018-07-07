@@ -15,7 +15,7 @@
 #if defined(_MSC_VER)
 #include <malloc.h>
 #define ox_alloca(size) _alloca(size)
-#elif __has_include(<alloca.h>)
+#elif OX_USE_STDLIB
 #include <alloca.h>
 #define ox_alloca(size) alloca(size)
 #else

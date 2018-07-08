@@ -17,7 +17,7 @@ inline constexpr T rotateLeft(T i, int shift) {
 }
 
 template<typename T>
-constexpr T onMask(int bits = sizeof(T)) {
+constexpr T onMask(int bits = sizeof(T) * 8) {
 	T out = 0;
 	for (auto i = 0; i < bits; i++) {
 		out |= static_cast<T>(1) << i;

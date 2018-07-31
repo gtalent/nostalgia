@@ -7,6 +7,7 @@ add_library(
 		filesystem/filesystem.cpp
 		filesystem/pathiterator.cpp
 		filesystem2/directory.cpp
+		filesystem2/filesystem.cpp
 )
 
 set_property(

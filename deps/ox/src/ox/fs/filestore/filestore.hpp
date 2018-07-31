@@ -35,22 +35,31 @@ class FileStore {
 
 		virtual Error write(InodeId_t id, void *data, FsSize_t dataLen, uint8_t fileType = 0) = 0;
 
-		virtual Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size) = 0;
+		/**
+		 * @return error if the inode could not be removed or did not exist
+		 */
+		virtual Error remove(InodeId_t id) = 0;
 
-		virtual Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size) = 0;
+		virtual Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size = nullptr) = 0;
+
+		virtual Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size = nullptr) = 0;
 
 		/**
 		 * @return data section of the requested file
 		 */
 		virtual const ptrarith::Ptr<uint8_t, std::size_t> read(InodeId_t id) = 0;
 
-		virtual StatInfo stat(InodeId_t id) = 0;
+		virtual ValErr<StatInfo> stat(InodeId_t id) = 0;
+
+		virtual Error resize(std::size_t size, void *newBuff = nullptr) = 0;
 
 		virtual InodeId_t spaceNeeded(FsSize_t size) = 0;
 
 		virtual InodeId_t size() = 0;
 
 		virtual InodeId_t available() = 0;
+
+		virtual ValErr<InodeId_t> generateInodeId() = 0;
 
 };
 

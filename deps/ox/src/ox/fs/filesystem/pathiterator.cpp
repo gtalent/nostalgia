@@ -178,7 +178,7 @@ bool PathIterator::hasNext() const {
 }
 
 bool PathIterator::valid() const {
-	return m_path[m_iterator] != 0;
+	return m_iterator < m_maxSize && m_path[m_iterator] != 0;
 }
 
 PathIterator PathIterator::operator+(int i) const {

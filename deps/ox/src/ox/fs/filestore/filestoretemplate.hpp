@@ -50,8 +50,11 @@ class FileStoreTemplate: public FileStore {
 		using ItemPtr = typename ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>::ItemPtr;
 		using Buffer = ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>;
 
+		static constexpr InodeId_t ReservedInodeEnd = 100;
+
 		struct __attribute__((packed)) FileStoreData {
 			ox::LittleEndian<size_t> rootNode = 0;
+			ox::Random random;
 		};
 
 		size_t m_buffSize = 0;
@@ -69,6 +72,8 @@ class FileStoreTemplate: public FileStore {
 		Error decLinks(InodeId_t id);
 
 		Error write(InodeId_t id, void *data, FsSize_t dataLen, uint8_t fileType = 0);
+
+		Error remove(InodeId_t id);
 
 		Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size);
 
@@ -91,13 +96,17 @@ class FileStoreTemplate: public FileStore {
 		         FsSize_t readSize, T *data,
 		         FsSize_t *size);
 
-		StatInfo stat(InodeId_t id);
+		ValErr<StatInfo> stat(InodeId_t id);
+
+		Error resize(std::size_t size, void *newBuff = nullptr);
 
 		InodeId_t spaceNeeded(FsSize_t size);
 
 		InodeId_t size();
 
 		InodeId_t available();
+
+		ValErr<InodeId_t> generateInodeId();
 
 	private:
 		void compact();
@@ -120,7 +129,15 @@ class FileStoreTemplate: public FileStore {
 		 * Removes the given Item at the given ID. If it already exists, the
 		 * existing value will be overwritten.
 		 */
+		Error unplaceItem(ItemPtr item);
+
+		/**
+		 * Removes the given Item at the given ID. If it already exists, the
+		 * existing value will be overwritten.
+		 */
 		Error unplaceItem(ItemPtr root, ItemPtr item, int depth = 0);
+
+		Error remove(ItemPtr item);
 
 		/**
 		 * Finds the parent an inode by its ID.
@@ -143,6 +160,8 @@ class FileStoreTemplate: public FileStore {
 		ItemPtr rootInode();
 
 		bool canWrite(ItemPtr existing, size_t size);
+
+		bool valid() const;
 
 };
 
@@ -195,6 +214,7 @@ Error FileStoreTemplate<size_t>::decLinks(InodeId_t id) {
 	auto item = find(id);
 	if (item.valid()) {
 		item->links--;
+		// TODO: remove item if links is 0
 		return OxError(0);
 	}
 	return OxError(1);
@@ -204,7 +224,11 @@ template<typename size_t>
 Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSize, uint8_t fileType) {
 	oxTrace("ox::fs::FileStoreTemplate::write") << "Attempting to write to inode" << id;
 	auto existing = find(id);
-	// TODO: try compacting if unable to write
+	if (canWrite(existing, dataSize)) {
+		compact();
+		existing = find(id);
+	}
+
 	if (canWrite(existing, dataSize)) {
 		// delete the old node if it exists
 		if (existing.valid()) {
@@ -253,6 +277,11 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 		m_buffer->free(dest);
 	}
 	return OxError(1);
+}
+
+template<typename size_t>
+Error FileStoreTemplate<size_t>::remove(InodeId_t id) {
+	return remove(find(id));
 }
 
 template<typename size_t>
@@ -346,17 +375,22 @@ const ptrarith::Ptr<uint8_t, std::size_t> FileStoreTemplate<size_t>::read(InodeI
 }
 
 template<typename size_t>
-typename FileStoreTemplate<size_t>::StatInfo FileStoreTemplate<size_t>::stat(InodeId_t id) {
+Error FileStoreTemplate<size_t>::resize(std::size_t size, void *newBuff) {
+	return OxError(0);
+}
+
+template<typename size_t>
+ValErr<typename FileStoreTemplate<size_t>::StatInfo> FileStoreTemplate<size_t>::stat(InodeId_t id) {
 	auto inode = find(id);
 	if (inode.valid()) {
-		return {
+		return ValErr<StatInfo>({
 			.inodeId = id,
 			.links = inode->links,
 			.size = inode->size(),
 			.fileType = inode->fileType,
-		};
+		});
 	}
-	return {};
+	return ValErr<StatInfo>({}, 1);
 }
 
 template<typename size_t>
@@ -372,6 +406,21 @@ InodeId_t FileStoreTemplate<size_t>::size() {
 template<typename size_t>
 InodeId_t FileStoreTemplate<size_t>::available() {
 	return m_buffer->available();
+}
+
+template<typename size_t>
+ValErr<InodeId_t> FileStoreTemplate<size_t>::generateInodeId() {
+	auto fsData = fileStoreData();
+	if (fsData) {
+		for (auto i = 0; i < 100; i++) {
+			auto inode = fsData->random.gen() % MaxValue<InodeId_t>;
+			if (inode > ReservedInodeEnd && !find(inode).valid()) {
+				return inode;
+			}
+		}
+		return {0, OxError(2)};
+	}
+	return {0, OxError(1)};
 }
 
 template<typename size_t>
@@ -450,6 +499,42 @@ Error FileStoreTemplate<size_t>::placeItem(ItemPtr root, ItemPtr item, int depth
 }
 
 template<typename size_t>
+Error FileStoreTemplate<size_t>::unplaceItem(ItemPtr item) {
+	auto fsData = fileStoreData();
+	if (fsData) {
+		auto root = m_buffer->ptr(fsData->rootNode);
+		if (root.valid()) {
+			if (root->id == item->id) {
+				item->left = root->left;
+				item->right = root->right;
+				auto left = m_buffer->ptr(item->left);
+				auto right = m_buffer->ptr(item->right);
+				if (right.valid()) {
+					auto oldRoot = fsData->rootNode;
+					fsData->rootNode = item->right;
+					if (left.valid()) {
+						auto err = placeItem(left);
+						// undo if unable to place the left side of the tree
+						if (err) {
+							fsData->rootNode = oldRoot;
+							return err;
+						}
+					}
+				} else if (left.valid()) {
+					fsData->rootNode = item->left;
+				} else {
+					fsData->rootNode = 0;
+				}
+				return OxError(0);
+			} else {
+				return unplaceItem(root, item);
+			}
+		}
+	}
+	return OxError(1);
+}
+
+template<typename size_t>
 Error FileStoreTemplate<size_t>::unplaceItem(ItemPtr root, ItemPtr item, int depth) {
 	if (depth < 5000) {
 		if (item->id > root->id) {
@@ -470,11 +555,20 @@ Error FileStoreTemplate<size_t>::unplaceItem(ItemPtr root, ItemPtr item, int dep
 			} else {
 				return unplaceItem(left, item, depth + 1);
 			}
-		} else {
-			oxTrace("ox::fs::FileStoreTemplate::unplaceItem::fail") << "Item already exists.";
 		}
+		return OxError(1);
 	} else {
 		oxTrace("ox::fs::FileStoreTemplate::unplaceItem::fail") << "Excessive recursion depth, stopping before stack overflow.";
+		return OxError(1);
+	}
+}
+
+template<typename size_t>
+Error FileStoreTemplate<size_t>::remove(ItemPtr item) {
+	if (item.valid()) {
+		oxReturnError(unplaceItem(item));
+		oxReturnError(m_buffer->free(item));
+		return OxError(0);
 	}
 	return OxError(1);
 }
@@ -508,10 +602,13 @@ typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(Item
 	if (depth < 5000) {
 		if (item.valid()) {
 			if (id > item->id) {
+				oxTrace("ox::fs::FileStoreTemplate::find") << "Not a match, searching on" << item->right;
 				return find(m_buffer->ptr(item->right), id, depth + 1);
 			} else if (id < item->id) {
+				oxTrace("ox::fs::FileStoreTemplate::find") << "Not a match, searching on" << item->left;
 				return find(m_buffer->ptr(item->left), id, depth + 1);
 			} else if (id == item->id) {
+				oxTrace("ox::fs::FileStoreTemplate::find") << "Found" << id << "at" << item;
 				return item;
 			}
 		} else {
@@ -556,6 +653,11 @@ typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::rootInode
 template<typename size_t>
 bool FileStoreTemplate<size_t>::canWrite(ItemPtr existing, size_t size) {
 	return existing.size() >= size || m_buffer->spaceNeeded(size) <= m_buffer->available();
+}
+
+template<typename size_t>
+bool FileStoreTemplate<size_t>::valid() const {
+	return m_buffer;
 }
 
 extern template class FileStoreTemplate<uint16_t>;

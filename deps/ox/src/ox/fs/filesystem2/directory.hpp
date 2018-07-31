@@ -101,11 +101,13 @@ class Directory {
 		 */
 		Error init() noexcept;
 
-		Error write(PathIterator it, InodeId_t inode, FileName *nameBuff = nullptr) noexcept;
+		Error mkdir(PathIterator path, bool parents, FileName *nameBuff = nullptr);
 
-		Error rm(PathIterator it) noexcept;
+		Error write(PathIterator it, InodeId_t inode, bool parents = false, FileName *nameBuff = nullptr) noexcept;
 
-		ValErr<InodeId_t> find(const FileName &name) const noexcept;
+		Error remove(PathIterator it, FileName *nameBuff = nullptr) noexcept;
+
+		ValErr<ox::fs::InodeId_t> find(const FileName &name) const noexcept;
 
 };
 
@@ -122,7 +124,7 @@ Directory<InodeId_t>::Directory(FileStore *fs, InodeId_t inodeId) {
 template<typename InodeId_t>
 Error Directory<InodeId_t>::init() noexcept {
 	constexpr auto Size = sizeof(Buffer);
-	m_fs->write(m_inodeId, nullptr, Size);
+	oxReturnError(m_fs->write(m_inodeId, nullptr, Size));
 	auto buff = m_fs->read(m_inodeId);
 	if (buff.valid()) {
 		new (buff) Buffer(Size);
@@ -134,7 +136,53 @@ Error Directory<InodeId_t>::init() noexcept {
 }
 
 template<typename InodeId_t>
-Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode, FileName *nameBuff) noexcept {
+Error Directory<InodeId_t>::mkdir(PathIterator path, bool parents, FileName *nameBuff) {
+	if (path.valid()) {
+		oxTrace("ox::fs::Directory::mkdir") << path.fullPath();
+		// reuse nameBuff if it has already been allocated, as it is a rather large variable
+		if (nameBuff == nullptr) {
+			nameBuff = reinterpret_cast<FileName*>(ox_alloca(sizeof(FileName)));
+		}
+
+		// determine if already exists
+		auto name = nameBuff;
+		path.get(name);
+		auto childInode = find(*name);
+		if (!childInode.ok()) {
+			// if this is not the last item in the path and parents is disabled,
+			// return an error
+			if (!parents && path.hasNext()) {
+				return OxError(1);
+			}
+			childInode = m_fs->generateInodeId();
+			oxLogError(childInode.error);
+			oxReturnError(childInode.error);
+
+			// initialize the directory
+			Directory<InodeId_t> child(m_fs, childInode);
+			oxReturnError(child.init());
+
+			auto err = write(name->c_str(), childInode, false);
+			if (err) {
+				oxLogError(err);
+				// could not index the directory, delete it
+				oxLogError(m_fs->remove(childInode));
+				return err;
+			}
+		} else {
+			return OxError(1);
+		}
+
+		Directory<InodeId_t> child(m_fs, childInode);
+		if (path.hasNext()) {
+			oxReturnError(child.mkdir(path + 1, parents, nameBuff));
+		}
+	}
+	return OxError(0);
+}
+
+template<typename InodeId_t>
+Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode, bool parents, FileName *nameBuff) noexcept {
 	InodeId_t nextChild = 0;
 
 	// reuse nameBuff if it has already been allocated, as it is a rather large variable
@@ -146,17 +194,16 @@ Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode, FileName *
 	if ((path + 1).hasNext()) {
 		oxTrace("ox::fs::Directory::write") << "Attempting to write to next sub-Directory";
 
-		path.get(name);
+		oxReturnError(path.get(name));
 		nextChild = find(*name);
 
-		// It's important for the recursive call to be outside the block where name
-		// lived. This avoids allocation several FileNames on the
-		// stack at once, while also avoiding the use of heap memory.
 		if (nextChild) {
 			// reuse name because it is a rather large variable and will not be used again
 			// be attentive that this remains true
 			name = nullptr;
-			return Directory(m_fs, nextChild).write(path + 1, inode, nameBuff);
+			return Directory(m_fs, nextChild).write(path + 1, inode, parents, nameBuff);
+		} else if (parents) {
+			Directory(m_fs, nextChild).init();
 		}
 	} else {
 		// insert the new entry on this directory
@@ -167,6 +214,7 @@ Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode, FileName *
 		oxTrace("ox::fs::Directory::write") << "Attempting to write Directory to FileStore";
 
 		// find existing version of directory
+		oxTrace("ox::fs::Directory::write") << "Searching for inode" << m_inodeId;
 		auto old = m_fs->read(m_inodeId);
 		if (old.valid()) {
 			const auto entrySize = DirectoryEntry<InodeId_t>::spaceNeeded(name->len());
@@ -184,24 +232,52 @@ Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode, FileName *
 					return m_fs->write(m_inodeId, cpy, cpy->size());
 				} else {
 					oxTrace("ox::fs::Directory::write::fail") << "Could not allocate memory for new directory entry";
+					return OxError(1);
 				}
 			} else {
 				oxTrace("ox::fs::Directory::write::fail") << "Could not allocate memory for copy of Directory";
+				return OxError(1);
 			}
 		} else {
 			oxTrace("ox::fs::Directory::write::fail") << "Could not read existing version of Directory";
+			return OxError(1);
 		}
 	}
 	return OxError(1);
 }
 
 template<typename InodeId_t>
-Error Directory<InodeId_t>::rm(PathIterator) noexcept {
-	return OxError(1);
+Error Directory<InodeId_t>::remove(PathIterator path, FileName *nameBuff) noexcept {
+	// reuse nameBuff if it has already been allocated, as it is a rather large variable
+	if (nameBuff == nullptr) {
+		nameBuff = reinterpret_cast<FileName*>(ox_alloca(sizeof(FileName)));
+	}
+	auto &name = *nameBuff;
+	oxReturnError(path.get(&name));
+
+	oxTrace("ox::fs::Directory::remove") << name.c_str();
+	auto buff = m_fs->read(m_inodeId).template to<Buffer>();
+	if (buff.valid()) {
+		oxTrace("ox::fs::Directory::remove") << "Found directory buffer.";
+		for (auto i = buff->iterator(); i.valid(); i.next()) {
+			auto data = i->data();
+			if (data.valid()) {
+				if (ox_strncmp(data->name, name.c_str(), name.len()) == 0) {
+					buff->free(i);
+				}
+			} else {
+				oxTrace("ox::fs::Directory::remove") << "INVALID DIRECTORY ENTRY";
+			}
+		}
+	} else {
+		oxTrace("ox::fs::Directory::remove::fail") << "Could not find directory buffer";
+		return OxError(1);
+	}
+	return OxError(0);
 }
 
 template<typename InodeId_t>
-ValErr<InodeId_t> Directory<InodeId_t>::find(const FileName &name) const noexcept {
+ValErr<ox::fs::InodeId_t> Directory<InodeId_t>::find(const FileName &name) const noexcept {
 	oxTrace("ox::fs::Directory::find") << name.c_str();
 	auto buff = m_fs->read(m_inodeId).template to<Buffer>();
 	if (buff.valid()) {

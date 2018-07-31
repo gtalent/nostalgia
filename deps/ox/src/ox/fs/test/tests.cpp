@@ -19,6 +19,7 @@
 #include <ox/std/std.hpp>
 #include <ox/fs/filestore/filestore.hpp>
 #include <ox/fs/filestore/filestoretemplate.hpp>
+#include <ox/fs/filesystem2/filesystem.hpp>
 
 
 using namespace std;
@@ -400,6 +401,22 @@ map<string, int(*)(string)> tests = {
 
 				oxTrace("ox::fs::test::Directory") << "write 3";
 				oxAssert(dir->write("/file2", 2) == 0, "Directory write of file2 failed");
+
+				return 0;
+			}
+		},
+		{
+			"FileSystem",
+			[](string) {
+				std::array<uint8_t, 5000> fsBuff;
+				ox::fs::FileStore32 fileStore(fsBuff.data(), fsBuff.size());
+				ox::fs::FileSystem32 fs(&fileStore);
+
+				oxTrace("ox::fs::test::FileSystem") << "format";
+				oxAssert(fs.format(), "FileSystem format failed");
+
+				oxTrace("ox::fs::test::FileSystem") << "mkdir";
+				oxAssert(fs.mkdir("/l1d1", true) == 0, "mkdir failed");
 
 				return 0;
 			}

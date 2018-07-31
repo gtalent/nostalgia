@@ -77,3 +77,4 @@ add_test("Test\\ NodeBuffer::insert" FSTests "NodeBuffer::insert")
 add_test("Test\\ FileStore::readWrite" FSTests "FileStore::readWrite")
 
 add_test("Test\\ Directory" FSTests "Directory")
+add_test("Test\\ FileSystem" FSTests "FileSystem")

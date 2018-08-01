@@ -169,8 +169,6 @@ Error Directory<InodeId_t>::mkdir(PathIterator path, bool parents, FileName *nam
 				oxLogError(m_fs->remove(childInode));
 				return err;
 			}
-		} else {
-			return OxError(1);
 		}
 
 		Directory<InodeId_t> child(m_fs, childInode);

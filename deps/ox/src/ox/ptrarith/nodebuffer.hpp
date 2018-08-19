@@ -43,6 +43,10 @@ class __attribute__((packed)) NodeBuffer {
 					return m_current;
 				}
 
+				ItemPtr ptr() {
+					return m_current;
+				}
+
 				Item *get() {
 					return m_current;
 				}

@@ -12,16 +12,16 @@
 
 namespace ox::fs {
 
-using InodeId_t = uintptr_t;
-using FsSize_t = uintptr_t;
+using InodeId_t = uint64_t;
+using FsSize_t = std::size_t;
 
 class FileStore {
 
 	public:
 		struct StatInfo {
-			InodeId_t inodeId = 0;
+			InodeId_t inode = 0;
 			InodeId_t links = 0;
-			InodeId_t size = 0;
+			FsSize_t size = 0;
 			uint8_t fileType = 0;
 		};
 
@@ -40,7 +40,7 @@ class FileStore {
 		 */
 		virtual Error remove(InodeId_t id) = 0;
 
-		virtual Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size = nullptr) = 0;
+		virtual Error read(InodeId_t id, void *data, FsSize_t dataSize, std::size_t *size = nullptr) = 0;
 
 		virtual Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size = nullptr) = 0;
 
@@ -58,6 +58,14 @@ class FileStore {
 		virtual InodeId_t size() = 0;
 
 		virtual InodeId_t available() = 0;
+
+		/**
+		 * @return a pointer to the buffer of the file system, or null if not
+		 * applicable
+		 */
+		virtual uint8_t *buff() = 0;
+
+		virtual Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) = 0;
 
 		virtual ValErr<InodeId_t> generateInodeId() = 0;
 

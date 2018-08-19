@@ -63,23 +63,23 @@ class FileStoreTemplate: public FileStore {
 	public:
 		FileStoreTemplate(void *buff, size_t buffSize);
 
-		Error format();
+		Error format() override;
 
-		Error setSize(InodeId_t buffSize);
+		Error setSize(InodeId_t buffSize) override;
 
-		Error incLinks(InodeId_t id);
+		Error incLinks(InodeId_t id) override;
 
-		Error decLinks(InodeId_t id);
+		Error decLinks(InodeId_t id) override;
 
-		Error write(InodeId_t id, void *data, FsSize_t dataLen, uint8_t fileType = 0);
+		Error write(InodeId_t id, void *data, FsSize_t dataLen, uint8_t fileType = 0) override;
 
-		Error remove(InodeId_t id);
+		Error remove(InodeId_t id) override;
 
-		Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size);
+		Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size) override;
 
-		Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size);
+		Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size) override;
 
-		const ptrarith::Ptr<uint8_t, std::size_t> read(InodeId_t id);
+		const ptrarith::Ptr<uint8_t, std::size_t> read(InodeId_t id) override;
 
 		/**
 		 * Reads the "file" at the given id. You are responsible for freeing
@@ -96,17 +96,21 @@ class FileStoreTemplate: public FileStore {
 		         FsSize_t readSize, T *data,
 		         FsSize_t *size);
 
-		ValErr<StatInfo> stat(InodeId_t id);
+		ValErr<StatInfo> stat(InodeId_t id) override;
 
-		Error resize(std::size_t size, void *newBuff = nullptr);
+		Error resize(std::size_t size, void *newBuff = nullptr) override;
 
-		InodeId_t spaceNeeded(FsSize_t size);
+		InodeId_t spaceNeeded(FsSize_t size) override;
 
-		InodeId_t size();
+		InodeId_t size() override;
 
-		InodeId_t available();
+		InodeId_t available() override;
 
-		ValErr<InodeId_t> generateInodeId();
+		uint8_t *buff() override;
+
+		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) override;
+
+		ValErr<InodeId_t> generateInodeId() override;
 
 	private:
 		void compact();
@@ -376,6 +380,10 @@ const ptrarith::Ptr<uint8_t, std::size_t> FileStoreTemplate<size_t>::read(InodeI
 
 template<typename size_t>
 Error FileStoreTemplate<size_t>::resize(std::size_t size, void *newBuff) {
+	m_buffSize = size;
+	if (newBuff) {
+		m_buffer = reinterpret_cast<Buffer*>(newBuff);
+	}
 	return OxError(0);
 }
 
@@ -384,7 +392,7 @@ ValErr<typename FileStoreTemplate<size_t>::StatInfo> FileStoreTemplate<size_t>::
 	auto inode = find(id);
 	if (inode.valid()) {
 		return ValErr<StatInfo>({
-			.inodeId = id,
+			.inode = id,
 			.links = inode->links,
 			.size = inode->size(),
 			.fileType = inode->fileType,
@@ -406,6 +414,19 @@ InodeId_t FileStoreTemplate<size_t>::size() {
 template<typename size_t>
 InodeId_t FileStoreTemplate<size_t>::available() {
 	return m_buffer->available();
+}
+
+template<typename size_t>
+uint8_t *FileStoreTemplate<size_t>::buff() {
+	return reinterpret_cast<uint8_t*>(m_buffer);
+}
+
+template<typename size_t>
+Error FileStoreTemplate<size_t>::walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) {
+	for (auto i = m_buffer->iterator(); i.valid(); i.next()) {
+		oxReturnError(cb(i->fileType, i.ptr().offset(), i.ptr().end()));
+	}
+	return OxError(0);
 }
 
 template<typename size_t>

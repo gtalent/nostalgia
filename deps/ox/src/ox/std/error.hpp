@@ -23,7 +23,7 @@ namespace ox {
 using Error = uint64_t;
 
 constexpr Error errCode(Error err) {
-	return (err >> 58) & onMask<Error>(5);
+	return (err >> 59) & onMask<Error>(5);
 }
 
 struct ErrorInfo {

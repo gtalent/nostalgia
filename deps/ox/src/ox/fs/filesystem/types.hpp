@@ -23,6 +23,17 @@ enum FileType {
 	FileType_Directory  = 2
 };
 
+constexpr const char *toString(FileType t) {
+	switch (t) {
+		case FileType_NormalFile:
+			return "Normal File";
+		case FileType_Directory:
+			return "Directory";
+		default:
+			return "";
+	}
+}
+
 struct FileStat {
 	uint64_t inode = 0;
 	uint64_t links = 0;

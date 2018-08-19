@@ -163,10 +163,17 @@ Error FileSystemTemplate<InodeId_t>::remove(const char *path, bool recursive) {
 	auto rootDir = ox_malloca(sizeof(ox::fs::Directory<InodeId_t>), ox::fs::Directory<InodeId_t>, m_fs, fd.value.rootDirInode);
 	auto inode = rootDir->find(path);
 	oxReturnError(inode.error);
-	if (auto err = rootDir->remove(path)) {
-		// removal failed, try putting the index back
-		oxLogError(rootDir->write(path, inode));
-		return err;
+	auto st = stat(inode);
+	oxReturnError(st.error);
+	if (st.value.fileType == FileType_NormalFile || recursive) {
+		if (auto err = rootDir->remove(path)) {
+			// removal failed, try putting the index back
+			oxLogError(rootDir->write(path, inode));
+			return err;
+		}
+	} else {
+		oxTrace("FileSystemTemplate::remove::fail") << "Tried to remove directory without recursive setting.";
+		return OxError(1);
 	}
 	return OxError(0);
 }

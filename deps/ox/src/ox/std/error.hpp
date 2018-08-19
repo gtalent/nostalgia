@@ -16,7 +16,7 @@
 #define OxError(x) x
 #endif
 
-#define oxReturnError(x) if (const auto err = x) return OxError(err)
+#define oxReturnError(x) if (const auto err = x) return err
 
 namespace ox {
 

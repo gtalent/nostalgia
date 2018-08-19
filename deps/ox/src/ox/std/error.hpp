@@ -11,7 +11,7 @@
 #include "types.hpp"
 
 #ifdef DEBUG
-#define OxError(x) x ? reinterpret_cast<uint64_t>(__FILE__) | _errorTags(__LINE__, x) : 0
+#define OxError(x) ox::_error(__FILE__, __LINE__, x)
 #else
 #define OxError(x) x
 #endif
@@ -46,6 +46,10 @@ static constexpr Error _errorTags(Error line, Error errCode) {
 	errCode &= onMask<Error>(5);
 	errCode <<= 59;
 	return errCode | line;
+}
+
+static constexpr Error _error(const char *file, int line, Error errCode) {
+	return errCode ? reinterpret_cast<uint64_t>(file) | _errorTags(line, errCode) : 0;
 }
 
 template<typename T>

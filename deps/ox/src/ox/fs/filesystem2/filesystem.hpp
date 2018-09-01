@@ -96,8 +96,8 @@ Error FileSystemTemplate<InodeId_t>::format() {
 	oxReturnError(m_fs->format());
 
 	constexpr auto rootDirInode = MaxValue<InodeId_t> / 2;
-	auto rootDir = ox_malloca(sizeof(ox::fs::Directory<InodeId_t>), ox::fs::Directory<InodeId_t>, m_fs, rootDirInode);
-	oxReturnError(rootDir->init());
+	Directory<InodeId_t> rootDir(m_fs, rootDirInode);
+	oxReturnError(rootDir.init());
 
 	FileSystemData fd;
 	fd.rootDirInode = rootDirInode;
@@ -116,8 +116,8 @@ Error FileSystemTemplate<InodeId_t>::mkdir(const char *path, bool recursive) {
 	auto fd = fileSystemData();
 	if (fd.ok()) {
 		oxTrace("ox::fs::FileSystemTemplate::mkdir") << "rootDirInode:" << fd.value.rootDirInode;
-		auto rootDir = ox_malloca(sizeof(ox::fs::Directory<InodeId_t>), ox::fs::Directory<InodeId_t>, m_fs, fd.value.rootDirInode);
-		return rootDir->mkdir(path, recursive);
+		Directory<InodeId_t> rootDir(m_fs, fd.value.rootDirInode);
+		return rootDir.mkdir(path, recursive);
 	} else {
 		oxLogError(fd.error);
 		return fd.error;
@@ -128,11 +128,11 @@ template<typename InodeId_t>
 Error FileSystemTemplate<InodeId_t>::move(const char *src, const char *dest) {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
-	auto rootDir = ox_malloca(sizeof(ox::fs::Directory<InodeId_t>), ox::fs::Directory<InodeId_t>, m_fs, fd.value.rootDirInode);
-	auto inode = rootDir->find(src);
+	Directory<InodeId_t> rootDir(m_fs, fd.value.rootDirInode);
+	auto inode = rootDir.find(src);
 	oxReturnError(inode.error);
-	oxReturnError(rootDir->write(dest, inode));
-	oxReturnError(rootDir->remove(src));
+	oxReturnError(rootDir.write(dest, inode));
+	oxReturnError(rootDir.remove(src));
 	return OxError(0);
 }
 
@@ -140,8 +140,8 @@ template<typename InodeId_t>
 Error FileSystemTemplate<InodeId_t>::read(const char *path, void *buffer, std::size_t buffSize) {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
-	auto rootDir = ox_malloca(sizeof(ox::fs::Directory<InodeId_t>), ox::fs::Directory<InodeId_t>, m_fs, fd.value.rootDirInode);
-	auto inode = rootDir->find(path);
+	Directory<InodeId_t> rootDir(m_fs, fd.value.rootDirInode);
+	auto inode = rootDir.find(path);
 	oxReturnError(inode.error);
 	return read(inode, buffer, buffSize);
 }
@@ -160,15 +160,15 @@ template<typename InodeId_t>
 Error FileSystemTemplate<InodeId_t>::remove(const char *path, bool recursive) {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
-	auto rootDir = ox_malloca(sizeof(ox::fs::Directory<InodeId_t>), ox::fs::Directory<InodeId_t>, m_fs, fd.value.rootDirInode);
-	auto inode = rootDir->find(path);
+	Directory<InodeId_t> rootDir(m_fs, fd.value.rootDirInode);
+	auto inode = rootDir.find(path);
 	oxReturnError(inode.error);
 	auto st = stat(inode);
 	oxReturnError(st.error);
 	if (st.value.fileType == FileType_NormalFile || recursive) {
-		if (auto err = rootDir->remove(path)) {
+		if (auto err = rootDir.remove(path)) {
 			// removal failed, try putting the index back
-			oxLogError(rootDir->write(path, inode));
+			oxLogError(rootDir.write(path, inode));
 			return err;
 		}
 	} else {
@@ -255,8 +255,8 @@ template<typename InodeId_t>
 ValErr<uint64_t> FileSystemTemplate<InodeId_t>::find(const char *path) {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
-	auto rootDir = ox_malloca(sizeof(ox::fs::Directory<InodeId_t>), ox::fs::Directory<InodeId_t>, m_fs, fd.value.rootDirInode);
-	auto inode = rootDir->find(path);
+	Directory<InodeId_t> rootDir(m_fs, fd.value.rootDirInode);
+	auto inode = rootDir.find(path);
 	oxReturnError(inode.error);
 	return inode.value;
 }

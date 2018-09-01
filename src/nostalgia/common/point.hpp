@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <ox/std/types.hpp>
+#include <ox/std/error.hpp>
 
 namespace nostalgia {
 namespace common {

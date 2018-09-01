@@ -12,7 +12,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
-#include <ox/std/types.hpp>
+#include <ox/std/error.hpp>
 
 #include "json_err.hpp"
 

@@ -103,6 +103,9 @@ class Directory {
 
 		Error mkdir(PathIterator path, bool parents, FileName *nameBuff = nullptr);
 
+		/**
+		 * @param parents indicates the operation should create non-existent directories in the path, like mkdir -p
+		 */
 		Error write(PathIterator it, InodeId_t inode, bool parents = false, FileName *nameBuff = nullptr) noexcept;
 
 		Error remove(PathIterator it, FileName *nameBuff = nullptr) noexcept;
@@ -195,13 +198,18 @@ Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode, bool paren
 		oxReturnError(path.get(name));
 		nextChild = find(*name);
 
+		if (!nextChild && parents) {
+			oxReturnError(Directory(m_fs, nextChild).init());
+			nextChild = find(*name);
+		} else {
+			return OxError(1);
+		}
+
 		if (nextChild) {
 			// reuse name because it is a rather large variable and will not be used again
 			// be attentive that this remains true
 			name = nullptr;
 			return Directory(m_fs, nextChild).write(path + 1, inode, parents, nameBuff);
-		} else if (parents) {
-			Directory(m_fs, nextChild).init();
 		}
 	} else {
 		// insert the new entry on this directory

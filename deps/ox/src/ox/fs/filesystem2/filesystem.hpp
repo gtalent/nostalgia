@@ -15,7 +15,7 @@
 
 namespace ox::fs {
 
-template<typename InodeId_t>
+template<typename InodeId_t, typename Directory>
 class FileSystemTemplate {
 	private:
 		static constexpr InodeId_t InodeFsData = 2;
@@ -82,21 +82,21 @@ class FileSystemTemplate {
 
 };
 
-template<typename InodeId_t>
-FileSystemTemplate<InodeId_t>::FileSystemTemplate(FileStore *fs) {
+template<typename InodeId_t, typename Directory>
+FileSystemTemplate<InodeId_t, Directory>::FileSystemTemplate(FileStore *fs) {
 	m_fs = fs;
 }
 
-template<typename InodeId_t>
-FileSystemTemplate<InodeId_t>::~FileSystemTemplate() {
+template<typename InodeId_t, typename Directory>
+FileSystemTemplate<InodeId_t, Directory>::~FileSystemTemplate() {
 }
 
-template<typename InodeId_t>
-Error FileSystemTemplate<InodeId_t>::format() {
+template<typename InodeId_t, typename Directory>
+Error FileSystemTemplate<InodeId_t, Directory>::format() {
 	oxReturnError(m_fs->format());
 
 	constexpr auto rootDirInode = MaxValue<InodeId_t> / 2;
-	Directory<InodeId_t> rootDir(m_fs, rootDirInode);
+	Directory rootDir(m_fs, rootDirInode);
 	oxReturnError(rootDir.init());
 
 	FileSystemData fd;
@@ -111,12 +111,12 @@ Error FileSystemTemplate<InodeId_t>::format() {
 	return OxError(0);
 }
 
-template<typename InodeId_t>
-Error FileSystemTemplate<InodeId_t>::mkdir(const char *path, bool recursive) {
+template<typename InodeId_t, typename Directory>
+Error FileSystemTemplate<InodeId_t, Directory>::mkdir(const char *path, bool recursive) {
 	auto fd = fileSystemData();
 	if (fd.ok()) {
 		oxTrace("ox::fs::FileSystemTemplate::mkdir") << "rootDirInode:" << fd.value.rootDirInode;
-		Directory<InodeId_t> rootDir(m_fs, fd.value.rootDirInode);
+		Directory rootDir(m_fs, fd.value.rootDirInode);
 		return rootDir.mkdir(path, recursive);
 	} else {
 		oxLogError(fd.error);
@@ -124,11 +124,11 @@ Error FileSystemTemplate<InodeId_t>::mkdir(const char *path, bool recursive) {
 	}
 }
 
-template<typename InodeId_t>
-Error FileSystemTemplate<InodeId_t>::move(const char *src, const char *dest) {
+template<typename InodeId_t, typename Directory>
+Error FileSystemTemplate<InodeId_t, Directory>::move(const char *src, const char *dest) {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
-	Directory<InodeId_t> rootDir(m_fs, fd.value.rootDirInode);
+	Directory rootDir(m_fs, fd.value.rootDirInode);
 	auto inode = rootDir.find(src);
 	oxReturnError(inode.error);
 	oxReturnError(rootDir.write(dest, inode));
@@ -136,31 +136,31 @@ Error FileSystemTemplate<InodeId_t>::move(const char *src, const char *dest) {
 	return OxError(0);
 }
 
-template<typename InodeId_t>
-Error FileSystemTemplate<InodeId_t>::read(const char *path, void *buffer, std::size_t buffSize) {
+template<typename InodeId_t, typename Directory>
+Error FileSystemTemplate<InodeId_t, Directory>::read(const char *path, void *buffer, std::size_t buffSize) {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
-	Directory<InodeId_t> rootDir(m_fs, fd.value.rootDirInode);
+	Directory rootDir(m_fs, fd.value.rootDirInode);
 	auto inode = rootDir.find(path);
 	oxReturnError(inode.error);
 	return read(inode, buffer, buffSize);
 }
 
-template<typename InodeId_t>
-Error FileSystemTemplate<InodeId_t>::read(uint64_t inode, void *buffer, std::size_t buffSize) {
+template<typename InodeId_t, typename Directory>
+Error FileSystemTemplate<InodeId_t, Directory>::read(uint64_t inode, void *buffer, std::size_t buffSize) {
 	return m_fs->read(inode, buffer, buffSize);
 }
 
-template<typename InodeId_t>
-Error FileSystemTemplate<InodeId_t>::read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) {
+template<typename InodeId_t, typename Directory>
+Error FileSystemTemplate<InodeId_t, Directory>::read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) {
 	return m_fs->read(inode, readStart, readSize, buffer, size);
 }
 
-template<typename InodeId_t>
-Error FileSystemTemplate<InodeId_t>::remove(const char *path, bool recursive) {
+template<typename InodeId_t, typename Directory>
+Error FileSystemTemplate<InodeId_t, Directory>::remove(const char *path, bool recursive) {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
-	Directory<InodeId_t> rootDir(m_fs, fd.value.rootDirInode);
+	Directory rootDir(m_fs, fd.value.rootDirInode);
 	auto inode = rootDir.find(path);
 	oxReturnError(inode.error);
 	auto st = stat(inode);
@@ -178,26 +178,26 @@ Error FileSystemTemplate<InodeId_t>::remove(const char *path, bool recursive) {
 	return OxError(0);
 }
 
-template<typename InodeId_t>
-void FileSystemTemplate<InodeId_t>::resize(uint64_t size, void *buffer) {
+template<typename InodeId_t, typename Directory>
+void FileSystemTemplate<InodeId_t, Directory>::resize(uint64_t size, void *buffer) {
 	m_fs->resize(size, buffer);
 }
 
-template<typename InodeId_t>
-Error FileSystemTemplate<InodeId_t>::write(const char *path, void *buffer, uint64_t size, uint8_t fileType) {
+template<typename InodeId_t, typename Directory>
+Error FileSystemTemplate<InodeId_t, Directory>::write(const char *path, void *buffer, uint64_t size, uint8_t fileType) {
 	auto inode = find(path);
 	oxReturnError(inode.error);
 	return write(inode, buffer, size, fileType);
 }
 
-template<typename InodeId_t>
-Error FileSystemTemplate<InodeId_t>::write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType) {
+template<typename InodeId_t, typename Directory>
+Error FileSystemTemplate<InodeId_t, Directory>::write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType) {
 	// TODO: directory insert
 	return m_fs->write(inode, buffer, size, fileType);
 }
 
-template<typename InodeId_t>
-ValErr<FileStat> FileSystemTemplate<InodeId_t>::stat(uint64_t inode) {
+template<typename InodeId_t, typename Directory>
+ValErr<FileStat> FileSystemTemplate<InodeId_t, Directory>::stat(uint64_t inode) {
 	auto s = m_fs->stat(inode);
 	FileStat out;
 	out.inode = s.value.inode;
@@ -207,8 +207,8 @@ ValErr<FileStat> FileSystemTemplate<InodeId_t>::stat(uint64_t inode) {
 	return {out, s.error};
 }
 
-template<typename InodeId_t>
-ValErr<FileStat> FileSystemTemplate<InodeId_t>::stat(const char *path) {
+template<typename InodeId_t, typename Directory>
+ValErr<FileStat> FileSystemTemplate<InodeId_t, Directory>::stat(const char *path) {
 	auto inode = find(path);
 	if (inode.error) {
 		return {{}, inode.error};
@@ -216,33 +216,33 @@ ValErr<FileStat> FileSystemTemplate<InodeId_t>::stat(const char *path) {
 	return stat(inode.value);
 }
 
-template<typename InodeId_t>
-uint64_t FileSystemTemplate<InodeId_t>::spaceNeeded(uint64_t size) {
+template<typename InodeId_t, typename Directory>
+uint64_t FileSystemTemplate<InodeId_t, Directory>::spaceNeeded(uint64_t size) {
 	return m_fs->spaceNeeded(size);
 }
 
-template<typename InodeId_t>
-uint64_t FileSystemTemplate<InodeId_t>::available() {
+template<typename InodeId_t, typename Directory>
+uint64_t FileSystemTemplate<InodeId_t, Directory>::available() {
 	return m_fs->available();
 }
 
-template<typename InodeId_t>
-uint64_t FileSystemTemplate<InodeId_t>::size() {
+template<typename InodeId_t, typename Directory>
+uint64_t FileSystemTemplate<InodeId_t, Directory>::size() {
 	return m_fs->size();
 }
 
-template<typename InodeId_t>
-uint8_t *FileSystemTemplate<InodeId_t>::buff() {
+template<typename InodeId_t, typename Directory>
+uint8_t *FileSystemTemplate<InodeId_t, Directory>::buff() {
 	return m_fs->buff();
 }
 
-template<typename InodeId_t>
-Error FileSystemTemplate<InodeId_t>::walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) {
+template<typename InodeId_t, typename Directory>
+Error FileSystemTemplate<InodeId_t, Directory>::walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) {
 	return m_fs->walk(cb);
 }
 
-template<typename InodeId_t>
-ValErr<typename FileSystemTemplate<InodeId_t>::FileSystemData> FileSystemTemplate<InodeId_t>::fileSystemData() {
+template<typename InodeId_t, typename Directory>
+ValErr<typename FileSystemTemplate<InodeId_t, Directory>::FileSystemData> FileSystemTemplate<InodeId_t, Directory>::fileSystemData() {
 	FileSystemData fd;
 	auto err = m_fs->read(InodeFsData, &fd, sizeof(fd));
 	if (err != 0) {
@@ -251,11 +251,11 @@ ValErr<typename FileSystemTemplate<InodeId_t>::FileSystemData> FileSystemTemplat
 	return fd;
 }
 
-template<typename InodeId_t>
-ValErr<uint64_t> FileSystemTemplate<InodeId_t>::find(const char *path) {
+template<typename InodeId_t, typename Directory>
+ValErr<uint64_t> FileSystemTemplate<InodeId_t, Directory>::find(const char *path) {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
-	Directory<InodeId_t> rootDir(m_fs, fd.value.rootDirInode);
+	Directory rootDir(m_fs, fd.value.rootDirInode);
 	auto inode = rootDir.find(path);
 	oxReturnError(inode.error);
 	return inode.value;
@@ -264,10 +264,10 @@ ValErr<uint64_t> FileSystemTemplate<InodeId_t>::find(const char *path) {
 extern template class Directory<uint16_t>;
 extern template class Directory<uint32_t>;
 
-extern template class FileSystemTemplate<uint16_t>;
-extern template class FileSystemTemplate<uint32_t>;
+extern template class FileSystemTemplate<uint16_t, Directory<uint16_t>>;
+extern template class FileSystemTemplate<uint32_t, Directory<uint16_t>>;
 
-using FileSystem16 = FileSystemTemplate<uint16_t>;
-using FileSystem32 = FileSystemTemplate<uint32_t>;
+using FileSystem16 = FileSystemTemplate<uint16_t, Directory<uint16_t>>;
+using FileSystem32 = FileSystemTemplate<uint32_t, Directory<uint32_t>>;
 
 }

@@ -13,7 +13,7 @@ namespace ox::fs {
 template class Directory<uint16_t>;
 template class Directory<uint32_t>;
 
-template class FileSystemTemplate<uint16_t>;
-template class FileSystemTemplate<uint32_t>;
+template class FileSystemTemplate<uint16_t, Directory<uint16_t>>;
+template class FileSystemTemplate<uint32_t, Directory<uint32_t>>;
 
 }

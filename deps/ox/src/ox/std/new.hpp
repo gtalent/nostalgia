@@ -30,14 +30,14 @@ void *operator new(std::size_t, void*) noexcept;
  * @return an ox::MallocaPtr of the given type pointing to the requested size memory allocation
  */
 #if defined(OX_USE_STDLIB)
-#define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(size, new (size > MallocaStackLimit ? new uint8_t[size] : ox_alloca(size)) Type(__VA_ARGS__))
+#define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(size > MallocaStackLimit, new (size > MallocaStackLimit ? new uint8_t[size] : ox_alloca(size)) Type(__VA_ARGS__))
 #else
-#define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(size, new (ox_alloca(size)) Type(__VA_ARGS__))
+#define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(false, new (ox_alloca(size)) Type(__VA_ARGS__))
 #endif
 
 namespace ox {
 
-constexpr auto MallocaStackLimit = 1024;
+constexpr auto MallocaStackLimit = ox::defines::UseStdLib ? 1024 : 0;
 
 /**
  * MallocaPtr will automatically cleanup the pointed to address upon
@@ -47,7 +47,7 @@ template<typename T>
 class MallocaPtr {
 
 	private:
-		std::size_t m_size = 0;
+		bool m_onHeap = false;
 		T *m_val = nullptr;
 
 	public:
@@ -58,22 +58,20 @@ class MallocaPtr {
 		inline MallocaPtr(const MallocaPtr &other) = delete;
 
 		inline MallocaPtr(MallocaPtr &&other) noexcept {
-			m_size = other.m_size;
+			m_onHeap = other.m_onHeap;
 			m_val = other.m_val;
-			other.m_size = 0;
+			other.m_onHeap = false;
 			other.m_val = nullptr;
 		}
 
-		inline MallocaPtr(std::size_t size, T *val) noexcept {
-			m_size = size;
+		inline MallocaPtr(bool onHeap, T *val) noexcept {
+			m_onHeap = onHeap;
 			m_val = val;
 		}
 
 		inline ~MallocaPtr() noexcept {
-			if constexpr(ox::defines::UseStdLib) {
-				if (m_size > ox::MallocaStackLimit) {
-					delete[] reinterpret_cast<uint8_t*>(m_val);
-				}
+			if (m_onHeap && m_val) {
+				delete[] reinterpret_cast<uint8_t*>(m_val);
 			}
 		}
 
@@ -90,14 +88,12 @@ class MallocaPtr {
 		inline const T &operator=(const MallocaPtr &other) = delete;
 
 		inline const T &operator=(MallocaPtr &&other) noexcept {
-			if constexpr(ox::defines::UseStdLib) {
-				if (m_size > ox::MallocaStackLimit) {
-					delete[] reinterpret_cast<uint8_t*>(m_val);
-				}
+			if (m_onHeap && m_val) {
+				delete[] reinterpret_cast<uint8_t*>(m_val);
 			}
-			m_size = other.m_size;
+			m_onHeap = other.m_onHeap;
 			m_val = other.m_val;
-			other.m_size = 0;
+			other.m_onHeap = false;
 			other.m_val = nullptr;
 		}
 
@@ -126,11 +122,11 @@ class MallocaPtr {
 		}
 
 		inline bool operator==(const MallocaPtr<T> &other) const noexcept {
-			return m_val == other.m_val && m_size == other.m_size;
+			return m_val == other.m_val && m_onHeap == other.m_onHeap;
 		}
 
 		inline bool operator!=(const MallocaPtr<T> &other) const noexcept {
-			return m_val != other.m_val || m_size != other.m_size;
+			return m_val != other.m_val || m_onHeap != other.m_onHeap;
 		}
 
 };

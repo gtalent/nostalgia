@@ -15,6 +15,12 @@
 
 namespace ox::fs {
 
+/**
+ * FileSystemTemplate used to create file system that wraps around a FileStore,
+ * taking an inode size and a directory type as parameters.
+ *
+ * Note: Directory parameter must have a default constructor.
+ */
 template<typename InodeId_t, typename Directory>
 class FileSystemTemplate {
 	private:
@@ -73,12 +79,14 @@ class FileSystemTemplate {
 		bool valid() const;
 
 	private:
-		ValErr<FileSystemData> fileSystemData();
+		ValErr<FileSystemData> fileSystemData() const noexcept;
 
 		/**
 		 * Finds the inode ID at the given path.
 		 */
-		ValErr<uint64_t> find(const char *path);
+		ValErr<uint64_t> find(const char *path) const noexcept;
+
+		ValErr<Directory> rootDir() const noexcept;
 
 };
 
@@ -186,13 +194,18 @@ void FileSystemTemplate<InodeId_t, Directory>::resize(uint64_t size, void *buffe
 template<typename InodeId_t, typename Directory>
 Error FileSystemTemplate<InodeId_t, Directory>::write(const char *path, void *buffer, uint64_t size, uint8_t fileType) {
 	auto inode = find(path);
-	oxReturnError(inode.error);
-	return write(inode, buffer, size, fileType);
+	if (inode.error) {
+		inode = m_fs->generateInodeId();
+	}
+	auto rootDir = this->rootDir();
+	oxReturnError(rootDir.error);
+	oxReturnError(rootDir.value.write(path, inode));
+	oxReturnError(write(inode, buffer, size, fileType));
+	return 0;
 }
 
 template<typename InodeId_t, typename Directory>
 Error FileSystemTemplate<InodeId_t, Directory>::write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType) {
-	// TODO: directory insert
 	return m_fs->write(inode, buffer, size, fileType);
 }
 
@@ -242,7 +255,7 @@ Error FileSystemTemplate<InodeId_t, Directory>::walk(Error(*cb)(uint8_t, uint64_
 }
 
 template<typename InodeId_t, typename Directory>
-ValErr<typename FileSystemTemplate<InodeId_t, Directory>::FileSystemData> FileSystemTemplate<InodeId_t, Directory>::fileSystemData() {
+ValErr<typename FileSystemTemplate<InodeId_t, Directory>::FileSystemData> FileSystemTemplate<InodeId_t, Directory>::fileSystemData() const noexcept {
 	FileSystemData fd;
 	auto err = m_fs->read(InodeFsData, &fd, sizeof(fd));
 	if (err != 0) {
@@ -252,13 +265,26 @@ ValErr<typename FileSystemTemplate<InodeId_t, Directory>::FileSystemData> FileSy
 }
 
 template<typename InodeId_t, typename Directory>
-ValErr<uint64_t> FileSystemTemplate<InodeId_t, Directory>::find(const char *path) {
+ValErr<uint64_t> FileSystemTemplate<InodeId_t, Directory>::find(const char *path) const noexcept {
 	auto fd = fileSystemData();
-	oxReturnError(fd.error);
+	if (fd.error) {
+		return {0, fd.error};
+	}
 	Directory rootDir(m_fs, fd.value.rootDirInode);
 	auto inode = rootDir.find(path);
-	oxReturnError(inode.error);
+	if (inode.error) {
+		return {0, inode.error};
+	}
 	return inode.value;
+}
+
+template<typename InodeId_t, typename Directory>
+ValErr<Directory> FileSystemTemplate<InodeId_t, Directory>::rootDir() const noexcept {
+	auto fd = fileSystemData();
+	if (fd.error) {
+		return {{}, fd.error};
+	}
+	return Directory(m_fs, fd.value.rootDirInode);
 }
 
 extern template class Directory<uint16_t>;

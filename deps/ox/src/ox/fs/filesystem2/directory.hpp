@@ -94,6 +94,8 @@ class Directory {
 		FileStore *m_fs = nullptr;
 
 	public:
+		Directory() = default;
+
 		Directory(FileStore *fs, InodeId_t inode);
 
 		/**

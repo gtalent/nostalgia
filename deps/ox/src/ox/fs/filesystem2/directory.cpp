@@ -10,8 +10,8 @@
 
 namespace ox::fs {
 
-template class Directory<uint16_t>;
-template class Directory<uint32_t>;
+template class Directory<FileStore16, uint16_t>;
+template class Directory<FileStore32, uint32_t>;
 
 template struct DirectoryEntry<uint16_t>;
 template struct DirectoryEntry<uint32_t>;

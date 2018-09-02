@@ -9,7 +9,7 @@
 #pragma once
 
 #include <ox/fs/filesystem/pathiterator.hpp>
-#include <ox/fs/filestore/filestore.hpp>
+#include <ox/fs/filestore/filestoretemplate.hpp>
 #include <ox/ptrarith/nodebuffer.hpp>
 #include <ox/std/std.hpp>
 
@@ -83,7 +83,7 @@ struct __attribute__((packed)) DirectoryEntry {
 };
 
 
-template<typename InodeId_t>
+template<typename FileStore, typename InodeId_t>
 class Directory {
 
 	private:
@@ -112,12 +112,12 @@ class Directory {
 
 		Error remove(PathIterator it, FileName *nameBuff = nullptr) noexcept;
 
-		ValErr<ox::fs::InodeId_t> find(const FileName &name) const noexcept;
+		ValErr<typename FileStore::InodeId_t> find(const FileName &name) const noexcept;
 
 };
 
-template<typename InodeId_t>
-Directory<InodeId_t>::Directory(FileStore *fs, InodeId_t inodeId) {
+template<typename FileStore, typename InodeId_t>
+Directory<FileStore, InodeId_t>::Directory(FileStore *fs, InodeId_t inodeId) {
 	m_fs = fs;
 	m_inodeId = inodeId;
 	auto buff = fs->read(inodeId).template to<Buffer>();
@@ -126,8 +126,8 @@ Directory<InodeId_t>::Directory(FileStore *fs, InodeId_t inodeId) {
 	}
 }
 
-template<typename InodeId_t>
-Error Directory<InodeId_t>::init() noexcept {
+template<typename FileStore, typename InodeId_t>
+Error Directory<FileStore, InodeId_t>::init() noexcept {
 	constexpr auto Size = sizeof(Buffer);
 	oxReturnError(m_fs->write(m_inodeId, nullptr, Size));
 	auto buff = m_fs->read(m_inodeId);
@@ -140,8 +140,8 @@ Error Directory<InodeId_t>::init() noexcept {
 	return OxError(1);
 }
 
-template<typename InodeId_t>
-Error Directory<InodeId_t>::mkdir(PathIterator path, bool parents, FileName *nameBuff) {
+template<typename FileStore, typename InodeId_t>
+Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents, FileName *nameBuff) {
 	if (path.valid()) {
 		oxTrace("ox::fs::Directory::mkdir") << path.fullPath();
 		// reuse nameBuff if it has already been allocated, as it is a rather large variable
@@ -164,7 +164,7 @@ Error Directory<InodeId_t>::mkdir(PathIterator path, bool parents, FileName *nam
 			oxReturnError(childInode.error);
 
 			// initialize the directory
-			Directory<InodeId_t> child(m_fs, childInode);
+			Directory<FileStore, InodeId_t> child(m_fs, childInode);
 			oxReturnError(child.init());
 
 			auto err = write(name->c_str(), childInode, false);
@@ -176,7 +176,7 @@ Error Directory<InodeId_t>::mkdir(PathIterator path, bool parents, FileName *nam
 			}
 		}
 
-		Directory<InodeId_t> child(m_fs, childInode);
+		Directory<FileStore, InodeId_t> child(m_fs, childInode);
 		if (path.hasNext()) {
 			oxReturnError(child.mkdir(path + 1, parents, nameBuff));
 		}
@@ -184,8 +184,8 @@ Error Directory<InodeId_t>::mkdir(PathIterator path, bool parents, FileName *nam
 	return OxError(0);
 }
 
-template<typename InodeId_t>
-Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode, bool parents, FileName *nameBuff) noexcept {
+template<typename FileStore, typename InodeId_t>
+Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode, bool parents, FileName *nameBuff) noexcept {
 	InodeId_t nextChild = 0;
 
 	// reuse nameBuff if it has already been allocated, as it is a rather large variable
@@ -254,8 +254,8 @@ Error Directory<InodeId_t>::write(PathIterator path, InodeId_t inode, bool paren
 	return OxError(1);
 }
 
-template<typename InodeId_t>
-Error Directory<InodeId_t>::remove(PathIterator path, FileName *nameBuff) noexcept {
+template<typename FileStore, typename InodeId_t>
+Error Directory<FileStore, InodeId_t>::remove(PathIterator path, FileName *nameBuff) noexcept {
 	// reuse nameBuff if it has already been allocated, as it is a rather large variable
 	if (nameBuff == nullptr) {
 		nameBuff = reinterpret_cast<FileName*>(ox_alloca(sizeof(FileName)));
@@ -284,8 +284,8 @@ Error Directory<InodeId_t>::remove(PathIterator path, FileName *nameBuff) noexce
 	return OxError(0);
 }
 
-template<typename InodeId_t>
-ValErr<ox::fs::InodeId_t> Directory<InodeId_t>::find(const FileName &name) const noexcept {
+template<typename FileStore, typename InodeId_t>
+ValErr<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::find(const FileName &name) const noexcept {
 	oxTrace("ox::fs::Directory::find") << name.c_str();
 	auto buff = m_fs->read(m_inodeId).template to<Buffer>();
 	if (buff.valid()) {
@@ -308,13 +308,13 @@ ValErr<ox::fs::InodeId_t> Directory<InodeId_t>::find(const FileName &name) const
 }
 
 
-extern template class Directory<uint16_t>;
-extern template class Directory<uint32_t>;
+extern template class Directory<FileStore16, uint16_t>;
+extern template class Directory<FileStore32, uint32_t>;
 
 extern template struct DirectoryEntry<uint16_t>;
 extern template struct DirectoryEntry<uint32_t>;
 
-using Directory16 = Directory<uint16_t>;
-using Directory32 = Directory<uint32_t>;
+using Directory16 = Directory<FileStore16, uint16_t>;
+using Directory32 = Directory<FileStore32, uint32_t>;
 
 }

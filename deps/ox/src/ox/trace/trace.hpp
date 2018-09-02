@@ -56,6 +56,7 @@ class OutStream {
 class StdOutStream {
 
 	private:
+		const char *m_delimiter = " ";
 		TraceMsg m_msg;
 
 	public:
@@ -67,8 +68,16 @@ class StdOutStream {
 
 		template<typename T>
 		constexpr inline StdOutStream &operator<<(const T &v) {
-			m_msg.msg += " ";
+			m_msg.msg += m_delimiter;
 			m_msg.msg += v;
+			return *this;
+		}
+
+		/**
+		 * del sets the delimiter between log segments.
+		 */
+		inline StdOutStream &del(const char *delimiter) {
+			m_delimiter = delimiter;
 			return *this;
 		}
 
@@ -87,6 +96,10 @@ class NullStream {
 
 		template<typename T>
 		constexpr inline NullStream &operator<<(const T&) {
+			return *this;
+		}
+
+		inline NullStream &del(const char*) {
 			return *this;
 		}
 

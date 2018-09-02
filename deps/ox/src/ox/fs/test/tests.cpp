@@ -416,7 +416,9 @@ map<string, int(*)(string)> tests = {
 
 				oxTrace("ox::fs::test::FileSystem") << "mkdir";
 				oxAssert(fs.mkdir("/l1d1/l2d1/l3d1", true), "mkdir failed");
+				oxAssert(fs.stat("/l1d1/l2d1/l3d1").error, "mkdir failed");
 				oxAssert(fs.mkdir("/l1d1/l2d2", true), "mkdir failed");
+				oxAssert(fs.stat("/l1d1/l2d2").error, "mkdir failed");
 
 				return 0;
 			}

@@ -293,6 +293,7 @@ ValErr<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::find(cons
 		for (auto i = buff->iterator(); i.valid(); i.next()) {
 			auto data = i->data();
 			if (data.valid()) {
+				oxTrace("ox::fs::Directory::find").del("") << "Comparing \"" << name.c_str() << "\" to \"" << data->name << "\"";
 				if (ox_strncmp(data->name, name.c_str(), name.len()) == 0) {
 					return static_cast<InodeId_t>(data->inode);
 				}
@@ -301,10 +302,11 @@ ValErr<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::find(cons
 			}
 		}
 		oxTrace("ox::fs::Directory::find::fail");
+		return {0, OxError(1)};
 	} else {
 		oxTrace("ox::fs::Directory::find::fail") << "Could not find directory buffer";
+		return {0, OxError(2)};
 	}
-	return {0, OxError(1)};
 }
 
 

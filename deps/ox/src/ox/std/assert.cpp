@@ -13,6 +13,7 @@
 
 #include <ox/__buildinfo/defines.hpp>
 
+#include "stacktrace.hpp"
 #include "assert.hpp"
 
 namespace ox {
@@ -22,6 +23,7 @@ void _assert<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line, [
 #if defined(OX_USE_STDLIB)
 	if (!pass) {
 		std::cerr << "\033[31;1;1mASSERT FAILURE:\033[0m (" << file << ':' << line << "): " << msg << std::endl;
+		printStackTrace(2);
 		std::abort();
 	}
 #endif
@@ -37,7 +39,7 @@ void _assert<Error>([[maybe_unused]]const char *file, [[maybe_unused]]int line, 
 		if (ei.file != nullptr) {
 			std::cerr << "\tError Location:\t" << reinterpret_cast<const char*>(ei.file) << ':' << ei.line << '\n';
 		}
-		std::cerr << std::flush;
+		printStackTrace(2);
 		std::abort();
 	}
 #endif

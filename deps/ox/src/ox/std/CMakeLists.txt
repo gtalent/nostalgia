@@ -6,6 +6,7 @@ add_library(
 		byteswap.cpp
 		memops.cpp
 		random.cpp
+		stacktrace.cpp
 		strops.cpp
 )
 
@@ -26,6 +27,7 @@ install(
 		memops.hpp
 		new.hpp
 		random.hpp
+		stacktrace.hpp
 		string.hpp
 		strops.hpp
 		std.hpp

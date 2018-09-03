@@ -16,6 +16,7 @@
 #include "memops.hpp"
 #include "new.hpp"
 #include "random.hpp"
+#include "stacktrace.hpp"
 #include "stddef.hpp"
 #include "strops.hpp"
 #include "string.hpp"

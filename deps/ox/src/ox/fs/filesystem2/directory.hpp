@@ -57,7 +57,7 @@ struct __attribute__((packed)) DirectoryEntry {
 		}
 
 		ptrarith::Ptr<DirectoryEntryData, InodeId_t> data() {
-			oxTrace("ox::ptrarith::DirectoryEntry::data") << this->fullSize() << sizeof(*this) << this->size();
+			oxTrace("ox::fs::DirectoryEntry::data") << this->fullSize() << sizeof(*this) << this->size();
 			return ptrarith::Ptr<DirectoryEntryData, InodeId_t>(this, this->fullSize(), sizeof(*this), this->size(), this->size());
 		}
 

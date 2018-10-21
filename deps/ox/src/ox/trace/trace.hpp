@@ -34,6 +34,7 @@ int ioOp(T *io, ox::trace::TraceMsg *obj) {
 class OutStream {
 
 	private:
+		const char *m_delimiter = " ";
 		TraceMsg m_msg;
 
 	public:
@@ -45,8 +46,16 @@ class OutStream {
 
 		template<typename T>
 		inline OutStream &operator<<(const T &v) {
-			m_msg.msg += " ";
+			m_msg.msg += m_delimiter;
 			m_msg.msg += v;
+			return *this;
+		}
+
+		/**
+		 * del sets the delimiter between log segments.
+		 */
+		inline OutStream &del(const char *delimiter) {
+			m_delimiter = delimiter;
 			return *this;
 		}
 
@@ -106,7 +115,7 @@ class NullStream {
 };
 
 #ifdef DEBUG
-using TraceStream = StdOutStream;
+using TraceStream = OutStream;
 #else
 using TraceStream = NullStream;
 #endif

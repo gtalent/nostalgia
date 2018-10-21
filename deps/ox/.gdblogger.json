@@ -1,0 +1,12 @@
+{
+	"log_functions": [
+		{
+			"function": "ox::trace::gdblogger::captureLogFunc",
+			"ignore_frames": 3,
+			"file_var": "file",
+			"line_var": "line",
+			"channel_var": "ch",
+			"msg_var": "msg"
+		}
+	]
+}

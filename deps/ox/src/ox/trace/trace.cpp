@@ -9,6 +9,8 @@
 #if defined(OX_USE_STDLIB)
 #include <iomanip>
 #include <iostream>
+#include <stdio.h>
+#include <unistd.h>
 #endif
 
 #include <ox/mc/write.hpp>
@@ -17,7 +19,19 @@
 
 namespace ox::trace {
 
-static const auto OxPrintTrace = std::getenv("OXTRACE") != nullptr;
+static const auto OxPrintTrace = std::getenv("OXTRACE");
+
+namespace gdblogger {
+
+void captureLogFunc([[maybe_unused]] const char *file, [[maybe_unused]] int line,
+                    [[maybe_unused]] const char *ch, [[maybe_unused]] const char *msg) {
+}
+
+void logFunc(const char *file, int line, const char *ch, const char *msg) {
+	captureLogFunc(file, line, ch, msg);
+}
+
+}
 
 OutStream::OutStream(const char *file, int line, const char *ch, const char *msg) {
 	m_msg.file = file;
@@ -27,10 +41,21 @@ OutStream::OutStream(const char *file, int line, const char *ch, const char *msg
 }
 
 OutStream::~OutStream() {
-	constexpr std::size_t buffLen = 1024;
-	std::size_t size = 0;
-	uint8_t buff[buffLen];
-	writeMC(buff, buffLen, &m_msg, &size);
+	gdblogger::logFunc(m_msg.file.c_str(), m_msg.line, m_msg.ch.c_str(), m_msg.msg.c_str());
+#if defined(OX_USE_STDLIB)
+	if (OxPrintTrace) {
+		auto pipe = fopen(OxPrintTrace, "a");
+		if (pipe) {
+			constexpr std::size_t buffLen = 1024;
+			std::size_t size = 0;
+			uint8_t buff[buffLen];
+			writeMC(buff, buffLen, &m_msg, &size);
+
+			//write(pipe, buff, size);
+			fclose(pipe);
+		}
+	}
+#endif
 }
 
 
@@ -42,6 +67,7 @@ StdOutStream::StdOutStream(const char *file, int line, const char *ch, const cha
 }
 
 StdOutStream::~StdOutStream() {
+	gdblogger::logFunc(m_msg.file.c_str(), m_msg.line, m_msg.ch.c_str(), m_msg.msg.c_str());
 #if defined(OX_USE_STDLIB)
 	if (OxPrintTrace) {
 		std::cout << std::setw(53) << std::left << m_msg.ch.c_str() << '|';

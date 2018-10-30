@@ -1,13 +1,10 @@
-cmake_minimum_required(VERSION 2.8)
 
 add_library(
 	OxFS
-		filestore.cpp
 		filestore/filestoretemplate.cpp
-		filesystem/filesystem.cpp
 		filesystem/pathiterator.cpp
-		filesystem2/directory.cpp
-		filesystem2/filesystem.cpp
+		filesystem/directory.cpp
+		filesystem/filesystem.cpp
 )
 
 set_property(
@@ -35,13 +32,14 @@ endif()
 
 install(
 	FILES
-		filestore.hpp
+		filestore/filestoretemplate.hpp
 	DESTINATION
-		include/ox/fs
+		include/ox/fs/filestore
 )
 
 install(
 	FILES
+		filestore/filestoretemplate.hpp
 		filesystem/filesystem.hpp
 		filesystem/pathiterator.hpp
 	DESTINATION

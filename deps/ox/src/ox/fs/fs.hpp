@@ -8,5 +8,6 @@
 
 #pragma once
 
-//#include "filesystem/filesystemtemplate.hpp"
+#include "filestore/filestoretemplate.hpp"
+#include "filesystem/filesystem.hpp"
 #include "filesystem/directory.hpp"

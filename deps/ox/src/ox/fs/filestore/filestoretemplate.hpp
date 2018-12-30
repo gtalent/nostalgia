@@ -10,7 +10,7 @@
 
 #include <ox/ptrarith/nodebuffer.hpp>
 
-namespace ox::fs {
+namespace ox {
 
 using InodeId_t = uint64_t;
 using FsSize_t = std::size_t;
@@ -70,12 +70,14 @@ class FileStoreTemplate {
 		};
 
 		size_t m_buffSize = 0;
-		Buffer *m_buffer = nullptr;
+		mutable Buffer *m_buffer = nullptr;
 
 	public:
+		FileStoreTemplate() = default;
+
 		FileStoreTemplate(void *buff, size_t buffSize);
 
-		Error format();
+		static Error format(void *buffer, size_t bufferSize);
 
 		Error setSize(InodeId_t buffSize);
 
@@ -87,11 +89,11 @@ class FileStoreTemplate {
 
 		Error remove(InodeId_t id);
 
-		Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size = nullptr);
+		Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size = nullptr) const;
 
-		Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size = nullptr);
+		Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size = nullptr) const;
 
-		const ptrarith::Ptr<uint8_t, std::size_t> read(InodeId_t id);
+		const ptrarith::Ptr<uint8_t, std::size_t> read(InodeId_t id) const;
 
 		/**
 		 * Reads the "file" at the given id. You are responsible for freeing
@@ -106,7 +108,7 @@ class FileStoreTemplate {
 		template<typename T>
 		Error read(InodeId_t id, FsSize_t readStart,
 		           FsSize_t readSize, T *data,
-		           FsSize_t *size);
+		           FsSize_t *size) const;
 
 		ValErr<StatInfo> stat(InodeId_t id);
 
@@ -114,7 +116,7 @@ class FileStoreTemplate {
 
 		InodeId_t spaceNeeded(FsSize_t size);
 
-		InodeId_t size();
+		InodeId_t size() const;
 
 		InodeId_t available();
 
@@ -126,10 +128,10 @@ class FileStoreTemplate {
 
 		bool valid() const;
 
-	private:
 		void compact();
 
-		FileStoreData *fileStoreData();
+	private:
+		FileStoreData *fileStoreData() const;
 
 		/**
 		 * Places the given Item at the given ID. If it already exists, the
@@ -160,17 +162,17 @@ class FileStoreTemplate {
 		/**
 		 * Finds the parent an inode by its ID.
 		 */
-		ItemPtr findParent(ItemPtr ptr, size_t id);
+		ItemPtr findParent(ItemPtr ptr, size_t id) const;
 
 		/**
 		 * Finds an inode by its ID.
 		 */
-		ItemPtr find(ItemPtr item, InodeId_t id, int depth = 0);
+		ItemPtr find(ItemPtr item, InodeId_t id, int depth = 0) const;
 
 		/**
 		 * Finds an inode by its ID.
 		 */
-		ItemPtr find(InodeId_t id);
+		ItemPtr find(InodeId_t id) const;
 
 		/**
 		 * Gets the root inode.
@@ -192,11 +194,11 @@ FileStoreTemplate<size_t>::FileStoreTemplate(void *buff, size_t buffSize) {
 }
 
 template<typename size_t>
-Error FileStoreTemplate<size_t>::format() {
-	new (m_buffer) Buffer(m_buffSize);
-	auto fsData = m_buffer->malloc(sizeof(FileStoreData));
+Error FileStoreTemplate<size_t>::format(void *buffer, size_t bufferSize) {
+	auto nb = new (buffer) Buffer(bufferSize);
+	auto fsData = nb->malloc(sizeof(FileStoreData));
 	if (fsData.valid()) {
-		auto data = m_buffer->template dataOf<FileStoreData>(fsData);
+		auto data = nb->template dataOf<FileStoreData>(fsData);
 		if (data.valid()) {
 			new (data) FileStoreData;
 			return OxError(0);
@@ -301,7 +303,7 @@ Error FileStoreTemplate<size_t>::remove(InodeId_t id) {
 }
 
 template<typename size_t>
-Error FileStoreTemplate<size_t>::read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size) {
+Error FileStoreTemplate<size_t>::read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size) const {
 	oxTrace("ox::fs::FileStoreTemplate::read") << "Attempting to read from inode" << id;
 	auto src = find(id);
 	if (src.valid()) {
@@ -327,7 +329,7 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, void *data, FsSize_t dataSiz
 }
 
 template<typename size_t>
-Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size) {
+Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size) const {
 	auto src = find(id);
 	if (src.valid()) {
 		auto srcData = src->data();
@@ -354,19 +356,19 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart, FsSize_t
 template<typename size_t>
 template<typename T>
 Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart,
-                                    FsSize_t readSize, T *data, FsSize_t *size) {
+                                      FsSize_t readSize, T *data, FsSize_t *size) const {
 	auto src = find(id);
 	if (src.valid()) {
 		auto srcData = src->data();
 		if (srcData.valid()) {
-			auto sub = srcData.subPtr(readStart, readSize);
+			auto sub = srcData.template subPtr<T>(readStart, readSize);
 			if (sub.valid() && sub.size() % sizeof(T)) {
 				for (FsSize_t i = 0; i < sub.size() / sizeof(T); i++) {
 					// do byte-by-byte copy to ensure alignment is right when
 					// copying to final destination
 					T tmp;
 					for (size_t i = 0; i < sizeof(T); i++) {
-						*(reinterpret_cast<uint8_t*>(&tmp)[i]) = *(reinterpret_cast<uint8_t*>(sub.get()) + i);
+						reinterpret_cast<uint8_t*>(&tmp)[i] = *(reinterpret_cast<const uint8_t*>(sub.get()) + i);
 					}
 					*(data + i) = tmp;
 				}
@@ -381,7 +383,7 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart,
 }
 
 template<typename size_t>
-const ptrarith::Ptr<uint8_t, std::size_t> FileStoreTemplate<size_t>::read(InodeId_t id) {
+const ptrarith::Ptr<uint8_t, std::size_t> FileStoreTemplate<size_t>::read(InodeId_t id) const {
 	auto item = find(id);
 	if (item.valid()) {
 		return item->data();
@@ -419,7 +421,7 @@ typename FileStoreTemplate<size_t>::InodeId_t FileStoreTemplate<size_t>::spaceNe
 }
 
 template<typename size_t>
-typename FileStoreTemplate<size_t>::InodeId_t FileStoreTemplate<size_t>::size() {
+typename FileStoreTemplate<size_t>::InodeId_t FileStoreTemplate<size_t>::size() const {
 	return m_buffer->size();
 }
 
@@ -458,10 +460,22 @@ ValErr<typename FileStoreTemplate<size_t>::InodeId_t> FileStoreTemplate<size_t>:
 
 template<typename size_t>
 void FileStoreTemplate<size_t>::compact() {
+	m_buffer->compact([this](uint64_t oldAddr, ItemPtr item) {
+		if (item.valid()) {
+			auto parent = findParent(rootInode(), item);
+			if (parent.valid()) {
+				if (parent->left == oldAddr) {
+					parent->left = item;
+				} else if (parent->right == oldAddr) {
+					parent->right = item;
+				}
+			}
+		}
+	});
 }
 
 template<typename size_t>
-typename FileStoreTemplate<size_t>::FileStoreData *FileStoreTemplate<size_t>::fileStoreData() {
+typename FileStoreTemplate<size_t>::FileStoreData *FileStoreTemplate<size_t>::fileStoreData() const {
 	auto first = m_buffer->firstItem();
 	if (first.valid()) {
 		auto data = first->data();
@@ -607,23 +621,25 @@ Error FileStoreTemplate<size_t>::remove(ItemPtr item) {
 }
 
 template<typename size_t>
-typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::findParent(ItemPtr item, size_t id) {
-	if (id > item->id) {
-		auto right = m_buffer->ptr(item->right);
-		if (right.valid()) {
-			if (right->id == id) {
-				return item;
-			} else {
-				return findParent(right, id);
+typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::findParent(ItemPtr item, size_t id) const {
+	if (item.valid()) {
+		if (id > item->id) {
+			auto right = m_buffer->ptr(item->right);
+			if (right.valid()) {
+				if (right->id == id) {
+					return item;
+				} else {
+					return findParent(right, id);
+				}
 			}
-		}
-	} else if (id < item->id) {
-		auto left = m_buffer->ptr(item->left);
-		if (left.valid()) {
-			if (left->id == id) {
-				return item;
-			} else {
-				return findParent(left, id);
+		} else if (id < item->id) {
+			auto left = m_buffer->ptr(item->left);
+			if (left.valid()) {
+				if (left->id == id) {
+					return item;
+				} else {
+					return findParent(left, id);
+				}
 			}
 		}
 	}
@@ -631,7 +647,7 @@ typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::findParen
 }
 
 template<typename size_t>
-typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(ItemPtr item, InodeId_t id, int depth) {
+typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(ItemPtr item, InodeId_t id, int depth) const {
 	if (depth < 5000) {
 		if (item.valid()) {
 			if (id > item->id) {
@@ -654,7 +670,7 @@ typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(Item
 }
 
 template<typename size_t>
-typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(InodeId_t id) {
+typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(InodeId_t id) const {
 	auto fsData = fileStoreData();
 	if (fsData) {
 		auto root = m_buffer->ptr(fsData->rootNode);

@@ -137,7 +137,7 @@ map<string, int(*)(string)> tests = {
 			[](string) {
 				int err = 0;
 				constexpr auto buffLen = 5000;
-				auto list = new (ox_alloca(buffLen)) ox::ptrarith::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
+				auto list = new (ox_alloca(buffLen)) ox::ptrarith::NodeBuffer<uint32_t, ox::FileStoreItem<uint32_t>>(buffLen);
 				oxAssert(list->malloc(50).valid(), "NodeBuffer::insert: malloc 1 failed");
 				oxAssert(list->malloc(50).valid(), "NodeBuffer::insert: malloc 2 failed");
 				auto first = list->firstItem();
@@ -154,9 +154,9 @@ map<string, int(*)(string)> tests = {
 				constexpr auto str1Len = ox_strlen(str1) + 1;
 				constexpr auto str2 = "Hello, Moon!";
 				constexpr auto str2Len = ox_strlen(str2) + 1;
-				auto list = new (ox_alloca(buffLen)) ox::ptrarith::NodeBuffer<uint32_t, ox::fs::FileStoreItem<uint32_t>>(buffLen);
-				ox::fs::FileStore32 fileStore(list, buffLen);
-				oxAssert(fileStore.format() == 0, "FileStore::format failed.");
+				auto list = new (ox_alloca(buffLen)) ox::ptrarith::NodeBuffer<uint32_t, ox::FileStoreItem<uint32_t>>(buffLen);
+				oxAssert(ox::FileStore32::format(list, buffLen) == 0, "FileStore::format failed.");
+				ox::FileStore32 fileStore(list, buffLen);
 				oxAssert(fileStore.write(4, const_cast<char*>(str1), str1Len, 1) == 0, "FileStore::write 1 failed.");
 				oxAssert(fileStore.write(5, const_cast<char*>(str2), str2Len, 1) == 0, "FileStore::write 2 failed.");
 
@@ -171,9 +171,9 @@ map<string, int(*)(string)> tests = {
 			"Directory",
 			[](string) {
 				std::array<uint8_t, 5000> fsBuff;
-				ox::fs::FileStore32 fileStore(fsBuff.data(), fsBuff.size());
-				fileStore.format();
-				auto dir = ox_malloca(1000, ox::fs::Directory32, &fileStore, 100);
+				ox::FileStore32::format(fsBuff.data(), fsBuff.size());
+				ox::FileStore32 fileStore(fsBuff.data(), fsBuff.size());
+				auto dir = ox_malloca(1000, ox::Directory32, fileStore, 100);
 
 				oxTrace("ox::fs::test::Directory") << "Init";
 				oxAssert(dir->init(), "Init failed");
@@ -198,11 +198,9 @@ map<string, int(*)(string)> tests = {
 			"FileSystem",
 			[](string) {
 				std::array<uint8_t, 5000> fsBuff;
-				ox::fs::FileStore32 fileStore(fsBuff.data(), fsBuff.size());
-				ox::fs::FileSystem32 fs(&fileStore);
-
 				oxTrace("ox::fs::test::FileSystem") << "format";
-				oxAssert(fs.format(), "FileSystem format failed");
+				oxAssert(ox::FileSystem32::format(fsBuff.data(), fsBuff.size()), "FileSystem format failed");
+				ox::FileSystem32 fs(ox::FileStore32(fsBuff.data(), fsBuff.size()));
 
 				oxTrace("ox::fs::test::FileSystem") << "mkdir";
 				oxAssert(fs.mkdir("/l1d1/l2d1/l3d1", true), "mkdir failed");

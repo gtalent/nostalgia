@@ -8,7 +8,7 @@
 
 #include "filesystem.hpp"
 
-namespace ox::fs {
+namespace ox {
 
 template class FileSystemTemplate<FileStore16, Directory16>;
 template class FileSystemTemplate<FileStore32, Directory32>;

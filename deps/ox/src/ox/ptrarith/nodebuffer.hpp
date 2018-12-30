@@ -142,7 +142,8 @@ class __attribute__((packed)) NodeBuffer {
 		 */
 		size_t spaceNeeded(size_t size);
 
-		void compact(void (*cb)(ItemPtr itemMoved) = nullptr);
+		template<typename F>
+		void compact(F cb = [](uint64_t, ItemPtr) {});
 
 		void truncate();
 
@@ -174,7 +175,7 @@ typename NodeBuffer<size_t, Item>::Iterator NodeBuffer<size_t, Item>::iterator()
 
 template<typename size_t, typename Item>
 typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::firstItem() {
-	oxTrace("ox::ptrarith::NodeBuffer::firstItem") << m_header.firstItem;
+	//oxTrace("ox::ptrarith::NodeBuffer::firstItem") << m_header.firstItem;
 	return ptr(m_header.firstItem);
 }
 
@@ -215,10 +216,10 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t 
 		 itemSpace >= item->fullSize()) {
 		return ItemPtr(this, m_header.size, itemOffset, item->fullSize());
 	} else {
-		oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemOffset:" << itemOffset;
-		oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemOffset >= sizeof(Header):" << (itemOffset >= sizeof(Header));
-		oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemSpace >= sizeof(Item):" << (itemSpace >= sizeof(Item));
-		oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemSpace >= item->fullSize():" << (itemSpace >= item->fullSize());
+		//oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemOffset:" << itemOffset;
+		//oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemOffset >= sizeof(Header):" << (itemOffset >= sizeof(Header));
+		//oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemSpace >= sizeof(Item):" << (itemSpace >= sizeof(Item));
+		//oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemSpace >= item->fullSize():" << (itemSpace >= item->fullSize());
 		return ItemPtr(this, m_header.size, 0, 0);
 	}
 }
@@ -324,15 +325,14 @@ size_t NodeBuffer<size_t, Item>::spaceNeeded(size_t size) {
 }
 
 template<typename size_t, typename Item>
-void NodeBuffer<size_t, Item>::compact(void (*cb)(ItemPtr)) {
+template<typename F>
+void NodeBuffer<size_t, Item>::compact(F cb) {
 	auto src = firstItem();
 	auto dest = ptr(sizeof(*this));
 	while (src.valid() && dest.valid()) {
 		// move node
 		ox_memcpy(dest, src, src.size());
-		if (cb) {
-			cb(dest);
-		}
+		cb(src, dest);
 		// update surrounding nodes
 		auto prev = ptr(dest->next);
 		if (prev.valid()) {

@@ -14,7 +14,7 @@ namespace ox {
 
 using RandomSeed = uint64_t[2];
 
-class Random {
+class __attribute__((packed)) Random {
 	private:
 		RandomSeed m_seed;
 

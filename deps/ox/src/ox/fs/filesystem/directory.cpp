@@ -8,7 +8,7 @@
 
 #include "directory.hpp"
 
-namespace ox::fs {
+namespace ox {
 
 template class Directory<FileStore16, uint16_t>;
 template class Directory<FileStore32, uint32_t>;

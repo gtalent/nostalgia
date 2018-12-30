@@ -8,7 +8,7 @@
 
 #include "filestoretemplate.hpp"
 
-namespace ox::fs {
+namespace ox {
 
 template class FileStoreTemplate<uint16_t>;
 template class FileStoreTemplate<uint32_t>;

@@ -2,9 +2,11 @@
 add_library(
 	OxFS
 		filestore/filestoretemplate.cpp
+		filesystem/filelocation.cpp
 		filesystem/pathiterator.cpp
 		filesystem/directory.cpp
 		filesystem/filesystem.cpp
+		filesystem/passthroughfs.cpp
 )
 
 set_property(

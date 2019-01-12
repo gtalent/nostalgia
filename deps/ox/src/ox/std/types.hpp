@@ -10,7 +10,7 @@
 
 #include "bitops.hpp"
 
-#if OX_USE_STDLIB
+#if __has_include(<cstdint>)
 
 #include <cstdint>
 

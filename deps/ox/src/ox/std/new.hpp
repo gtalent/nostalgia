@@ -30,7 +30,7 @@ void *operator new(std::size_t, void*) noexcept;
  * @return an ox::MallocaPtr of the given type pointing to the requested size memory allocation
  */
 #if defined(OX_USE_STDLIB)
-#define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(size > MallocaStackLimit, new (size > MallocaStackLimit ? new uint8_t[size] : ox_alloca(size)) Type(__VA_ARGS__))
+#define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(size > ox::MallocaStackLimit, new (size > ox::MallocaStackLimit ? new uint8_t[size] : ox_alloca(size)) Type(__VA_ARGS__))
 #else
 #define ox_malloca(size, Type, ...) ox::MallocaPtr<Type>(false, new (ox_alloca(size)) Type(__VA_ARGS__))
 #endif

@@ -25,7 +25,7 @@ namespace studio {
 struct WizardMaker {
 	QString name;
 	std::function<QVector<QWizardPage*>()> make;
-	std::function<int(QWizard*)> onAccept;
+	std::function<int(QWizard*)> onAccept = [](QWizard*) { return 0; };
 };
 
 class WizardSelect: public QWizardPage {

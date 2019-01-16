@@ -46,7 +46,7 @@ MainWindow::MainWindow(QString profilePath) {
 	auto screenSize = QApplication::desktop()->screenGeometry();
 
 	// set window to 75% of screen width, and center NostalgiaStudioProfile
-	auto sizePct = 0.75;
+	constexpr auto sizePct = 0.75;
 	resize(screenSize.width() * sizePct, screenSize.height() * sizePct);
 	move(-x(), -y());
 	move(screenSize.width() * (1 - sizePct) / 2, screenSize.height() * (1 - sizePct) / 2);
@@ -226,7 +226,6 @@ int MainWindow::writeState(QString path) {
 int MainWindow::openProject(QString projectPath) {
 	auto err = closeProject();
 	auto project = new Project(projectPath);
-	err |= project->openRomFs();
 	if (err == 0) {
 		if (m_ctx.project) {
 			delete m_ctx.project;
@@ -238,6 +237,7 @@ int MainWindow::openProject(QString projectPath) {
 		connect(m_ctx.project, SIGNAL(updated(QString)), m_oxfsView, SLOT(updateFile(QString)));
 		m_importAction->setEnabled(true);
 		m_state.projectPath = projectPath;
+		qInfo() << "Open project:" << projectPath;
 	}
 	return err;
 }
@@ -318,16 +318,20 @@ void MainWindow::showNewWizard() {
 			[this, ProjectName, ProjectPath](QWizard *wizard) {
 				auto projectName = wizard->field(ProjectName).toString();
 				auto projectPath = wizard->field(ProjectPath).toString();
+				qInfo() << "Project creation: final step";
 				if (QDir(projectPath).exists()) {
 					auto path = projectPath + "/" + projectName;
 					if (!QDir(path).exists()) {
 						Project(path).create();
 						openProject(path);
+						qInfo() << "Project creation successful:" << path;
 						return 0;
 					} else {
+						qInfo() << "Project file exists:" << path;
 						return 1;
 					}
 				} else {
+					qInfo() << "Project destination directory does not exist:" << projectPath;
 					return 2;
 				}
 			}

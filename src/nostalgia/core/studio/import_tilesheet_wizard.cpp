@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <QBuffer>
 #include <QFile>
 
 #include "import_tilesheet_wizard.hpp"
@@ -13,15 +14,15 @@
 namespace nostalgia {
 namespace core {
 
-const QString ImportTilesheetWizardPage::TILESHEET_DIR = "/TileSheets/";
-const QString ImportTilesheetWizardPage::TILESHEET_NAME = "projectName";
-const QString ImportTilesheetWizardPage::IMPORT_PATH = "projectPath";
+const QString ImportTilesheetWizardPage::TileSheetDir = "/TileSheets/";
+const QString ImportTilesheetWizardPage::TileSheetName = "projectName";
+const QString ImportTilesheetWizardPage::ImportPath = "projectPath";
 const QString ImportTilesheetWizardPage::BPP = "bpp";
 
 ImportTilesheetWizardPage::ImportTilesheetWizardPage(const studio::Context *ctx) {
 	m_ctx = ctx;
-	addLineEdit(tr("&Tile Sheet Name:"), TILESHEET_NAME + "*", "", [this](QString) {
-			auto importPath = field(IMPORT_PATH).toString();
+	addLineEdit(tr("&Tile Sheet Name:"), TileSheetName + "*", "", [this](QString) {
+			auto importPath = field(ImportPath).toString();
 			if (QFile(importPath).exists()) {
 				return 0;
 			} else {
@@ -31,31 +32,38 @@ ImportTilesheetWizardPage::ImportTilesheetWizardPage(const studio::Context *ctx)
 		}
 	);
 	auto fileTypes = "(*.png);;(*.bmp);;(*.jpg);;(*.jpeg)";
-	addPathBrowse(tr("Tile Sheet &Path:"), IMPORT_PATH + "*", "",
+	addPathBrowse(tr("Tile Sheet &Path:"), ImportPath + "*", "",
 	              QFileDialog::ExistingFile, fileTypes);
 	addComboBox(tr("Bits Per Pixe&l:"), BPP, {"4", "8"});
 }
 
 int ImportTilesheetWizardPage::accept() {
-	auto tilesheetName = field(TILESHEET_NAME).toString();
-	auto importPath = field(IMPORT_PATH).toString();
+	auto tilesheetName = field(TileSheetName).toString();
+	auto importPath = field(ImportPath).toString();
 	QFile importFile(importPath);
 	if (importFile.exists()) {
-		return importImage(importFile, field(TILESHEET_NAME).toString());
+		return importImage(importFile, field(TileSheetName).toString());
 	} else {
 		return 1;
 	}
 }
 
 int ImportTilesheetWizardPage::importImage(QFile &srcFile, QString tilesheetName) {
-	auto buffSize = srcFile.size();
-	uint8_t buff[buffSize];
 	if (srcFile.exists()) {
 		srcFile.open(QIODevice::ReadOnly);
-		if (srcFile.read((char*) buff, buffSize) > 0) {
+		auto buff = srcFile.readAll();
+		QImage srcImg;
+		if (srcImg.loadFromData(buff)) {
 			int err = 0;
-			m_ctx->project->mkdir(TILESHEET_DIR);
-			err |= m_ctx->project->write(TILESHEET_DIR + tilesheetName, buff, buffSize);
+			// ensure image is PNG
+			QByteArray out;
+			QBuffer outBuffer(&out);
+			outBuffer.open(QIODevice::WriteOnly);
+			srcImg.save(&outBuffer, "PNG");
+			// make sure tile sheet directory exists
+			m_ctx->project->mkdir(TileSheetDir);
+			// write image
+			err |= m_ctx->project->write(TileSheetDir + tilesheetName + ".png", reinterpret_cast<uint8_t*>(out.data()), out.size());
 			err |= m_ctx->project->saveRomFs();
 			return err;
 		} else {

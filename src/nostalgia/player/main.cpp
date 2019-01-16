@@ -13,7 +13,7 @@ using namespace nostalgia::core;
 using namespace nostalgia::world;
 
 int main() {
-	ox::FileSystem32 fs(loadRom(), false);
+	ox::FileSystem32 fs(ox::FileStore32(loadRom(), 33554432)); // 32 MB
 	Context ctx;
 	init(&ctx);
 	ctx.rom = &fs;

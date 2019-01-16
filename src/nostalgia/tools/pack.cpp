@@ -118,21 +118,28 @@ int run(ClArgs args) {
 		size_t fsBuffSize;
 		auto fsBuff = loadFileBuff(argFsPath, &fsBuffSize);
 		if (fsBuff && !err) {
-			auto fs = createFileSystem(fsBuff, fsBuffSize);
+			auto fs = FileSystem32(FileStore32(fsBuff, fsBuffSize));
 
-			if (fs) {
-				fs = expandCopyCleanup(fs, fs->size() + fs->spaceNeeded(imgDataBuffSize));
-				fsBuff = fs->buff(); // update fsBuff pointer in case there is a new buff
-				err |= fs->write(argInode, imgDataBuff, imgDataBuffSize);
+			if (fs.valid()) {
+				const auto sizeNeeded = fs.size() + fs.spaceNeeded(imgDataBuffSize);
+				if (sizeNeeded > fsBuffSize) {
+					auto newBuff = new uint8_t[sizeNeeded];
+					memcpy(newBuff, fsBuff, fsBuffSize);
+					delete[] fsBuff;
+					fsBuff = newBuff;
+					fsBuffSize = sizeNeeded;
+				}
+				fsBuff = fs.buff(); // update fsBuff pointer in case there is a new buff
+				err |= fs.write(argInode, imgDataBuff, imgDataBuffSize);
 
 				if (!err) {
 					if (argCompact) {
-						fs->resize();
+						FileStore32(fsBuff, fsBuffSize).compact();
 					}
 
 					auto fsFile = fopen(argFsPath.toUtf8(), "wb");
 					if (fsFile) {
-						err = fwrite(fsBuff, fs->size(), 1, fsFile) != 1;
+						err = fwrite(fsBuff, fs.size(), 1, fsFile) != 1;
 						err |= fclose(fsFile);
 						if (err) {
 							cerr << "Could not write to file system file.\n";
@@ -143,8 +150,6 @@ int run(ClArgs args) {
 				} else {
 					err = 3;
 				}
-
-				delete fs;
 			} else {
 				err = 4;
 			}

@@ -8,14 +8,12 @@
 
 #include <ox/fs/fs.hpp>
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 // User Input Output
 struct Context {
-	ox::FileSystem32 *rom = nullptr;
+	ox::FileSystem *rom = nullptr;
 };
 
-}
 }
 

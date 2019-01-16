@@ -31,15 +31,15 @@ test:
 	${ENV_RUN} ./scripts/run-make build test
 
 run: install
-	./dist/current/bin/nostalgia -debug
+	${ENV_RUN} ./dist/current/bin/nostalgia -debug
 run-studio: install
-	./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json
+	${ENV_RUN} ./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json
 gba-run: gba-pkg
 	mgba-qt nostalgia.gba
 gdb: make
-	gdb ./build/current/src/wombat/wombat
+	${ENV_RUN} gdb ./build/current/src/wombat/wombat
 gdb-studio: install
-	gdb --args ./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json
+	${ENV_RUN} gdb --args ./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json
 
 devenv-image:
 	docker build . -t ${DEVENV_IMAGE}

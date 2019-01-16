@@ -8,8 +8,7 @@
 
 #include "world.hpp"
 
-namespace nostalgia {
-namespace world {
+namespace nostalgia::world {
 
 using namespace common;
 using namespace core;
@@ -48,5 +47,4 @@ void Zone::setTile(int x, int y, Tile *td) {
 	m_tiles[x * m_bounds.width + y] = *td;
 }
 
-}
 }

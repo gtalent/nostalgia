@@ -45,6 +45,7 @@ if(NOT MSVC)
 	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		# forces colored output when using ninja
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 	endif()
 endif()
 

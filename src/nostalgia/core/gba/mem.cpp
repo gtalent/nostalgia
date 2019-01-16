@@ -9,11 +9,12 @@
 #include "addresses.hpp"
 #include "panic.hpp"
 
-namespace nostalgia {
-namespace core {
+#include <ox/std/std.hpp>
+
+namespace nostalgia::core {
 
 struct HeapSegment {
-	size_t size;
+	std::size_t size;
 	uint8_t inUse;
 	HeapSegment *next;
 
@@ -33,11 +34,10 @@ void initHeap() {
 }
 
 }
-}
 
 using namespace nostalgia::core;
 
-void *malloc(size_t allocSize) {
+void *malloc(std::size_t allocSize) {
 	// add space for heap segment header data
 	const auto fullSize = allocSize + sizeof(HeapSegment);
 	auto seg = _heapIdx;
@@ -117,11 +117,11 @@ void free(void *ptrIn) {
 	}
 }
 
-void *operator new(size_t allocSize) {
+void *operator new(std::size_t allocSize) {
 	return malloc(allocSize);
 }
 
-void *operator new[](size_t allocSize) {
+void *operator new[](std::size_t allocSize) {
 	return malloc(allocSize);
 }
 

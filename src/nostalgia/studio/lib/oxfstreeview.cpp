@@ -6,30 +6,44 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <QDebug>
+#include <QDir>
 #include <QVector>
 
 #include "oxfstreeview.hpp"
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 using namespace ox;
 
-OxFSFile::OxFSFile(FileSystem *fs, QString path, OxFSFile *parentItem) {
+OxFSFile::OxFSFile(PassThroughFS *fs, QString path, OxFSFile *parentItem) {
 	m_path = path;
 	m_parentItem = parentItem;
 
 	// find children
 	if (fs) {
-		QVector<DirectoryListing<QString>> ls;
-		if (fs->stat((const char*) m_path.toUtf8()).fileType == FileType_Directory) {
-			fs->ls(m_path.toUtf8(), &ls);
-			qSort(ls);
-		}
-		for (auto v : ls) {
-			if (v.name != "." && v.name != "..") {
-				auto ch = new OxFSFile(fs, m_path + "/" + v.name, this);
-				m_childItems.push_back(ch);
+		QVector<QString> ls;
+		auto stat = fs->stat(static_cast<const char*>(m_path.toUtf8()));
+		if (!stat.error) {
+			if (stat.value.fileType == FileType_Directory) {
+				fs->ls(m_path.toUtf8(), [&ls](const char *name, ox::InodeId_t inode) {
+					ls.push_back(name);
+					return OxError(0);
+				});
+				qSort(ls);
+			}
+			auto p = m_path;
+			// make sure ends with path separator
+			if (fs->stat(p.toUtf8().data()).value.fileType == FileType_Directory &&
+				 p.size() && p.back() != QDir::separator()) {
+				p += QDir::separator();
+			}
+			for (auto name : ls) {
+				if (name != "." && name != "..") {
+					qDebug() << "name:" << m_path + name;
+					auto ch = new OxFSFile(fs, m_path + name, this);
+					m_childItems.push_back(ch);
+				}
 			}
 		}
 	}
@@ -101,7 +115,7 @@ QString OxFSFile::name() const {
 
 // OxFSModel
 
-OxFSModel::OxFSModel(FileSystem *fs, QObject *parent) {
+OxFSModel::OxFSModel(PassThroughFS *fs, QObject *parent) {
 	m_rootItem = new OxFSFile(fs, "");
 }
 
@@ -202,5 +216,4 @@ void OxFSModel::updateFile(QString path) {
 void OxFSModel::setupModelData(const QStringList &lines, OxFSFile *parent) {
 }
 
-}
 }

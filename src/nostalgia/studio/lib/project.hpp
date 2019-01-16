@@ -25,7 +25,8 @@ class Project: public QObject {
 		static QString ROM_FILE;
 
 		QString m_path = "";
-		std::unique_ptr<ox::FileSystem> m_fs;
+		std::unique_ptr<uint8_t[]> m_fsBuff;
+		mutable ox::PassThroughFS m_fs;
 
 	public:
 		Project(QString path);
@@ -38,7 +39,7 @@ class Project: public QObject {
 
 		int saveRomFs() const;
 
-		ox::FileSystem *romFs();
+		ox::PassThroughFS *romFs();
 
 		int mkdir(QString path) const;
 

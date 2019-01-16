@@ -6,21 +6,28 @@ Param(
 )
 
 $project=(Get-Location).Path
+$buildTool=""
 
 if (${target} -eq "windows") {
 	$toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/Mingw.cmake"
+	$buildTool="-GNinja"
 } elseif (${target} -eq "gba") {
     $toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/GBA.cmake"
     $nostalgiaBuildType="-DNOSTALGIA_BUILD_TYPE=GBA"
     $oxUseStdLib="-DOX_USE_STDLIB=OFF"
+} else {
+	$buildTool="-GNinja"
 }
 
 if (${buildType} -eq "asan") {
-	$buildTypeArgs="-DUSE_ASAN=ON -DCMAKE_BUILD_TYPE=Debug"
+	$buildTypeArgs="-DCMAKE_BUILD_TYPE=Debug"
+	$sanitizerArgs="-DUSE_ASAN=ON"
 } elseif (${buildType} -eq "debug") {
 	$buildTypeArgs="-DCMAKE_BUILD_TYPE=Debug"
+	$sanitizerArgs=""
 } elseif (${buildType} -eq "release") {
 	$buildTypeArgs="-DCMAKE_BUILD_TYPE=Release"
+	$sanitizerArgs=""
 }
 
 if (${env:NOSTALGIA_QT_PATH} -ne "") {
@@ -40,6 +47,7 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON `
       $nostalgiaBuildType `
       $oxUseStdLib `
       $buildTypeArgs `
+		$sanitizerArgs `
       $qtPath `
       $toolchain `
       $project

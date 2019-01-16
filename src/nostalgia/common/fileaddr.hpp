@@ -8,10 +8,14 @@
 
 #pragma once
 
-#include <ox/fs/fs.hpp>
+namespace nostalgia::common {
 
-namespace nostalgia::core {
-
-typedef ox::FileStore32::InodeId_t InodeId_t;
+class FileAddr {
+	private:
+		union {
+			ox::BString<255> path;
+			uint64_t inode;
+		} m_data;
+};
 
 }

@@ -4,5 +4,5 @@ set -e
 
 for f in $(find $1 -maxdepth 1 -mindepth 1 -type d)
 do
-	cmake --build "$f" --target $2 -- -j
+	cmake --build "$f" --target $2
 done

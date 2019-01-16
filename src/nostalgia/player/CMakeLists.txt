@@ -22,6 +22,8 @@ target_link_libraries(
 		NostalgiaCore
 		OxFS
 		OxStd
+		OxTrace
+		OxMetalClaw
 )
 
 add_custom_target("nostalgia.bin")

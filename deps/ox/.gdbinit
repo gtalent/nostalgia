@@ -1,0 +1,2 @@
+source gdblogger.py
+run

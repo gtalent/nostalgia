@@ -24,8 +24,6 @@ class PassThroughFS: public FileSystem {
 		std::filesystem::path m_path;
 
 	public:
-		PassThroughFS() = default;
-
 		PassThroughFS(const char *dirPath);
 
 		~PassThroughFS();
@@ -67,11 +65,22 @@ class PassThroughFS: public FileSystem {
 
 		bool valid() const override;
 
+	private:
+		/**
+		 * Strips the leading slashes from a string.
+		 */
+		const char *stripSlash(const char *path);
+
 };
 
 template<typename F>
 Error PassThroughFS::ls(const char *dir, F cb) {
-	return OxError(1);
+	for (auto &p : std::filesystem::directory_iterator(m_path / stripSlash(dir))) {
+		if (auto err = cb(p.path().filename().c_str(), 0); err) {
+			return err;
+		}
+	}
+	return OxError(0);
 }
 
 }

@@ -63,28 +63,28 @@ shell:
 
 release:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-release
-	${ENV_RUN} ./scripts/setup-build.ps1 ${HOST_ENV} release
+	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} release
 
 debug:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-debug
-	${ENV_RUN} ./scripts/setup-build.ps1 ${HOST_ENV} debug
+	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} debug
 
 asan:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-asan
-	${ENV_RUN} ./scripts/setup-build.ps1 ${HOST_ENV} asan
+	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} asan
 
 windows:
 	${ENV_RUN} rm -rf build/windows
-	${ENV_RUN} ./scripts/setup-build.ps1 windows
+	${ENV_RUN} ./scripts/setup-build windows
 
 windows-debug:
 	${ENV_RUN} rm -rf build/windows
-	${ENV_RUN} ./scripts/setup-build.ps1 windows debug
+	${ENV_RUN} ./scripts/setup-build windows debug
 
 gba:
 	${ENV_RUN} rm -rf build/gba-release
-	${ENV_RUN} ./scripts/setup-build.ps1 gba release
+	${ENV_RUN} ./scripts/setup-build gba release
 
 gba-debug:
 	${ENV_RUN} rm -rf build/gba-debug
-	${ENV_RUN} ./scripts/setup-build.ps1 gba debug
+	${ENV_RUN} ./scripts/setup-build gba debug

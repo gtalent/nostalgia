@@ -18,7 +18,7 @@ namespace ox {
 template<std::size_t buffLen>
 class BString {
 	private:
-		uint8_t m_buff[buffLen + 1];
+		char m_buff[buffLen + 1];
 
 	public:
 		BString() noexcept;
@@ -38,6 +38,10 @@ class BString {
 		const BString &operator+=(int64_t i) noexcept;
 
 		bool operator==(const BString &other) noexcept;
+
+		char operator[](std::size_t i) const noexcept;
+
+		char &operator[](std::size_t i) noexcept;
 
 		char *data() noexcept;
 
@@ -130,6 +134,16 @@ bool BString<buffLen>::operator==(const BString<buffLen> &other) noexcept {
 		i++;
 	}
 	return retval;
+}
+
+template<std::size_t buffLen>
+char BString<buffLen>::operator[](std::size_t i) const noexcept {
+	return m_buff[i];
+}
+
+template<std::size_t buffLen>
+char &BString<buffLen>::operator[](std::size_t i) noexcept {
+	return m_buff[i];
 }
 
 template<std::size_t buffLen>

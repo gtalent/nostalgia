@@ -37,6 +37,34 @@ map<string, function<int()>> tests = {
 			return !(ox_memcmp("ABCDEFGHI", "ABCDEFG", 7) == 0);
 		}
 	},
+	{
+		"Vector",
+		[] {
+			ox::Vector<int> v;
+			oxAssert(v.size() == 0, "Initial Vector size not 0");
+			auto insertTest = [&v](int val, std::size_t size) {
+				v.push_back(val);
+				oxAssert(v.size() == size, "Vector size incorrect");
+				oxAssert(v[v.size() - 1] == val, "Vector value wrong");
+			};
+			insertTest(42, 1);
+			insertTest(100, 2);
+			insertTest(102, 3);
+			return 0;
+		}
+	},
+	{
+		"HashMap",
+		[] {
+			ox::HashMap<const char*, int> v;
+			v["asdf"] = 42;
+			v["aoeu"] = 100;
+			std::cout << v["asdf"];
+			oxAssert(v["asdf"] == 42, "asdf != 42");
+			oxAssert(v["aoeu"] == 100, "aoeu != 100");
+			return 0;
+		}
+	},
 };
 
 int main(int argc, const char **args) {

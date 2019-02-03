@@ -12,7 +12,8 @@
 #include "types.hpp"
 #include "typetraits.hpp"
 
-constexpr char *ox_strncpy(char *dest, const char *src, std::size_t maxLen) noexcept {
+template<typename T1, typename T2>
+constexpr char *ox_strncpy(T1 dest, T2 src, std::size_t maxLen) noexcept {
 	for (std::size_t i = 0; i < maxLen && src[i]; i++) {
 		dest[i] = src[i];
 	}
@@ -25,19 +26,15 @@ constexpr int ox_strnlen(const char *str1, int maxLen) noexcept {
 	return len;
 }
 
-constexpr int ox_strlen(const char *str1) noexcept {
+template<typename T>
+constexpr int ox_strlen(T str1) noexcept {
 	int len = 0;
 	for (; str1[len]; len++);
 	return len;
 }
 
-constexpr int ox_strlen(char *str1) noexcept {
-	int len = 0;
-	for (; str1[len]; len++);
-	return len;
-}
-
-constexpr int ox_strcmp(const char *str1, const char *str2) noexcept {
+template<typename T1, typename T2>
+constexpr int ox_strcmp(T1 str1, T2 str2) noexcept {
 	auto retval = 0;
 	auto i = 0;
 	while (str1[i] || str2[i]) {
@@ -123,7 +120,8 @@ constexpr int ox_atoi(const char *str) noexcept {
 	return total;
 }
 
-constexpr char *ox_itoa(int64_t v, char *str) noexcept {
+template<typename T>
+constexpr char *ox_itoa(int64_t v, T str) noexcept {
 	if (v) {
 		auto mod = 1000000000000000000;
 		constexpr auto base = 10;

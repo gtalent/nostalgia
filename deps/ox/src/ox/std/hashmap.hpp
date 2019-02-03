@@ -39,10 +39,17 @@ class HashMap {
 		std::size_t size() const noexcept;
 
 	private:
+		void expand() noexcept;
+
 		/**
 		 * K is assumed to be a null terminated string.
 		 */
-		static std::uint64_t hash(K, int len = 0xFFFF);
+		static std::uint64_t hash(K, int len = 0xFFFF) noexcept;
+
+		/**
+		 * K is assumed to be a null terminated string.
+		 */
+		Pair *&access(Vector<Pair*> &pairs, K key) noexcept;
 
 };
 
@@ -72,35 +79,54 @@ HashMap<K, T> &HashMap<K, T>::operator=(HashMap<K, T> &other) noexcept {
 
 template<typename K, typename T>
 T &HashMap<K, T>::operator[](K k) noexcept {
-	auto h = hash(k) % m_pairs.size();
-	auto hashStr = reinterpret_cast<char*>(&h);
-	while (1) {
-		auto &p = m_pairs[h];
-		if (p == nullptr) {
-			p = new Pair;
-			p->key = k;
-			m_keys.push_back(k);
-			return p->value;
-		} else if (ox_strcmp(p->key, k) == 0) {
-			return p->value;
-		} else {
-			h = hash(hashStr, 8) % m_pairs.size();
+	auto &p = access(m_pairs, k);
+	if (p == nullptr) {
+		if (m_pairs.size() * 0.7 < m_keys.size()) {
+			expand();
 		}
+		p = new Pair;
+		p->key = k;
+		m_keys.push_back(k);
 	}
+	return p->value;
 }
 
 template<typename K, typename T>
 std::size_t HashMap<K, T>::size() const noexcept {
 	return m_keys.size();
-};
+}
 
 template<typename K, typename T>
-std::uint64_t HashMap<K, T>::hash(K k, int len) {
+void HashMap<K, T>::expand() noexcept {
+	Vector<Pair*> r;
+	for (std::size_t i = 0; i < m_keys.size(); i++) {
+		auto k = m_keys[i];
+		access(r, k) = access(m_pairs, k);
+	}
+	m_pairs = r;
+}
+
+template<typename K, typename T>
+std::uint64_t HashMap<K, T>::hash(K k, int len) noexcept {
 	std::uint64_t sum = 1;
 	for (int i = 0; i < len && k[i]; i++) {
 		sum += ((sum + k[i]) * 7) * sum;
 	}
 	return sum;
+}
+
+template<typename K, typename T>
+typename HashMap<K, T>::Pair *&HashMap<K, T>::access(Vector<Pair*> &pairs, K k) noexcept {
+	auto h = hash(k) % pairs.size();
+	auto hashStr = reinterpret_cast<char*>(&h);
+	while (1) {
+		auto &p = pairs[h];
+		if (p == nullptr || ox_strcmp(p->key, k) == 0) {
+			return p;
+		} else {
+			h = hash(hashStr, 8) % pairs.size();
+		}
+	}
 }
 
 }

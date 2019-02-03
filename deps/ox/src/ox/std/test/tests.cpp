@@ -59,7 +59,6 @@ map<string, function<int()>> tests = {
 			ox::HashMap<const char*, int> v;
 			v["asdf"] = 42;
 			v["aoeu"] = 100;
-			std::cout << v["asdf"];
 			oxAssert(v["asdf"] == 42, "asdf != 42");
 			oxAssert(v["aoeu"] == 100, "aoeu != 100");
 			return 0;

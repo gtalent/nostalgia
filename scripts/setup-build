@@ -54,4 +54,6 @@ popd
 rm -f build/current dist/current
 mkdir -p dist
 ln -s ${TARGET}-${BUILD_TYPE} build/current
+rm -f compile_commands.json
+ln -s build/current/compile_commands.json
 ln -s ${TARGET}-${BUILD_TYPE} dist/current

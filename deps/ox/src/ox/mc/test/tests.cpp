@@ -53,7 +53,7 @@ int ioOp(T *io, TestStructNest *obj) {
 template<typename T>
 int ioOp(T *io, TestStruct *obj) {
 	int err = 0;
-	io->setFields(13);
+	io->setFields(14);
 	err |= io->op("Bool", &obj->Bool);
 	err |= io->op("Int", &obj->Int);
 	err |= io->op("Int1", &obj->Int1);

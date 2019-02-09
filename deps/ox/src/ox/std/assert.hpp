@@ -8,10 +8,6 @@
 
 #pragma once
 
-#if defined(OX_USE_STDLIB)
-#include <iostream>
-#endif
-
 #include <ox/__buildinfo/defines.hpp>
 
 #include "error.hpp"

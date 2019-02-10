@@ -21,31 +21,31 @@ class BString {
 		char m_buff[buffLen + 1];
 
 	public:
-		BString() noexcept;
+		constexpr BString() noexcept;
 
-		BString(const char *str) noexcept;
+		constexpr BString(const char *str) noexcept;
 
-		const BString &operator=(const char *str) noexcept;
+		constexpr const BString &operator=(const char *str) noexcept;
 
-		const BString &operator=(char *str) noexcept;
+		constexpr const BString &operator=(char *str) noexcept;
 
-		const BString &operator=(int64_t i) noexcept;
+		constexpr const BString &operator=(int64_t i) noexcept;
 
-		const BString &operator+=(const char *str) noexcept;
+		constexpr const BString &operator+=(const char *str) noexcept;
 
-		const BString &operator+=(char *str) noexcept;
+		constexpr const BString &operator+=(char *str) noexcept;
 
-		const BString &operator+=(int64_t i) noexcept;
+		constexpr const BString &operator+=(int64_t i) noexcept;
 
-		bool operator==(const BString &other) noexcept;
+		constexpr bool operator==(const BString &other) noexcept;
 
-		char operator[](std::size_t i) const noexcept;
+		constexpr char operator[](std::size_t i) const noexcept;
 
-		char &operator[](std::size_t i) noexcept;
+		constexpr char &operator[](std::size_t i) noexcept;
 
-		char *data() noexcept;
+		constexpr char *data() noexcept;
 
-		const char *c_str() const noexcept;
+		constexpr const char *c_str() const noexcept;
 
 		/**
 		 * Returns the number of characters in this string.
@@ -64,24 +64,24 @@ class BString {
 };
 
 template<std::size_t size>
-BString<size>::BString() noexcept {
+constexpr BString<size>::BString() noexcept {
 	m_buff[0] = 0;
 }
 
 template<std::size_t size>
-BString<size>::BString(const char *str) noexcept {
+constexpr BString<size>::BString(const char *str) noexcept {
 	*this = str;
 }
 
 template<std::size_t size>
-const BString<size> &BString<size>::operator=(int64_t i) noexcept {
-	char str[65];
+constexpr const BString<size> &BString<size>::operator=(int64_t i) noexcept {
+	char str[65] = {};
 	ox_itoa(i, str);
 	return this->operator=(str);
 }
 
 template<std::size_t size>
-const BString<size> &BString<size>::operator=(const char *str) noexcept {
+constexpr const BString<size> &BString<size>::operator=(const char *str) noexcept {
 	std::size_t strLen = ox_strlen(str) + 1;
 	if (cap() < strLen) {
 		strLen = cap();
@@ -93,12 +93,12 @@ const BString<size> &BString<size>::operator=(const char *str) noexcept {
 }
 
 template<std::size_t size>
-const BString<size> &BString<size>::operator=(char *str) noexcept {
+constexpr const BString<size> &BString<size>::operator=(char *str) noexcept {
 	return *this = (const char*) str;
 }
 
 template<std::size_t size>
-const BString<size> &BString<size>::operator+=(const char *str) noexcept {
+constexpr const BString<size> &BString<size>::operator+=(const char *str) noexcept {
 	std::size_t strLen = ox_strlen(str) + 1;
 	auto currentLen = len();
 	if (cap() < currentLen + strLen) {
@@ -111,19 +111,19 @@ const BString<size> &BString<size>::operator+=(const char *str) noexcept {
 }
 
 template<std::size_t size>
-const BString<size> &BString<size>::operator+=(char *str) noexcept {
+constexpr const BString<size> &BString<size>::operator+=(char *str) noexcept {
 	return *this += (const char*) str;
 }
 
 template<std::size_t size>
-const BString<size> &BString<size>::operator+=(int64_t i) noexcept {
-	char str[65];
+constexpr const BString<size> &BString<size>::operator+=(int64_t i) noexcept {
+	char str[65] = {};
 	ox_itoa(i, str);
 	return this->operator+=(str);
 }
 
 template<std::size_t buffLen>
-bool BString<buffLen>::operator==(const BString<buffLen> &other) noexcept {
+constexpr bool BString<buffLen>::operator==(const BString<buffLen> &other) noexcept {
 	bool retval = true;
 	std::size_t i = 0;
 	while (i < buffLen && (m_buff[i] || other.m_buff[i])) {
@@ -137,22 +137,22 @@ bool BString<buffLen>::operator==(const BString<buffLen> &other) noexcept {
 }
 
 template<std::size_t buffLen>
-char BString<buffLen>::operator[](std::size_t i) const noexcept {
+constexpr char BString<buffLen>::operator[](std::size_t i) const noexcept {
 	return m_buff[i];
 }
 
 template<std::size_t buffLen>
-char &BString<buffLen>::operator[](std::size_t i) noexcept {
+constexpr char &BString<buffLen>::operator[](std::size_t i) noexcept {
 	return m_buff[i];
 }
 
 template<std::size_t buffLen>
-char *BString<buffLen>::data() noexcept {
+constexpr char *BString<buffLen>::data() noexcept {
 	return (char*) m_buff;
 }
 
 template<std::size_t buffLen>
-const char *BString<buffLen>::c_str() const noexcept {
+constexpr const char *BString<buffLen>::c_str() const noexcept {
 	return (const char*) m_buff;
 }
 

@@ -43,7 +43,7 @@ struct TestStruct {
 template<typename T>
 int ioOp(T *io, TestStructNest *obj) {
 	int32_t err = 0;
-	io->setFields(3);
+	io->setTypeInfo("common::TestStructNest", 3);
 	err |= io->op("Bool", &obj->Bool);
 	err |= io->op("Int", &obj->Int);
 	err |= io->op("String", &obj->String);
@@ -53,7 +53,7 @@ int ioOp(T *io, TestStructNest *obj) {
 template<typename T>
 int ioOp(T *io, TestStruct *obj) {
 	int err = 0;
-	io->setFields(14);
+	io->setTypeInfo("common::TestStruct", 14);
 	err |= io->op("Bool", &obj->Bool);
 	err |= io->op("Int", &obj->Int);
 	err |= io->op("Int1", &obj->Int1);

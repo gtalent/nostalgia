@@ -13,8 +13,9 @@
 namespace ox {
 
 enum class OpType {
-	Read = 0,
-	Write = 1
+	Read = 1,
+	Write = 2,
+	WriteDefinition = 3,
 };
 
 template<typename T, typename O>

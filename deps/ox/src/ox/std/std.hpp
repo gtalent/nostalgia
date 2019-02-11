@@ -21,6 +21,7 @@
 #include "stddef.hpp"
 #include "strops.hpp"
 #include "string.hpp"
+#include "typeinfo.hpp"
 #include "types.hpp"
 #include "typetraits.hpp"
 #include "vector.hpp"

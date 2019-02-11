@@ -60,4 +60,23 @@ struct enable_if<true, T> {
 	using type = T;
 };
 
+template<typename T>
+struct RemoveIndirection {
+		
+	private:
+		template<typename ST>
+		static constexpr ST decay(ST t) {
+			return t;
+		}
+
+		template<typename ST>
+		static constexpr ST decay(ST *t) {
+			return decay(*t);
+		}
+
+	public:
+		using type = decltype(decay(static_cast<T*>(nullptr)));
+
 };
+
+}

@@ -2,9 +2,16 @@ cmake_minimum_required(VERSION 2.8)
 
 add_library(
 	OxMetalClaw
+		defwriter.cpp
 		presencemask.cpp
 		read.cpp
 		write.cpp
+)
+
+target_link_libraries(
+	OxMetalClaw PUBLIC
+		OxStd
+		OxTrace
 )
 
 set_property(
@@ -16,6 +23,7 @@ set_property(
 
 install(
 	FILES
+		defwriter.hpp
 		err.hpp
 		presencemask.hpp
 		read.hpp

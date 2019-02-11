@@ -1,0 +1,7 @@
+<Type>      : <TypeName><FieldList>
+<FieldList> : <FieldList> | <FieldList><Field>
+<Field>     : <FieldType><TypeID><FieldName>
+<TypeID>    : <TypeName> | <TypeName><Type>
+<TypeName>  : <string>
+<FieldType> : <0: single> | <1: list>
+<FieldName> : <string>

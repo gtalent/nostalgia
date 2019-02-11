@@ -6,8 +6,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <ox/std/assert.hpp>
 #include <ox/std/byteswap.hpp>
 #include <ox/std/memops.hpp>
+
 #include "write.hpp"
 
 namespace ox {
@@ -15,6 +17,10 @@ namespace ox {
 MetalClawWriter::MetalClawWriter(uint8_t *buff, std::size_t buffLen): m_fieldPresence(buff, buffLen) {
 	m_buff = buff;
 	m_buffLen = buffLen;
+}
+
+MetalClawWriter::~MetalClawWriter() noexcept {
+	oxAssert(m_field == m_fields, "MetalClawWriter: incorrect fields number given");
 }
 
 int MetalClawWriter::op(const char*, int8_t *val) {
@@ -54,7 +60,7 @@ int MetalClawWriter::op(const char*, bool *val) {
 	return m_fieldPresence.set(m_field++, *val);
 }
 
-void MetalClawWriter::setFields(int fields) {
+void MetalClawWriter::setTypeInfo(const char*, int fields) {
 	m_fields = fields;
 	m_buffIt = (fields / 8 + 1) - (fields % 8 == 0);
 	m_fieldPresence.setMaxLen(m_buffIt);

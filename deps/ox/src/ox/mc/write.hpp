@@ -21,6 +21,7 @@ class MetalClawWriter {
 
 	private:
 		FieldPresenseMask m_fieldPresence;
+		const char *m_typeName = nullptr;
 		int m_fields = 0;
 		int m_field = 0;
 		std::size_t m_buffIt = 0;
@@ -29,6 +30,8 @@ class MetalClawWriter {
 
 	public:
 		MetalClawWriter(uint8_t *buff, std::size_t buffLen);
+
+		~MetalClawWriter() noexcept;
 
 		int op(const char*, int8_t *val);
 		int op(const char*, int16_t *val);
@@ -54,7 +57,7 @@ class MetalClawWriter {
 		template<typename T>
 		int op(const char*, T *val);
 
-		void setFields(int fields);
+		void setTypeInfo(const char *name, int fields);
 
 		std::size_t size();
 
@@ -96,10 +99,12 @@ int MetalClawWriter::op(const char*, T *val) {
 	int err = 0;
 	bool fieldSet = false;
 	MetalClawWriter writer(m_buff + m_buffIt, m_buffLen - m_buffIt);
-	err |= ioOp(&writer, val);
-	if (static_cast<std::size_t>(writer.m_fieldPresence.getMaxLen()) < writer.m_buffIt) {
-		m_buffIt += writer.m_buffIt;
-		fieldSet = true;
+	if (val) {
+		err |= ioOp(&writer, val);
+		if (static_cast<std::size_t>(writer.m_fieldPresence.getMaxLen()) < writer.m_buffIt) {
+			m_buffIt += writer.m_buffIt;
+			fieldSet = true;
+		}
 	}
 	err |= m_fieldPresence.set(m_field, fieldSet);
 	m_field++;
@@ -140,7 +145,7 @@ int MetalClawWriter::op(const char*, T *val, std::size_t len) {
 		}
 
 		MetalClawWriter writer(m_buff + m_buffIt, m_buffLen - m_buffIt);
-		writer.setFields(len);
+		writer.setTypeInfo("List", len);
 
 		// write the array
 		for (std::size_t i = 0; i < len; i++) {

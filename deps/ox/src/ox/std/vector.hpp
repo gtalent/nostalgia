@@ -197,7 +197,7 @@ void Vector<T>::expandCap(std::size_t cap) noexcept {
 			m_items[i] = oldItems[i];
 		}
 		for (std::size_t i = itRange; i < m_cap; i++) {
-			m_items[i] = {};
+			m_items[i] = T();
 		}
 		delete[] oldItems;
 	}

@@ -32,6 +32,8 @@ class MetalClawReader {
 	public:
 		MetalClawReader(uint8_t *buff, std::size_t buffLen);
 
+		~MetalClawReader();
+
 		int op(const char*, int8_t *val);
 		int op(const char*, int16_t *val);
 		int op(const char*, int32_t *val);
@@ -58,7 +60,7 @@ class MetalClawReader {
 		// stringLength returns the length of the string, including the null terminator.
 		std::size_t stringLength(const char*);
 
-		void setFields(int fields);
+		void setTypeInfo(const char *name, int fields);
 
       OpType opType() {
           return OpType::Read;
@@ -72,7 +74,7 @@ class MetalClawReader {
 template<typename T>
 int MetalClawReader::op(const char*, T *val) {
 	int err = 0;
-	if (m_fieldPresence.get(m_field)) {
+	if (val && m_fieldPresence.get(m_field)) {
 		MetalClawReader reader(m_buff + m_buffIt, m_buffLen - m_buffIt);
 		err |= ioOp(&reader, val);
 		m_buffIt += reader.m_buffIt;
@@ -145,7 +147,7 @@ int MetalClawReader::op(const char*, T *val, std::size_t valLen) {
 		// read the list
 		if (valLen >= len) {
 			MetalClawReader reader(m_buff + m_buffIt, m_buffLen - m_buffIt);
-			reader.setFields(len);
+			reader.setTypeInfo("List", len);
 			for (std::size_t i = 0; i < len; i++) {
 				err |= reader.op("", &val[i]);
 			}

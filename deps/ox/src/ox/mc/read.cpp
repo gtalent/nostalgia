@@ -6,8 +6,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <ox/std/assert.hpp>
 #include <ox/std/byteswap.hpp>
 #include <ox/std/memops.hpp>
+
 #include "read.hpp"
 
 namespace ox {
@@ -15,6 +17,10 @@ namespace ox {
 MetalClawReader::MetalClawReader(uint8_t *buff, std::size_t buffLen): m_fieldPresence(buff, buffLen) {
 	m_buff = buff;
 	m_buffLen = buffLen;
+}
+
+MetalClawReader::~MetalClawReader() {
+	oxAssert(m_field == m_fields, "MetalClawReader: incorrect fields number given");
 }
 
 int MetalClawReader::op(const char*, int8_t *val) {
@@ -77,7 +83,7 @@ std::size_t MetalClawReader::stringLength(const char*) {
 	return len;
 }
 
-void MetalClawReader::setFields(int fields) {
+void MetalClawReader::setTypeInfo(const char*, int fields) {
 	m_fields = fields;
 	m_buffIt = (fields / 8 + 1) - (fields % 8 == 0);
 	m_fieldPresence.setMaxLen(m_buffIt);

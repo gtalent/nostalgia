@@ -38,6 +38,13 @@ class HashMap {
 		 */
 		T &operator[](K key) noexcept;
 
+		/**
+		 * K is assumed to be a null terminated string.
+		 */
+		T &at(K key) noexcept;
+
+		bool contains(K key) noexcept;
+
 		std::size_t size() const noexcept;
 
 	private:
@@ -91,6 +98,16 @@ T &HashMap<K, T>::operator[](K k) noexcept {
 		m_keys.push_back(k);
 	}
 	return p->value;
+}
+
+template<typename K, typename T>
+T &HashMap<K, T>::at(K k) noexcept {
+	return operator[](k);
+}
+
+template<typename K, typename T>
+bool HashMap<K, T>::contains(K k) noexcept {
+	return access(m_pairs, k) != nullptr;
 }
 
 template<typename K, typename T>

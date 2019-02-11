@@ -23,7 +23,7 @@ struct TraceMsg {
 template<typename T>
 int ioOp(T *io, ox::trace::TraceMsg *obj) {
 	int32_t err = 0;
-	io->setFields(5);
+	io->setTypeInfo("ox::trace::TraceMsg", 5);
 	err |= io->op("file", &obj->file);
 	err |= io->op("line", &obj->line);
 	err |= io->op("time", &obj->time);

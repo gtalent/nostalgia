@@ -8,5 +8,7 @@
 
 #pragma once
 
+#include "deftypes.hpp"
+#include "defwriter.hpp"
 #include "read.hpp"
 #include "write.hpp"

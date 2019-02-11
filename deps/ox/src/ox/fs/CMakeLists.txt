@@ -9,6 +9,14 @@ add_library(
 		filesystem/passthroughfs.cpp
 )
 
+target_link_libraries(
+	OxFS PUBLIC
+		c++fs
+		OxMetalClaw
+		OxStd
+		OxTrace
+)
+
 set_property(
 	TARGET
 		OxFS

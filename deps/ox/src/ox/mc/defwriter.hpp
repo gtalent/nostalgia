@@ -58,7 +58,7 @@ class MetalClawDefWriter {
 		constexpr void setTypeInfo(const char *name, int fields);
 
       constexpr OpType opType() {
-          return OpType::Write;
+			return OpType::WriteDefinition;
       }
 
 	private:

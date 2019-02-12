@@ -10,6 +10,7 @@
 
 #include <ox/std/byteswap.hpp>
 #include <ox/std/string.hpp>
+#include <ox/std/vector.hpp>
 #include "err.hpp"
 #include "optype.hpp"
 #include "presencemask.hpp"
@@ -48,6 +49,9 @@ class MetalClawReader {
 
 		template<typename T>
 		int op(const char*, T *val, std::size_t len);
+
+		template<typename T>
+		int op(const char*, ox::Vector<T> *val);
 
 		template<typename T>
 		int op(const char*, T *val);
@@ -159,6 +163,11 @@ int MetalClawReader::op(const char*, T *val, std::size_t valLen) {
 	m_field++;
 	return err;
 };
+
+template<typename T>
+int MetalClawReader::op(const char*, ox::Vector<T> *val) {
+	return op(nullptr, val->data(), val->size());
+}
 
 template<typename T>
 int readMC(uint8_t *buff, std::size_t buffLen, T *val) {

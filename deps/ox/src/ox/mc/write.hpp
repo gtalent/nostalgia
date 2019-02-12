@@ -10,6 +10,7 @@
 
 #include <ox/std/byteswap.hpp>
 #include <ox/std/string.hpp>
+#include <ox/std/vector.hpp>
 #include <ox/std/types.hpp>
 #include "err.hpp"
 #include "optype.hpp"
@@ -47,6 +48,9 @@ class MetalClawWriter {
 
 		template<typename T>
 		int op(const char*, T *val, std::size_t len);
+
+		template<typename T>
+		int op(const char*, ox::Vector<T> *val);
 
 		template<std::size_t L>
 		int op(const char*, const char *val);
@@ -109,6 +113,11 @@ int MetalClawWriter::op(const char*, T *val) {
 	err |= m_fieldPresence.set(m_field, fieldSet);
 	m_field++;
 	return err;
+}
+
+template<typename T>
+int MetalClawWriter::op(const char*, ox::Vector<T> *val) {
+	return op(nullptr, val->data(), val->size());
 }
 
 template<typename I>

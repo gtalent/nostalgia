@@ -26,67 +26,67 @@ MetalClawDefWriter::~MetalClawDefWriter() {
 	}
 }
 
-constexpr mc::Type *MetalClawDefWriter::type(int8_t*) {
+constexpr mc::Type *MetalClawDefWriter::type(int8_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:int8_t";
 	constexpr auto PT = mc::PrimitiveType::SignedInteger;
 	constexpr auto Bytes = 8;
-	return getPrimitive(TypeName, PT, Bytes);
+	return getPrimitive(TypeName, PT, Bytes, alreadyExisted);
 }
 
-constexpr mc::Type *MetalClawDefWriter::type(int16_t*) {
+constexpr mc::Type *MetalClawDefWriter::type(int16_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:int16_t";
 	constexpr auto PT = mc::PrimitiveType::SignedInteger;
 	constexpr auto Bytes = 16;
-	return getPrimitive(TypeName, PT, Bytes);
+	return getPrimitive(TypeName, PT, Bytes, alreadyExisted);
 }
 
-constexpr mc::Type *MetalClawDefWriter::type(int32_t*) {
+constexpr mc::Type *MetalClawDefWriter::type(int32_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:int32_t";
 	constexpr auto PT = mc::PrimitiveType::SignedInteger;
 	constexpr auto Bytes = 32;
-	return getPrimitive(TypeName, PT, Bytes);
+	return getPrimitive(TypeName, PT, Bytes, alreadyExisted);
 }
 
-constexpr mc::Type *MetalClawDefWriter::type(int64_t*) {
+constexpr mc::Type *MetalClawDefWriter::type(int64_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:int64_t";
 	constexpr auto PT = mc::PrimitiveType::SignedInteger;
 	constexpr auto Bytes = 64;
-	return getPrimitive(TypeName, PT, Bytes);
+	return getPrimitive(TypeName, PT, Bytes, alreadyExisted);
 }
 
-constexpr mc::Type *MetalClawDefWriter::type(uint8_t*) {
+constexpr mc::Type *MetalClawDefWriter::type(uint8_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:uint8_t";
 	constexpr auto PT = mc::PrimitiveType::UnsignedInteger;
 	constexpr auto Bytes = 8;
-	return getPrimitive(TypeName, PT, Bytes);
+	return getPrimitive(TypeName, PT, Bytes, alreadyExisted);
 }
 
-constexpr mc::Type *MetalClawDefWriter::type(uint16_t*) {
+constexpr mc::Type *MetalClawDefWriter::type(uint16_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:uint16_t";
 	constexpr auto PT = mc::PrimitiveType::UnsignedInteger;
 	constexpr auto Bytes = 16;
-	return getPrimitive(TypeName, PT, Bytes);
+	return getPrimitive(TypeName, PT, Bytes, alreadyExisted);
 }
 
-constexpr mc::Type *MetalClawDefWriter::type(uint32_t*) {
+constexpr mc::Type *MetalClawDefWriter::type(uint32_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:uint32_t";
 	constexpr auto PT = mc::PrimitiveType::UnsignedInteger;
 	constexpr auto Bytes = 32;
-	return getPrimitive(TypeName, PT, Bytes);
+	return getPrimitive(TypeName, PT, Bytes, alreadyExisted);
 }
 
-constexpr mc::Type *MetalClawDefWriter::type(uint64_t*) {
+constexpr mc::Type *MetalClawDefWriter::type(uint64_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:uint64_t";
 	constexpr auto PT = mc::PrimitiveType::UnsignedInteger;
 	constexpr auto Bytes = 64;
-	return getPrimitive(TypeName, PT, Bytes);
+	return getPrimitive(TypeName, PT, Bytes, alreadyExisted);
 }
 
-constexpr mc::Type *MetalClawDefWriter::type(bool*) {
+constexpr mc::Type *MetalClawDefWriter::type(bool*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:bool";
 	constexpr auto PT = mc::PrimitiveType::Bool;
 	constexpr auto Bytes = 0;
-	return getPrimitive(TypeName, PT, Bytes);
+	return getPrimitive(TypeName, PT, Bytes, alreadyExisted);
 }
 
 constexpr void MetalClawDefWriter::setTypeInfo(const char *name, int) {
@@ -95,16 +95,18 @@ constexpr void MetalClawDefWriter::setTypeInfo(const char *name, int) {
 	m_type->primitiveType = mc::PrimitiveType::Struct;
 }
 
-constexpr mc::Type *MetalClawDefWriter::type(const char*) {
+constexpr mc::Type *MetalClawDefWriter::type(const char*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:string";
 	constexpr auto PT = mc::PrimitiveType::String;
-	return getPrimitive(TypeName, PT);
+	return getPrimitive(TypeName, PT, 0, alreadyExisted);
 }
 
-constexpr mc::Type *MetalClawDefWriter::getPrimitive(mc::TypeName tn, mc::PrimitiveType pt, int b) {
+constexpr mc::Type *MetalClawDefWriter::getPrimitive(mc::TypeName tn, mc::PrimitiveType pt, int b, bool *alreadyExisted) {
 	if (m_typeStore->contains(tn)) {
+		*alreadyExisted = true;
 		return &m_typeStore->at(tn);
 	} else {
+		*alreadyExisted = false;
 		auto t = &m_typeStore->at(tn);
 		t->typeName = tn;
 		t->primitiveType = pt;

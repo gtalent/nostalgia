@@ -29,10 +29,15 @@ enum class PrimitiveType: uint8_t {
 using FieldName = String;
 
 struct Field {
+	// order of fields matters
+
 	// only serialize type name if type has already been serialized
 	const struct Type *type = nullptr;
 	FieldName fieldName;
 	int subscriptLevels = 0;
+
+	// do not serialize the following
+	bool serializeType = false;
 };
 
 using TypeName = String;
@@ -61,11 +66,10 @@ template<typename T>
 int ioOp(T *io, Field *field) {
 	int32_t err = 0;
 	io->setTypeInfo("ox::mc::Field", 5);
-	if (field->type) {
-		err |= io->op("typeName", &field->type->typeName);
+	if (field->serializeType) {
+		err |= io->op("typeName", "");
 		err |= io->op("type", &field->type);
 	} else {
-		// TODO: lookup type
 		err |= io->op("typeName", &field->type->typeName);
 		err |= io->op("type", static_cast<decltype(&field->type)>(nullptr));
 	}

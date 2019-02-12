@@ -31,6 +31,21 @@ static constexpr int indirectionLevels(T *t) {
 	return 1 + indirectionLevels(*t);
 }
 
+static_assert([] {
+	int i = 0;
+	return indirectionLevels(&i) == 1;
+}(), "indirectionLevels broken: indirectionLevels(int*)");
+
+static_assert([] {
+	int i[2] = {};
+	return indirectionLevels(i) == 1;
+}(), "indirectionLevels broken: indirectionLevels(int[])");
+
+static_assert([] {
+	int i[2][2] = {{}};
+	return indirectionLevels(i) == 2;
+}(), "indirectionLevels broken: indirectionLevels(int[][])");
+
 class MetalClawDefWriter {
 
 	private:
@@ -44,16 +59,16 @@ class MetalClawDefWriter {
 		~MetalClawDefWriter();
 
 		template<typename T>
-		int op(const char *name, T *val, std::size_t valLen);
-
-		template<std::size_t L>
-		int op(const char *name, const char *val);
-
-		template<std::size_t L>
-		int op(const char *name, ox::BString<L> *val);
+		ox::Error op(const char *name, T *val, std::size_t valLen);
 
 		template<typename T>
-		constexpr int op(const char *name, T *val);
+		ox::Error op(const char *name, ox::Vector<T> *val);
+
+		template<std::size_t L>
+		ox::Error op(const char *name, ox::BString<L> *val);
+
+		template<typename T>
+		constexpr ox::Error op(const char *name, T *val);
 
 		constexpr void setTypeInfo(const char *name, int fields);
 
@@ -87,22 +102,28 @@ class MetalClawDefWriter {
 
 // array handler
 template<typename T>
-int MetalClawDefWriter::op(const char *name, T *val, std::size_t) {
+ox::Error MetalClawDefWriter::op(const char *name, T *val, std::size_t) {
 	if (m_type) {
 		constexpr typename RemoveIndirection<decltype(val)>::type *p = nullptr;
 		const auto t = type(p);
 		m_type->fieldList.push_back(mc::Field{t, name, subscriptLevels(val)});
+		return 0;
 	}
-	return 0;
+	return OxError(1);
+}
+
+template<typename T>
+ox::Error MetalClawDefWriter::op(const char *name, ox::Vector<T> *val) {
+	return op(name, val->data(), val->size());
 }
 
 template<std::size_t L>
-int MetalClawDefWriter::op(const char *name, ox::BString<L> *val) {
+ox::Error MetalClawDefWriter::op(const char *name, ox::BString<L> *val) {
 	return op(name, val->c_str());
 }
 
 template<typename T>
-constexpr int MetalClawDefWriter::op(const char *name, T *val) {
+constexpr ox::Error MetalClawDefWriter::op(const char *name, T *val) {
 	if (m_type) {
 		const auto t = type(val);
 		m_type->fieldList.push_back(mc::Field{t, name});

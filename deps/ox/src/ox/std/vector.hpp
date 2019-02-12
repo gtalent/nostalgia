@@ -43,6 +43,8 @@ class Vector {
 
 		void resize(std::size_t size) noexcept;
 
+		T *data();
+
 		bool contains(T) const noexcept;
 
 		void push_back(const T &item) noexcept;
@@ -151,6 +153,11 @@ void Vector<T>::resize(std::size_t size) noexcept {
 		m_items[i] = {};
 	}
 	m_size = size;
+}
+
+template<typename T>
+T *Vector<T>::data() {
+	return m_items;
 }
 
 template<typename T>

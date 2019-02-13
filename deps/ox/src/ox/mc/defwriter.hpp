@@ -18,6 +18,7 @@
 #include "deftypes.hpp"
 #include "err.hpp"
 #include "optype.hpp"
+#include "types.hpp"
 
 namespace ox {
 
@@ -30,6 +31,11 @@ template<typename T>
 static constexpr int indirectionLevels(T *t) {
 	return 1 + indirectionLevels(*t);
 }
+
+static_assert([] {
+	int i = 0;
+	return indirectionLevels(i) == 0;
+}(), "indirectionLevels broken: indirectionLevels(int)");
 
 static_assert([] {
 	int i = 0;
@@ -93,13 +99,15 @@ class MetalClawDefWriter {
 
 		constexpr mc::Type *type(const char *val, bool *alreadyExisted);
 
+		mc::Type *type(McStr val, bool *alreadyExisted);
+
 		template<std::size_t L>
 		constexpr mc::Type *type(ox::BString<L> *val, bool *alreadyExisted);
 
 		template<typename T>
 		mc::Type *type(T *val, bool *alreadyExisted);
 
-		constexpr mc::Type *getPrimitive(mc::TypeName tn, mc::PrimitiveType t, int b, bool *alreadyExisted);
+		constexpr mc::Type *getPrimitive(mc::String tn, mc::PrimitiveType t, int b, bool *alreadyExisted);
 };
 
 // array handler
@@ -145,8 +153,10 @@ mc::Type *MetalClawDefWriter::type(T *val, bool *alreadyExisted) {
 }
 
 template<std::size_t L>
-constexpr mc::Type *MetalClawDefWriter::type(ox::BString<L> *val, bool *alreadyExisted) {
-	return type(val->c_str(), alreadyExisted);
+constexpr mc::Type *MetalClawDefWriter::type(ox::BString<L>*, bool *alreadyExisted) {
+	constexpr auto TypeName = "B:string";
+	constexpr auto PT = mc::PrimitiveType::String;
+	return getPrimitive(TypeName, PT, 0, alreadyExisted);
 }
 
 }

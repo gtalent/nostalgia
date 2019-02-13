@@ -14,7 +14,7 @@
 
 namespace ox::mc {
 
-using String = const char*;
+using String = BString<100>;
 
 enum class PrimitiveType: uint8_t {
 	UnsignedInteger = 0,
@@ -26,38 +26,35 @@ enum class PrimitiveType: uint8_t {
 	Struct = 6,
 };
 
-using FieldName = String;
-
 struct Field {
 	// order of fields matters
 
 	// only serialize type name if type has already been serialized
 	const struct Type *type = nullptr;
-	FieldName fieldName;
+	String fieldName;
 	int subscriptLevels = 0;
 
 	// do not serialize the following
 	bool serializeType = false;
 };
 
-using TypeName = String;
 using FieldList = Vector<Field>;
 
 struct Type {
-	TypeName typeName;
+	String typeName;
 	PrimitiveType primitiveType;
 	// fieldList only applies to structs
-	FieldList fieldList;
+	Vector<Field> fieldList;
 	// - number of bytes for integer and float types
 	// - number of fields for structs and lists
 	int64_t length = 0;
 
 	Type() = default;
 
-	Type(TypeName tn, PrimitiveType t, int b): typeName(tn), primitiveType(t), length(b) {
+	Type(String tn, PrimitiveType t, int b): typeName(tn), primitiveType(t), length(b) {
 	}
 
-	Type(TypeName tn, PrimitiveType t, FieldList fl): typeName(tn), primitiveType(t), fieldList(fl) {
+	Type(String tn, PrimitiveType t, FieldList fl): typeName(tn), primitiveType(t), fieldList(fl) {
 	}
 };
 
@@ -90,6 +87,6 @@ int ioOp(T *io, Type *type) {
 	return err;
 }
 
-using TypeStore = ox::HashMap<mc::TypeName, mc::Type>;
+using TypeStore = ox::HashMap<mc::String, mc::Type>;
 
 }

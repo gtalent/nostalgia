@@ -14,6 +14,7 @@
 #include "err.hpp"
 #include "optype.hpp"
 #include "presencemask.hpp"
+#include "types.hpp"
 
 namespace ox {
 
@@ -59,6 +60,8 @@ class MetalClawReader {
 		template<std::size_t L>
 		int op(const char*, ox::BString<L> *val);
 
+		Error op(const char*, McStr val);
+
 		std::size_t arrayLength(const char*);
 
 		// stringLength returns the length of the string, including the null terminator.
@@ -66,7 +69,7 @@ class MetalClawReader {
 
 		void setTypeInfo(const char *name, int fields);
 
-      OpType opType() {
+      constexpr OpType opType() {
           return OpType::Read;
       }
 
@@ -88,35 +91,9 @@ int MetalClawReader::op(const char*, T *val) {
 };
 
 template<std::size_t L>
-int MetalClawReader::op(const char*, ox::BString<L> *val) {
-	int err = 0;
-	if (m_fieldPresence.get(m_field)) {
-		// read the length
-		std::size_t size = 0;
-		if (m_buffIt + sizeof(StringLength) < m_buffLen) {
-			size = *reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]);
-			m_buffIt += sizeof(StringLength);
-		} else {
-			err |= MC_BUFFENDED;
-		}
-
-		// read the string
-		if (val->cap() >= size) {
-			if (m_buffIt + size < m_buffLen) {
-				ox_memcpy(val, &m_buff[m_buffIt], size);
-				m_buffIt += size;
-			} else {
-				err |= MC_BUFFENDED;
-			}
-		} else {
-			err |= MC_OUTBUFFENDED;
-		}
-	} else {
-		*val = "";
-	}
-	m_field++;
-	return err;
-};
+int MetalClawReader::op(const char *name, ox::BString<L> *val) {
+	return op(name, McStr(val->data(), val->cap()));
+}
 
 template<typename I>
 int MetalClawReader::readInteger(I *val) {

@@ -11,4 +11,5 @@
 #include "deftypes.hpp"
 #include "defwriter.hpp"
 #include "read.hpp"
+#include "types.hpp"
 #include "write.hpp"

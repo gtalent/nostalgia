@@ -61,6 +61,36 @@ int MetalClawReader::op(const char*, bool *val) {
 	return 0;
 }
 
+Error MetalClawReader::op(const char*, McStr val) {
+	int err = 0;
+	if (m_fieldPresence.get(m_field)) {
+		// read the length
+		int size = 0;
+		if (m_buffIt + sizeof(StringLength) < m_buffLen) {
+			size = *reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]);
+			m_buffIt += sizeof(StringLength);
+		} else {
+			err |= MC_BUFFENDED;
+		}
+
+		// read the string
+		if (val.cap() >= size) {
+			if (m_buffIt + size < m_buffLen) {
+				ox_memcpy(val.data(), &m_buff[m_buffIt], size);
+				m_buffIt += size;
+			} else {
+				err |= MC_BUFFENDED;
+			}
+		} else {
+			err |= MC_OUTBUFFENDED;
+		}
+	} else {
+		val.data()[0] = 0;
+	}
+	m_field++;
+	return err;
+}
+
 std::size_t MetalClawReader::arrayLength(const char*) {
 	std::size_t len = 0;
 	if (m_fieldPresence.get(m_field)) {

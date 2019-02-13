@@ -23,41 +23,64 @@ MetalClawWriter::~MetalClawWriter() noexcept {
 	oxAssert(m_field == m_fields, "MetalClawWriter: incorrect fields number given");
 }
 
-int MetalClawWriter::op(const char*, int8_t *val) {
+Error MetalClawWriter::op(const char*, int8_t *val) {
 	return appendInteger(*val);
 }
 
-int MetalClawWriter::op(const char*, int16_t *val) {
+Error MetalClawWriter::op(const char*, int16_t *val) {
 	return appendInteger(*val);
 }
 
-int MetalClawWriter::op(const char*, int32_t *val) {
+Error MetalClawWriter::op(const char*, int32_t *val) {
 	return appendInteger(*val);
 }
 
-int MetalClawWriter::op(const char*, int64_t *val) {
+Error MetalClawWriter::op(const char*, int64_t *val) {
 	return appendInteger(*val);
 }
 
 
-int MetalClawWriter::op(const char*, uint8_t *val) {
+Error MetalClawWriter::op(const char*, uint8_t *val) {
 	return appendInteger(*val);
 }
 
-int MetalClawWriter::op(const char*, uint16_t *val) {
+Error MetalClawWriter::op(const char*, uint16_t *val) {
 	return appendInteger(*val);
 }
 
-int MetalClawWriter::op(const char*, uint32_t *val) {
+Error MetalClawWriter::op(const char*, uint32_t *val) {
 	return appendInteger(*val);
 }
 
-int MetalClawWriter::op(const char*, uint64_t *val) {
+Error MetalClawWriter::op(const char*, uint64_t *val) {
 	return appendInteger(*val);
 }
 
-int MetalClawWriter::op(const char*, bool *val) {
+Error MetalClawWriter::op(const char*, bool *val) {
 	return m_fieldPresence.set(m_field++, *val);
+}
+
+Error MetalClawWriter::op(const char*, McStr val) {
+	int err = 0;
+	bool fieldSet = false;
+	if (val.cap()) {
+		// write the length
+		typedef uint32_t StringLength;
+		if (m_buffIt + sizeof(StringLength) + val.bytes() < m_buffLen) {
+			*reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]) = static_cast<StringLength>(val.bytes());
+			m_buffIt += sizeof(StringLength);
+
+			// write the string
+			ox_memcpy(&m_buff[m_buffIt], val.c_str(), val.bytes());
+			m_buffIt += val.bytes();
+			fieldSet = true;
+		} else {
+			err = MC_BUFFENDED;
+		}
+	}
+	err |= m_fieldPresence.set(m_field, fieldSet);
+	m_field++;
+	return err;
 }
 
 void MetalClawWriter::setTypeInfo(const char*, int fields) {

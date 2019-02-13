@@ -15,6 +15,7 @@
 #include "err.hpp"
 #include "optype.hpp"
 #include "presencemask.hpp"
+#include "types.hpp"
 
 namespace ox {
 
@@ -22,7 +23,6 @@ class MetalClawWriter {
 
 	private:
 		FieldPresenseMask m_fieldPresence;
-		const char *m_typeName = nullptr;
 		int m_fields = 0;
 		int m_field = 0;
 		std::size_t m_buffIt = 0;
@@ -34,29 +34,28 @@ class MetalClawWriter {
 
 		~MetalClawWriter() noexcept;
 
-		int op(const char*, int8_t *val);
-		int op(const char*, int16_t *val);
-		int op(const char*, int32_t *val);
-		int op(const char*, int64_t *val);
+		Error op(const char*, int8_t *val);
+		Error op(const char*, int16_t *val);
+		Error op(const char*, int32_t *val);
+		Error op(const char*, int64_t *val);
 
-		int op(const char*, uint8_t *val);
-		int op(const char*, uint16_t *val);
-		int op(const char*, uint32_t *val);
-		int op(const char*, uint64_t *val);
+		Error op(const char*, uint8_t *val);
+		Error op(const char*, uint16_t *val);
+		Error op(const char*, uint32_t *val);
+		Error op(const char*, uint64_t *val);
 
-		int op(const char*, bool *val);
-
-		template<typename T>
-		int op(const char*, T *val, std::size_t len);
+		Error op(const char*, bool *val);
 
 		template<typename T>
-		int op(const char*, ox::Vector<T> *val);
+		Error op(const char*, T *val, std::size_t len);
+
+		template<typename T>
+		Error op(const char*, ox::Vector<T> *val);
 
 		template<std::size_t L>
-		int op(const char*, const char *val);
+		Error op(const char*, ox::BString<L> *val);
 
-		template<std::size_t L>
-		int op(const char*, ox::BString<L> *val);
+		Error op(const char*, McStr val);
 
 		template<typename T>
 		int op(const char*, T *val);
@@ -65,37 +64,18 @@ class MetalClawWriter {
 
 		std::size_t size();
 
-      OpType opType() {
+      constexpr OpType opType() {
           return OpType::Write;
       }
 
 	private:
 		template<typename I>
-		int appendInteger(I val);
+		Error appendInteger(I val);
 };
 
 template<std::size_t L>
-int MetalClawWriter::op(const char*, ox::BString<L> *val) {
-	int err = 0;
-	bool fieldSet = false;
-	if (val->len()) {
-		// write the length
-		typedef uint32_t StringLength;
-		if (m_buffIt + sizeof(StringLength) + val->bytes() < m_buffLen) {
-			*reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]) = static_cast<StringLength>(val->bytes());
-			m_buffIt += sizeof(StringLength);
-
-			// write the string
-			ox_memcpy(&m_buff[m_buffIt], val, val->bytes());
-			m_buffIt += val->bytes();
-			fieldSet = true;
-		} else {
-			err = MC_BUFFENDED;
-		}
-	}
-	err |= m_fieldPresence.set(m_field, fieldSet);
-	m_field++;
-	return err;
+Error MetalClawWriter::op(const char *name, ox::BString<L> *val) {
+	return op(name, McStr(val->data(), val->cap()));
 }
 
 template<typename T>
@@ -116,12 +96,12 @@ int MetalClawWriter::op(const char*, T *val) {
 }
 
 template<typename T>
-int MetalClawWriter::op(const char*, ox::Vector<T> *val) {
+Error MetalClawWriter::op(const char*, ox::Vector<T> *val) {
 	return op(nullptr, val->data(), val->size());
 }
 
 template<typename I>
-int MetalClawWriter::appendInteger(I val) {
+Error MetalClawWriter::appendInteger(I val) {
 	int err = 0;
 	bool fieldSet = false;
 	if (val) {
@@ -139,7 +119,7 @@ int MetalClawWriter::appendInteger(I val) {
 }
 
 template<typename T>
-int MetalClawWriter::op(const char*, T *val, std::size_t len) {
+Error MetalClawWriter::op(const char*, T *val, std::size_t len) {
 	int err = 0;
 	bool fieldSet = false;
 
@@ -171,7 +151,7 @@ int MetalClawWriter::op(const char*, T *val, std::size_t len) {
 }
 
 template<typename T>
-int writeMC(uint8_t *buff, std::size_t buffLen, T *val, std::size_t *sizeOut = nullptr) {
+Error writeMC(uint8_t *buff, std::size_t buffLen, T *val, std::size_t *sizeOut = nullptr) {
 	MetalClawWriter writer(buff, buffLen);
 	auto err = ioOp(&writer, val);
 	if (sizeOut) {

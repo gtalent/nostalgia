@@ -50,17 +50,17 @@ class BString {
 		/**
 		 * Returns the number of characters in this string.
 		 */
-		std::size_t len() const noexcept;
+		constexpr std::size_t len() const noexcept;
 
 		/**
 		 * Returns the number of bytes used for this string.
 		 */
-		std::size_t bytes() const noexcept;
+		constexpr std::size_t bytes() const noexcept;
 
 		/**
 		 * Returns the capacity of bytes for this string.
 		 */
-		std::size_t cap() const noexcept;
+		constexpr std::size_t cap() const noexcept;
 };
 
 template<std::size_t size>
@@ -158,7 +158,7 @@ constexpr const char *BString<buffLen>::c_str() const noexcept {
 
 
 template<std::size_t buffLen>
-std::size_t BString<buffLen>::len() const noexcept {
+constexpr std::size_t BString<buffLen>::len() const noexcept {
 	std::size_t length = 0;
 	for (std::size_t i = 0; i < buffLen; i++) {
 		uint8_t b = m_buff[i];
@@ -176,14 +176,14 @@ std::size_t BString<buffLen>::len() const noexcept {
 }
 
 template<std::size_t buffLen>
-std::size_t BString<buffLen>::bytes() const noexcept {
-	std::size_t i;
+constexpr std::size_t BString<buffLen>::bytes() const noexcept {
+	std::size_t i = 0;
 	for (i = 0; i < buffLen && m_buff[i]; i++);
 	return i + 1; // add one for null terminator
 }
 
 template<std::size_t buffLen>
-std::size_t BString<buffLen>::cap() const noexcept {
+constexpr std::size_t BString<buffLen>::cap() const noexcept {
 	return buffLen;
 }
 

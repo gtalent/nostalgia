@@ -1,7 +1,7 @@
 
 #setup libraries
 
-if(NOT NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
+if(NOSTALGIA_BUILD_STUDIO)
 	find_package(Qt5Widgets)
 	set(CMAKE_AUTOMOC ON)
 endif()
@@ -13,7 +13,7 @@ add_subdirectory(common)
 add_subdirectory(player)
 add_subdirectory(world)
 
-if(NOT NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
+if(NOSTALGIA_BUILD_STUDIO)
 	add_subdirectory(tools)
 	add_subdirectory(studio)
 endif()

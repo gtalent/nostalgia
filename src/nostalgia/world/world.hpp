@@ -26,7 +26,7 @@ struct Tile {
 template<typename T>
 ox::Error ioOpRead(T *io, Tile *obj) {
 	ox::Error err = 0;
-	io->setFields(2);
+	io->setTypeInfo("nostalgia::world::Tile", 2);
 	err |= io->op("bgTile", &obj->bgTile);
 	err |= io->op("type", &obj->type);
 	return err;
@@ -98,14 +98,14 @@ struct Region {
 template<typename T>
 ox::Error ioOpRead(T *io, Region *obj) {
 	ox::Error err = 0;
-	io->setFields(Region::FIELDS);
+	io->setTypeInfo("nostalgia::world::Tile", Region::FIELDS);
 	return err;
 }
 
 template<typename T>
 ox::Error ioOpWrite(T *io, Region *obj) {
 	ox::Error err = 0;
-	io->setFields(Region::FIELDS);
+	io->setTypeInfo("nostalgia::world::Tile", Region::FIELDS);
 	return err;
 }
 

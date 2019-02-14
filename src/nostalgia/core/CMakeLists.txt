@@ -9,13 +9,20 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 			gba/mem.cpp
 			gba/panic.cpp
 	)
-elseif(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
+elseif(NOSTALGIA_BUILD_STUDIO)
 	set(CMAKE_INCLUDE_CURRENT_DIR ON)
 	set(CMAKE_AUTOMOC ON)
 
 	set(
 		CPP
 			qt/gfx.cpp
+			userland/media.cpp
+			userland/mem.cpp
+	)
+else()
+	set(
+		CPP
+			qt/gfx.cpp # does not currently use any Qt stuff, but will need to replace with SDL version 
 			userland/media.cpp
 			userland/mem.cpp
 	)
@@ -27,7 +34,7 @@ add_library(
 		core.cpp
 )
 
-if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
+if(NOSTALGIA_BUILD_STUDIO)
 	add_subdirectory(studio)
 endif()
 

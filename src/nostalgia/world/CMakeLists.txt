@@ -12,6 +12,6 @@ install(
 		include/nostalgia/world
 )
 
-if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
+if(NOSTALGIA_BUILD_STUDIO)
 	add_subdirectory(studio)
 endif()

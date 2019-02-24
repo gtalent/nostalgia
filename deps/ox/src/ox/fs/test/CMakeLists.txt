@@ -9,7 +9,6 @@ target_link_libraries(
 	FSTests
 		OxFS
 		OxStd
-		OxTrace
 		OxMetalClaw
 )
 

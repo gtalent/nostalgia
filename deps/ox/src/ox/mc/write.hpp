@@ -12,6 +12,7 @@
 #include <ox/std/string.hpp>
 #include <ox/std/vector.hpp>
 #include <ox/std/types.hpp>
+
 #include "err.hpp"
 #include "optype.hpp"
 #include "presencemask.hpp"
@@ -64,7 +65,7 @@ class MetalClawWriter {
 
 		std::size_t size();
 
-      constexpr OpType opType() {
+      static constexpr OpType opType() {
           return OpType::Write;
       }
 
@@ -125,7 +126,6 @@ Error MetalClawWriter::op(const char*, T *val, std::size_t len) {
 
 	if (len) {
 		// write the length
-		typedef uint32_t ArrayLength;
 		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
 			*reinterpret_cast<LittleEndian<ArrayLength>*>(&m_buff[m_buffIt]) = static_cast<ArrayLength>(len);
 			m_buffIt += sizeof(ArrayLength);

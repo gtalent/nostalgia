@@ -8,8 +8,7 @@
 
 #pragma once
 
-#include <ox/__buildinfo/defines.hpp>
-
+#include "defines.hpp"
 #include "types.hpp"
 
 #if defined(_MSC_VER)

@@ -1,13 +1,13 @@
-cmake_minimum_required(VERSION 2.8)
-
 add_library(
 	OxStd
 		assert.cpp
+		buildinfo.cpp
 		byteswap.cpp
 		memops.cpp
 		random.cpp
 		stacktrace.cpp
 		strops.cpp
+		trace.cpp
 )
 
 set_property(
@@ -17,14 +17,15 @@ set_property(
 		POSITION_INDEPENDENT_CODE ON
 )
 
-target_link_libraries(OxStd PUBLIC OxTrace)
-
 install(
 	FILES
 		assert.hpp
 		bitops.hpp
+		buildinfo.hpp
 		byteswap.hpp
+		defines.hpp
 		error.hpp
+		hashmap.hpp
 		math.hpp
 		memops.hpp
 		new.hpp
@@ -34,6 +35,7 @@ install(
 		strops.hpp
 		std.hpp
 		stddef.hpp
+		trace.hpp
 		types.hpp
 		typetraits.hpp
 		vector.hpp

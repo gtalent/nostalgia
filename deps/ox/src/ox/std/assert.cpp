@@ -11,8 +11,7 @@
 #include <iostream>
 #endif
 
-#include <ox/__buildinfo/defines.hpp>
-
+#include "defines.hpp"
 #include "stacktrace.hpp"
 #include "assert.hpp"
 

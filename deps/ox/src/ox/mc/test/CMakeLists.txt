@@ -8,8 +8,6 @@ add_executable(
 target_link_libraries(
 	McTest
 		OxMetalClaw
-		OxStd
-		OxTrace
 )
 
 add_test("Test\\ McTest\\ Writer" McTest MetalClawWriter)

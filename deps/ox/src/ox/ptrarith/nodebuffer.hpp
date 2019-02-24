@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <ox/trace/trace.hpp>
+#include <ox/std/trace.hpp>
 
 #include "ptr.hpp"
 

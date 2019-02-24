@@ -9,12 +9,16 @@ add_library(
 		filesystem/passthroughfs.cpp
 )
 
+if(OX_USE_STDLIB)
+	target_link_libraries(
+		OxFS PUBLIC
+			c++fs
+	)
+endif()
+
 target_link_libraries(
 	OxFS PUBLIC
-		c++fs
 		OxMetalClaw
-		OxStd
-		OxTrace
 )
 
 set_property(
@@ -34,7 +38,6 @@ if(OX_BUILD_EXEC STREQUAL "ON")
 	#target_link_libraries(
 	#	oxfstool
 	#		OxFS
-	#		OxTrace
 	#		OxMetalClaw
 	#		OxStd
 	#)

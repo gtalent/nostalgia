@@ -11,9 +11,9 @@
 #include <ox/std/byteswap.hpp>
 #include <ox/std/hashmap.hpp>
 #include <ox/std/string.hpp>
+#include <ox/std/trace.hpp>
 #include <ox/std/types.hpp>
 #include <ox/std/vector.hpp>
-#include <ox/trace/trace.hpp>
 
 #include "deftypes.hpp"
 #include "err.hpp"

@@ -8,30 +8,35 @@
 
 namespace ox::buildinfo {
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-const-variable"
+
 #if defined(OX_USE_STDLIB)
-const auto UseStdLib = true;
+const bool UseStdLib = true;
 #else
-const auto UseStdLib = false;
+const bool UseStdLib = false;
 #endif
 
 #if defined(DEBUG)
-const auto Debug = true;
+const bool Debug = true;
 #else
-const auto Debug = false;
+const bool Debug = false;
 #endif
 
 #if defined(NDEBUG)
-const auto NDebug = true;
+const bool NDebug = true;
 #else
-const auto NDebug = false;
+const bool NDebug = false;
 #endif
 
 #if defined(__BIG_ENDIAN__)
-const auto BigEndian = true;
-const auto LittleEndian = false;
+const bool BigEndian = true;
+const bool LittleEndian = false;
 #else
-const auto BigEndian = false;
-const auto LittleEndian = true;
+const bool BigEndian = false;
+const bool LittleEndian = true;
 #endif
+
+#pragma clang diagnostic pop
 
 }

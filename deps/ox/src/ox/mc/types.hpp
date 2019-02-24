@@ -13,6 +13,9 @@
 
 namespace ox {
 
+using StringLength = uint32_t;
+using ArrayLength = uint32_t;
+
 class McStr {
 
 	protected:

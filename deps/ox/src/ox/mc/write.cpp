@@ -65,7 +65,6 @@ Error MetalClawWriter::op(const char*, McStr val) {
 	bool fieldSet = false;
 	if (val.cap()) {
 		// write the length
-		typedef uint32_t StringLength;
 		if (m_buffIt + sizeof(StringLength) + val.bytes() < m_buffLen) {
 			*reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]) = static_cast<StringLength>(val.bytes());
 			m_buffIt += sizeof(StringLength);

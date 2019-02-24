@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 2.8)
-
 add_library(
 	OxMetalClaw
 		defwriter.cpp
@@ -11,7 +9,6 @@ add_library(
 target_link_libraries(
 	OxMetalClaw PUBLIC
 		OxStd
-		OxTrace
 )
 
 set_property(
@@ -23,10 +20,13 @@ set_property(
 
 install(
 	FILES
+		deftypes.hpp
 		defwriter.hpp
 		err.hpp
+		optype.hpp
 		presencemask.hpp
 		read.hpp
+		types.hpp
 		write.hpp
 	DESTINATION
 		include/ox/mc

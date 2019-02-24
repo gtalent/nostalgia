@@ -11,6 +11,7 @@
 #include <ox/std/byteswap.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/vector.hpp>
+
 #include "err.hpp"
 #include "optype.hpp"
 #include "presencemask.hpp"
@@ -21,9 +22,6 @@ namespace ox {
 class MetalClawReader {
 
 	private:
-		using ArrayLength = uint32_t;
-		using StringLength = uint32_t;
-
 		FieldPresenseMask m_fieldPresence;
 		int m_fields = 0;
 		int m_field = 0;
@@ -69,7 +67,27 @@ class MetalClawReader {
 
 		void setTypeInfo(const char *name, int fields);
 
-      constexpr OpType opType() {
+		/**
+		 * Returns a MetalClawReader to parse a child object.
+		 */
+		MetalClawReader child();
+
+		/**
+		 * Indicates whether or not the next field to be read is present.
+		 */
+		bool fieldPresent();
+
+		/**
+		 * Indicates whether or not the given field is present.
+		 */
+		bool fieldPresent(int fieldNo);
+
+		/**
+		 * @return the number of fields in this struct or list
+		 */
+		bool fields();
+
+      static constexpr OpType opType() {
           return OpType::Read;
       }
 
@@ -127,7 +145,7 @@ int MetalClawReader::op(const char*, T *val, std::size_t valLen) {
 
 		// read the list
 		if (valLen >= len) {
-			MetalClawReader reader(m_buff + m_buffIt, m_buffLen - m_buffIt);
+			auto reader = child();
 			reader.setTypeInfo("List", len);
 			for (std::size_t i = 0; i < len; i++) {
 				err |= reader.op("", &val[i]);

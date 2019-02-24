@@ -8,8 +8,7 @@
 
 #pragma once
 
-#include <ox/__buildinfo/defines.hpp>
-
+#include "defines.hpp"
 #include "error.hpp"
 
 namespace ox {

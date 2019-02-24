@@ -5,7 +5,7 @@ add_executable(
 		tests.cpp
 )
 
-target_link_libraries(StdTest OxTrace OxStd)
+target_link_libraries(StdTest OxStd)
 
 add_test("Test\\ ox_memcmp\\ ABCDEFG\\ !=\\ HIJKLMN" StdTest "ABCDEFG != HIJKLMN")
 add_test("Test\\ ox_memcmp\\ HIJKLMN\\ !=\\ ABCDEFG" StdTest "HIJKLMN != ABCDEFG")

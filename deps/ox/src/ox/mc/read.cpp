@@ -119,4 +119,16 @@ void MetalClawReader::setTypeInfo(const char*, int fields) {
 	m_fieldPresence.setMaxLen(m_buffIt);
 }
 
+MetalClawReader MetalClawReader::child() {
+	return MetalClawReader(m_buff + m_buffIt, m_buffLen - m_buffIt);
+}
+
+bool MetalClawReader::fieldPresent() {
+	return m_fieldPresence.get(m_field);
+}
+
+bool MetalClawReader::fieldPresent(int fieldNo) {
+	return m_fieldPresence.get(fieldNo);
+}
+
 }

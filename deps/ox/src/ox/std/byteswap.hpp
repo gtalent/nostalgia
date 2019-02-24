@@ -15,17 +15,17 @@
 namespace ox {
 
 template<typename T>
-constexpr inline T byteSwap(typename enable_if<sizeof(T) == 1, T>::type i) noexcept {
+[[nodiscard]] constexpr inline T byteSwap(typename enable_if<sizeof(T) == 1, T>::type i) noexcept {
 	return i;
 }
 
 template<typename T>
-constexpr inline T byteSwap(typename enable_if<sizeof(T) == 2, T>::type i) noexcept {
+[[nodiscard]] constexpr inline T byteSwap(typename enable_if<sizeof(T) == 2, T>::type i) noexcept {
 	return (i << 8) | (i >> 8);
 }
 
 template<typename T>
-constexpr inline T byteSwap(typename enable_if<sizeof(T) == 4, T>::type i) noexcept {
+[[nodiscard]] constexpr inline T byteSwap(typename enable_if<sizeof(T) == 4, T>::type i) noexcept {
 	return ((i >> 24) & 0x000000ff) |
 	       ((i >>  8) & 0x0000ff00) |
 	       ((i <<  8) & 0x00ff0000) |
@@ -33,7 +33,7 @@ constexpr inline T byteSwap(typename enable_if<sizeof(T) == 4, T>::type i) noexc
 }
 
 template<typename T>
-constexpr inline T byteSwap(typename enable_if<sizeof(T) == 8, T>::type i) noexcept {
+[[nodiscard]] constexpr inline T byteSwap(typename enable_if<sizeof(T) == 8, T>::type i) noexcept {
 	return ((i >> 56) & 0x00000000000000ff) |
 	       ((i >> 40) & 0x000000000000ff00) |
 	       ((i >> 24) & 0x0000000000ff0000) |
@@ -49,7 +49,7 @@ constexpr inline T byteSwap(typename enable_if<sizeof(T) == 8, T>::type i) noexc
  * Takes an int and byte swaps if the platform is the given condition is true.
  */
 template<typename T, bool byteSwap>
-constexpr inline T conditionalByteSwap(T i) noexcept {
+[[nodiscard]] constexpr inline T conditionalByteSwap(T i) noexcept {
 	if constexpr(byteSwap) {
 		return ox::byteSwap<T>(i);
 	} else {

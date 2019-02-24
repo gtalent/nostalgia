@@ -20,21 +20,21 @@ constexpr char *ox_strncpy(T1 dest, T2 src, std::size_t maxLen) noexcept {
 	return dest;
 }
 
-constexpr int ox_strnlen(const char *str1, int maxLen) noexcept {
+[[nodiscard]] constexpr int ox_strnlen(const char *str1, int maxLen) noexcept {
 	int len = 0;
 	for (; len < maxLen && str1[len]; len++);
 	return len;
 }
 
 template<typename T>
-constexpr int ox_strlen(T str1) noexcept {
+[[nodiscard]] constexpr int ox_strlen(T str1) noexcept {
 	int len = 0;
 	for (; str1[len]; len++);
 	return len;
 }
 
 template<typename T1, typename T2>
-constexpr int ox_strcmp(T1 str1, T2 str2) noexcept {
+[[nodiscard]] constexpr int ox_strcmp(T1 str1, T2 str2) noexcept {
 	auto retval = 0;
 	auto i = 0;
 	while (str1[i] || str2[i]) {
@@ -50,7 +50,7 @@ constexpr int ox_strcmp(T1 str1, T2 str2) noexcept {
 	return retval;
 }
 
-constexpr int ox_strncmp(const char *str1, const char *str2, std::size_t len) noexcept {
+[[nodiscard]] constexpr int ox_strncmp(const char *str1, const char *str2, std::size_t len) noexcept {
 	auto retval = 0;
 	std::size_t i = 0;
 	while (i < len && (str1[i] || str2[i])) {
@@ -66,7 +66,7 @@ constexpr int ox_strncmp(const char *str1, const char *str2, std::size_t len) no
 	return retval;
 }
 
-constexpr const char *ox_strchr(const char *str, int character, std::size_t maxLen = 0xFFFFFFFF) noexcept {
+[[nodiscard]] constexpr const char *ox_strchr(const char *str, int character, std::size_t maxLen = 0xFFFFFFFF) noexcept {
 	for (std::size_t i = 0; i <= maxLen; i++) {
 		if (str[i] == character) {
 			return &str[i];
@@ -77,7 +77,7 @@ constexpr const char *ox_strchr(const char *str, int character, std::size_t maxL
 	return nullptr;
 }
 
-constexpr char *ox_strchr(char *str, int character, std::size_t maxLen = 0xFFFFFFFF) noexcept {
+[[nodiscard]] constexpr char *ox_strchr(char *str, int character, std::size_t maxLen = 0xFFFFFFFF) noexcept {
 	for (std::size_t i = 0; i < maxLen; i++) {
 		if (str[i] == character) {
 			return &str[i];
@@ -88,7 +88,7 @@ constexpr char *ox_strchr(char *str, int character, std::size_t maxLen = 0xFFFFF
 	return nullptr;
 }
 
-constexpr int ox_lastIndexOf(const char *str, int character, int maxLen = 0xFFFFFFFF) noexcept {
+[[nodiscard]] constexpr int ox_lastIndexOf(const char *str, int character, int maxLen = 0xFFFFFFFF) noexcept {
 	int retval = -1;
 	for (int i = 0; i < maxLen && str[i]; i++) {
 		if (str[i] == character) {
@@ -98,7 +98,7 @@ constexpr int ox_lastIndexOf(const char *str, int character, int maxLen = 0xFFFF
 	return retval;
 }
 
-constexpr int ox_lastIndexOf(char *str, int character, int maxLen = 0xFFFFFFFF) noexcept {
+[[nodiscard]] constexpr int ox_lastIndexOf(char *str, int character, int maxLen = 0xFFFFFFFF) noexcept {
 	int retval = -1;
 	for (int i = 0; i < maxLen && str[i]; i++) {
 		if (str[i] == character) {
@@ -108,7 +108,7 @@ constexpr int ox_lastIndexOf(char *str, int character, int maxLen = 0xFFFFFFFF) 
 	return retval;
 }
 
-constexpr int ox_atoi(const char *str) noexcept {
+[[nodiscard]] constexpr int ox_atoi(const char *str) noexcept {
 	int total = 0;
 	int multiplier = 1;
 
@@ -121,7 +121,7 @@ constexpr int ox_atoi(const char *str) noexcept {
 }
 
 template<typename T>
-constexpr char *ox_itoa(int64_t v, T str) noexcept {
+constexpr T ox_itoa(int64_t v, T str) noexcept {
 	if (v) {
 		auto mod = 1000000000000000000;
 		constexpr auto base = 10;

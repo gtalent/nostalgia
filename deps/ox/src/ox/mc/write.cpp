@@ -85,6 +85,7 @@ Error MetalClawWriter::op(const char*, McStr val) {
 void MetalClawWriter::setTypeInfo(const char*, int fields) {
 	m_fields = fields;
 	m_buffIt = (fields / 8 + 1) - (fields % 8 == 0);
+	m_fieldPresence.setFields(fields);
 	m_fieldPresence.setMaxLen(m_buffIt);
 }
 

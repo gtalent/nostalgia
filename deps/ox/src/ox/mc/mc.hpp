@@ -12,4 +12,5 @@
 #include "defwriter.hpp"
 #include "read.hpp"
 #include "types.hpp"
+#include "walker.hpp"
 #include "write.hpp"

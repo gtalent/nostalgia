@@ -91,7 +91,7 @@ Error MetalClawReader::op(const char*, McStr val) {
 	return err;
 }
 
-std::size_t MetalClawReader::arrayLength(const char*) {
+[[nodiscard]] std::size_t MetalClawReader::arrayLength() {
 	std::size_t len = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
@@ -116,6 +116,7 @@ std::size_t MetalClawReader::stringLength(const char*) {
 void MetalClawReader::setTypeInfo(const char*, int fields) {
 	m_fields = fields;
 	m_buffIt = (fields / 8 + 1) - (fields % 8 == 0);
+	m_fieldPresence.setFields(fields);
 	m_fieldPresence.setMaxLen(m_buffIt);
 }
 

@@ -3,6 +3,7 @@ add_library(
 		defwriter.cpp
 		presencemask.cpp
 		read.cpp
+		walker.cpp
 		write.cpp
 )
 
@@ -27,6 +28,7 @@ install(
 		presencemask.hpp
 		read.hpp
 		types.hpp
+		walker.cpp
 		write.hpp
 	DESTINATION
 		include/ox/mc

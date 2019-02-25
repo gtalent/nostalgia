@@ -14,11 +14,11 @@ namespace ox {
 
 FieldPresenseMask::FieldPresenseMask(uint8_t *mask, std::size_t maxLen) {
 	m_mask = mask;
-	m_maxLen = maxLen;
+	m_maskLen = maxLen;
 }
 
 bool FieldPresenseMask::get(int i) {
-	if (i / 8 < m_maxLen) {
+	if (i / 8 < m_maskLen) {
 		return (m_mask[i / 8] >> (i % 8)) & 1;
 	} else {
 		return MC_PRESENCEMASKOUTBOUNDS;
@@ -26,7 +26,7 @@ bool FieldPresenseMask::get(int i) {
 }
 
 int FieldPresenseMask::set(int i, bool on) {
-	if (i / 8 < m_maxLen) {
+	if (i / 8 < m_maskLen) {
 		if (on) {
 			m_mask[i / 8] |= 1 << (i % 8);
 		} else {
@@ -36,14 +36,6 @@ int FieldPresenseMask::set(int i, bool on) {
 	} else {
 		return MC_PRESENCEMASKOUTBOUNDS;
 	}
-}
-
-void FieldPresenseMask::setMaxLen(int maxLen) {
-	m_maxLen = maxLen;
-}
-
-int FieldPresenseMask::getMaxLen() {
-	return m_maxLen;
 }
 
 }

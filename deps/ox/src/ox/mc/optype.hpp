@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "ox/std/error.hpp"
+#include <ox/std/error.hpp>
 
 namespace ox {
 
@@ -18,13 +18,33 @@ enum class OpType {
 	WriteDefinition = 3,
 };
 
+// empty default implementations of ioOp functions
+
+template<typename T, typename O>
+ox::Error ioOpRead(T*, O*) {
+	return OxError(1);
+}
+
+template<typename T, typename O>
+ox::Error ioOpWrite(T*, O*) {
+	return OxError(1);
+}
+
+template<typename T, typename O>
+ox::Error ioOpWriteDefinition(T*, O*) {
+	return OxError(1);
+}
+
 template<typename T, typename O>
 ox::Error ioOp(T *io, O *obj) {
-	if (io->opType() == ox::OpType::Read) {
+	if constexpr (T::opType() == ox::OpType::Read) {
 		return ioOpRead(io, obj);
-	} else {
+	} else if constexpr (T::opType() == ox::OpType::Write) {
 		return ioOpWrite(io, obj);
+	} else if constexpr (T::opType() == ox::OpType::WriteDefinition) {
+		return ioOpWriteDefinition(io, obj);
 	}
+	return OxError(1);
 }
 
 }

@@ -21,9 +21,7 @@ MetalClawDefWriter::MetalClawDefWriter(mc::TypeStore *typeStore) {
 }
 
 MetalClawDefWriter::~MetalClawDefWriter() {
-	if (m_typeStoreOwnerRef) {
-		delete m_typeStoreOwnerRef;
-	}
+	delete m_typeStoreOwnerRef;
 }
 
 constexpr mc::Type *MetalClawDefWriter::type(int8_t*, bool *alreadyExisted) {
@@ -96,6 +94,7 @@ constexpr mc::Type *MetalClawDefWriter::type(bool*, bool *alreadyExisted) {
 }
 
 constexpr void MetalClawDefWriter::setTypeInfo(const char *name, int) {
+	m_typeAlreayExisted = m_typeStore->contains(name);
 	m_type = &m_typeStore->at(name);
 	m_type->typeName = name;
 	m_type->primitiveType = mc::PrimitiveType::Struct;

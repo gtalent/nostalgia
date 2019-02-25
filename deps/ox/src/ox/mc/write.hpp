@@ -65,9 +65,9 @@ class MetalClawWriter {
 
 		std::size_t size();
 
-      static constexpr OpType opType() {
-          return OpType::Write;
-      }
+		static constexpr OpType opType() {
+			return OpType::Write;
+		}
 
 	private:
 		template<typename I>

@@ -46,6 +46,11 @@ class MetalClawReader {
 
 		int op(const char*, bool *val);
 
+		/**
+		 * Reads an array length from the current location in the buffer.
+		 */
+		[[nodiscard]] std::size_t arrayLength();
+
 		template<typename T>
 		int op(const char*, T *val, std::size_t len);
 
@@ -87,9 +92,9 @@ class MetalClawReader {
 		 */
 		bool fields();
 
-      static constexpr OpType opType() {
-          return OpType::Read;
-      }
+		static constexpr OpType opType() {
+			return OpType::Read;
+		}
 
 	private:
 		template<typename I>

@@ -14,8 +14,9 @@ namespace ox {
 
 class FieldPresenseMask {
 	private:
-		uint8_t *m_mask;
-		int m_maxLen = 0;
+		uint8_t *m_mask = nullptr;
+		int m_maskLen = 0;
+		int m_fields = 0;
 
 	public:
 		FieldPresenseMask(uint8_t *mask, std::size_t maxLen);
@@ -24,9 +25,30 @@ class FieldPresenseMask {
 
 		int set(int i, bool on);
 
-		void setMaxLen(int);
+		constexpr void setFields(int) noexcept;
 
-		int getMaxLen();
+		constexpr int getFields() noexcept;
+
+		constexpr void setMaxLen(int) noexcept;
+
+		constexpr int getMaxLen() noexcept;
+
 };
+
+constexpr void FieldPresenseMask::setFields(int fields) noexcept {
+	m_fields = fields;
+}
+
+constexpr int FieldPresenseMask::getFields() noexcept {
+	return m_fields;
+}
+
+constexpr void FieldPresenseMask::setMaxLen(int maxLen) noexcept {
+	m_maskLen = maxLen;
+}
+
+constexpr int FieldPresenseMask::getMaxLen() noexcept {
+	return m_maskLen;
+}
 
 }

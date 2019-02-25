@@ -11,7 +11,7 @@
 namespace ox {
 
 FileLocation::~FileLocation() {
-	if (m_type == Path && m_data.path) {
+	if (m_type == Path) {
 		delete m_data.path;
 		m_data.path = nullptr;
 	}

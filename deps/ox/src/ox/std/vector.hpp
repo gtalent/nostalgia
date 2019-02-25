@@ -99,10 +99,8 @@ Vector<T>::Vector(Vector<T> &&other) noexcept {
 
 template<typename T>
 Vector<T>::~Vector() noexcept {
-	if (m_items) {
-		delete[] m_items;
-		m_items = nullptr;
-	}
+	delete[] m_items;
+	m_items = nullptr;
 }
 
 template<typename T>

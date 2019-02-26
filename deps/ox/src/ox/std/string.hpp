@@ -39,6 +39,8 @@ class BString {
 
 		constexpr bool operator==(const BString &other) noexcept;
 
+		constexpr bool operator!=(const BString &other) noexcept;
+
 		constexpr char operator[](std::size_t i) const noexcept;
 
 		constexpr char &operator[](std::size_t i) noexcept;
@@ -134,6 +136,11 @@ constexpr bool BString<buffLen>::operator==(const BString<buffLen> &other) noexc
 		i++;
 	}
 	return retval;
+}
+
+template<std::size_t buffLen>
+constexpr bool BString<buffLen>::operator!=(const BString<buffLen> &other) noexcept {
+	return !operator==(other);
 }
 
 template<std::size_t buffLen>

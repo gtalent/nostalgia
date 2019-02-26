@@ -19,14 +19,10 @@ install(TARGETS NostalgiaStudio
         LIBRARY DESTINATION ${NOSTALGIA_DIST_LIB}/nostalgia)
 
 target_link_libraries(
-	NostalgiaStudio
-		c++fs
-		Qt5::Core
+	NostalgiaStudio PUBLIC
 		Qt5::Widgets
 		OxFS
 		OxMetalClaw
-		OxTrace
-		OxStd
 )
 
 install(
@@ -50,7 +46,6 @@ add_executable(
 
 target_link_libraries(
 	NostalgiaStudioJsonTest
-		c++fs
 		NostalgiaStudio
 )
 

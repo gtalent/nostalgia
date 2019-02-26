@@ -12,14 +12,6 @@ add_executable(
 
 target_link_libraries(
 	nostalgia-studio
-		c++fs
-		Qt5::Core
-		Qt5::Widgets
-		OxClArgs
-		OxFS
-		OxStd
-		NostalgiaCommon
-		NostalgiaCore
 		NostalgiaStudio
 		NostalgiaTool
 )

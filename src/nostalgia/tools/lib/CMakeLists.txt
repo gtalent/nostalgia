@@ -4,18 +4,16 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 add_library(
-	NostalgiaTool
-	SHARED
+	NostalgiaTool SHARED
 		tilesetimport.cpp
 )
 
 target_link_libraries(
-	NostalgiaTool
+	NostalgiaTool PUBLIC
 		Qt5::Widgets
 		OxClArgs
 		OxFS
 		OxStd
-		NostalgiaCommon
 		NostalgiaCore
 )
 

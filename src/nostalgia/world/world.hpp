@@ -14,8 +14,7 @@
 #include <nostalgia/common/common.hpp>
 #include <nostalgia/core/core.hpp>
 
-namespace nostalgia {
-namespace world {
+namespace nostalgia::world {
 
 struct Tile {
 	uint8_t bgTile = 0;
@@ -62,7 +61,7 @@ struct Zone {
 template<typename T>
 ox::Error ioOpRead(T *io, Zone *obj) {
 	ox::Error err = 0;
-	io->setFields(Zone::FIELDS);
+	io->setTypeInfo("nostalgia::world::Zone", Zone::FIELDS);
 	err |= io->op("bounds", &obj->m_bounds);
 	return err;
 }
@@ -70,7 +69,7 @@ ox::Error ioOpRead(T *io, Zone *obj) {
 template<typename T>
 ox::Error ioOpWrite(T *io, Zone *obj) {
 	ox::Error err = 0;
-	io->setFields(Zone::FIELDS);
+	io->setTypeInfo("nostalgia::world::Zone", Zone::FIELDS);
 	err |= io->op("bounds", &obj->m_bounds);
 	return err;
 }
@@ -98,16 +97,15 @@ struct Region {
 template<typename T>
 ox::Error ioOpRead(T *io, Region *obj) {
 	ox::Error err = 0;
-	io->setTypeInfo("nostalgia::world::Tile", Region::FIELDS);
+	io->setTypeInfo("nostalgia::World::Region", Region::FIELDS);
 	return err;
 }
 
 template<typename T>
 ox::Error ioOpWrite(T *io, Region *obj) {
 	ox::Error err = 0;
-	io->setTypeInfo("nostalgia::world::Tile", Region::FIELDS);
+	io->setTypeInfo("nostalgia::World::Region", Region::FIELDS);
 	return err;
 }
 
-}
 }

@@ -3,7 +3,6 @@ add_library(
 		defwriter.cpp
 		presencemask.cpp
 		read.cpp
-		walker.cpp
 		write.cpp
 )
 

@@ -42,7 +42,7 @@ map<string, function<int()>> tests = {
 		[] {
 			ox::Vector<int> v;
 			oxAssert(v.size() == 0, "Initial Vector size not 0");
-			auto insertTest = [&v](int val, std::size_t size) {
+			auto insertTest = [&v](int val, [[maybe_unused]] std::size_t size) {
 				v.push_back(val);
 				oxAssert(v.size() == size, "Vector size incorrect");
 				oxAssert(v[v.size() - 1] == val, "Vector value wrong");

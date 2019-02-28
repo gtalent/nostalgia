@@ -13,9 +13,9 @@ ifneq ($(shell which docker 2> /dev/null),)
 	endif
 endif
 
-make:
+all:
 	${ENV_RUN} ./scripts/run-make build
-gba-pkg:
+pkg-gba:
 	${ENV_RUN} ./scripts/run-make build install
 	${ENV_RUN} ./scripts/run-make build
 	${ENV_RUN} ./scripts/gba-pkg
@@ -34,7 +34,7 @@ run: install
 	${ENV_RUN} ./dist/current/bin/nostalgia -debug
 run-studio: install
 	${ENV_RUN} ./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json
-gba-run: gba-pkg
+gba-run: pkg-gba
 	mgba-qt nostalgia.gba
 gdb: make
 	${ENV_RUN} gdb ./build/current/src/wombat/wombat
@@ -57,34 +57,33 @@ devenv-create:
 		-t ${DEVENV_IMAGE} bash
 devenv-destroy:
 	docker rm -f ${DEVENV}
-
-shell:
+devenv-shell:
 	${ENV_RUN} bash
 
-release:
+setup-release:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-release
 	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} release
 
-debug:
+setup-debug:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-debug
 	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} debug
 
-asan:
+setup-asan:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-asan
 	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} asan
 
-windows:
+setup-windows:
 	${ENV_RUN} rm -rf build/windows
 	${ENV_RUN} ./scripts/setup-build windows
 
-windows-debug:
+setup-windows-debug:
 	${ENV_RUN} rm -rf build/windows
 	${ENV_RUN} ./scripts/setup-build windows debug
 
-gba:
+setup-gba:
 	${ENV_RUN} rm -rf build/gba-release
 	${ENV_RUN} ./scripts/setup-build gba release
 
-gba-debug:
+setup-gba-debug:
 	${ENV_RUN} rm -rf build/gba-debug
 	${ENV_RUN} ./scripts/setup-build gba debug

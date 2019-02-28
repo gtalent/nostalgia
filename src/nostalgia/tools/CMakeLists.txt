@@ -13,7 +13,6 @@ target_link_libraries(
 		OxClArgs
 		OxFS
 		OxStd
-		OxTrace
 		OxMetalClaw
 		NostalgiaCommon
 		NostalgiaCore

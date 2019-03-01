@@ -15,6 +15,8 @@
 namespace ox::mc {
 
 using String = BString<100>;
+using FieldName = String;
+using TypeName = String;
 
 enum class PrimitiveType: uint8_t {
 	UnsignedInteger = 0,
@@ -25,8 +27,6 @@ enum class PrimitiveType: uint8_t {
 	Struct = 5,
 };
 
-using FieldName = String;
-
 struct Field {
 	// order of fields matters
 
@@ -36,28 +36,29 @@ struct Field {
 	int subscriptLevels = 0;
 
 	// do not serialize the following
-	String typeName; // gives reference to type for lookup if type is null
-	bool serializeType = false;
+	TypeName typeName; // gives reference to type for lookup if type is null
+	bool ownsType = false;
+
+	~Field();
 };
 
 using FieldList = Vector<Field>;
-using TypeName = String;
 
 struct Type {
 	TypeName typeName;
 	PrimitiveType primitiveType;
 	// fieldList only applies to structs
-	Vector<Field> fieldList;
+	FieldList fieldList;
 	// - number of bytes for integer and float types
 	// - number of fields for structs and lists
 	int64_t length = 0;
 
 	Type() = default;
 
-	Type(String tn, PrimitiveType t, int b): typeName(tn), primitiveType(t), length(b) {
+	Type(TypeName tn, PrimitiveType t, int b): typeName(tn), primitiveType(t), length(b) {
 	}
 
-	Type(String tn, PrimitiveType t, FieldList fl): typeName(tn), primitiveType(t), fieldList(fl) {
+	Type(TypeName tn, PrimitiveType t, FieldList fl): typeName(tn), primitiveType(t), fieldList(fl) {
 	}
 };
 
@@ -77,7 +78,7 @@ template<typename T>
 int ioOpWrite(T *io, Field *field) {
 	int32_t err = 0;
 	io->setTypeInfo("ox::mc::Field", 4);
-	if (field->serializeType) {
+	if (field->ownsType) {
 		err |= io->op("typeName", "");
 		err |= io->op("type", field->type);
 	} else {
@@ -93,18 +94,21 @@ int ioOpWrite(T *io, Field *field) {
 template<typename T>
 int ioOpRead(T *io, Field *field) {
 	int32_t err = 0;
+	auto &typeStore = io->typeStore();
 	io->setTypeInfo("ox::mc::Field", 4);
 	err |= io->op("typeName", &field->typeName);
 	if (field->typeName == "") {
-		field->serializeType = true;
+		field->ownsType = true;
 		if (field->type == nullptr) {
 			field->type = new Type;
 		}
 		err |= io->op("type", field->type);
+		typeStore[field->type->typeName] = field->type;
 	} else {
 		// should be empty, so discard
 		Type t;
 		err |= io->op("type", &t);
+		field->type = typeStore[field->typeName];
 	}
 	err |= io->op("fieldName", &field->fieldName);
 	// defaultValue is unused now, but placeholder for backwards compatibility

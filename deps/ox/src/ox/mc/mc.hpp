@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "defread.hpp"
 #include "deftypes.hpp"
 #include "defwriter.hpp"
 #include "read.hpp"

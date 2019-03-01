@@ -6,21 +6,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <iostream>
 #include <assert.h>
 #include <map>
-#include <vector>
 #include <string>
 #include <ox/mc/mc.hpp>
 #include <ox/std/std.hpp>
 
-using namespace std;
-using namespace ox;
-
 struct TestStructNest {
 	bool Bool = false;
 	uint32_t Int = 0;
-	BString<32> String = "";
+	ox::BString<32> String = "";
 };
 
 struct TestStruct {
@@ -34,7 +29,7 @@ struct TestStruct {
 	int32_t Int6 = 0;
 	int32_t Int7 = 0;
 	int32_t Int8 = 0;
-	BString<32> String = "";
+	ox::BString<32> String = "";
 	uint32_t List[4] = {0, 0, 0 , 0};
 	TestStructNest EmptyStruct;
 	TestStructNest Struct;
@@ -43,7 +38,7 @@ struct TestStruct {
 template<typename T>
 int ioOp(T *io, TestStructNest *obj) {
 	int32_t err = 0;
-	io->setTypeInfo("common::TestStructNest", 3);
+	io->setTypeInfo("TestStructNest", 3);
 	err |= io->op("Bool", &obj->Bool);
 	err |= io->op("Int", &obj->Int);
 	err |= io->op("String", &obj->String);
@@ -53,7 +48,7 @@ int ioOp(T *io, TestStructNest *obj) {
 template<typename T>
 int ioOp(T *io, TestStruct *obj) {
 	int err = 0;
-	io->setTypeInfo("common::TestStruct", 14);
+	io->setTypeInfo("TestStruct", 14);
 	err |= io->op("Bool", &obj->Bool);
 	err |= io->op("Int", &obj->Int);
 	err |= io->op("Int1", &obj->Int1);
@@ -71,31 +66,29 @@ int ioOp(T *io, TestStruct *obj) {
 	return err;
 }
 
-map<string, int(*)(string)> tests = {
+std::map<std::string, ox::Error(*)()> tests = {
 	{
 		{
 			"MetalClawWriter",
-			[](string) {
+			[] {
 				// This test doesn't confirm much, but it does show that the writer
 				// doesn't segfault
-				size_t buffLen = 1024;
-				auto buff = new uint8_t[buffLen];
-				int err = 0;
+				constexpr size_t buffLen = 1024;
+				uint8_t buff[buffLen];
+				ox::Error err = 0;
 				TestStruct ts;
 
-				err |= writeMC(buff, buffLen, &ts);
-
-				delete []buff;
+				err |= ox::writeMC(buff, buffLen, &ts);
 
 				return err;
 			}
 		},
 		{
 			"MetalClawReader",
-			[](string) {
-				int err = 0;
-				size_t buffLen = 1024;
-				auto buff = new uint8_t[buffLen];
+			[] {
+				ox::Error err = 0;
+				constexpr size_t buffLen = 1024;
+				uint8_t buff[buffLen];
 				TestStruct testIn, testOut;
 
 				testIn.Bool = true;
@@ -109,8 +102,8 @@ map<string, int(*)(string)> tests = {
 				testIn.Struct.Int = 300;
 				testIn.Struct.String = "Test String 2";
 
-				err |= writeMC(buff, buffLen, &testIn);
-				err |= readMC(buff, buffLen, &testOut);
+				err |= ox::writeMC(buff, buffLen, &testIn);
+				err |= ox::readMC(buff, buffLen, &testOut);
 
 				err |= !(testIn.Bool               == testOut.Bool);
 				err |= !(testIn.Int                == testOut.Int);
@@ -134,8 +127,16 @@ map<string, int(*)(string)> tests = {
 				err |= !(testIn.Struct.String      == testOut.Struct.String);
 				err |= !(testIn.Struct.Bool        == testOut.Struct.Bool);
 
-				delete []buff;
+				auto def = ox::writeMCDef(&testIn);
+				err |= def.error;
 
+				return err;
+			}
+		},
+		{
+			"MetalClawDef",
+			[] {
+				ox::Error err = 0;
 				return err;
 			}
 		},
@@ -144,14 +145,10 @@ map<string, int(*)(string)> tests = {
 
 int main(int argc, const char **args) {
 	int retval = -1;
-	if (argc > 1) {
+	if (argc > 0) {
 		auto testName = args[1];
-		string testArg = "";
-		if (args[2]) {
-			testArg = args[2];
-		}
 		if (tests.find(testName) != tests.end()) {
-			retval = tests[testName](testArg);
+			retval = tests[testName]();
 		}
 	}
 	return retval;

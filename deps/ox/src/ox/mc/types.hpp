@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <ox/std/string.hpp>
 #include <ox/std/strops.hpp>
 #include <ox/std/types.hpp>
 
@@ -25,6 +26,12 @@ class McStr {
 	public:
 		explicit constexpr McStr(const char *str) noexcept {
 			m_str = const_cast<char*>(str);
+			m_cap = -1;
+		}
+
+		template<std::size_t sz>
+		constexpr McStr(BString<sz> *str) noexcept {
+			m_str = const_cast<char*>(str->data());
 			m_cap = -1;
 		}
 

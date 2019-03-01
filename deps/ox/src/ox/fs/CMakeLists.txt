@@ -12,7 +12,8 @@ add_library(
 if(OX_USE_STDLIB)
 	target_link_libraries(
 		OxFS PUBLIC
-			c++fs
+			$<$<CXX_COMPILER_ID:Clang>:c++fs>
+			$<$<CXX_COMPILER_ID:GNU>:stdc++fs>
 	)
 endif()
 

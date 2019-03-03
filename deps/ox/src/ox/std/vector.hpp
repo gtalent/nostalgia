@@ -49,6 +49,8 @@ class Vector {
 
 		void push_back(const T &item) noexcept;
 
+		void pop_back() noexcept;
+
 		/**
 		 * Removes an item from the Vector.
 		 * @param pos position of item to remove
@@ -175,6 +177,11 @@ void Vector<T>::push_back(const T &item) noexcept {
 	}
 	m_items[m_size] = item;
 	++m_size;
+}
+
+template<typename T>
+void Vector<T>::pop_back() noexcept {
+	--m_size;
 }
 
 template<typename T>

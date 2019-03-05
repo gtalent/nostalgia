@@ -17,7 +17,7 @@ FieldPresenseMask::FieldPresenseMask(uint8_t *mask, std::size_t maxLen) {
 	m_maskLen = maxLen;
 }
 
-bool FieldPresenseMask::get(int i) {
+bool FieldPresenseMask::get(int i) const {
 	if (i / 8 < m_maskLen) {
 		return (m_mask[i / 8] >> (i % 8)) & 1;
 	} else {
@@ -25,7 +25,7 @@ bool FieldPresenseMask::get(int i) {
 	}
 }
 
-int FieldPresenseMask::set(int i, bool on) {
+Error FieldPresenseMask::set(int i, bool on) {
 	if (i / 8 < m_maskLen) {
 		if (on) {
 			m_mask[i / 8] |= 1 << (i % 8);

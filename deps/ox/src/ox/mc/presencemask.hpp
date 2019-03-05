@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <ox/std/error.hpp>
 #include <ox/std/types.hpp>
 
 namespace ox {
@@ -21,17 +22,17 @@ class FieldPresenseMask {
 	public:
 		FieldPresenseMask(uint8_t *mask, std::size_t maxLen);
 
-		bool get(int i);
+		bool get(int i) const;
 
-		int set(int i, bool on);
+		Error set(int i, bool on);
 
 		constexpr void setFields(int) noexcept;
 
-		constexpr int getFields() noexcept;
+		constexpr int getFields() const noexcept;
 
 		constexpr void setMaxLen(int) noexcept;
 
-		constexpr int getMaxLen() noexcept;
+		constexpr int getMaxLen() const noexcept;
 
 };
 
@@ -39,7 +40,7 @@ constexpr void FieldPresenseMask::setFields(int fields) noexcept {
 	m_fields = fields;
 }
 
-constexpr int FieldPresenseMask::getFields() noexcept {
+constexpr int FieldPresenseMask::getFields() const noexcept {
 	return m_fields;
 }
 
@@ -47,7 +48,7 @@ constexpr void FieldPresenseMask::setMaxLen(int maxLen) noexcept {
 	m_maskLen = maxLen;
 }
 
-constexpr int FieldPresenseMask::getMaxLen() noexcept {
+constexpr int FieldPresenseMask::getMaxLen() const noexcept {
 	return m_maskLen;
 }
 

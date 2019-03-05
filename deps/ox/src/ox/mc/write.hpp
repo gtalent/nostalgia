@@ -103,7 +103,7 @@ Error MetalClawWriter::op(const char*, ox::Vector<T> *val) {
 
 template<typename I>
 Error MetalClawWriter::appendInteger(I val) {
-	int err = 0;
+	Error err = 0;
 	bool fieldSet = false;
 	if (val) {
 		if (m_buffIt + sizeof(I) < m_buffLen) {
@@ -121,7 +121,7 @@ Error MetalClawWriter::appendInteger(I val) {
 
 template<typename T>
 Error MetalClawWriter::op(const char*, T *val, std::size_t len) {
-	int err = 0;
+	Error err = 0;
 	bool fieldSet = false;
 
 	if (len) {

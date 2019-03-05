@@ -23,7 +23,8 @@ static_assert([] {
 static_assert([] {
 	int retval = 0;
 	auto testStr = "aaaa";
-	retval |= !(ox_lastIndexOf((char*) testStr, 'a', ox_strlen(testStr)) == 3);
-	retval |= !(ox_lastIndexOf((const char*) testStr, 'a', ox_strlen(testStr)) == 3);
+	// test the const and non-const versions of ox_lastIndexOf
+	retval |= !(ox_lastIndexOf(const_cast<char*>(testStr), 'a', ox_strlen(testStr)) == 3);
+	retval |= !(ox_lastIndexOf(testStr, 'a', ox_strlen(testStr)) == 3);
 	return retval == 0;
 }(), "ox_lastIndexOf aaaa a");

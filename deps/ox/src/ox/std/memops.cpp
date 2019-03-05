@@ -25,16 +25,16 @@ int ox_memcmp(const void *ptr1, const void *ptr2, std::size_t size) noexcept {
 }
 
 void *ox_memcpy(void *dest, const void *src, int64_t size) noexcept {
-	char *srcBuf = (char*) src;
-	char *dstBuf = (char*) dest;
+	auto srcBuf = static_cast<const char*>(src);
+	auto dstBuf = static_cast<char*>(dest);
 	for (int64_t i = 0; i < size; i++) {
-		dstBuf[i] = (char) srcBuf[i];
+		dstBuf[i] = static_cast<char>(srcBuf[i]);
 	}
 	return dest;
 }
 
 void *ox_memset(void *ptr, int val, int64_t size) noexcept {
-	char *buf = (char*) ptr;
+	auto buf = static_cast<char*>(ptr);
 	for (int64_t i = 0; i < size; i++) {
 		buf[i] = val;
 	}

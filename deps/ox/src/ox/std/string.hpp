@@ -96,7 +96,7 @@ constexpr const BString<size> &BString<size>::operator=(const char *str) noexcep
 
 template<std::size_t size>
 constexpr const BString<size> &BString<size>::operator=(char *str) noexcept {
-	return *this = (const char*) str;
+	return *this = static_cast<const char*>(str);
 }
 
 template<std::size_t size>
@@ -114,7 +114,7 @@ constexpr const BString<size> &BString<size>::operator+=(const char *str) noexce
 
 template<std::size_t size>
 constexpr const BString<size> &BString<size>::operator+=(char *str) noexcept {
-	return *this += (const char*) str;
+	return *this = static_cast<const char*>(str);
 }
 
 template<std::size_t size>
@@ -155,12 +155,12 @@ constexpr char &BString<buffLen>::operator[](std::size_t i) noexcept {
 
 template<std::size_t buffLen>
 constexpr char *BString<buffLen>::data() noexcept {
-	return (char*) m_buff;
+	return static_cast<char*>(m_buff);
 }
 
 template<std::size_t buffLen>
 constexpr const char *BString<buffLen>::c_str() const noexcept {
-	return (const char*) m_buff;
+	return static_cast<const char*>(m_buff);
 }
 
 

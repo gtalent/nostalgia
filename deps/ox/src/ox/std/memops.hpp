@@ -11,6 +11,6 @@
 
 int ox_memcmp(const void *ptr1, const void *ptr2, std::size_t size) noexcept;
 
-void *ox_memcpy(void *dest, const void *src, int64_t size) noexcept;
+void *ox_memcpy(void *dest, const void *src, std::size_t size) noexcept;
 
-void *ox_memset(void *ptr, int val, int64_t size) noexcept;
+void *ox_memset(void *ptr, int val, std::size_t size) noexcept;

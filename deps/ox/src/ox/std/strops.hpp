@@ -88,9 +88,9 @@ template<typename T1, typename T2>
 	return nullptr;
 }
 
-[[nodiscard]] constexpr int ox_lastIndexOf(const char *str, int character, int maxLen = 0xFFFFFFFF) noexcept {
+[[nodiscard]] constexpr int ox_lastIndexOf(const char *str, int character, std::size_t maxLen = 0xFFFFFFFF) noexcept {
 	int retval = -1;
-	for (int i = 0; i < maxLen && str[i]; i++) {
+	for (std::size_t i = 0; i < maxLen && str[i]; i++) {
 		if (str[i] == character) {
 			retval = i;
 		}
@@ -98,9 +98,9 @@ template<typename T1, typename T2>
 	return retval;
 }
 
-[[nodiscard]] constexpr int ox_lastIndexOf(char *str, int character, int maxLen = 0xFFFFFFFF) noexcept {
+[[nodiscard]] constexpr int ox_lastIndexOf(char *str, int character, std::size_t maxLen = 0xFFFFFFFF) noexcept {
 	int retval = -1;
-	for (int i = 0; i < maxLen && str[i]; i++) {
+	for (std::size_t i = 0; i < maxLen && str[i]; i++) {
 		if (str[i] == character) {
 			retval = i;
 		}
@@ -120,8 +120,8 @@ template<typename T1, typename T2>
 	return total;
 }
 
-template<typename T>
-constexpr T ox_itoa(int64_t v, T str) noexcept {
+template<typename Integer, typename T>
+constexpr T ox_itoa(Integer v, T str) noexcept {
 	if (v) {
 		auto mod = 1000000000000000000;
 		constexpr auto base = 10;

@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include "bitops.hpp"
-
 #if __has_include(<cstdint>)
 
 #include <cstdint>
@@ -49,14 +47,6 @@ typedef uint32_t uintptr_t;
 #endif
 
 #endif
-
-
-namespace ox {
-
-template<typename T>
-constexpr auto MaxValue = onMask<T>();
-
-}
 
 
 namespace std {

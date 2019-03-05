@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "types.hpp"
+#include "typetraits.hpp"
 
 #ifdef DEBUG
 #define OxError(x) ox::_error(__FILE__, __LINE__, x)
@@ -48,7 +48,7 @@ static constexpr Error _errorTags(Error line, Error errCode) {
 	return errCode | line;
 }
 
-static constexpr Error _error(const char *file, int line, Error errCode) {
+static constexpr Error _error(const char *file, uint32_t line, Error errCode) {
 	return errCode ? reinterpret_cast<uint64_t>(file) | _errorTags(line, errCode) : 0;
 }
 

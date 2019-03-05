@@ -168,7 +168,7 @@ template<std::size_t buffLen>
 constexpr std::size_t BString<buffLen>::len() const noexcept {
 	std::size_t length = 0;
 	for (std::size_t i = 0; i < buffLen; i++) {
-		uint8_t b = m_buff[i];
+		uint8_t b = static_cast<uint8_t>(m_buff[i]);
 		if (b) {
 			if ((b & 128) == 0) { // normal ASCII character
 				length++;

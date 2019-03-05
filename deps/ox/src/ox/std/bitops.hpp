@@ -8,10 +8,12 @@
 
 #pragma once
 
+#include "types.hpp"
+
 namespace ox {
 
 template<typename T>
-[[nodiscard]] inline constexpr T rotateLeft(T i, int shift) {
+[[nodiscard]] inline constexpr T rotateLeft(T i, std::size_t shift) {
 	constexpr auto bits = sizeof(i) * 8;
 	return (i << shift) | (i >> (bits - shift));
 }

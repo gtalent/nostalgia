@@ -8,9 +8,12 @@
 
 #pragma once
 
-#include "types.hpp"
+#include "bitops.hpp"
 
 namespace ox {
+
+template<typename T>
+constexpr auto MaxValue = onMask<T>();
 
 template<class T, T v>
 struct integral_constant {
@@ -60,23 +63,46 @@ struct enable_if<true, T> {
 	using type = T;
 };
 
+
 template<typename T>
-struct RemoveIndirection {
-		
-	private:
-		template<typename ST>
-		static constexpr ST decay(ST t) {
-			return t;
-		}
+struct remove_pointer {
+	using type = T;
+};
 
-		template<typename ST>
-		static constexpr ST decay(ST *t) {
-			return decay(*t);
-		}
+template<typename T>
+struct remove_pointer<T*> {
+	using type = T;
+};
 
-	public:
-		using type = decltype(decay(static_cast<T*>(nullptr)));
+template<typename T>
+struct remove_pointer<T* const> {
+	using type = T;
+};
 
+template<typename T>
+struct remove_pointer<T* volatile> {
+	using type = T;
+};
+
+template<typename T>
+struct remove_pointer<T* const volatile> {
+	using type = T;
+};
+
+
+template<typename T>
+struct remove_reference {
+	using type = T;
+};
+
+template<typename T>
+struct remove_reference<T&> {
+	using type = T;
+};
+
+template<typename T>
+struct remove_reference<T&&> {
+	using type = T;
 };
 
 }

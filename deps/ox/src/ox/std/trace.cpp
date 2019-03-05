@@ -13,8 +13,6 @@
 #include <unistd.h>
 #endif
 
-#include <ox/mc/write.hpp>
-
 #include "trace.hpp"
 
 namespace ox::trace {
@@ -46,20 +44,6 @@ OutStream::OutStream(const char *file, int line, const char *ch, const char *msg
 
 OutStream::~OutStream() {
 	gdblogger::logFunc(m_msg.file.c_str(), m_msg.line, m_msg.ch.c_str(), m_msg.msg.c_str());
-#if defined(OX_USE_STDLIB)
-	if (OxPrintTrace) {
-		auto pipe = fopen(OxPrintTrace, "a");
-		if (pipe) {
-			constexpr std::size_t buffLen = 1024;
-			std::size_t size = 0;
-			uint8_t buff[buffLen];
-			writeMC(buff, buffLen, &m_msg, &size);
-
-			//write(pipe, buff, size);
-			fclose(pipe);
-		}
-	}
-#endif
 }
 
 

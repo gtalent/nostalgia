@@ -406,10 +406,10 @@ ValErr<StatInfo> FileStoreTemplate<size_t>::stat(InodeId_t id) {
 	auto inode = find(id);
 	if (inode.valid()) {
 		return ValErr<StatInfo>({
-			.inode = id,
-			.links = inode->links,
-			.size = inode->size(),
-			.fileType = inode->fileType,
+			id,
+			inode->links,
+			inode->size(),
+			inode->fileType,
 		});
 	}
 	return ValErr<StatInfo>({}, 1);

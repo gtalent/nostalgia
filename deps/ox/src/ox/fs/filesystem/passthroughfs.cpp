@@ -102,7 +102,7 @@ ValErr<FileStat> PassThroughFS::stat(const char *path) {
 	uint64_t size = type == FileType_Directory ? 0 : std::filesystem::file_size(p, ec);
 	oxTrace("PassThroughFS::stat") << ec.message().c_str() << path;
 	oxTrace("PassThroughFS::stat::size") << path << size;
-	return {{.size = size, .fileType = type}, OxError(ec.value())};
+	return {{0, 0, size, type}, OxError(ec.value())};
 }
 
 uint64_t PassThroughFS::spaceNeeded(uint64_t size) {

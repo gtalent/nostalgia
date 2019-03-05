@@ -20,15 +20,15 @@ constexpr char *ox_strncpy(T1 dest, T2 src, std::size_t maxLen) noexcept {
 	return dest;
 }
 
-[[nodiscard]] constexpr int ox_strnlen(const char *str1, int maxLen) noexcept {
-	int len = 0;
+[[nodiscard]] constexpr auto ox_strnlen(const char *str1, std::size_t maxLen) noexcept {
+	std::size_t len = 0;
 	for (; len < maxLen && str1[len]; len++);
 	return len;
 }
 
 template<typename T>
-[[nodiscard]] constexpr int ox_strlen(T str1) noexcept {
-	int len = 0;
+[[nodiscard]] constexpr auto ox_strlen(T str1) noexcept {
+	std::size_t len = 0;
 	for (; str1[len]; len++);
 	return len;
 }
@@ -112,7 +112,7 @@ template<typename T1, typename T2>
 	int total = 0;
 	int multiplier = 1;
 
-	for (auto i = ox_strlen(str) - 1; i != -1; i--) {
+	for (auto i = static_cast<int64_t>(ox_strlen(str)) - 1; i != -1; i--) {
 		total += (str[i] - '0') * multiplier;
 		multiplier *= 10;
 	}

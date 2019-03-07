@@ -20,19 +20,14 @@ using ArrayLength = uint32_t;
 class McStr {
 
 	protected:
-		int m_cap = -1;
+		int m_cap = 0;
 		char *m_str = nullptr;
 
 	public:
-		explicit constexpr McStr(const char *str) noexcept {
-			m_str = const_cast<char*>(str);
-			m_cap = -1;
-		}
-
 		template<std::size_t sz>
 		constexpr McStr(BString<sz> *str) noexcept {
-			m_str = const_cast<char*>(str->data());
-			m_cap = -1;
+			m_str = str->data();
+			m_cap = str->cap();
 		}
 
 		constexpr McStr(char *str, int cap) noexcept {
@@ -46,11 +41,7 @@ class McStr {
 
 		constexpr char *data() noexcept {
 			// do not return a non-const pointer to the const_casted m_str
-			if (m_cap > -1) {
-				return m_str;
-			} else {
-				return nullptr;
-			}
+			return m_str;
 		}
 
 		constexpr int len() noexcept {

@@ -102,6 +102,12 @@ mc::Type *MetalClawDefWriter::type(uint64_t*, bool *alreadyExisted) {
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
+mc::Type *MetalClawDefWriter::type(const char*, bool *alreadyExisted) {
+	constexpr auto TypeName = "B:string";
+	constexpr auto PT = mc::PrimitiveType::String;
+	return getType(TypeName, PT, 0, alreadyExisted);
+}
+
 mc::Type *MetalClawDefWriter::type(McStr, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:string";
 	constexpr auto PT = mc::PrimitiveType::String;
@@ -116,8 +122,11 @@ mc::Type *MetalClawDefWriter::type(bool*, bool *alreadyExisted) {
 }
 
 void MetalClawDefWriter::setTypeInfo(const char *name, int) {
-	m_typeAlreayExisted = m_typeStore->contains(name);
-	m_type = &m_typeStore->at(name);
+	auto &t = m_typeStore->at(name);
+	if (!t) {
+		t = new mc::Type;
+	}
+	m_type = t;
 	m_type->typeName = name;
 	m_type->primitiveType = mc::PrimitiveType::Struct;
 }
@@ -125,10 +134,15 @@ void MetalClawDefWriter::setTypeInfo(const char *name, int) {
 mc::Type *MetalClawDefWriter::getType(mc::TypeName tn, mc::PrimitiveType pt, int b, bool *alreadyExisted) {
 	if (m_typeStore->contains(tn)) {
 		*alreadyExisted = true;
-		return &m_typeStore->at(tn);
+		auto type = m_typeStore->at(tn);
+		oxAssert(type != nullptr, "MetalClawDefWriter::getType returning null Type");
+		return type;
 	} else {
 		*alreadyExisted = false;
-		auto t = &m_typeStore->at(tn);
+		auto &t = m_typeStore->at(tn);
+		if (!t) {
+			t = new mc::Type;
+		}
 		t->typeName = tn;
 		t->primitiveType = pt;
 		t->length = b;

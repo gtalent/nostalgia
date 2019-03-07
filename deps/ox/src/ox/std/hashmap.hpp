@@ -18,8 +18,8 @@ class HashMap {
 
 	private:
 		struct Pair {
-			K key;
-			T value;
+			K key = {};
+			T value = {};
 		};
 		Vector<K> m_keys;
 		Vector<Pair*> m_pairs;

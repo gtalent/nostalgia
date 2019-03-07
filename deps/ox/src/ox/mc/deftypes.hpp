@@ -22,7 +22,7 @@ enum class PrimitiveType: uint8_t {
 	UnsignedInteger = 0,
 	SignedInteger = 1,
 	Bool = 2,
-	Float = 3,
+	// Float = 3, reserved, but not implemented
 	String = 4,
 	Struct = 5,
 };
@@ -39,7 +39,59 @@ struct Field {
 	TypeName typeName; // gives reference to type for lookup if type is null
 	bool ownsType = false;
 
+	constexpr Field() noexcept = default;
+
+	/**
+	 * Allow for explicit copying.
+	 */
+	constexpr explicit Field(const Field &other) noexcept {
+		type = other.type;
+		fieldName = other.fieldName;
+		subscriptLevels = other.subscriptLevels;
+		typeName = other.typeName;
+		ownsType = false; // is copy, only owns type if move
+	}
+
+	constexpr Field(const Type *type, const FieldName &fieldName, int subscriptLevels, const TypeName &typeName, bool ownsType) noexcept {
+		this->type = type;
+		this->fieldName = fieldName;
+		this->subscriptLevels = subscriptLevels;
+		this->typeName = typeName;
+		this->ownsType = ownsType;
+	}
+
+	constexpr Field(Field &&other) noexcept {
+		type = other.type;
+		fieldName = other.fieldName;
+		subscriptLevels = other.subscriptLevels;
+		typeName = other.typeName;
+		ownsType = other.ownsType;
+
+		other.type = {};
+		other.fieldName = "";
+		other.subscriptLevels = {};
+		other.typeName = "";
+		other.ownsType = {};
+	}
+
 	~Field();
+
+	constexpr const Field &operator=(Field &&other) noexcept {
+		type = other.type;
+		fieldName = other.fieldName;
+		subscriptLevels = other.subscriptLevels;
+		typeName = other.typeName;
+		ownsType = other.ownsType;
+
+		other.type = {};
+		other.fieldName = "";
+		other.subscriptLevels = {};
+		other.typeName = "";
+		other.ownsType = {};
+
+		return *this;
+	}
+
 };
 
 using FieldList = Vector<Field>;
@@ -86,8 +138,9 @@ int ioOpWrite(T *io, Field *field) {
 		err |= io->op("type", static_cast<decltype(field->type)>(nullptr));
 	}
 	err |= io->op("fieldName", &field->fieldName);
-	// defaultValue is unused now, but placeholder for backwards compatibility
-	err |= io->op("defaultValue", nullptr);
+	// defaultValue is unused now, but leave placeholder for backwards compatibility
+	const int DefaultValue = 0;
+	err |= io->op("defaultValue", &DefaultValue);
 	return err;
 }
 
@@ -116,6 +169,6 @@ int ioOpRead(T *io, Field *field) {
 	return err;
 }
 
-using TypeStore = ox::HashMap<mc::String, mc::Type>;
+using TypeStore = ox::HashMap<mc::String, mc::Type*>;
 
 }

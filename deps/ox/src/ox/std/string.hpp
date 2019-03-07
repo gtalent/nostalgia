@@ -10,7 +10,7 @@
 
 #include "memops.hpp"
 #include "strops.hpp"
-#include "types.hpp"
+#include "typetraits.hpp"
 
 namespace ox {
 

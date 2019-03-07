@@ -14,95 +14,101 @@
 
 namespace ox {
 
-MetalClawReader::MetalClawReader(uint8_t *buff, std::size_t buffLen): m_fieldPresence(buff, buffLen) {
+MetalClawReader::MetalClawReader(uint8_t *buff, std::size_t buffLen, MetalClawReader *parent): m_fieldPresence(buff, buffLen) {
 	m_buff = buff;
 	m_buffLen = buffLen;
+	m_parent = parent;
 }
 
 MetalClawReader::~MetalClawReader() {
+	if (m_parent) {
+		m_parent->m_buffIt += m_buffIt;
+	}
 	oxAssert(m_field == m_fields, "MetalClawReader: incorrect fields number given");
 }
 
-int MetalClawReader::op(const char*, int8_t *val) {
+Error MetalClawReader::op(const char*, int8_t *val) {
 	return readInteger(val);
 }
 
-int MetalClawReader::op(const char*, int16_t *val) {
+Error MetalClawReader::op(const char*, int16_t *val) {
 	return readInteger(val);
 }
 
-int MetalClawReader::op(const char*, int32_t *val) {
+Error MetalClawReader::op(const char*, int32_t *val) {
 	return readInteger(val);
 }
 
-int MetalClawReader::op(const char*, int64_t *val) {
+Error MetalClawReader::op(const char*, int64_t *val) {
 	return readInteger(val);
 }
 
 
-int MetalClawReader::op(const char*, uint8_t *val) {
+Error MetalClawReader::op(const char*, uint8_t *val) {
 	return readInteger(val);
 }
 
-int MetalClawReader::op(const char*, uint16_t *val) {
+Error MetalClawReader::op(const char*, uint16_t *val) {
 	return readInteger(val);
 }
 
-int MetalClawReader::op(const char*, uint32_t *val) {
+Error MetalClawReader::op(const char*, uint32_t *val) {
 	return readInteger(val);
 }
 
-int MetalClawReader::op(const char*, uint64_t *val) {
+Error MetalClawReader::op(const char*, uint64_t *val) {
 	return readInteger(val);
 }
 
-int MetalClawReader::op(const char*, bool *val) {
+Error MetalClawReader::op(const char*, bool *val) {
 	*val = m_fieldPresence.get(m_field++);
 	return 0;
 }
 
 Error MetalClawReader::op(const char*, McStr val) {
-	int err = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
-		int size = 0;
+		StringLength size = 0;
 		if (m_buffIt + sizeof(StringLength) < m_buffLen) {
 			size = *reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]);
 			m_buffIt += sizeof(StringLength);
 		} else {
-			err |= MC_BUFFENDED;
+			return OxError(MC_BUFFENDED);
 		}
 
 		// read the string
-		if (val.cap() >= size) {
+		if (val.cap() > -1 && static_cast<StringLength>(val.cap()) >= size) {
 			if (m_buffIt + size < m_buffLen) {
 				ox_memcpy(val.data(), &m_buff[m_buffIt], size);
 				m_buffIt += size;
 			} else {
-				err |= MC_BUFFENDED;
+				return OxError(MC_BUFFENDED);
 			}
 		} else {
-			err |= MC_OUTBUFFENDED;
+			return OxError(MC_OUTBUFFENDED);
 		}
 	} else {
 		val.data()[0] = 0;
 	}
 	m_field++;
-	return err;
+	return OxError(0);
 }
 
-[[nodiscard]] std::size_t MetalClawReader::arrayLength() {
+[[nodiscard]] ArrayLength MetalClawReader::arrayLength(bool pass) {
 	std::size_t len = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
 		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
 			len = *reinterpret_cast<LittleEndian<ArrayLength>*>(&m_buff[m_buffIt]);
+			if (pass) {
+				m_buffIt += sizeof(ArrayLength);
+			}
 		}
 	}
 	return len;
 }
 
-std::size_t MetalClawReader::stringLength(const char*) {
+[[nodiscard]] StringLength MetalClawReader::stringLength() {
 	std::size_t len = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
@@ -121,15 +127,19 @@ void MetalClawReader::setTypeInfo(const char*, int fields) {
 }
 
 MetalClawReader MetalClawReader::child() {
-	return MetalClawReader(m_buff + m_buffIt, m_buffLen - m_buffIt);
+	return MetalClawReader(m_buff + m_buffIt, m_buffLen - m_buffIt, this);
 }
 
-bool MetalClawReader::fieldPresent() {
+bool MetalClawReader::fieldPresent() const {
 	return m_fieldPresence.get(m_field);
 }
 
-bool MetalClawReader::fieldPresent(int fieldNo) {
+bool MetalClawReader::fieldPresent(int fieldNo) const {
 	return m_fieldPresence.get(fieldNo);
+}
+
+void MetalClawReader::nextField() noexcept {
+	++m_field;
 }
 
 }

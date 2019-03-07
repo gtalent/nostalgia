@@ -9,6 +9,7 @@
 #pragma once
 
 #include "types.hpp"
+#include "utility.hpp"
 
 namespace ox {
 
@@ -39,6 +40,14 @@ class Vector {
 
 		const T &operator[](std::size_t i) const noexcept;
 
+		T &front() noexcept;
+
+		const T &front() const noexcept;
+
+		T &back() noexcept;
+
+		const T &back() const noexcept;
+
 		std::size_t size() const noexcept;
 
 		void resize(std::size_t size) noexcept;
@@ -46,6 +55,9 @@ class Vector {
 		T *data();
 
 		bool contains(T) const noexcept;
+
+		template<typename... Args>
+		void emplace_back(Args&&... args) noexcept;
 
 		void push_back(const T &item) noexcept;
 
@@ -85,7 +97,7 @@ Vector<T>::Vector(Vector<T> &other) noexcept {
 	m_cap = other.m_cap;
 	m_items = new T[m_cap];
 	for (std::size_t i = 0; i < m_size; i++) {
-		m_items[i] = other.m_items[i];
+		m_items[i] = ox::move(other.m_items[i]);
 	}
 }
 
@@ -140,6 +152,26 @@ const T &Vector<T>::operator[](std::size_t i) const noexcept {
 }
 
 template<typename T>
+T &Vector<T>::front() noexcept {
+	return m_items[0];
+}
+
+template<typename T>
+const T &Vector<T>::front() const noexcept {
+	return m_items[0];
+}
+
+template<typename T>
+T &Vector<T>::back() noexcept {
+	return m_items[m_size - 1];
+}
+
+template<typename T>
+const T &Vector<T>::back() const noexcept {
+	return m_items[m_size - 1];
+}
+
+template<typename T>
 std::size_t Vector<T>::size() const noexcept {
 	return m_size;
 };
@@ -168,6 +200,16 @@ bool Vector<T>::contains(T v) const noexcept {
 		}
 	}
 	return false;
+}
+
+template<typename T>
+template<typename... Args>
+void Vector<T>::emplace_back(Args&&... args) noexcept {
+	if (m_size == m_cap) {
+		expandCap(m_cap ? m_cap * 2 : 100);
+	}
+	new (&m_items[m_size]) T{args...};
+	++m_size;
 }
 
 template<typename T>
@@ -206,10 +248,10 @@ void Vector<T>::expandCap(std::size_t cap) noexcept {
 	if (oldItems) { // move over old items
 		const auto itRange = cap > m_size ? m_size : cap;
 		for (std::size_t i = 0; i < itRange; i++) {
-			m_items[i] = oldItems[i];
+			m_items[i] = ox::move(oldItems[i]);
 		}
 		for (std::size_t i = itRange; i < m_cap; i++) {
-			m_items[i] = T();
+			new (&m_items[i]) T;
 		}
 		delete[] oldItems;
 	}

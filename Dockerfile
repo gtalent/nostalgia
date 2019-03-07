@@ -29,6 +29,7 @@ RUN dnf install -y fuse-devel
 RUN dnf install -y qt5-devel
 RUN dnf install -y findutils
 RUN dnf install -y ninja-build
+RUN dnf install -y libcxx-devel libcxxabi-devel
 
 ###############################################################################
 # Install devkitARM
@@ -55,13 +56,6 @@ WORKDIR /usr/src/project
 
 ADD devenv/entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
-
-###############################################################################
-# Install Powershell
-RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc
-RUN curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
-RUN dnf update -y
-RUN dnf install -y powershell
 
 ENV CC clang
 ENV CXX clang++

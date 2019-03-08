@@ -49,56 +49,56 @@ TypeDescWriter::~TypeDescWriter() {
 DescriptorType *TypeDescWriter::type(int8_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:int8_t";
 	constexpr auto PT = PrimitiveType::SignedInteger;
-	constexpr auto Bytes = 8;
+	constexpr auto Bytes = 1;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
 DescriptorType *TypeDescWriter::type(int16_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:int16_t";
 	constexpr auto PT = PrimitiveType::SignedInteger;
-	constexpr auto Bytes = 16;
+	constexpr auto Bytes = 2;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
 DescriptorType *TypeDescWriter::type(int32_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:int32_t";
 	constexpr auto PT = PrimitiveType::SignedInteger;
-	constexpr auto Bytes = 32;
+	constexpr auto Bytes = 4;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
 DescriptorType *TypeDescWriter::type(int64_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:int64_t";
 	constexpr auto PT = PrimitiveType::SignedInteger;
-	constexpr auto Bytes = 64;
+	constexpr auto Bytes = 8;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
 DescriptorType *TypeDescWriter::type(uint8_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:uint8_t";
 	constexpr auto PT = PrimitiveType::UnsignedInteger;
-	constexpr auto Bytes = 8;
+	constexpr auto Bytes = 1;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
 DescriptorType *TypeDescWriter::type(uint16_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:uint16_t";
 	constexpr auto PT = PrimitiveType::UnsignedInteger;
-	constexpr auto Bytes = 16;
+	constexpr auto Bytes = 2;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
 DescriptorType *TypeDescWriter::type(uint32_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:uint32_t";
 	constexpr auto PT = PrimitiveType::UnsignedInteger;
-	constexpr auto Bytes = 32;
+	constexpr auto Bytes = 4;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
 DescriptorType *TypeDescWriter::type(uint64_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:uint64_t";
 	constexpr auto PT = PrimitiveType::UnsignedInteger;
-	constexpr auto Bytes = 64;
+	constexpr auto Bytes = 8;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 

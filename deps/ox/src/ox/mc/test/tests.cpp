@@ -164,25 +164,25 @@ std::map<std::string, ox::Error(*)()> tests = {
 							case ox::PrimitiveType::UnsignedInteger:
 								std::cout << fieldName << ":\tuint" << f.type->length << "_t:\t";
 								switch (f.type->length) {
-									case 8: {
+									case 1: {
 										uint8_t i = {};
 										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
 										std::cout << i;
 										break;
 									}
-									case 16: {
+									case 2: {
 										uint16_t i = {};
 										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
 										std::cout << i;
 										break;
 									}
-									case 32: {
+									case 4: {
 										uint32_t i = {};
 										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
 										std::cout << i;
 										break;
 									}
-									case 64: {
+									case 8: {
 										uint64_t i = {};
 										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
 										std::cout << i;
@@ -194,25 +194,25 @@ std::map<std::string, ox::Error(*)()> tests = {
 							case ox::PrimitiveType::SignedInteger:
 								std::cout << fieldName << ":\tint" << f.type->length << "_t:\t";
 								switch (f.type->length) {
-									case 8: {
+									case 1: {
 										int8_t i = {};
 										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
 										std::cout << i;
 										break;
 									}
-									case 16: {
+									case 2: {
 										int16_t i = {};
 										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
 										std::cout << i;
 										break;
 									}
-									case 32: {
+									case 4: {
 										int32_t i = {};
 										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
 										std::cout << i;
 										break;
 									}
-									case 64: {
+									case 8: {
 										int64_t i = {};
 										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
 										std::cout << i;

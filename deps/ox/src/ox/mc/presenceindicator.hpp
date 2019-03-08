@@ -13,14 +13,14 @@
 
 namespace ox {
 
-class FieldPresenseMask {
+class FieldPresenceIndicator {
 	private:
 		uint8_t *m_mask = nullptr;
 		int m_maskLen = 0;
 		int m_fields = 0;
 
 	public:
-		FieldPresenseMask(uint8_t *mask, std::size_t maxLen);
+		FieldPresenceIndicator(uint8_t *mask, std::size_t maxLen);
 
 		bool get(int i) const;
 
@@ -36,19 +36,19 @@ class FieldPresenseMask {
 
 };
 
-constexpr void FieldPresenseMask::setFields(int fields) noexcept {
+constexpr void FieldPresenceIndicator::setFields(int fields) noexcept {
 	m_fields = fields;
 }
 
-constexpr int FieldPresenseMask::getFields() const noexcept {
+constexpr int FieldPresenceIndicator::getFields() const noexcept {
 	return m_fields;
 }
 
-constexpr void FieldPresenseMask::setMaxLen(int maxLen) noexcept {
+constexpr void FieldPresenceIndicator::setMaxLen(int maxLen) noexcept {
 	m_maskLen = maxLen;
 }
 
-constexpr int FieldPresenseMask::getMaxLen() const noexcept {
+constexpr int FieldPresenceIndicator::getMaxLen() const noexcept {
 	return m_maskLen;
 }
 

@@ -15,7 +15,7 @@
 #include <ox/std/vector.hpp>
 
 #include "err.hpp"
-#include "presencemask.hpp"
+#include "presenceindicator.hpp"
 #include "types.hpp"
 
 namespace ox {
@@ -23,7 +23,7 @@ namespace ox {
 class MetalClawReader {
 
 	private:
-		FieldPresenseMask m_fieldPresence;
+		FieldPresenceIndicator m_fieldPresence;
 		int m_fields = 0;
 		int m_field = 0;
 		std::size_t m_buffIt = 0;

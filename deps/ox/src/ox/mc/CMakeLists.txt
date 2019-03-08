@@ -1,6 +1,6 @@
 add_library(
 	OxMetalClaw
-		presencemask.cpp
+		presenceindicator.cpp
 		read.cpp
 		write.cpp
 )
@@ -22,7 +22,7 @@ install(
 	FILES
 		err.hpp
 		mc.hpp
-		presencemask.hpp
+		presenceindicator.hpp
 		read.hpp
 		types.hpp
 		write.hpp

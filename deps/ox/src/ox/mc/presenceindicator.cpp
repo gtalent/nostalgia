@@ -8,16 +8,16 @@
 
 #include <ox/std/byteswap.hpp>
 #include "err.hpp"
-#include "presencemask.hpp"
+#include "presenceindicator.hpp"
 
 namespace ox {
 
-FieldPresenseMask::FieldPresenseMask(uint8_t *mask, std::size_t maxLen) {
+FieldPresenceIndicator::FieldPresenceIndicator(uint8_t *mask, std::size_t maxLen) {
 	m_mask = mask;
 	m_maskLen = maxLen;
 }
 
-bool FieldPresenseMask::get(int i) const {
+bool FieldPresenceIndicator::get(int i) const {
 	if (i / 8 < m_maskLen) {
 		return (m_mask[i / 8] >> (i % 8)) & 1;
 	} else {
@@ -25,7 +25,7 @@ bool FieldPresenseMask::get(int i) const {
 	}
 }
 
-Error FieldPresenseMask::set(int i, bool on) {
+Error FieldPresenceIndicator::set(int i, bool on) {
 	if (i / 8 < m_maskLen) {
 		if (on) {
 			m_mask[i / 8] |= 1 << (i % 8);

@@ -60,30 +60,30 @@ devenv-destroy:
 devenv-shell:
 	${ENV_RUN} bash
 
-setup-release:
+configure-release:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-release
 	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} release
 
-setup-debug:
+configure-debug:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-debug
 	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} debug
 
-setup-asan:
+configure-asan:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-asan
 	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} asan
 
-setup-windows:
+configure-windows:
 	${ENV_RUN} rm -rf build/windows
 	${ENV_RUN} ./scripts/setup-build windows
 
-setup-windows-debug:
+configure-windows-debug:
 	${ENV_RUN} rm -rf build/windows
 	${ENV_RUN} ./scripts/setup-build windows debug
 
-setup-gba:
+configure-gba:
 	${ENV_RUN} rm -rf build/gba-release
 	${ENV_RUN} ./scripts/setup-build gba release
 
-setup-gba-debug:
+configure-gba-debug:
 	${ENV_RUN} rm -rf build/gba-debug
 	${ENV_RUN} ./scripts/setup-build gba debug

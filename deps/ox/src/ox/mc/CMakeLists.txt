@@ -1,8 +1,5 @@
 add_library(
 	OxMetalClaw
-		defread.cpp
-		deftypes.cpp
-		defwriter.cpp
 		presencemask.cpp
 		read.cpp
 		write.cpp
@@ -10,6 +7,7 @@ add_library(
 
 target_link_libraries(
 	OxMetalClaw PUBLIC
+		OxSerialization
 		OxStd
 )
 
@@ -22,15 +20,11 @@ set_property(
 
 install(
 	FILES
-		defread.hpp
-		deftypes.hpp
-		defwriter.hpp
 		err.hpp
-		optype.hpp
+		mc.hpp
 		presencemask.hpp
 		read.hpp
 		types.hpp
-		walker.hpp
 		write.hpp
 	DESTINATION
 		include/ox/mc

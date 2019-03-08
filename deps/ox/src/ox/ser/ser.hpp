@@ -1,19 +1,15 @@
 /*
- * Copyright 2015 - 2018 gtalent2@gmail.com
+ * Copyright 2015 - 2019 gtalent2@gmail.com
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "deftypes.hpp"
+#pragma once
 
-namespace ox::mc {
-
-Field::~Field() {
-	if (ownsType) {
-		delete type;
-	}
-}
-
-}
+#include "descread.hpp"
+#include "desctypes.hpp"
+#include "descwrite.hpp"
+#include "types.hpp"
+#include "walk.hpp"

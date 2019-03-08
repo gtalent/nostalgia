@@ -15,11 +15,9 @@
 #include <ox/std/types.hpp>
 #include <ox/std/vector.hpp>
 
-#include "deftypes.hpp"
-#include "err.hpp"
+#include "desctypes.hpp"
 #include "optype.hpp"
 #include "types.hpp"
-#include "write.hpp"
 
 namespace ox {
 
@@ -33,12 +31,12 @@ static constexpr int indirectionLevels(T *t) {
 	return 1 + indirectionLevels(*t);
 }
 
-class MetalClawDefWriter {
+class TypeDescWriter {
 
 	private:
 		struct NameCatcher {
 
-			mc::TypeName name;
+			TypeName name;
 
 			constexpr void setTypeInfo(const char *name, int) noexcept {
 				this->name = name;
@@ -56,14 +54,14 @@ class MetalClawDefWriter {
 
 		};
 
-		mc::TypeStore *m_typeStoreOwnerRef = nullptr;
-		mc::TypeStore *m_typeStore = nullptr;
-		mc::Type *m_type = nullptr;
+		TypeStore *m_typeStoreOwnerRef = nullptr;
+		TypeStore *m_typeStore = nullptr;
+		DescriptorType *m_type = nullptr;
 
 	public:
-		explicit MetalClawDefWriter(mc::TypeStore *typeStore = nullptr);
+		explicit TypeDescWriter(TypeStore *typeStore = nullptr);
 
-		~MetalClawDefWriter();
+		~TypeDescWriter();
 
 		template<typename T>
 		ox::Error op(const char *name, T *val, std::size_t valLen);
@@ -76,7 +74,7 @@ class MetalClawDefWriter {
 
 		void setTypeInfo(const char *name, int fields);
 
-		[[nodiscard]] mc::Type *definition() noexcept {
+		[[nodiscard]] DescriptorType *definition() noexcept {
 			return m_type;
 		}
 
@@ -85,34 +83,34 @@ class MetalClawDefWriter {
 		}
 
 	private:
-		mc::Type *type(int8_t *val, bool *alreadyExisted);
-		mc::Type *type(int16_t *val, bool *alreadyExisted);
-		mc::Type *type(int32_t *val, bool *alreadyExisted);
-		mc::Type *type(int64_t *val, bool *alreadyExisted);
+		DescriptorType *type(int8_t *val, bool *alreadyExisted);
+		DescriptorType *type(int16_t *val, bool *alreadyExisted);
+		DescriptorType *type(int32_t *val, bool *alreadyExisted);
+		DescriptorType *type(int64_t *val, bool *alreadyExisted);
 
-		mc::Type *type(uint8_t *val, bool *alreadyExisted);
-		mc::Type *type(uint16_t *val, bool *alreadyExisted);
-		mc::Type *type(uint32_t *val, bool *alreadyExisted);
-		mc::Type *type(uint64_t *val, bool *alreadyExisted);
+		DescriptorType *type(uint8_t *val, bool *alreadyExisted);
+		DescriptorType *type(uint16_t *val, bool *alreadyExisted);
+		DescriptorType *type(uint32_t *val, bool *alreadyExisted);
+		DescriptorType *type(uint64_t *val, bool *alreadyExisted);
 
-		mc::Type *type(bool *val, bool *alreadyExisted);
+		DescriptorType *type(bool *val, bool *alreadyExisted);
 
-		mc::Type *type(const char *val, bool *alreadyExisted);
+		DescriptorType *type(const char *val, bool *alreadyExisted);
 
-		mc::Type *type(McStr val, bool *alreadyExisted);
+		DescriptorType *type(McStr val, bool *alreadyExisted);
 
 		template<std::size_t sz>
-		mc::Type *type(BString<sz> *val, bool *alreadyExisted);
+		DescriptorType *type(BString<sz> *val, bool *alreadyExisted);
 
 		template<typename T>
-		mc::Type *type(T *val, bool *alreadyExisted);
+		DescriptorType *type(T *val, bool *alreadyExisted);
 
-		mc::Type *getType(mc::TypeName tn, mc::PrimitiveType t, int b, bool *alreadyExisted);
+		DescriptorType *getType(TypeName tn, PrimitiveType t, int b, bool *alreadyExisted);
 };
 
 // array handler
 template<typename T>
-ox::Error MetalClawDefWriter::op(const char *name, T *val, std::size_t) {
+ox::Error TypeDescWriter::op(const char *name, T *val, std::size_t) {
 	if (m_type) {
 		constexpr typename ox::remove_pointer<decltype(val)>::type *p = nullptr;
 		bool alreadyExisted = false;
@@ -128,12 +126,12 @@ ox::Error MetalClawDefWriter::op(const char *name, T *val, std::size_t) {
 }
 
 template<typename T>
-ox::Error MetalClawDefWriter::op(const char *name, ox::Vector<T> *val) {
+ox::Error TypeDescWriter::op(const char *name, ox::Vector<T> *val) {
 	return op(name, val->data(), val->size());
 }
 
 template<typename T>
-ox::Error MetalClawDefWriter::op(const char *name, T *val) {
+ox::Error TypeDescWriter::op(const char *name, T *val) {
 	if (m_type) {
 		bool alreadyExisted = false;
 		const auto t = type(val, &alreadyExisted);
@@ -145,19 +143,19 @@ ox::Error MetalClawDefWriter::op(const char *name, T *val) {
 }
 
 template<std::size_t sz>
-mc::Type *MetalClawDefWriter::type(BString<sz> *val, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(BString<sz> *val, bool *alreadyExisted) {
 	return type(McStr(val), alreadyExisted);
 }
 
 template<typename T>
-mc::Type *MetalClawDefWriter::type(T *val, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(T *val, bool *alreadyExisted) {
 	NameCatcher nc;
 	ioOp(&nc, val);
 	if (m_typeStore->contains(nc.name)) {
 		*alreadyExisted = true;
 		return m_typeStore->at(nc.name);
 	} else {
-		MetalClawDefWriter dw(m_typeStore);
+		TypeDescWriter dw(m_typeStore);
 		oxLogError(ioOp(&dw, val));
 		*alreadyExisted = false;
 		return dw.m_type;
@@ -165,8 +163,8 @@ mc::Type *MetalClawDefWriter::type(T *val, bool *alreadyExisted) {
 }
 
 template<typename T>
-[[nodiscard]] ValErr<mc::Type*> buildMCDef(T *val) {
-	MetalClawDefWriter writer;
+[[nodiscard]] ValErr<DescriptorType*> buildMCDef(T *val) {
+	TypeDescWriter writer;
 	Error err = ioOp(&writer, val);
 	return {writer.definition(), err};
 }

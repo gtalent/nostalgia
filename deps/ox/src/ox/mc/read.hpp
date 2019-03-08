@@ -8,12 +8,13 @@
 
 #pragma once
 
+#include <ox/ser/optype.hpp>
+#include <ox/ser/types.hpp>
 #include <ox/std/byteswap.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/vector.hpp>
 
 #include "err.hpp"
-#include "optype.hpp"
 #include "presencemask.hpp"
 #include "types.hpp"
 

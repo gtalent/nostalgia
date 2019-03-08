@@ -12,7 +12,7 @@
 #include <ox/std/string.hpp>
 #include <ox/std/vector.hpp>
 
-namespace ox::mc {
+namespace ox {
 
 using String = BString<100>;
 using FieldName = String;
@@ -27,11 +27,11 @@ enum class PrimitiveType: uint8_t {
 	Struct = 5,
 };
 
-struct Field {
+struct DescriptorField {
 	// order of fields matters
 
 	// only serialize type name if type has already been serialized
-	const struct Type *type = nullptr;
+	const struct DescriptorType *type = nullptr;
 	FieldName fieldName;
 	int subscriptLevels = 0;
 
@@ -39,12 +39,12 @@ struct Field {
 	TypeName typeName; // gives reference to type for lookup if type is null
 	bool ownsType = false;
 
-	constexpr Field() noexcept = default;
+	constexpr DescriptorField() noexcept = default;
 
 	/**
 	 * Allow for explicit copying.
 	 */
-	constexpr explicit Field(const Field &other) noexcept {
+	constexpr explicit DescriptorField(const DescriptorField &other) noexcept {
 		type = other.type;
 		fieldName = other.fieldName;
 		subscriptLevels = other.subscriptLevels;
@@ -52,7 +52,7 @@ struct Field {
 		ownsType = false; // is copy, only owns type if move
 	}
 
-	constexpr Field(const Type *type, const FieldName &fieldName, int subscriptLevels, const TypeName &typeName, bool ownsType) noexcept {
+	constexpr DescriptorField(const DescriptorType *type, const FieldName &fieldName, int subscriptLevels, const TypeName &typeName, bool ownsType) noexcept {
 		this->type = type;
 		this->fieldName = fieldName;
 		this->subscriptLevels = subscriptLevels;
@@ -60,7 +60,7 @@ struct Field {
 		this->ownsType = ownsType;
 	}
 
-	constexpr Field(Field &&other) noexcept {
+	constexpr DescriptorField(DescriptorField &&other) noexcept {
 		type = other.type;
 		fieldName = other.fieldName;
 		subscriptLevels = other.subscriptLevels;
@@ -74,9 +74,9 @@ struct Field {
 		other.ownsType = {};
 	}
 
-	~Field();
+	~DescriptorField();
 
-	constexpr const Field &operator=(Field &&other) noexcept {
+	constexpr const DescriptorField &operator=(DescriptorField &&other) noexcept {
 		type = other.type;
 		fieldName = other.fieldName;
 		subscriptLevels = other.subscriptLevels;
@@ -94,9 +94,9 @@ struct Field {
 
 };
 
-using FieldList = Vector<Field>;
+using FieldList = Vector<DescriptorField>;
 
-struct Type {
+struct DescriptorType {
 	TypeName typeName;
 	PrimitiveType primitiveType;
 	// fieldList only applies to structs
@@ -105,20 +105,20 @@ struct Type {
 	// - number of fields for structs and lists
 	int64_t length = 0;
 
-	Type() = default;
+	DescriptorType() = default;
 
-	Type(TypeName tn, PrimitiveType t, int b): typeName(tn), primitiveType(t), length(b) {
+	DescriptorType(TypeName tn, PrimitiveType t, int b): typeName(tn), primitiveType(t), length(b) {
 	}
 
-	Type(TypeName tn, PrimitiveType t, FieldList fl): typeName(tn), primitiveType(t), fieldList(fl) {
+	DescriptorType(TypeName tn, PrimitiveType t, FieldList fl): typeName(tn), primitiveType(t), fieldList(fl) {
 	}
 };
 
 
 template<typename T>
-int ioOp(T *io, Type *type) {
+int ioOp(T *io, DescriptorType *type) {
 	int32_t err = 0;
-	io->setTypeInfo("ox::mc::Type", 4);
+	io->setTypeInfo("ox::DescriptorType", 4);
 	err |= io->op("typeName", &type->typeName);
 	err |= io->op("primitiveType", &type->primitiveType);
 	err |= io->op("fieldList", &type->fieldList);
@@ -127,9 +127,9 @@ int ioOp(T *io, Type *type) {
 }
 
 template<typename T>
-int ioOpWrite(T *io, Field *field) {
+int ioOpWrite(T *io, DescriptorField *field) {
 	int32_t err = 0;
-	io->setTypeInfo("ox::mc::Field", 4);
+	io->setTypeInfo("ox::DescriptorField", 4);
 	if (field->ownsType) {
 		err |= io->op("typeName", "");
 		err |= io->op("type", field->type);
@@ -145,21 +145,21 @@ int ioOpWrite(T *io, Field *field) {
 }
 
 template<typename T>
-int ioOpRead(T *io, Field *field) {
+int ioOpRead(T *io, DescriptorField *field) {
 	int32_t err = 0;
 	auto &typeStore = io->typeStore();
-	io->setTypeInfo("ox::mc::Field", 4);
+	io->setTypeInfo("ox::DescriptorField", 4);
 	err |= io->op("typeName", &field->typeName);
 	if (field->typeName == "") {
 		field->ownsType = true;
 		if (field->type == nullptr) {
-			field->type = new Type;
+			field->type = new DescriptorType;
 		}
 		err |= io->op("type", field->type);
 		typeStore[field->type->typeName] = field->type;
 	} else {
 		// should be empty, so discard
-		Type t;
+		DescriptorType t;
 		err |= io->op("type", &t);
 		field->type = typeStore[field->typeName];
 	}
@@ -169,6 +169,6 @@ int ioOpRead(T *io, Field *field) {
 	return err;
 }
 
-using TypeStore = ox::HashMap<mc::String, mc::Type*>;
+using TypeStore = ox::HashMap<String, DescriptorType*>;
 
 }

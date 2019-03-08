@@ -6,9 +6,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#pragma once
+#include "desctypes.hpp"
 
-#include "read.hpp"
-#include "types.hpp"
-#include "walk.hpp"
-#include "write.hpp"
+namespace ox {
+
+DescriptorField::~DescriptorField() {
+	if (ownsType) {
+		delete type;
+	}
+}
+
+}

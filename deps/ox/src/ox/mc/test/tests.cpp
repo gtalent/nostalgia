@@ -12,6 +12,7 @@
 #include <memory>
 #include <string>
 #include <ox/mc/mc.hpp>
+#include <ox/ser/ser.hpp>
 #include <ox/std/std.hpp>
 
 struct TestStructNest {
@@ -155,12 +156,12 @@ std::map<std::string, ox::Error(*)()> tests = {
 				oxAssert(ox::writeMC(dataBuff, dataBuffLen, &testIn), "Data generation failed");
 				auto type = ox::buildMCDef(&testIn);
 				oxAssert(type.error, "Descriptor write failed");
-				ox::walkMC(type.value, dataBuff, dataBuffLen,
-					[](const ox::Vector<ox::mc::FieldName>&, const ox::Vector<ox::mc::TypeName>&, const ox::mc::Field &f, ox::MetalClawReader *rdr) -> ox::Error {
+				ox::walkMC<ox::MetalClawReader>(type.value, dataBuff, dataBuffLen,
+					[](const ox::Vector<ox::FieldName>&, const ox::Vector<ox::TypeName>&, const ox::DescriptorField &f, ox::MetalClawReader *rdr) -> ox::Error {
 						//std::cout << f.fieldName.c_str() << '\n';
 						auto fieldName = f.fieldName.c_str();
 						switch (f.type->primitiveType) {
-							case ox::mc::PrimitiveType::UnsignedInteger:
+							case ox::PrimitiveType::UnsignedInteger:
 								std::cout << fieldName << ":\tuint" << f.type->length << "_t:\t";
 								switch (f.type->length) {
 									case 8: {
@@ -190,7 +191,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 								}
 								std::cout << '\n';
 								break;
-							case ox::mc::PrimitiveType::SignedInteger:
+							case ox::PrimitiveType::SignedInteger:
 								std::cout << fieldName << ":\tint" << f.type->length << "_t:\t";
 								switch (f.type->length) {
 									case 8: {
@@ -220,20 +221,20 @@ std::map<std::string, ox::Error(*)()> tests = {
 								}
 								std::cout << '\n';
 								break;
-							case ox::mc::PrimitiveType::Bool: {
+							case ox::PrimitiveType::Bool: {
 								bool i = {};
 								oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
 								std::cout << fieldName << ":\t" << "bool:\t" << (i ? "true" : "false") << '\n';
 								break;
 							}
-							case ox::mc::PrimitiveType::String: {
+							case ox::PrimitiveType::String: {
 								ox::Vector<char> v(rdr->stringLength());
 								//std::cout << rdr->stringLength() << '\n';
 								oxAssert(rdr->op(fieldName, ox::McStr(v.data(), v.size())), "Walking ioOp failed.");
 								std::cout << fieldName << ":\t" << "string: " << v.data() << '\n';
 								break;
 							}
-							case ox::mc::PrimitiveType::Struct:
+							case ox::PrimitiveType::Struct:
 								break;
 						}
 						return OxError(0);

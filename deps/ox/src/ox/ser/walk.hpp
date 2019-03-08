@@ -10,90 +10,86 @@
 
 #include <ox/std/error.hpp>
 
-#include "deftypes.hpp"
-#include "read.hpp"
+#include "desctypes.hpp"
 
 namespace ox {
 
-template<typename T>
-class MetalClawWalker {
-	template<typename FH>
-	friend ox::Error ioOp(class MetalClawReader*, MetalClawWalker<FH>*);
-
-	template<typename FH>
-	friend ox::Error parseField(const mc::Field &field, MetalClawReader *rdr, MetalClawWalker<FH> *walker);
+template<typename Reader, typename T>
+class DataWalker {
+	template<typename ReaderBase, typename FH>
+	friend ox::Error parseField(const DescriptorField &field, ReaderBase *rdr, DataWalker<ReaderBase, FH> *walker);
 
 	private:
-		Vector<const mc::Type*> m_typeStack;
+		Vector<const DescriptorType*> m_typeStack;
 		T m_fieldHandler;
-		Vector<mc::FieldName> m_path;
-		Vector<mc::TypeName> m_typePath;
+		Vector<FieldName> m_path;
+		Vector<TypeName> m_typePath;
 
 	public:
-		MetalClawWalker(mc::Type *type, T fieldHandler);
+		DataWalker(DescriptorType *type, T fieldHandler);
 
-		[[nodiscard]] const mc::Type *type() const noexcept;
+		[[nodiscard]] const DescriptorType *type() const noexcept;
 
-		ox::Error read(const mc::Field&, MetalClawReader *rdr);
+		ox::Error read(const DescriptorField&, Reader *rdr);
 
 	protected:
-		void pushNamePath(mc::FieldName fn);
+		void pushNamePath(FieldName fn);
 
 		void popNamePath();
 
-		void pushType(const mc::Type *type);
+		void pushType(const DescriptorType *type);
 
 		void popType();
 
 };
 
-template<typename T>
-MetalClawWalker<T>::MetalClawWalker(mc::Type *type, T fieldHandler): m_fieldHandler(fieldHandler) {
+template<typename Reader, typename T>
+DataWalker<Reader, T>::DataWalker(DescriptorType *type, T fieldHandler): m_fieldHandler(fieldHandler) {
 	m_typeStack.push_back(type);
 }
 
-template<typename T>
-const mc::Type *MetalClawWalker<T>::type() const noexcept {
+template<typename Reader, typename T>
+const DescriptorType *DataWalker<Reader, T>::type() const noexcept {
 	return m_typeStack.back();
 }
 
-template<typename T>
-ox::Error MetalClawWalker<T>::read(const mc::Field &f, MetalClawReader *rdr) {
+template<typename Reader, typename T>
+ox::Error DataWalker<Reader, T>::read(const DescriptorField &f, Reader *rdr) {
 	// get const ref of paths
 	const auto &pathCr = m_path;
 	const auto &typePathCr = m_typePath;
 	return m_fieldHandler(pathCr, typePathCr, f, rdr);
 }
 
-template<typename T>
-void MetalClawWalker<T>::pushNamePath(mc::FieldName fn) {
+template<typename Reader, typename T>
+void DataWalker<Reader, T>::pushNamePath(FieldName fn) {
 	m_path.push_back(fn);
 }
 
-template<typename T>
-void MetalClawWalker<T>::popNamePath() {
+template<typename Reader, typename T>
+void DataWalker<Reader, T>::popNamePath() {
 	m_path.pop_back();
 }
 
-template<typename T>
-void MetalClawWalker<T>::pushType(const mc::Type *type) {
+template<typename Reader, typename T>
+void DataWalker<Reader, T>::pushType(const DescriptorType *type) {
 	m_typeStack.push_back(type);
 }
 
-template<typename T>
-void MetalClawWalker<T>::popType() {
+template<typename Reader, typename T>
+void DataWalker<Reader, T>::popType() {
 	m_typeStack.pop_back();
 }
 
-template<typename FH>
-static ox::Error parseField(const mc::Field &field, MetalClawReader *rdr, MetalClawWalker<FH> *walker) {
+template<typename Reader, typename FH>
+static ox::Error parseField(const DescriptorField &field, Reader *rdr, DataWalker<Reader, FH> *walker) {
 	walker->pushNamePath(field.fieldName);
 	if (field.subscriptLevels) {
 		// add array handling
 		const auto arrayLen = rdr->arrayLength(true);
 		auto child = rdr->child();
 		child.setTypeInfo(field.fieldName.c_str(), arrayLen);
-		mc::Field f(field); // create mutable copy
+		DescriptorField f(field); // create mutable copy
 		--f.subscriptLevels;
 		BString<100> subscript;
 		for (ArrayLength i = 0; i < arrayLen; i++) {
@@ -107,13 +103,13 @@ static ox::Error parseField(const mc::Field &field, MetalClawReader *rdr, MetalC
 		rdr->nextField();
 	} else {
 		switch (field.type->primitiveType) {
-			case mc::PrimitiveType::UnsignedInteger:
-			case mc::PrimitiveType::SignedInteger:
-			case mc::PrimitiveType::Bool:
-			case mc::PrimitiveType::String:
+			case PrimitiveType::UnsignedInteger:
+			case PrimitiveType::SignedInteger:
+			case PrimitiveType::Bool:
+			case PrimitiveType::String:
 				oxReturnError(walker->read(field, rdr));
 				break;
-			case mc::PrimitiveType::Struct:
+			case PrimitiveType::Struct:
 				if (rdr->fieldPresent()) {
 					auto child = rdr->child();
 					walker->pushType(field.type);
@@ -132,8 +128,8 @@ static ox::Error parseField(const mc::Field &field, MetalClawReader *rdr, MetalC
 	return OxError(0);
 }
 
-template<typename FH>
-ox::Error ioOp(MetalClawReader *rdr, MetalClawWalker<FH> *walker) {
+template<typename Reader, typename FH>
+ox::Error ioOp(Reader *rdr, DataWalker<Reader, FH> *walker) {
 	auto type = walker->type();
 	if (!type) {
 		return OxError(1);
@@ -143,18 +139,11 @@ ox::Error ioOp(MetalClawReader *rdr, MetalClawWalker<FH> *walker) {
 	rdr->setTypeInfo(typeName, fields.size());
 	for (std::size_t i = 0; i < fields.size(); i++) {
 		auto &field = fields[i];
-		if (field.type->primitiveType == mc::PrimitiveType::Struct) {
+		if (field.type->primitiveType == PrimitiveType::Struct) {
 		}
 		oxReturnError(parseField(field, rdr, walker));
 	}
 	return OxError(0);
-}
-
-template<typename Handler>
-ox::Error walkMC(mc::Type *type, uint8_t *data, std::size_t dataLen, Handler handler) {
-	MetalClawWalker walker(type, handler);
-	MetalClawReader rdr(data, dataLen);
-	return ioOp(&rdr, &walker);
 }
 
 }

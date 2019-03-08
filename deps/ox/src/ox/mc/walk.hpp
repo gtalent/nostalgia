@@ -8,13 +8,15 @@
 
 #pragma once
 
-#include <ox/std/string.hpp>
-#include <ox/std/strops.hpp>
-#include <ox/std/types.hpp>
+#include <ox/ser/walk.hpp>
 
 namespace ox {
 
-using StringLength = uint32_t;
-using ArrayLength = uint32_t;
+template<typename Reader, typename Handler>
+ox::Error walkMC(DescriptorType *type, uint8_t *data, std::size_t dataLen, Handler handler) {
+	DataWalker<Reader, Handler> walker(type, handler);
+	Reader rdr(data, dataLen);
+	return ioOp(&rdr, &walker);
+}
 
 }

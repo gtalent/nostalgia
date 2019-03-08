@@ -8,7 +8,7 @@
 
 #include <ox/std/typeinfo.hpp>
 
-#include "defwriter.hpp"
+#include "descwrite.hpp"
 
 namespace ox {
 
@@ -33,115 +33,115 @@ static_assert([] {
 }(), "indirectionLevels broken: indirectionLevels(int[][])");
 
 
-MetalClawDefWriter::MetalClawDefWriter(mc::TypeStore *typeStore) {
+TypeDescWriter::TypeDescWriter(TypeStore *typeStore) {
 	if (!typeStore) {
-		m_typeStoreOwnerRef = new mc::TypeStore;
+		m_typeStoreOwnerRef = new TypeStore;
 		typeStore = m_typeStoreOwnerRef;
 	}
 	m_typeStore = typeStore;
 }
 
-MetalClawDefWriter::~MetalClawDefWriter() {
+TypeDescWriter::~TypeDescWriter() {
 	// does not own it's elements
 	delete m_typeStoreOwnerRef;
 }
 
-mc::Type *MetalClawDefWriter::type(int8_t*, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(int8_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:int8_t";
-	constexpr auto PT = mc::PrimitiveType::SignedInteger;
+	constexpr auto PT = PrimitiveType::SignedInteger;
 	constexpr auto Bytes = 8;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
-mc::Type *MetalClawDefWriter::type(int16_t*, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(int16_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:int16_t";
-	constexpr auto PT = mc::PrimitiveType::SignedInteger;
+	constexpr auto PT = PrimitiveType::SignedInteger;
 	constexpr auto Bytes = 16;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
-mc::Type *MetalClawDefWriter::type(int32_t*, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(int32_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:int32_t";
-	constexpr auto PT = mc::PrimitiveType::SignedInteger;
+	constexpr auto PT = PrimitiveType::SignedInteger;
 	constexpr auto Bytes = 32;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
-mc::Type *MetalClawDefWriter::type(int64_t*, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(int64_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:int64_t";
-	constexpr auto PT = mc::PrimitiveType::SignedInteger;
+	constexpr auto PT = PrimitiveType::SignedInteger;
 	constexpr auto Bytes = 64;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
-mc::Type *MetalClawDefWriter::type(uint8_t*, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(uint8_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:uint8_t";
-	constexpr auto PT = mc::PrimitiveType::UnsignedInteger;
+	constexpr auto PT = PrimitiveType::UnsignedInteger;
 	constexpr auto Bytes = 8;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
-mc::Type *MetalClawDefWriter::type(uint16_t*, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(uint16_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:uint16_t";
-	constexpr auto PT = mc::PrimitiveType::UnsignedInteger;
+	constexpr auto PT = PrimitiveType::UnsignedInteger;
 	constexpr auto Bytes = 16;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
-mc::Type *MetalClawDefWriter::type(uint32_t*, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(uint32_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:uint32_t";
-	constexpr auto PT = mc::PrimitiveType::UnsignedInteger;
+	constexpr auto PT = PrimitiveType::UnsignedInteger;
 	constexpr auto Bytes = 32;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
-mc::Type *MetalClawDefWriter::type(uint64_t*, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(uint64_t*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:uint64_t";
-	constexpr auto PT = mc::PrimitiveType::UnsignedInteger;
+	constexpr auto PT = PrimitiveType::UnsignedInteger;
 	constexpr auto Bytes = 64;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
-mc::Type *MetalClawDefWriter::type(const char*, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(const char*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:string";
-	constexpr auto PT = mc::PrimitiveType::String;
+	constexpr auto PT = PrimitiveType::String;
 	return getType(TypeName, PT, 0, alreadyExisted);
 }
 
-mc::Type *MetalClawDefWriter::type(McStr, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(McStr, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:string";
-	constexpr auto PT = mc::PrimitiveType::String;
+	constexpr auto PT = PrimitiveType::String;
 	return getType(TypeName, PT, 0, alreadyExisted);
 }
 
-mc::Type *MetalClawDefWriter::type(bool*, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(bool*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:bool";
-	constexpr auto PT = mc::PrimitiveType::Bool;
+	constexpr auto PT = PrimitiveType::Bool;
 	constexpr auto Bytes = 0;
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
-void MetalClawDefWriter::setTypeInfo(const char *name, int) {
+void TypeDescWriter::setTypeInfo(const char *name, int) {
 	auto &t = m_typeStore->at(name);
 	if (!t) {
-		t = new mc::Type;
+		t = new DescriptorType;
 	}
 	m_type = t;
 	m_type->typeName = name;
-	m_type->primitiveType = mc::PrimitiveType::Struct;
+	m_type->primitiveType = PrimitiveType::Struct;
 }
 
-mc::Type *MetalClawDefWriter::getType(mc::TypeName tn, mc::PrimitiveType pt, int b, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::getType(TypeName tn, PrimitiveType pt, int b, bool *alreadyExisted) {
 	if (m_typeStore->contains(tn)) {
 		*alreadyExisted = true;
 		auto type = m_typeStore->at(tn);
-		oxAssert(type != nullptr, "MetalClawDefWriter::getType returning null Type");
+		oxAssert(type != nullptr, "TypeDescWriter::getType returning null DescriptorType");
 		return type;
 	} else {
 		*alreadyExisted = false;
 		auto &t = m_typeStore->at(tn);
 		if (!t) {
-			t = new mc::Type;
+			t = new DescriptorType;
 		}
 		t->typeName = tn;
 		t->primitiveType = pt;

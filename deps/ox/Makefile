@@ -8,7 +8,7 @@ ifneq ($(shell which docker 2>&1),)
 	endif
 endif
 
-make:
+all:
 	${ENV_RUN} ./scripts/run-make build
 preinstall:
 	${ENV_RUN} ./scripts/run-make build preinstall

@@ -28,41 +28,40 @@ devenv:
 		--name ${DEVENV} -t ${DEVENV_IMAGE} bash
 devenv-destroy:
 	docker rm -f ${DEVENV}
-
-shell:
+devenv-shell:
 	${ENV_RUN} bash
 
-release:
+configure-release:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-release
 	${ENV_RUN} ./scripts/setup_build ${HOST_ENV}
 	${ENV_RUN} rm -f build/current
 	${ENV_RUN} ln -s ${HOST_ENV}-release build/current
 
-debug:
+configure-debug:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-debug
 	${ENV_RUN} ./scripts/setup_build ${HOST_ENV} debug
 	${ENV_RUN} rm -f build/current
 	${ENV_RUN} ln -s ${HOST_ENV}-debug build/current
 
-asan:
+configure-asan:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-asan
 	${ENV_RUN} ./scripts/setup_build ${HOST_ENV} asan
 	${ENV_RUN} rm -f build/current
 	${ENV_RUN} ln -s ${HOST_ENV}-asan build/current
 
-windows:
+configure-windows:
 	${ENV_RUN} rm -rf build/windows
 	${ENV_RUN} ./scripts/setup_build windows
 	${ENV_RUN} rm -f build/current
 	${ENV_RUN} ln -s windows build/current
 
-windows-debug:
+configure-windows-debug:
 	${ENV_RUN} rm -rf build/windows
 	${ENV_RUN} ./scripts/setup_build windows debug
 	${ENV_RUN} rm -f build/current
 	${ENV_RUN} ln -s windows build/current
 
-gba:
+configure-gba:
 	${ENV_RUN} rm -rf build/gba-release
 	${ENV_RUN} ./scripts/setup_build gba
 	${ENV_RUN} rm -f build/current

@@ -230,7 +230,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 							case ox::PrimitiveType::String: {
 								ox::Vector<char> v(rdr->stringLength());
 								//std::cout << rdr->stringLength() << '\n';
-								oxAssert(rdr->op(fieldName, ox::McStr(v.data(), v.size())), "Walking ioOp failed.");
+								oxAssert(rdr->op(fieldName, ox::SerStr(v.data(), v.size())), "Walking ioOp failed.");
 								std::cout << fieldName << ":\t" << "string: " << v.data() << '\n';
 								break;
 							}

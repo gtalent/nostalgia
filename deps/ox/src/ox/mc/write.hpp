@@ -57,7 +57,7 @@ class MetalClawWriter {
 		template<std::size_t L>
 		Error op(const char*, ox::BString<L> *val);
 
-		Error op(const char*, McStr val);
+		Error op(const char*, SerStr val);
 
 		template<typename T>
 		int op(const char*, T *val);
@@ -77,7 +77,7 @@ class MetalClawWriter {
 
 template<std::size_t L>
 Error MetalClawWriter::op(const char *name, ox::BString<L> *val) {
-	return op(name, McStr(val->data(), val->cap()));
+	return op(name, SerStr(val->data(), val->cap()));
 }
 
 template<typename T>

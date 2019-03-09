@@ -60,7 +60,7 @@ Error MetalClawWriter::op(const char*, bool *val) {
 	return m_fieldPresence.set(m_field++, *val);
 }
 
-Error MetalClawWriter::op(const char*, McStr val) {
+Error MetalClawWriter::op(const char*, SerStr val) {
 	int err = 0;
 	bool fieldSet = false;
 	if (val.cap()) {

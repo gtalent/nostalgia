@@ -14,10 +14,7 @@
 
 namespace ox {
 
-using StringLength = uint32_t;
-using ArrayLength = uint32_t;
-
-class McStr {
+class SerStr {
 
 	protected:
 		int m_cap = 0;
@@ -25,12 +22,12 @@ class McStr {
 
 	public:
 		template<std::size_t sz>
-		constexpr McStr(BString<sz> *str) noexcept {
+		constexpr SerStr(BString<sz> *str) noexcept {
 			m_str = str->data();
 			m_cap = str->cap();
 		}
 
-		constexpr McStr(char *str, int cap) noexcept {
+		constexpr SerStr(char *str, int cap) noexcept {
 			m_str = str;
 			m_cap = cap;
 		}

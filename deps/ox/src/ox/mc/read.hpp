@@ -61,7 +61,7 @@ class MetalClawReader {
 		template<std::size_t L>
 		Error op(const char*, ox::BString<L> *val);
 
-		Error op(const char*, McStr val);
+		Error op(const char*, SerStr val);
 
 		/**
 		 * Reads an array length from the current location in the buffer.
@@ -116,7 +116,7 @@ Error MetalClawReader::op(const char*, T *val) {
 
 template<std::size_t L>
 Error MetalClawReader::op(const char *name, ox::BString<L> *val) {
-	return op(name, McStr(val->data(), val->cap()));
+	return op(name, SerStr(val->data(), val->cap()));
 }
 
 template<typename I>

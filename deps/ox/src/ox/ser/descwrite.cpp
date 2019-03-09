@@ -108,7 +108,7 @@ DescriptorType *TypeDescWriter::type(const char*, bool *alreadyExisted) {
 	return getType(TypeName, PT, 0, alreadyExisted);
 }
 
-DescriptorType *TypeDescWriter::type(McStr, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(SerStr, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:string";
 	constexpr auto PT = PrimitiveType::String;
 	return getType(TypeName, PT, 0, alreadyExisted);

@@ -97,7 +97,7 @@ class TypeDescWriter {
 
 		DescriptorType *type(const char *val, bool *alreadyExisted);
 
-		DescriptorType *type(McStr val, bool *alreadyExisted);
+		DescriptorType *type(SerStr val, bool *alreadyExisted);
 
 		template<std::size_t sz>
 		DescriptorType *type(BString<sz> *val, bool *alreadyExisted);
@@ -144,7 +144,7 @@ ox::Error TypeDescWriter::op(const char *name, T *val) {
 
 template<std::size_t sz>
 DescriptorType *TypeDescWriter::type(BString<sz> *val, bool *alreadyExisted) {
-	return type(McStr(val), alreadyExisted);
+	return type(SerStr(val), alreadyExisted);
 }
 
 template<typename T>

@@ -65,7 +65,7 @@ Error MetalClawReader::op(const char*, bool *val) {
 	return 0;
 }
 
-Error MetalClawReader::op(const char*, McStr val) {
+Error MetalClawReader::op(const char*, SerStr val) {
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
 		StringLength size = 0;

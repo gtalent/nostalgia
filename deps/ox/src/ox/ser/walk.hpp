@@ -138,10 +138,7 @@ ox::Error ioOp(Reader *rdr, DataWalker<Reader, FH> *walker) {
 	auto &fields = type->fieldList;
 	rdr->setTypeInfo(typeName, fields.size());
 	for (std::size_t i = 0; i < fields.size(); i++) {
-		auto &field = fields[i];
-		if (field.type->primitiveType == PrimitiveType::Struct) {
-		}
-		oxReturnError(parseField(field, rdr, walker));
+		oxReturnError(parseField(fields[i], rdr, walker));
 	}
 	return OxError(0);
 }

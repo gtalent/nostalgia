@@ -17,6 +17,8 @@
 namespace nostalgia::world {
 
 struct Tile {
+	static constexpr auto Fields = 3;
+
 	uint8_t bgTile = 0;
 	uint8_t type = 0;
 	void *occupant = nullptr;
@@ -25,7 +27,7 @@ struct Tile {
 template<typename T>
 ox::Error ioOpRead(T *io, Tile *obj) {
 	ox::Error err = 0;
-	io->setTypeInfo("nostalgia::world::Tile", 2);
+	io->setTypeInfo("nostalgia::world::Tile", Tile::Fields);
 	err |= io->op("bgTile", &obj->bgTile);
 	err |= io->op("type", &obj->type);
 	return err;
@@ -41,7 +43,7 @@ struct Zone {
 	friend ox::Error ioOpWrite(T*, Zone*);
 
 	protected:
-		static const int FIELDS;
+		static constexpr auto Fields = 2;
 		common::Bounds m_bounds;
 		Tile *m_tiles = nullptr;
 
@@ -61,7 +63,7 @@ struct Zone {
 template<typename T>
 ox::Error ioOpRead(T *io, Zone *obj) {
 	ox::Error err = 0;
-	io->setTypeInfo("nostalgia::world::Zone", Zone::FIELDS);
+	io->setTypeInfo("nostalgia::world::Zone", Zone::Fields);
 	err |= io->op("bounds", &obj->m_bounds);
 	return err;
 }
@@ -69,7 +71,7 @@ ox::Error ioOpRead(T *io, Zone *obj) {
 template<typename T>
 ox::Error ioOpWrite(T *io, Zone *obj) {
 	ox::Error err = 0;
-	io->setTypeInfo("nostalgia::world::Zone", Zone::FIELDS);
+	io->setTypeInfo("nostalgia::world::Zone", Zone::Fields);
 	err |= io->op("bounds", &obj->m_bounds);
 	return err;
 }
@@ -83,11 +85,8 @@ struct Region {
 	template<typename T>
 	friend ox::Error ioOpWrite(T*, Region*);
 
-	enum {
-		FIELDS = 1
-	};
-
 	protected:
+		static constexpr auto Fields = 1;
 		ox::Vector<Zone*> m_zones;
 
 	public:
@@ -97,14 +96,14 @@ struct Region {
 template<typename T>
 ox::Error ioOpRead(T *io, Region *obj) {
 	ox::Error err = 0;
-	io->setTypeInfo("nostalgia::World::Region", Region::FIELDS);
+	io->setTypeInfo("nostalgia::World::Region", Region::Fields);
 	return err;
 }
 
 template<typename T>
 ox::Error ioOpWrite(T *io, Region *obj) {
 	ox::Error err = 0;
-	io->setTypeInfo("nostalgia::World::Region", Region::FIELDS);
+	io->setTypeInfo("nostalgia::World::Region", Region::Fields);
 	return err;
 }
 

@@ -13,9 +13,6 @@ namespace nostalgia::world {
 using namespace common;
 using namespace core;
 
-const int Zone::FIELDS = 1;
-
-
 Zone::Zone(Context *ctx, Bounds bnds, InodeId_t tileSheet) {
 	const auto size = bnds.width * bnds.height;
 	m_tiles = new Tile[size];

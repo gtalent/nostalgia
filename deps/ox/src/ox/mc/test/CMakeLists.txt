@@ -10,3 +10,4 @@ target_link_libraries(
 
 add_test("Test\\ McTest\\ Writer" McTest MetalClawWriter)
 add_test("Test\\ McTest\\ Reader" McTest MetalClawReader)
+add_test("Test\\ McTest\\ encodeInteger" McTest encodeInteger)

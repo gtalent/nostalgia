@@ -10,11 +10,13 @@
 
 #include <ox/ser/optype.hpp>
 #include <ox/ser/types.hpp>
+#include <ox/std/bitops.hpp>
 #include <ox/std/byteswap.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/types.hpp>
 #include <ox/std/vector.hpp>
 
+#include "intops.hpp"
 #include "err.hpp"
 #include "presenceindicator.hpp"
 #include "types.hpp"
@@ -60,7 +62,7 @@ class MetalClawWriter {
 		Error op(const char*, SerStr val);
 
 		template<typename T>
-		int op(const char*, T *val);
+		Error op(const char*, T *val);
 
 		void setTypeInfo(const char *name, int fields);
 
@@ -81,7 +83,7 @@ Error MetalClawWriter::op(const char *name, ox::BString<L> *val) {
 }
 
 template<typename T>
-int MetalClawWriter::op(const char*, T *val) {
+Error MetalClawWriter::op(const char*, T *val) {
 	int err = 0;
 	bool fieldSet = false;
 	MetalClawWriter writer(m_buff + m_buffIt, m_buffLen - m_buffIt);
@@ -100,24 +102,6 @@ int MetalClawWriter::op(const char*, T *val) {
 template<typename T>
 Error MetalClawWriter::op(const char*, ox::Vector<T> *val) {
 	return op(nullptr, val->data(), val->size());
-}
-
-template<typename I>
-Error MetalClawWriter::appendInteger(I val) {
-	Error err = 0;
-	bool fieldSet = false;
-	if (val) {
-		if (m_buffIt + sizeof(I) < m_buffLen) {
-			*reinterpret_cast<LittleEndian<I>*>(&m_buff[m_buffIt]) = val;
-			fieldSet = true;
-			m_buffIt += sizeof(I);
-		} else {
-			err |= MC_BUFFENDED;
-		}
-	}
-	err |= m_fieldPresence.set(m_field, fieldSet);
-	m_field++;
-	return err;
 }
 
 template<typename T>
@@ -146,6 +130,43 @@ Error MetalClawWriter::op(const char*, T *val, std::size_t len) {
 		fieldSet = true;
 	}
 
+	err |= m_fieldPresence.set(m_field, fieldSet);
+	m_field++;
+	return err;
+}
+
+template<typename I>
+Error MetalClawWriter::appendInteger(I val) {
+	Error err = 0;
+	bool fieldSet = false;
+	if (val) {
+		if (m_buffIt + sizeof(I) < m_buffLen) {
+			LittleEndian<I> leVal = val;
+			mc::encodeInteger(val);
+			// bits needed to represent number factoring in space possibly needed
+			// for signed bit
+			const auto bits = mc::highestBit(val) + (ox::is_signed<I> ? 1 : 0) / 8;
+			// bytes needed to store value
+			std::size_t bytes = bits / 8 + (bits % 8 != 0);
+			const auto bytesIndicator = onMask<uint8_t>(bytes - 1) << (7 - bytes);
+			// factor in bits needed for bytesIndicator (does not affect bytesIndicator)
+			// bits for integer + bits needed to represent bytes > bits available
+			if (bits + bytes > bytes * 8) {
+				++bytes;
+			}
+
+			if (bytes == 9) {
+				m_buff[m_buffIt++] = bytesIndicator;
+				
+			} else {
+			}
+			*reinterpret_cast<LittleEndian<I>*>(&m_buff[m_buffIt]) = leVal;
+			fieldSet = true;
+			m_buffIt += sizeof(I);
+		} else {
+			err |= MC_BUFFENDED;
+		}
+	}
 	err |= m_fieldPresence.set(m_field, fieldSet);
 	m_field++;
 	return err;

@@ -171,7 +171,7 @@ Error MetalClawReader::op(const char*, ox::Vector<T> *val) {
 }
 
 template<typename T>
-int readMC(uint8_t *buff, std::size_t buffLen, T *val) {
+Error readMC(uint8_t *buff, std::size_t buffLen, T *val) {
 	MetalClawReader reader(buff, buffLen);
 	return ioOp(&reader, val);
 }

@@ -20,6 +20,7 @@ set_property(
 
 install(
 	FILES
+		intops.hpp
 		err.hpp
 		mc.hpp
 		presenceindicator.hpp

@@ -11,6 +11,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 #include <ox/mc/mc.hpp>
 #include <ox/ser/ser.hpp>
 #include <ox/std/std.hpp>
@@ -129,6 +130,63 @@ std::map<std::string, ox::Error(*)()> tests = {
 				oxAssert(testIn.Struct.String      == testOut.Struct.String, "Struct.String value mismatch");
 				oxAssert(testIn.Struct.Bool        == testOut.Struct.Bool, "Struct.Bool value mismatch");
 
+				return OxError(0);
+			}
+		},
+		{
+			"encodeInteger",
+			[] {
+				using ox::MaxValue;
+				using ox::mc::McInt;
+				using ox::mc::encodeInteger;
+
+				constexpr auto check = [](McInt val, std::vector<uint8_t> &&expected) {
+					if (val.length != expected.size()) {
+						return OxError(1);
+					}
+					for (std::size_t i = 0; i < expected.size(); i++) {
+						if (expected[i] != val.data[i]) {
+							std::cout << static_cast<uint32_t>(val.data[i]) << '\n';
+							return OxError(1);
+						}
+					}
+					return OxError(0);
+				};
+				constexpr auto check64 = [](McInt val, auto expected) {
+					if (val.length != 9) {
+						std::cout << "val.length: " << val.length << '\n';
+						return OxError(1);
+					}
+					ox::LittleEndian<decltype(expected)> decoded = *reinterpret_cast<decltype(expected)*>(&val.data[1]);
+					if (expected != decoded) {
+						std::cout << "decoded: " << decoded << ", expected: " << expected << '\n';
+						return OxError(1);
+					}
+					return OxError(0);
+				};
+
+				oxAssert(check(encodeInteger(int64_t(1)), {0b0010}), "Encode 1 fail");
+				oxAssert(check(encodeInteger(int64_t(2)), {0b0100}), "Encode 2 fail");
+				oxAssert(check(encodeInteger(int64_t(3)), {0b0110}), "Encode 3 fail");
+				oxAssert(check(encodeInteger(int64_t(4)), {0b1000}), "Encode 4 fail");
+				oxAssert(check(encodeInteger(int64_t(128)), {0b0001, 0b10}), "Encode 128 fail");
+				oxAssert(check(encodeInteger(int64_t(129)), {0b0101, 0b10}), "Encode 129 fail");
+				oxAssert(check(encodeInteger(int64_t(130)), {0b1001, 0b10}), "Encode 130 fail");
+				oxAssert(check(encodeInteger(int64_t(131)), {0b1101, 0b10}), "Encode 131 fail");
+
+				oxAssert(check(encodeInteger(uint64_t(1)), {0b0010}), "Encode 1 fail");
+				oxAssert(check(encodeInteger(uint64_t(2)), {0b0100}), "Encode 2 fail");
+				oxAssert(check(encodeInteger(uint64_t(3)), {0b0110}), "Encode 3 fail");
+				oxAssert(check(encodeInteger(uint64_t(4)), {0b1000}), "Encode 4 fail");
+				oxAssert(check(encodeInteger(uint64_t(128)), {0b0001, 0b10}), "Encode 128 fail");
+				oxAssert(check(encodeInteger(uint64_t(129)), {0b0101, 0b10}), "Encode 129 fail");
+				oxAssert(check(encodeInteger(uint64_t(130)), {0b1001, 0b10}), "Encode 130 fail");
+				oxAssert(check(encodeInteger(uint64_t(131)), {0b1101, 0b10}), "Encode 131 fail");
+
+				// Signed check needs lambda templates to run correctly without
+				// code deduplication
+				//oxAssert(check64(encodeInteger(MaxValue<int64_t>), MaxValue<int64_t>), "Encode MaxValue<int64_t> fail");
+				oxAssert(check64(encodeInteger(MaxValue<uint64_t>), MaxValue<uint64_t>), "Encode MaxValue<uint64_t> fail");
 				return OxError(0);
 			}
 		},

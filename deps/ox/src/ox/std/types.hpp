@@ -105,6 +105,12 @@ using Int = typename SignedType<bytes>::type;
 template<std::size_t bytes>
 using Uint = typename UnsignedType<bytes>::type;
 
+template<typename T>
+using Signed = Int<sizeof(T) * 8>;
+
+template<typename T>
+using Unsigned = Uint<sizeof(T) * 8>;
+
 }
 
 

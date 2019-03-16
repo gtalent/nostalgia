@@ -174,6 +174,15 @@ class __attribute__((packed)) ByteSwapInteger {
 			return newVal;
 		}
 
+		/**
+		 * Returns the integer as it is stored. If it is stored as little endian,
+		 * a little endian integer is returned regardless of the endianness of
+		 * the system.
+		 */
+		constexpr auto raw() noexcept -> T {
+			return m_value;
+		}
+
 };
 
 template<typename T>

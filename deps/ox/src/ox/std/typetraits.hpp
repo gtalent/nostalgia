@@ -51,6 +51,8 @@ template<> struct is_integral<uint32_t>: ox::true_type {};
 template<> struct is_integral<int64_t> : ox::true_type {};
 template<> struct is_integral<uint64_t>: ox::true_type {};
 
+template<typename T>
+constexpr bool is_signed = ox::integral_constant<bool, T(-1) < T(0)>::value;
 
 // enable_if ///////////////////////////////////////////////////////////////////
 

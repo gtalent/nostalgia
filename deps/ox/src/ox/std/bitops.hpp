@@ -13,13 +13,13 @@
 namespace ox {
 
 template<typename T>
-[[nodiscard]] inline constexpr T rotateLeft(T i, std::size_t shift) {
+[[nodiscard]] inline constexpr T rotateLeft(T i, std::size_t shift) noexcept {
 	constexpr auto bits = sizeof(i) * 8;
 	return (i << shift) | (i >> (bits - shift));
 }
 
 template<typename T>
-[[nodiscard]] constexpr T onMask(int bits = sizeof(T) * 8) {
+[[nodiscard]] constexpr T onMask(int bits = sizeof(T) << 3 /* *8 */) noexcept {
 	T out = 0;
 	for (auto i = 0; i < bits; i++) {
 		out |= static_cast<T>(1) << i;

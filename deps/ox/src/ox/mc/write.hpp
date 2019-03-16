@@ -142,7 +142,6 @@ Error MetalClawWriter::appendInteger(I val) {
 	if (val) {
 		if (m_buffIt + sizeof(I) < m_buffLen) {
 			LittleEndian<I> leVal = val;
-			mc::encodeInteger(val);
 			// bits needed to represent number factoring in space possibly needed
 			// for signed bit
 			const auto bits = mc::highestBit(val) + (ox::is_signed<I> ? 1 : 0) / 8;

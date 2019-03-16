@@ -142,11 +142,12 @@ std::map<std::string, ox::Error(*)()> tests = {
 
 				constexpr auto check = [](McInt val, std::vector<uint8_t> &&expected) {
 					if (val.length != expected.size()) {
+						std::cout << "val.length: " << val.length << ", expected: " << expected.size() << '\n';
 						return OxError(1);
 					}
 					for (std::size_t i = 0; i < expected.size(); i++) {
 						if (expected[i] != val.data[i]) {
-							std::cout << static_cast<uint32_t>(val.data[i]) << '\n';
+							std::cout << i << ": " << static_cast<uint32_t>(val.data[i]) << '\n';
 							return OxError(1);
 						}
 					}
@@ -165,14 +166,23 @@ std::map<std::string, ox::Error(*)()> tests = {
 					return OxError(0);
 				};
 
-				oxAssert(check(encodeInteger(int64_t(1)), {0b0010}), "Encode 1 fail");
-				oxAssert(check(encodeInteger(int64_t(2)), {0b0100}), "Encode 2 fail");
-				oxAssert(check(encodeInteger(int64_t(3)), {0b0110}), "Encode 3 fail");
-				oxAssert(check(encodeInteger(int64_t(4)), {0b1000}), "Encode 4 fail");
-				oxAssert(check(encodeInteger(int64_t(128)), {0b0001, 0b10}), "Encode 128 fail");
-				oxAssert(check(encodeInteger(int64_t(129)), {0b0101, 0b10}), "Encode 129 fail");
-				oxAssert(check(encodeInteger(int64_t(130)), {0b1001, 0b10}), "Encode 130 fail");
-				oxAssert(check(encodeInteger(int64_t(131)), {0b1101, 0b10}), "Encode 131 fail");
+				oxAssert(check(encodeInteger(int64_t(1)), {0b00000010}), "Encode 1 fail");
+				oxAssert(check(encodeInteger(int64_t(2)), {0b00000100}), "Encode 2 fail");
+				oxAssert(check(encodeInteger(int64_t(3)), {0b00000110}), "Encode 3 fail");
+				oxAssert(check(encodeInteger(int64_t(4)), {0b00001000}), "Encode 4 fail");
+				oxAssert(check(encodeInteger(int64_t(128)), {0b00000001, 0b10}), "Encode 128 fail");
+				oxAssert(check(encodeInteger(int64_t(129)), {0b00000101, 0b10}), "Encode 129 fail");
+				oxAssert(check(encodeInteger(int64_t(130)), {0b00001001, 0b10}), "Encode 130 fail");
+				oxAssert(check(encodeInteger(int64_t(131)), {0b00001101, 0b10}), "Encode 131 fail");
+
+				oxAssert(check(encodeInteger(int64_t(-1)), {255, 255, 255, 255, 255, 255, 255, 255, 255}), "Encode -1 fail");
+				oxAssert(check(encodeInteger(int64_t(-2)), {255, 254, 255, 255, 255, 255, 255, 255, 255}), "Encode -2 fail");
+				oxAssert(check(encodeInteger(int64_t(-3)), {255, 253, 255, 255, 255, 255, 255, 255, 255}), "Encode -3 fail");
+				oxAssert(check(encodeInteger(int64_t(-4)), {255, 252, 255, 255, 255, 255, 255, 255, 255}), "Encode -4 fail");
+				oxAssert(check(encodeInteger(int64_t(-128)), {255, 128, 255, 255, 255, 255, 255, 255, 255}), "Encode -128 fail");
+				oxAssert(check(encodeInteger(int64_t(-129)), {255, 127, 255, 255, 255, 255, 255, 255, 255}), "Encode -129 fail");
+				oxAssert(check(encodeInteger(int64_t(-130)), {255, 126, 255, 255, 255, 255, 255, 255, 255}), "Encode -130 fail");
+				oxAssert(check(encodeInteger(int64_t(-131)), {255, 125, 255, 255, 255, 255, 255, 255, 255}), "Encode -131 fail");
 
 				oxAssert(check(encodeInteger(uint64_t(1)), {0b0010}), "Encode 1 fail");
 				oxAssert(check(encodeInteger(uint64_t(2)), {0b0100}), "Encode 2 fail");

@@ -48,6 +48,65 @@ typedef uint32_t uintptr_t;
 
 #endif
 
+namespace ox {
+
+template<std::size_t sz>
+struct SignedType {
+};
+
+template<>
+struct SignedType<8> {
+	using type = int8_t;
+};
+
+template<>
+struct SignedType<16> {
+	using type = int16_t;
+};
+
+template<>
+struct SignedType<32> {
+	using type = int32_t;
+};
+
+template<>
+struct SignedType<64> {
+	using type = int64_t;
+};
+
+
+template<std::size_t sz>
+struct UnsignedType {
+};
+
+template<>
+struct UnsignedType<8> {
+	using type = uint8_t;
+};
+
+template<>
+struct UnsignedType<16> {
+	using type = uint16_t;
+};
+
+template<>
+struct UnsignedType<32> {
+	using type = uint32_t;
+};
+
+template<>
+struct UnsignedType<64> {
+	using type = uint64_t;
+};
+
+template<std::size_t bytes>
+using Int = typename SignedType<bytes>::type;
+
+template<std::size_t bytes>
+using Uint = typename UnsignedType<bytes>::type;
+
+}
+
 
 namespace std {
 

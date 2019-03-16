@@ -37,11 +37,11 @@ ox::Error ioOpWriteDefinition(T*, O*) {
 
 template<typename T, typename O>
 ox::Error ioOp(T *io, O *obj) {
-	if constexpr (T::opType() == ox::OpType::Read) {
+	if constexpr(T::opType() == ox::OpType::Read) {
 		return ioOpRead(io, obj);
-	} else if constexpr (T::opType() == ox::OpType::Write) {
+	} else if constexpr(T::opType() == ox::OpType::Write) {
 		return ioOpWrite(io, obj);
-	} else if constexpr (T::opType() == ox::OpType::WriteDefinition) {
+	} else if constexpr(T::opType() == ox::OpType::WriteDefinition) {
 		return ioOpWriteDefinition(io, obj);
 	}
 	return OxError(1);

@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <ox/std/error.hpp>
 #include <ox/std/hashmap.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/vector.hpp>
@@ -116,8 +117,8 @@ struct DescriptorType {
 
 
 template<typename T>
-int ioOp(T *io, DescriptorType *type) {
-	int32_t err = 0;
+Error ioOp(T *io, DescriptorType *type) {
+	Error err = 0;
 	io->setTypeInfo("ox::DescriptorType", 4);
 	err |= io->op("typeName", &type->typeName);
 	err |= io->op("primitiveType", &type->primitiveType);
@@ -127,8 +128,8 @@ int ioOp(T *io, DescriptorType *type) {
 }
 
 template<typename T>
-int ioOpWrite(T *io, DescriptorField *field) {
-	int32_t err = 0;
+Error ioOpWrite(T *io, DescriptorField *field) {
+	Error err = 0;
 	io->setTypeInfo("ox::DescriptorField", 4);
 	if (field->ownsType) {
 		err |= io->op("typeName", "");
@@ -145,8 +146,8 @@ int ioOpWrite(T *io, DescriptorField *field) {
 }
 
 template<typename T>
-int ioOpRead(T *io, DescriptorField *field) {
-	int32_t err = 0;
+Error ioOpRead(T *io, DescriptorField *field) {
+	Error err = 0;
 	auto &typeStore = io->typeStore();
 	io->setTypeInfo("ox::DescriptorField", 4);
 	err |= io->op("typeName", &field->typeName);

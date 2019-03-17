@@ -8,6 +8,13 @@
 
 #pragma once
 
+namespace std {
+
+using nullptr_t = decltype(nullptr);
+using size_t = decltype(alignof(int));
+
+}
+
 #if __has_include(<cstdint>)
 
 #include <cstdint>
@@ -113,13 +120,6 @@ using Unsigned = Uint<sizeof(T) * 8>;
 
 }
 
-
-namespace std {
-
-using nullptr_t = decltype(nullptr);
-using size_t = decltype(alignof(int));
-
-}
 
 static_assert(sizeof(int8_t)   == 1, "int8_t is wrong size");
 static_assert(sizeof(int16_t)  == 2, "int16_t is wrong size");

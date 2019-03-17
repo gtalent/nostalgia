@@ -91,7 +91,7 @@ ox::Error JsonReader::field(QJsonValueRef src, T *dest) {
 }
 
 template<typename T>
-int readJson(QString json, T *dest) {
+Error readJson(QString json, T *dest) {
 	auto obj = QJsonDocument::fromJson(json.toUtf8()).object();
 	JsonReader rdr(obj);
 	return model(&rdr, dest);

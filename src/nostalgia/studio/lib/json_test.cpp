@@ -21,7 +21,7 @@ struct TestStructNest {
 };
 
 template<typename T>
-int model(T *io, TestStructNest *obj) {
+Error model(T *io, TestStructNest *obj) {
 	Error err = 0;
 	err |= io->setTypeInfo("TestStructNest", 4);
 	err |= io->field("Bool", &obj->Bool);
@@ -40,7 +40,7 @@ struct TestStruct {
 };
 
 template<typename T>
-int model(T *io, TestStruct *obj) {
+Error model(T *io, TestStruct *obj) {
 	Error err = 0;
 	err |= io->setTypeInfo("TestStruct", 5);
 	err |= io->field("Bool", &obj->Bool);

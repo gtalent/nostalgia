@@ -37,13 +37,13 @@ class Bounds {
 };
 
 template<typename T>
-ox::Error ioOp(T *io, Bounds *obj) {
+ox::Error model(T *io, Bounds *obj) {
 	ox::Error err = 0;
 	io->setTypeInfo("nostalgia::common::Bounds", 4);
-	err |= io->op("x", &obj->x);
-	err |= io->op("y", &obj->y);
-	err |= io->op("width", &obj->width);
-	err |= io->op("height", &obj->height);
+	err |= io->field("x", &obj->x);
+	err |= io->field("y", &obj->y);
+	err |= io->field("width", &obj->width);
+	err |= io->field("height", &obj->height);
 	return err;
 }
 

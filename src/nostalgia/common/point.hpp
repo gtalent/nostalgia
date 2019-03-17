@@ -59,11 +59,11 @@ class Point {
 };
 
 template<typename T>
-ox::Error ioOp(T *io, Point *obj) {
+ox::Error model(T *io, Point *obj) {
 	ox::Error err = 0;
 	io->setTypeInfo("nostalgia::common::Bounds", 2);
-	err |= io->op("x", &obj->x);
-	err |= io->op("y", &obj->y);
+	err |= io->field("x", &obj->x);
+	err |= io->field("y", &obj->y);
 	return err;
 }
 

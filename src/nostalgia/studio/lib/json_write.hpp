@@ -27,39 +27,39 @@ class JsonWriter {
 	public:
 		JsonWriter(QJsonObject &obj);
 
-		void setFields(int) {};
+		ox::Error setTypeInfo(const char*, int) { return OxError(0); };
 
-		ox::Error op(QString fieldName, int *src);
+		ox::Error field(QString fieldName, int *src);
 
-		ox::Error op(QString fieldName, bool *src);
+		ox::Error field(QString fieldName, bool *src);
 
-		ox::Error op(QString fieldName, double *src);
+		ox::Error field(QString fieldName, double *src);
 
-		ox::Error op(QString fieldName, QString *src);
-
-		template<typename T>
-		ox::Error op(QString fieldName, T *src);
+		ox::Error field(QString fieldName, QString *src);
 
 		template<typename T>
-		ox::Error op(QString fieldName, QVector<T> *src);
+		ox::Error field(QString fieldName, T *src);
+
+		template<typename T>
+		ox::Error field(QString fieldName, QVector<T> *src);
 
 };
 
 template<typename T>
-ox::Error JsonWriter::op(QString fieldName, T *src) {
+ox::Error JsonWriter::field(QString fieldName, T *src) {
 	auto obj = QJsonObject();
 	auto reader = JsonWriter(obj);
-	auto err = ioOp(&reader, src);
+	auto err = model(&reader, src);
 	m_dest[fieldName] = obj;
 	return err;
 };
 
 template<typename T>
-ox::Error JsonWriter::op(QString fieldName, QVector<T> *src) {
+ox::Error JsonWriter::field(QString fieldName, QVector<T> *src) {
 	ox::Error err = 0;
 	QJsonArray a;
 	for (int i = 0; i < src->size(); i++) {
-		err |= op(a[i], &src->at(i));
+		err |= field(a[i], &src->at(i));
 	}
 	m_dest[fieldName] = a;
 	return err;
@@ -69,7 +69,7 @@ template<typename T>
 int writeJson(QString *json, T *src) {
 	auto obj = QJsonObject();
 	JsonWriter rdr(obj);
-	auto err = ioOp(&rdr, src);
+	auto err = model(&rdr, src);
 	*json = QJsonDocument(obj).toJson();
 	return err;
 }

@@ -14,33 +14,33 @@ namespace studio {
 JsonReader::JsonReader(QJsonObject &obj): m_src(obj) {
 }
 
-ox::Error JsonReader::op(QString fieldName, int *dest) {
+ox::Error JsonReader::field(QString fieldName, int *dest) {
 	if (m_src.contains(fieldName)) {
-		return op(m_src[fieldName], dest);
+		return field(m_src[fieldName], dest);
 	} else {
 		return JSON_ERR_FIELD_MISSING;
 	}
 }
 
-ox::Error JsonReader::op(QString fieldName, bool *dest) {
+ox::Error JsonReader::field(QString fieldName, bool *dest) {
 	if (m_src.contains(fieldName)) {
-		return op(m_src[fieldName], dest);
+		return field(m_src[fieldName], dest);
 	} else {
 		return JSON_ERR_FIELD_MISSING;
 	}
 }
 
-ox::Error JsonReader::op(QString fieldName, double *dest) {
+ox::Error JsonReader::field(QString fieldName, double *dest) {
 	if (m_src.contains(fieldName)) {
-		return op(m_src[fieldName], dest);
+		return field(m_src[fieldName], dest);
 	} else {
 		return JSON_ERR_FIELD_MISSING;
 	}
 }
 
-ox::Error JsonReader::op(QString fieldName, QString *dest) {
+ox::Error JsonReader::field(QString fieldName, QString *dest) {
 	if (m_src.contains(fieldName)) {
-		return op(m_src[fieldName], dest);
+		return field(m_src[fieldName], dest);
 	} else {
 		return JSON_ERR_FIELD_MISSING;
 	}
@@ -48,7 +48,7 @@ ox::Error JsonReader::op(QString fieldName, QString *dest) {
 
 
 
-ox::Error JsonReader::op(QJsonValueRef src, int *dest) {
+ox::Error JsonReader::field(QJsonValueRef src, int *dest) {
 	if (src.isDouble()) {
 		*dest = src.toInt();
 		return 0;
@@ -57,7 +57,7 @@ ox::Error JsonReader::op(QJsonValueRef src, int *dest) {
 	}
 }
 
-ox::Error JsonReader::op(QJsonValueRef src, bool *dest) {
+ox::Error JsonReader::field(QJsonValueRef src, bool *dest) {
 	if (src.isBool()) {
 		*dest = src.toBool();
 		return 0;
@@ -66,7 +66,7 @@ ox::Error JsonReader::op(QJsonValueRef src, bool *dest) {
 	}
 }
 
-ox::Error JsonReader::op(QJsonValueRef src, double *dest) {
+ox::Error JsonReader::field(QJsonValueRef src, double *dest) {
 	if (src.isDouble()) {
 		*dest = src.toDouble();
 		return 0;
@@ -75,7 +75,7 @@ ox::Error JsonReader::op(QJsonValueRef src, double *dest) {
 	}
 }
 
-ox::Error JsonReader::op(QJsonValueRef src, QString *dest) {
+ox::Error JsonReader::field(QJsonValueRef src, QString *dest) {
 	if (src.isString()) {
 		*dest = src.toString();
 		return 0;

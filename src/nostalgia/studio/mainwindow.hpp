@@ -35,10 +35,10 @@ struct NostalgiaStudioState {
 };
 
 template<typename T>
-ox::Error ioOp(T *io, NostalgiaStudioState *obj) {
+ox::Error model(T *io, NostalgiaStudioState *obj) {
 	ox::Error err = 0;
-	io->setFields(1);
-	err |= io->op("project_path", &obj->projectPath);
+	err |= io->setTypeInfo("NostalgiaStudioState", 1);
+	err |= io->field("project_path", &obj->projectPath);
 	return err;
 }
 
@@ -49,11 +49,11 @@ struct NostalgiaStudioPluginDef {
 };
 
 template<typename T>
-ox::Error ioOp(T *io, NostalgiaStudioPluginDef *obj) {
+ox::Error model(T *io, NostalgiaStudioPluginDef *obj) {
 	ox::Error err = 0;
-	io->setFields(2);
-	err |= io->op("dir", &obj->dir);
-	err |= io->op("lib_name", &obj->libName);
+	err |= io->setTypeInfo("NostalgiaStudioPluginDef", 2);
+	err |= io->field("dir", &obj->dir);
+	err |= io->field("lib_name", &obj->libName);
 	return err;
 }
 
@@ -65,12 +65,12 @@ struct NostalgiaStudioProfile {
 };
 
 template<typename T>
-ox::Error ioOp(T *io, NostalgiaStudioProfile *obj) {
+ox::Error model(T *io, NostalgiaStudioProfile *obj) {
 	ox::Error err = 0;
-	io->setFields(3);
-	err |= io->op("app_name", &obj->appName);
-	err |= io->op("org_name", &obj->orgName);
-	err |= io->op("plugins_path", &obj->pluginsPath);
+	io->setTypeInfo("NostalgiaStudioProfile", 3);
+	err |= io->field("app_name", &obj->appName);
+	err |= io->field("org_name", &obj->orgName);
+	err |= io->field("plugins_path", &obj->pluginsPath);
 	return err;
 }
 

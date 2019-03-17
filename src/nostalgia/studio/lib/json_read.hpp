@@ -27,55 +27,55 @@ class JsonReader {
 	public:
 		JsonReader(QJsonObject &obj);
 
-		void setFields(int) {};
+		ox::Error setTypeInfo(const char*, int) { return OxError(0); };
 
-		ox::Error op(QString fieldName, int *dest);
+		ox::Error field(QString fieldName, int *dest);
 
-		ox::Error op(QString fieldName, bool *dest);
+		ox::Error field(QString fieldName, bool *dest);
 
-		ox::Error op(QString fieldName, double *dest);
+		ox::Error field(QString fieldName, double *dest);
 
-		ox::Error op(QString fieldName, QString *dest);
-
-		template<typename T>
-		ox::Error op(QString fieldName, T *dest);
+		ox::Error field(QString fieldName, QString *dest);
 
 		template<typename T>
-		ox::Error op(QString fieldName, QVector<T> *dest);
+		ox::Error field(QString fieldName, T *dest);
+
+		template<typename T>
+		ox::Error field(QString fieldName, QVector<T> *dest);
 
 	private:
-		ox::Error op(QJsonValueRef src, int *dest);
+		ox::Error field(QJsonValueRef src, int *dest);
 
-		ox::Error op(QJsonValueRef src, bool *dest);
+		ox::Error field(QJsonValueRef src, bool *dest);
 
-		ox::Error op(QJsonValueRef src, double *dest);
+		ox::Error field(QJsonValueRef src, double *dest);
 
-		ox::Error op(QJsonValueRef src, QString *dest);
+		ox::Error field(QJsonValueRef src, QString *dest);
 
 		template<typename T>
-		ox::Error op(QJsonValueRef src, T *dest);
+		ox::Error field(QJsonValueRef src, T *dest);
 
 };
 
 template<typename T>
-ox::Error JsonReader::op(QString fieldName, T *dest) {
+ox::Error JsonReader::field(QString fieldName, T *dest) {
 	if (m_src.contains(fieldName)) {
 		auto obj = m_src[fieldName].toObject();
 		auto reader = JsonReader(obj);
-		return ioOp(&reader, dest);
+		return model(&reader, dest);
 	} else {
 		return JSON_ERR_FIELD_MISSING;
 	}
 };
 
 template<typename T>
-ox::Error JsonReader::op(QString fieldName, QVector<T> *dest) {
+ox::Error JsonReader::field(QString fieldName, QVector<T> *dest) {
 	ox::Error err = 0;
 	if (m_src.contains(fieldName)) {
 		auto a = m_src[fieldName].toArray();
 		dest->resize(a.size());
 		for (int i = 0; i < dest->size(); i++) {
-			err |= op(a[i], &(*dest)[i]);
+			err |= field(a[i], &(*dest)[i]);
 		}
 	} else {
 		err |= JSON_ERR_FIELD_MISSING;
@@ -84,17 +84,17 @@ ox::Error JsonReader::op(QString fieldName, QVector<T> *dest) {
 };
 
 template<typename T>
-ox::Error JsonReader::op(QJsonValueRef src, T *dest) {
+ox::Error JsonReader::field(QJsonValueRef src, T *dest) {
 	auto obj = src.toObject();
 	auto reader = JsonReader(obj);
-	return ioOp(&reader, dest);
+	return model(&reader, dest);
 }
 
 template<typename T>
 int readJson(QString json, T *dest) {
 	auto obj = QJsonDocument::fromJson(json.toUtf8()).object();
 	JsonReader rdr(obj);
-	return ioOp(&rdr, dest);
+	return model(&rdr, dest);
 }
 
 }

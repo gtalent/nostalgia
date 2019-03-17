@@ -21,12 +21,13 @@ struct TestStructNest {
 };
 
 template<typename T>
-int ioOp(T *io, TestStructNest *obj) {
+int model(T *io, TestStructNest *obj) {
 	Error err = 0;
-	err |= io->op("Bool", &obj->Bool);
-	err |= io->op("Int", &obj->Int);
-	err |= io->op("Double", &obj->Double);
-	err |= io->op("String", &obj->String);
+	err |= io->setTypeInfo("TestStructNest", 4);
+	err |= io->field("Bool", &obj->Bool);
+	err |= io->field("Int", &obj->Int);
+	err |= io->field("Double", &obj->Double);
+	err |= io->field("String", &obj->String);
 	return err;
 }
 
@@ -39,13 +40,14 @@ struct TestStruct {
 };
 
 template<typename T>
-int ioOp(T *io, TestStruct *obj) {
+int model(T *io, TestStruct *obj) {
 	Error err = 0;
-	err |= io->op("Bool", &obj->Bool);
-	err |= io->op("Int", &obj->Int);
-	err |= io->op("Double", &obj->Double);
-	err |= io->op("String", &obj->String);
-	err |= io->op("Struct", &obj->Struct);
+	err |= io->setTypeInfo("TestStruct", 5);
+	err |= io->field("Bool", &obj->Bool);
+	err |= io->field("Int", &obj->Int);
+	err |= io->field("Double", &obj->Double);
+	err |= io->field("String", &obj->String);
+	err |= io->field("Struct", &obj->Struct);
 	return err;
 }
 

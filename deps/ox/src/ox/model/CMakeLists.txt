@@ -1,17 +1,17 @@
 add_library(
-	OxSerialization
+	OxModel
 		desctypes.cpp
 		descwrite.cpp
 )
 
 target_link_libraries(
-	OxSerialization PUBLIC
+	OxModel PUBLIC
 		OxStd
 )
 
 set_property(
 	TARGET
-		OxSerialization
+		OxModel
 	PROPERTY
 		POSITION_INDEPENDENT_CODE ON
 )
@@ -22,14 +22,14 @@ install(
 		desctypes.hpp
 		descwrite.hpp
 		optype.hpp
-		ser.hpp
+		model.hpp
 		types.hpp
 		walk.hpp
 	DESTINATION
-		include/ox/ser
+		include/ox/model
 )
 
-install(TARGETS OxSerialization
+install(TARGETS OxModel
         LIBRARY DESTINATION lib/ox
         ARCHIVE DESTINATION lib/ox
 )

@@ -7,7 +7,7 @@ add_library(
 
 target_link_libraries(
 	OxMetalClaw PUBLIC
-		OxSerialization
+		OxModel
 		OxStd
 )
 

@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 #include <ox/mc/mc.hpp>
-#include <ox/ser/ser.hpp>
+#include <ox/model/model.hpp>
 #include <ox/std/std.hpp>
 
 struct TestStructNest {

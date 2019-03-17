@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <ox/ser/walk.hpp>
+#include <ox/model/walk.hpp>
 
 namespace ox {
 

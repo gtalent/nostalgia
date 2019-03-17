@@ -58,7 +58,7 @@ template<typename I>
 	McInt out;
 	// move input to uint64_t to allow consistent bit manipulation, and to avoid
 	// overflow concerns
-	uint64_t val = *reinterpret_cast<Uint<Bits<I>>*>(&input);
+	uint64_t val = *reinterpret_cast<Unsigned<I>*>(&input);
 	if (val) {
 		// bits needed to represent number factoring in space possibly
 		// needed for signed bit
@@ -85,9 +85,11 @@ template<typename I>
 		LittleEndian<I> leVal = val;
 		if (bytes == 9) {
 			out.data[0] = bytesIndicator;
-			*reinterpret_cast<I*>(&out.data[1]) = *reinterpret_cast<I*>(&leVal);
+			*reinterpret_cast<I*>(&out.data[1]) = leVal.raw();
 		} else {
-			*reinterpret_cast<I*>(&out.data[0]) = (leVal << bytes) | bytesIndicator;
+			*reinterpret_cast<uint64_t*>(&out.data[0]) =
+				static_cast<uint64_t>(leVal.raw()) << bytes |
+				static_cast<uint64_t>(bytesIndicator);
 		}
 		out.length = bytes;
 	}

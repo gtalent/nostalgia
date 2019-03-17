@@ -21,13 +21,13 @@ struct TraceMsg {
 };
 
 template<typename T>
-int ioOp(T *io, ox::trace::TraceMsg *obj) {
+int model(T *io, ox::trace::TraceMsg *obj) {
 	int32_t err = 0;
 	io->setTypeInfo("ox::trace::TraceMsg", 5);
-	err |= io->op("file", &obj->file);
-	err |= io->op("line", &obj->line);
-	err |= io->op("time", &obj->time);
-	err |= io->op("msg", &obj->msg);
+	err |= io->field("file", &obj->file);
+	err |= io->field("line", &obj->line);
+	err |= io->field("time", &obj->time);
+	err |= io->field("msg", &obj->msg);
 	return err;
 }
 

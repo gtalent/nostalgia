@@ -43,12 +43,12 @@ class TypeDescWriter {
 			}
 
 			template<typename T>
-			constexpr ox::Error op(const char*, T*, std::size_t) noexcept {
+			constexpr ox::Error field(const char*, T*, std::size_t) noexcept {
 				return OxError(0);
 			}
 
 			template<typename T>
-			constexpr ox::Error op(const char*, T*) noexcept {
+			constexpr ox::Error field(const char*, T*) noexcept {
 				return OxError(0);
 			}
 
@@ -64,13 +64,13 @@ class TypeDescWriter {
 		~TypeDescWriter();
 
 		template<typename T>
-		ox::Error op(const char *name, T *val, std::size_t valLen);
+		ox::Error field(const char *name, T *val, std::size_t valLen);
 
 		template<typename T>
-		ox::Error op(const char *name, ox::Vector<T> *val);
+		ox::Error field(const char *name, ox::Vector<T> *val);
 
 		template<typename T>
-		ox::Error op(const char *name, T *val);
+		ox::Error field(const char *name, T *val);
 
 		void setTypeInfo(const char *name, int fields);
 
@@ -110,12 +110,12 @@ class TypeDescWriter {
 
 // array handler
 template<typename T>
-ox::Error TypeDescWriter::op(const char *name, T *val, std::size_t) {
+ox::Error TypeDescWriter::field(const char *name, T *val, std::size_t) {
 	if (m_type) {
 		constexpr typename ox::remove_pointer<decltype(val)>::type *p = nullptr;
 		bool alreadyExisted = false;
 		const auto t = type(p, &alreadyExisted);
-		oxAssert(t != nullptr, "op(const char *name, T *val, std::size_t): Type not found or generated");
+		oxAssert(t != nullptr, "field(const char *name, T *val, std::size_t): Type not found or generated");
 		if (t == nullptr) {
 			type(p, &alreadyExisted);
 		}
@@ -126,16 +126,16 @@ ox::Error TypeDescWriter::op(const char *name, T *val, std::size_t) {
 }
 
 template<typename T>
-ox::Error TypeDescWriter::op(const char *name, ox::Vector<T> *val) {
-	return op(name, val->data(), val->size());
+ox::Error TypeDescWriter::field(const char *name, ox::Vector<T> *val) {
+	return field(name, val->data(), val->size());
 }
 
 template<typename T>
-ox::Error TypeDescWriter::op(const char *name, T *val) {
+ox::Error TypeDescWriter::field(const char *name, T *val) {
 	if (m_type) {
 		bool alreadyExisted = false;
 		const auto t = type(val, &alreadyExisted);
-		oxAssert(t != nullptr, "op(const char *name, T *val): Type not found or generated");
+		oxAssert(t != nullptr, "field(const char *name, T *val): Type not found or generated");
 		m_type->fieldList.emplace_back(t, name, 0, alreadyExisted ? t->typeName : "", !alreadyExisted);
 		return OxError(0);
 	}
@@ -150,13 +150,13 @@ DescriptorType *TypeDescWriter::type(BString<sz> *val, bool *alreadyExisted) {
 template<typename T>
 DescriptorType *TypeDescWriter::type(T *val, bool *alreadyExisted) {
 	NameCatcher nc;
-	ioOp(&nc, val);
+	model(&nc, val);
 	if (m_typeStore->contains(nc.name)) {
 		*alreadyExisted = true;
 		return m_typeStore->at(nc.name);
 	} else {
 		TypeDescWriter dw(m_typeStore);
-		oxLogError(ioOp(&dw, val));
+		oxLogError(model(&dw, val));
 		*alreadyExisted = false;
 		return dw.m_type;
 	}
@@ -165,7 +165,7 @@ DescriptorType *TypeDescWriter::type(T *val, bool *alreadyExisted) {
 template<typename T>
 [[nodiscard]] ValErr<DescriptorType*> buildMCDef(T *val) {
 	TypeDescWriter writer;
-	Error err = ioOp(&writer, val);
+	Error err = model(&writer, val);
 	return {writer.definition(), err};
 }
 

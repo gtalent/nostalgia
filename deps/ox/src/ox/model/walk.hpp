@@ -113,13 +113,13 @@ static ox::Error parseField(const DescriptorField &field, Reader *rdr, DataWalke
 				if (rdr->fieldPresent()) {
 					auto child = rdr->child();
 					walker->pushType(field.type);
-					oxReturnError(ioOp(&child, walker));
+					oxReturnError(model(&child, walker));
 					walker->popType();
 					rdr->nextField();
 				} else {
 					// skip and discard absent field
 					int discard;
-					oxReturnError(rdr->op("", &discard));
+					oxReturnError(rdr->field("", &discard));
 				}
 				break;
 		}
@@ -129,7 +129,7 @@ static ox::Error parseField(const DescriptorField &field, Reader *rdr, DataWalke
 }
 
 template<typename Reader, typename FH>
-ox::Error ioOp(Reader *rdr, DataWalker<Reader, FH> *walker) {
+ox::Error model(Reader *rdr, DataWalker<Reader, FH> *walker) {
 	auto type = walker->type();
 	if (!type) {
 		return OxError(1);

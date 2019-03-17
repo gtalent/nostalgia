@@ -16,7 +16,7 @@ template<typename Reader, typename Handler>
 ox::Error walkMC(DescriptorType *type, uint8_t *data, std::size_t dataLen, Handler handler) {
 	DataWalker<Reader, Handler> walker(type, handler);
 	Reader rdr(data, dataLen);
-	return ioOp(&rdr, &walker);
+	return model(&rdr, &walker);
 }
 
 }

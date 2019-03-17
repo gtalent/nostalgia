@@ -37,32 +37,32 @@ class MetalClawReader {
 
 		~MetalClawReader();
 
-		Error op(const char*, int8_t *val);
-		Error op(const char*, int16_t *val);
-		Error op(const char*, int32_t *val);
-		Error op(const char*, int64_t *val);
+		Error field(const char*, int8_t *val);
+		Error field(const char*, int16_t *val);
+		Error field(const char*, int32_t *val);
+		Error field(const char*, int64_t *val);
 
-		Error op(const char*, uint8_t *val);
-		Error op(const char*, uint16_t *val);
-		Error op(const char*, uint32_t *val);
-		Error op(const char*, uint64_t *val);
+		Error field(const char*, uint8_t *val);
+		Error field(const char*, uint16_t *val);
+		Error field(const char*, uint32_t *val);
+		Error field(const char*, uint64_t *val);
 
-		Error op(const char*, bool *val);
+		Error field(const char*, bool *val);
 
 		// array handler
 		template<typename T>
-		Error op(const char*, T *val, std::size_t len);
+		Error field(const char*, T *val, std::size_t len);
 
 		template<typename T>
-		Error op(const char*, ox::Vector<T> *val);
+		Error field(const char*, ox::Vector<T> *val);
 
 		template<typename T>
-		Error op(const char*, T *val);
+		Error field(const char*, T *val);
 
 		template<std::size_t L>
-		Error op(const char*, ox::BString<L> *val);
+		Error field(const char*, ox::BString<L> *val);
 
-		Error op(const char*, SerStr val);
+		Error field(const char*, SerStr val);
 
 		/**
 		 * Reads an array length from the current location in the buffer.
@@ -105,18 +105,18 @@ class MetalClawReader {
 };
 
 template<typename T>
-Error MetalClawReader::op(const char*, T *val) {
+Error MetalClawReader::field(const char*, T *val) {
 	Error err = 0;
 	if (val && m_fieldPresence.get(m_field++)) {
 		auto reader = child();
-		err |= ioOp(&reader, val);
+		err |= model(&reader, val);
 	}
 	return err;
 };
 
 template<std::size_t L>
-Error MetalClawReader::op(const char *name, ox::BString<L> *val) {
-	return op(name, SerStr(val->data(), val->cap()));
+Error MetalClawReader::field(const char *name, ox::BString<L> *val) {
+	return field(name, SerStr(val->data(), val->cap()));
 }
 
 template<typename I>
@@ -138,7 +138,7 @@ Error MetalClawReader::readInteger(I *val) {
 
 // array handler
 template<typename T>
-Error MetalClawReader::op(const char*, T *val, std::size_t valLen) {
+Error MetalClawReader::field(const char*, T *val, std::size_t valLen) {
 	Error err = 0;
 	if (m_fieldPresence.get(m_field++)) {
 		// read the length
@@ -155,7 +155,7 @@ Error MetalClawReader::op(const char*, T *val, std::size_t valLen) {
 			auto reader = child();
 			reader.setTypeInfo("List", len);
 			for (std::size_t i = 0; i < len; i++) {
-				err |= reader.op("", &val[i]);
+				err |= reader.field("", &val[i]);
 			}
 		} else {
 			err = OxError(MC_OUTBUFFENDED);
@@ -165,14 +165,14 @@ Error MetalClawReader::op(const char*, T *val, std::size_t valLen) {
 };
 
 template<typename T>
-Error MetalClawReader::op(const char*, ox::Vector<T> *val) {
-	return op(nullptr, val->data(), val->size());
+Error MetalClawReader::field(const char*, ox::Vector<T> *val) {
+	return field(nullptr, val->data(), val->size());
 }
 
 template<typename T>
 Error readMC(uint8_t *buff, std::size_t buffLen, T *val) {
 	MetalClawReader reader(buff, buffLen);
-	return ioOp(&reader, val);
+	return model(&reader, val);
 }
 
 }

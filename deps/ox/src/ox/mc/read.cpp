@@ -27,45 +27,45 @@ MetalClawReader::~MetalClawReader() {
 	oxAssert(m_field == m_fields, "MetalClawReader: incorrect fields number given");
 }
 
-Error MetalClawReader::op(const char*, int8_t *val) {
+Error MetalClawReader::field(const char*, int8_t *val) {
 	return readInteger(val);
 }
 
-Error MetalClawReader::op(const char*, int16_t *val) {
+Error MetalClawReader::field(const char*, int16_t *val) {
 	return readInteger(val);
 }
 
-Error MetalClawReader::op(const char*, int32_t *val) {
+Error MetalClawReader::field(const char*, int32_t *val) {
 	return readInteger(val);
 }
 
-Error MetalClawReader::op(const char*, int64_t *val) {
+Error MetalClawReader::field(const char*, int64_t *val) {
 	return readInteger(val);
 }
 
 
-Error MetalClawReader::op(const char*, uint8_t *val) {
+Error MetalClawReader::field(const char*, uint8_t *val) {
 	return readInteger(val);
 }
 
-Error MetalClawReader::op(const char*, uint16_t *val) {
+Error MetalClawReader::field(const char*, uint16_t *val) {
 	return readInteger(val);
 }
 
-Error MetalClawReader::op(const char*, uint32_t *val) {
+Error MetalClawReader::field(const char*, uint32_t *val) {
 	return readInteger(val);
 }
 
-Error MetalClawReader::op(const char*, uint64_t *val) {
+Error MetalClawReader::field(const char*, uint64_t *val) {
 	return readInteger(val);
 }
 
-Error MetalClawReader::op(const char*, bool *val) {
+Error MetalClawReader::field(const char*, bool *val) {
 	*val = m_fieldPresence.get(m_field++);
 	return 0;
 }
 
-Error MetalClawReader::op(const char*, SerStr val) {
+Error MetalClawReader::field(const char*, SerStr val) {
 	if (m_fieldPresence.get(m_field++)) {
 		// read the length
 		if (m_buffIt >= m_buffLen) {

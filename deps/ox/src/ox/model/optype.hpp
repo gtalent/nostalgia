@@ -18,31 +18,31 @@ enum class OpType {
 	WriteDefinition = 3,
 };
 
-// empty default implementations of ioOp functions
+// empty default implementations of model functions
 
 template<typename T, typename O>
-ox::Error ioOpRead(T*, O*) {
+ox::Error modelRead(T*, O*) {
 	return OxError(1);
 }
 
 template<typename T, typename O>
-ox::Error ioOpWrite(T*, O*) {
+ox::Error modelWrite(T*, O*) {
 	return OxError(1);
 }
 
 template<typename T, typename O>
-ox::Error ioOpWriteDefinition(T*, O*) {
+ox::Error modelWriteDefinition(T*, O*) {
 	return OxError(1);
 }
 
 template<typename T, typename O>
-ox::Error ioOp(T *io, O *obj) {
+ox::Error model(T *io, O *obj) {
 	if constexpr(T::opType() == ox::OpType::Read) {
-		return ioOpRead(io, obj);
+		return modelRead(io, obj);
 	} else if constexpr(T::opType() == ox::OpType::Write) {
-		return ioOpWrite(io, obj);
+		return modelWrite(io, obj);
 	} else if constexpr(T::opType() == ox::OpType::WriteDefinition) {
-		return ioOpWriteDefinition(io, obj);
+		return modelWriteDefinition(io, obj);
 	}
 	return OxError(1);
 }

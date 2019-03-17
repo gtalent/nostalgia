@@ -40,33 +40,33 @@ struct TestStruct {
 };
 
 template<typename T>
-ox::Error ioOp(T *io, TestStructNest *obj) {
+ox::Error model(T *io, TestStructNest *obj) {
 	ox::Error err = 0;
 	io->setTypeInfo("TestStructNest", 3);
-	err |= io->op("Bool", &obj->Bool);
-	err |= io->op("Int", &obj->Int);
-	err |= io->op("String", &obj->String);
+	err |= io->field("Bool", &obj->Bool);
+	err |= io->field("Int", &obj->Int);
+	err |= io->field("String", &obj->String);
 	return err;
 }
 
 template<typename T>
-ox::Error ioOp(T *io, TestStruct *obj) {
+ox::Error model(T *io, TestStruct *obj) {
 	ox::Error err = 0;
 	io->setTypeInfo("TestStruct", 14);
-	err |= io->op("Bool", &obj->Bool);
-	err |= io->op("Int", &obj->Int);
-	err |= io->op("Int1", &obj->Int1);
-	err |= io->op("Int2", &obj->Int2);
-	err |= io->op("Int3", &obj->Int3);
-	err |= io->op("Int4", &obj->Int4);
-	err |= io->op("Int5", &obj->Int5);
-	err |= io->op("Int6", &obj->Int6);
-	err |= io->op("Int7", &obj->Int7);
-	err |= io->op("Int8", &obj->Int8);
-	err |= io->op("String", &obj->String);
-	err |= io->op("List", obj->List, 4);
-	err |= io->op("EmptyStruct", &obj->EmptyStruct);
-	err |= io->op("Struct", &obj->Struct);
+	err |= io->field("Bool", &obj->Bool);
+	err |= io->field("Int", &obj->Int);
+	err |= io->field("Int1", &obj->Int1);
+	err |= io->field("Int2", &obj->Int2);
+	err |= io->field("Int3", &obj->Int3);
+	err |= io->field("Int4", &obj->Int4);
+	err |= io->field("Int5", &obj->Int5);
+	err |= io->field("Int6", &obj->Int6);
+	err |= io->field("Int7", &obj->Int7);
+	err |= io->field("Int8", &obj->Int8);
+	err |= io->field("String", &obj->String);
+	err |= io->field("List", obj->List, 4);
+	err |= io->field("EmptyStruct", &obj->EmptyStruct);
+	err |= io->field("Struct", &obj->Struct);
 	return err;
 }
 
@@ -270,25 +270,25 @@ std::map<std::string, ox::Error(*)()> tests = {
 								switch (f.type->length) {
 									case 1: {
 										uint8_t i = {};
-										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
 										std::cout << i;
 										break;
 									}
 									case 2: {
 										uint16_t i = {};
-										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
 										std::cout << i;
 										break;
 									}
 									case 4: {
 										uint32_t i = {};
-										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
 										std::cout << i;
 										break;
 									}
 									case 8: {
 										uint64_t i = {};
-										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
 										std::cout << i;
 										break;
 									}
@@ -300,25 +300,25 @@ std::map<std::string, ox::Error(*)()> tests = {
 								switch (f.type->length) {
 									case 1: {
 										int8_t i = {};
-										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
 										std::cout << i;
 										break;
 									}
 									case 2: {
 										int16_t i = {};
-										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
 										std::cout << i;
 										break;
 									}
 									case 4: {
 										int32_t i = {};
-										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
 										std::cout << i;
 										break;
 									}
 									case 8: {
 										int64_t i = {};
-										oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
 										std::cout << i;
 										break;
 									}
@@ -327,14 +327,14 @@ std::map<std::string, ox::Error(*)()> tests = {
 								break;
 							case ox::PrimitiveType::Bool: {
 								bool i = {};
-								oxAssert(rdr->op(fieldName, &i), "Walking ioOp failed.");
+								oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
 								std::cout << fieldName << ":\t" << "bool:\t" << (i ? "true" : "false") << '\n';
 								break;
 							}
 							case ox::PrimitiveType::String: {
 								ox::Vector<char> v(rdr->stringLength());
 								//std::cout << rdr->stringLength() << '\n';
-								oxAssert(rdr->op(fieldName, ox::SerStr(v.data(), v.size())), "Walking ioOp failed.");
+								oxAssert(rdr->field(fieldName, ox::SerStr(v.data(), v.size())), "Walking model failed.");
 								std::cout << fieldName << ":\t" << "string: " << v.data() << '\n';
 								break;
 							}

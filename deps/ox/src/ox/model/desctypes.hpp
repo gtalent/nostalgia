@@ -117,56 +117,56 @@ struct DescriptorType {
 
 
 template<typename T>
-Error ioOp(T *io, DescriptorType *type) {
+Error model(T *io, DescriptorType *type) {
 	Error err = 0;
 	io->setTypeInfo("ox::DescriptorType", 4);
-	err |= io->op("typeName", &type->typeName);
-	err |= io->op("primitiveType", &type->primitiveType);
-	err |= io->op("fieldList", &type->fieldList);
-	err |= io->op("length", &type->length);
+	err |= io->field("typeName", &type->typeName);
+	err |= io->field("primitiveType", &type->primitiveType);
+	err |= io->field("fieldList", &type->fieldList);
+	err |= io->field("length", &type->length);
 	return err;
 }
 
 template<typename T>
-Error ioOpWrite(T *io, DescriptorField *field) {
+Error modelWrite(T *io, DescriptorField *field) {
 	Error err = 0;
 	io->setTypeInfo("ox::DescriptorField", 4);
 	if (field->ownsType) {
-		err |= io->op("typeName", "");
-		err |= io->op("type", field->type);
+		err |= io->field("typeName", "");
+		err |= io->field("type", field->type);
 	} else {
-		err |= io->op("typeName", &field->type->typeName);
-		err |= io->op("type", static_cast<decltype(field->type)>(nullptr));
+		err |= io->field("typeName", &field->type->typeName);
+		err |= io->field("type", static_cast<decltype(field->type)>(nullptr));
 	}
-	err |= io->op("fieldName", &field->fieldName);
+	err |= io->field("fieldName", &field->fieldName);
 	// defaultValue is unused now, but leave placeholder for backwards compatibility
 	const int DefaultValue = 0;
-	err |= io->op("defaultValue", &DefaultValue);
+	err |= io->field("defaultValue", &DefaultValue);
 	return err;
 }
 
 template<typename T>
-Error ioOpRead(T *io, DescriptorField *field) {
+Error modelRead(T *io, DescriptorField *field) {
 	Error err = 0;
 	auto &typeStore = io->typeStore();
 	io->setTypeInfo("ox::DescriptorField", 4);
-	err |= io->op("typeName", &field->typeName);
+	err |= io->field("typeName", &field->typeName);
 	if (field->typeName == "") {
 		field->ownsType = true;
 		if (field->type == nullptr) {
 			field->type = new DescriptorType;
 		}
-		err |= io->op("type", field->type);
+		err |= io->field("type", field->type);
 		typeStore[field->type->typeName] = field->type;
 	} else {
 		// should be empty, so discard
 		DescriptorType t;
-		err |= io->op("type", &t);
+		err |= io->field("type", &t);
 		field->type = typeStore[field->typeName];
 	}
-	err |= io->op("fieldName", &field->fieldName);
+	err |= io->field("fieldName", &field->fieldName);
 	// defaultValue is unused now, but placeholder for backwards compatibility
-	err |= io->op("defaultValue", nullptr);
+	err |= io->field("defaultValue", nullptr);
 	return err;
 }
 

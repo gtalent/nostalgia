@@ -36,7 +36,7 @@ const TypeStore &TypeDescReader<ReaderBase>::typeStore() const {
 template<typename ReaderBase, typename T>
 int readMCDef(uint8_t *buff, std::size_t buffLen, T *val) {
 	TypeDescReader<ReaderBase> reader(buff, buffLen);
-	return ioOp(&reader, val);
+	return model(&reader, val);
 }
 
 }

@@ -38,31 +38,31 @@ class MetalClawWriter {
 
 		~MetalClawWriter() noexcept;
 
-		Error op(const char*, int8_t *val);
-		Error op(const char*, int16_t *val);
-		Error op(const char*, int32_t *val);
-		Error op(const char*, int64_t *val);
+		Error field(const char*, int8_t *val);
+		Error field(const char*, int16_t *val);
+		Error field(const char*, int32_t *val);
+		Error field(const char*, int64_t *val);
 
-		Error op(const char*, uint8_t *val);
-		Error op(const char*, uint16_t *val);
-		Error op(const char*, uint32_t *val);
-		Error op(const char*, uint64_t *val);
+		Error field(const char*, uint8_t *val);
+		Error field(const char*, uint16_t *val);
+		Error field(const char*, uint32_t *val);
+		Error field(const char*, uint64_t *val);
 
-		Error op(const char*, bool *val);
-
-		template<typename T>
-		Error op(const char*, T *val, std::size_t len);
+		Error field(const char*, bool *val);
 
 		template<typename T>
-		Error op(const char*, ox::Vector<T> *val);
+		Error field(const char*, T *val, std::size_t len);
+
+		template<typename T>
+		Error field(const char*, ox::Vector<T> *val);
 
 		template<std::size_t L>
-		Error op(const char*, ox::BString<L> *val);
+		Error field(const char*, ox::BString<L> *val);
 
-		Error op(const char*, SerStr val);
+		Error field(const char*, SerStr val);
 
 		template<typename T>
-		Error op(const char*, T *val);
+		Error field(const char*, T *val);
 
 		void setTypeInfo(const char *name, int fields);
 
@@ -78,17 +78,17 @@ class MetalClawWriter {
 };
 
 template<std::size_t L>
-Error MetalClawWriter::op(const char *name, ox::BString<L> *val) {
-	return op(name, SerStr(val->data(), val->cap()));
+Error MetalClawWriter::field(const char *name, ox::BString<L> *val) {
+	return field(name, SerStr(val->data(), val->cap()));
 }
 
 template<typename T>
-Error MetalClawWriter::op(const char*, T *val) {
+Error MetalClawWriter::field(const char*, T *val) {
 	int err = 0;
 	bool fieldSet = false;
 	MetalClawWriter writer(m_buff + m_buffIt, m_buffLen - m_buffIt);
 	if (val) {
-		err |= ioOp(&writer, val);
+		err |= model(&writer, val);
 		if (static_cast<std::size_t>(writer.m_fieldPresence.getMaxLen()) < writer.m_buffIt) {
 			m_buffIt += writer.m_buffIt;
 			fieldSet = true;
@@ -100,12 +100,12 @@ Error MetalClawWriter::op(const char*, T *val) {
 }
 
 template<typename T>
-Error MetalClawWriter::op(const char*, ox::Vector<T> *val) {
-	return op(nullptr, val->data(), val->size());
+Error MetalClawWriter::field(const char*, ox::Vector<T> *val) {
+	return field(nullptr, val->data(), val->size());
 }
 
 template<typename T>
-Error MetalClawWriter::op(const char*, T *val, std::size_t len) {
+Error MetalClawWriter::field(const char*, T *val, std::size_t len) {
 	Error err = 0;
 	bool fieldSet = false;
 
@@ -124,7 +124,7 @@ Error MetalClawWriter::op(const char*, T *val, std::size_t len) {
 
 		// write the array
 		for (std::size_t i = 0; i < len; i++) {
-			err |= writer.op("", &val[i]);
+			err |= writer.field("", &val[i]);
 		}
 
 		m_buffIt += writer.m_buffIt;
@@ -158,7 +158,7 @@ Error MetalClawWriter::appendInteger(I val) {
 template<typename T>
 Error writeMC(uint8_t *buff, std::size_t buffLen, T *val, std::size_t *sizeOut = nullptr) {
 	MetalClawWriter writer(buff, buffLen);
-	auto err = ioOp(&writer, val);
+	auto err = model(&writer, val);
 	if (sizeOut) {
 		*sizeOut = writer.size();
 	}

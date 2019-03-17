@@ -99,11 +99,11 @@ struct UnsignedType<64> {
 	using type = uint64_t;
 };
 
-template<std::size_t bytes>
-using Int = typename SignedType<bytes>::type;
+template<std::size_t bits>
+using Int = typename SignedType<bits>::type;
 
-template<std::size_t bytes>
-using Uint = typename UnsignedType<bytes>::type;
+template<std::size_t bits>
+using Uint = typename UnsignedType<bits>::type;
 
 template<typename T>
 using Signed = Int<sizeof(T) * 8>;

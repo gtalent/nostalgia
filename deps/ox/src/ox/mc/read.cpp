@@ -66,15 +66,15 @@ Error MetalClawReader::op(const char*, bool *val) {
 }
 
 Error MetalClawReader::op(const char*, SerStr val) {
-	if (m_fieldPresence.get(m_field)) {
+	if (m_fieldPresence.get(m_field++)) {
 		// read the length
-		StringLength size = 0;
-		if (m_buffIt + sizeof(StringLength) < m_buffLen) {
-			size = *reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]);
-			m_buffIt += sizeof(StringLength);
-		} else {
+		if (m_buffIt >= m_buffLen) {
 			return OxError(MC_BUFFENDED);
 		}
+		std::size_t bytesRead = 0;
+		auto size = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+		m_buffIt += bytesRead;
+		oxReturnError(size.error);
 
 		// read the string
 		if (val.cap() > -1 && static_cast<StringLength>(val.cap()) >= size) {
@@ -90,7 +90,6 @@ Error MetalClawReader::op(const char*, SerStr val) {
 	} else {
 		val.data()[0] = 0;
 	}
-	m_field++;
 	return OxError(0);
 }
 
@@ -98,25 +97,25 @@ Error MetalClawReader::op(const char*, SerStr val) {
 	std::size_t len = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
-		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
-			len = *reinterpret_cast<LittleEndian<ArrayLength>*>(&m_buff[m_buffIt]);
-			if (pass) {
-				m_buffIt += sizeof(ArrayLength);
-			}
+		if (m_buffIt >= m_buffLen) {
+			return OxError(MC_BUFFENDED);
+		}
+		std::size_t bytesRead = 0;
+		len = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+		if (pass) {
+			m_buffIt += sizeof(ArrayLength);
 		}
 	}
 	return len;
 }
 
 [[nodiscard]] StringLength MetalClawReader::stringLength() {
-	std::size_t len = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
-		if (m_buffIt + sizeof(StringLength) < m_buffLen) {
-			len = *reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]);
-		}
+		std::size_t bytesRead = 0;
+		return mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
 	}
-	return len;
+	return 0;
 }
 
 void MetalClawReader::setTypeInfo(const char*, int fields) {

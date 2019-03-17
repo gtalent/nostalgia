@@ -15,6 +15,7 @@
 #include <ox/std/vector.hpp>
 
 #include "err.hpp"
+#include "intops.hpp"
 #include "presenceindicator.hpp"
 #include "types.hpp"
 
@@ -106,11 +107,10 @@ class MetalClawReader {
 template<typename T>
 Error MetalClawReader::op(const char*, T *val) {
 	Error err = 0;
-	if (val && m_fieldPresence.get(m_field)) {
+	if (val && m_fieldPresence.get(m_field++)) {
 		auto reader = child();
 		err |= ioOp(&reader, val);
 	}
-	m_field++;
 	return err;
 };
 
@@ -121,34 +121,34 @@ Error MetalClawReader::op(const char *name, ox::BString<L> *val) {
 
 template<typename I>
 Error MetalClawReader::readInteger(I *val) {
-	Error err = 0;
-	if (m_fieldPresence.get(m_field)) {
-		if (m_buffIt + sizeof(I) < m_buffLen) {
-			*val = *reinterpret_cast<LittleEndian<I>*>(&m_buff[m_buffIt]);
-			m_buffIt += sizeof(I);
-		} else {
-			err = OxError(MC_BUFFENDED);
+	if (m_fieldPresence.get(m_field++)) {
+		std::size_t bytesRead = 0;
+		if (m_buffIt >= m_buffLen) {
+			return OxError(MC_BUFFENDED);
 		}
+		auto valErr = mc::decodeInteger<I>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+		m_buffIt += bytesRead;
+		oxReturnError(valErr.error);
+		*val = valErr.value;
 	} else {
 		*val = 0;
 	}
-	m_field++;
-	return err;
+	return OxError(0);
 };
 
 // array handler
 template<typename T>
 Error MetalClawReader::op(const char*, T *val, std::size_t valLen) {
 	Error err = 0;
-	if (m_fieldPresence.get(m_field)) {
+	if (m_fieldPresence.get(m_field++)) {
 		// read the length
-		ArrayLength len = 0;
-		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
-			len = *reinterpret_cast<LittleEndian<ArrayLength>*>(&m_buff[m_buffIt]);
-			m_buffIt += sizeof(ArrayLength);
-		} else {
-			err = OxError(MC_BUFFENDED);
+		if (m_buffIt >= m_buffLen) {
+			return OxError(MC_BUFFENDED);
 		}
+		std::size_t bytesRead = 0;
+		auto len = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+		m_buffIt += bytesRead;
+		oxReturnError(len.error);
 
 		// read the list
 		if (valLen >= len) {
@@ -161,7 +161,6 @@ Error MetalClawReader::op(const char*, T *val, std::size_t valLen) {
 			err = OxError(MC_OUTBUFFENDED);
 		}
 	}
-	m_field++;
 	return err;
 };
 

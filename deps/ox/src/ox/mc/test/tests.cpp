@@ -107,6 +107,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 
 				oxAssert(ox::writeMC(buff, buffLen, &testIn), "writeMC failed");
 				oxAssert(ox::readMC(buff, buffLen, &testOut), "writeMC failed");
+				std::cout << testIn.Int << " " << testOut.Int << '\n';
 
 				oxAssert(testIn.Bool               == testOut.Bool, "Bool value mismatch");
 				oxAssert(testIn.Int                == testOut.Int, "Int value mismatch");
@@ -217,12 +218,15 @@ std::map<std::string, ox::Error(*)()> tests = {
 					}
 					return OxError(result.value != val);
 				};
+				oxAssert(check(uint32_t(14)), "Decode of 14 failed.");
 				oxAssert(check(int64_t(1)), "Decode of 1 failed.");
 				oxAssert(check(int64_t(2)), "Decode of 2 failed.");
+				oxAssert(check(int64_t(42)), "Decode of 42 failed.");
 				oxAssert(check(int64_t(130)), "Decode of 130 failed.");
 				oxAssert(check(int64_t(131)), "Decode of 131 failed.");
 				oxAssert(check(uint64_t(1)), "Decode of 1 failed.");
 				oxAssert(check(uint64_t(2)), "Decode of 2 failed.");
+				oxAssert(check(uint64_t(42)), "Decode of 42 failed.");
 				oxAssert(check(uint64_t(130)), "Decode of 130 failed.");
 				oxAssert(check(uint64_t(131)), "Decode of 131 failed.");
 				oxAssert(check(0xffffffff), "Decode of 0xffffffff failed.");
@@ -262,7 +266,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 						auto fieldName = f.fieldName.c_str();
 						switch (f.type->primitiveType) {
 							case ox::PrimitiveType::UnsignedInteger:
-								std::cout << fieldName << ":\tuint" << f.type->length << "_t:\t";
+								std::cout << fieldName << ":\tuint" << f.type->length * 8 << "_t:\t";
 								switch (f.type->length) {
 									case 1: {
 										uint8_t i = {};
@@ -292,7 +296,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 								std::cout << '\n';
 								break;
 							case ox::PrimitiveType::SignedInteger:
-								std::cout << fieldName << ":\tint" << f.type->length << "_t:\t";
+								std::cout << fieldName << ":\tint" << f.type->length * 8 << "_t:\t";
 								switch (f.type->length) {
 									case 1: {
 										int8_t i = {};

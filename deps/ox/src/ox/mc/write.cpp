@@ -65,9 +65,10 @@ Error MetalClawWriter::op(const char*, SerStr val) {
 	bool fieldSet = false;
 	if (val.cap()) {
 		// write the length
-		if (m_buffIt + sizeof(StringLength) + val.bytes() < m_buffLen) {
-			*reinterpret_cast<LittleEndian<StringLength>*>(&m_buff[m_buffIt]) = static_cast<StringLength>(val.bytes());
-			m_buffIt += sizeof(StringLength);
+		const auto strLen = mc::encodeInteger(val.bytes());
+		if (m_buffIt + strLen.length + val.bytes() < m_buffLen) {
+			ox_memcpy(&m_buff[m_buffIt], strLen.data, strLen.length);
+			m_buffIt += strLen.length;
 
 			// write the string
 			ox_memcpy(&m_buff[m_buffIt], val.c_str(), val.bytes());

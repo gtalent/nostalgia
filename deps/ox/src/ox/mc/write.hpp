@@ -111,9 +111,10 @@ Error MetalClawWriter::op(const char*, T *val, std::size_t len) {
 
 	if (len) {
 		// write the length
-		if (m_buffIt + sizeof(ArrayLength) < m_buffLen) {
-			*reinterpret_cast<LittleEndian<ArrayLength>*>(&m_buff[m_buffIt]) = static_cast<ArrayLength>(len);
-			m_buffIt += sizeof(ArrayLength);
+		const auto arrLen = mc::encodeInteger(len);
+		if (m_buffIt + arrLen.length < m_buffLen) {
+			ox_memcpy(&m_buff[m_buffIt], arrLen.data, arrLen.length);
+			m_buffIt += arrLen.length;
 		} else {
 			err = MC_BUFFENDED;
 		}
@@ -140,28 +141,11 @@ Error MetalClawWriter::appendInteger(I val) {
 	Error err = 0;
 	bool fieldSet = false;
 	if (val) {
-		if (m_buffIt + sizeof(I) < m_buffLen) {
-			LittleEndian<I> leVal = val;
-			// bits needed to represent number factoring in space possibly needed
-			// for signed bit
-			const auto bits = mc::highestBit(val) + (ox::is_signed<I> ? 1 : 0) / 8;
-			// bytes needed to store value
-			std::size_t bytes = bits / 8 + (bits % 8 != 0);
-			const auto bytesIndicator = onMask<uint8_t>(bytes - 1) << (7 - bytes);
-			// factor in bits needed for bytesIndicator (does not affect bytesIndicator)
-			// bits for integer + bits needed to represent bytes > bits available
-			if (bits + bytes > bytes * 8) {
-				++bytes;
-			}
-
-			if (bytes == 9) {
-				m_buff[m_buffIt++] = bytesIndicator;
-				
-			} else {
-			}
-			*reinterpret_cast<LittleEndian<I>*>(&m_buff[m_buffIt]) = leVal;
+		auto mi = mc::encodeInteger(val);
+		if (mi.length < m_buffLen) {
 			fieldSet = true;
-			m_buffIt += sizeof(I);
+			ox_memcpy(&m_buff[m_buffIt], mi.data, mi.length);
+			m_buffIt += mi.length;
 		} else {
 			err |= MC_BUFFENDED;
 		}

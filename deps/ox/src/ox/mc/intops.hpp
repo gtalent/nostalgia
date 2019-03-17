@@ -10,6 +10,7 @@
 
 #include <ox/std/assert.hpp>
 #include <ox/std/byteswap.hpp>
+#include <ox/std/memops.hpp>
 
 namespace ox::mc {
 
@@ -117,12 +118,15 @@ static_assert(countBytes(0b01111111) == 8);
 static_assert(countBytes(0b11111111) == 9);
 
 template<typename I>
-[[nodiscard]] ValErr<I> decodeInteger(uint8_t buff[9], std::size_t buffLen) noexcept {
+[[nodiscard]] ValErr<I> decodeInteger(uint8_t buff[9], std::size_t buffLen, std::size_t *bytesRead) noexcept {
 	const auto bytes = countBytes(buff[0]);
 	if (bytes == 9) {
+		*bytesRead = bytes;
 		return {LittleEndian<I>(*reinterpret_cast<I*>(&buff[1])), 0};
 	} else if (buffLen >= bytes) {
-		uint64_t decoded = LittleEndian<uint64_t>(*reinterpret_cast<uint64_t*>(&buff[0]));
+		*bytesRead = bytes;
+		uint64_t decoded = 0;
+		ox_memcpy(&decoded, &buff[0], bytes);
 		decoded >>= bytes;
 		auto out = static_cast<I>(decoded);
 		// move sign bit
@@ -142,7 +146,8 @@ template<typename I>
 
 template<typename I>
 [[nodiscard]] ValErr<I> decodeInteger(McInt m) noexcept {
-	return decodeInteger<I>(m.data, 9);
+	std::size_t bytesRead;
+	return decodeInteger<I>(m.data, 9, &bytesRead);
 }
 
 }

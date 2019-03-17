@@ -21,8 +21,8 @@ struct TraceMsg {
 };
 
 template<typename T>
-int model(T *io, ox::trace::TraceMsg *obj) {
-	int32_t err = 0;
+Error model(T *io, ox::trace::TraceMsg *obj) {
+	Error err = 0;
 	io->setTypeInfo("ox::trace::TraceMsg", 5);
 	err |= io->field("file", &obj->file);
 	err |= io->field("line", &obj->line);

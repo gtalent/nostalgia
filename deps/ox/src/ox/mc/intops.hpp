@@ -96,4 +96,53 @@ template<typename I>
 	return out;
 }
 
+/**
+ * Returns the number of bytes indicated by the bytes indicator of a variable
+ * length integer.
+ */
+[[nodiscard]] static constexpr std::size_t countBytes(uint8_t b) noexcept {
+	std::size_t i = 0;
+	for (; (b >> i) & 1; i++);
+	return i + 1;
+}
+
+static_assert(countBytes(0b00000000) == 1);
+static_assert(countBytes(0b00000001) == 2);
+static_assert(countBytes(0b00000011) == 3);
+static_assert(countBytes(0b00000111) == 4);
+static_assert(countBytes(0b00001111) == 5);
+static_assert(countBytes(0b00011111) == 6);
+static_assert(countBytes(0b00111111) == 7);
+static_assert(countBytes(0b01111111) == 8);
+static_assert(countBytes(0b11111111) == 9);
+
+template<typename I>
+[[nodiscard]] ValErr<I> decodeInteger(uint8_t buff[9], std::size_t buffLen) noexcept {
+	const auto bytes = countBytes(buff[0]);
+	if (bytes == 9) {
+		return {LittleEndian<I>(*reinterpret_cast<I*>(&buff[1])), 0};
+	} else if (buffLen >= bytes) {
+		uint64_t decoded = LittleEndian<uint64_t>(*reinterpret_cast<uint64_t*>(&buff[0]));
+		decoded >>= bytes;
+		auto out = static_cast<I>(decoded);
+		// move sign bit
+		if constexpr(ox::is_signed<I>) {
+			const auto valBits = bytes << 3;
+			// get sign
+			uint64_t sign = decoded >> (valBits - 1);
+			// remove sign
+			decoded &= uint64_t(~0) ^ (uint64_t(1) << valBits);
+			// set sign
+			*reinterpret_cast<Unsigned<I>*>(&out) |= sign << (Bits<I> - 1);
+		}
+		return {out, 0};
+	}
+	return {0, OxError(1)};
+}
+
+template<typename I>
+[[nodiscard]] ValErr<I> decodeInteger(McInt m) noexcept {
+	return decodeInteger<I>(m.data, 9);
+}
+
 }

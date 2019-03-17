@@ -184,6 +184,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 				oxAssert(check(encodeInteger(int64_t(-130)), {255, 126, 255, 255, 255, 255, 255, 255, 255}), "Encode -130 fail");
 				oxAssert(check(encodeInteger(int64_t(-131)), {255, 125, 255, 255, 255, 255, 255, 255, 255}), "Encode -131 fail");
 
+				oxAssert(check(encodeInteger(uint32_t(0xffffffff)), {0b11101111, 255, 255, 255, 0b00011111}), "Encode 0xffffffff fail");
 				oxAssert(check(encodeInteger(uint64_t(1)), {0b0010}), "Encode 1 fail");
 				oxAssert(check(encodeInteger(uint64_t(2)), {0b0100}), "Encode 2 fail");
 				oxAssert(check(encodeInteger(uint64_t(3)), {0b0110}), "Encode 3 fail");
@@ -197,6 +198,37 @@ std::map<std::string, ox::Error(*)()> tests = {
 				// code deduplication
 				//oxAssert(check64(encodeInteger(MaxValue<int64_t>), MaxValue<int64_t>), "Encode MaxValue<int64_t> fail");
 				oxAssert(check64(encodeInteger(MaxValue<uint64_t>), MaxValue<uint64_t>), "Encode MaxValue<uint64_t> fail");
+				return OxError(0);
+			}
+		},
+		{
+			"decodeInteger",
+			[] {
+				using ox::MaxValue;
+				using ox::mc::McInt;
+				using ox::mc::encodeInteger;
+				using ox::mc::decodeInteger;
+
+				constexpr auto check = [](auto val) {
+					auto result = decodeInteger<decltype(val)>(encodeInteger(val));
+					oxReturnError(result.error);
+					if (result.value != val) {
+						std::cout << "Bad value: " << result.value << ", expected: " << val << '\n';
+					}
+					return OxError(result.value != val);
+				};
+				oxAssert(check(int64_t(1)), "Decode of 1 failed.");
+				oxAssert(check(int64_t(2)), "Decode of 2 failed.");
+				oxAssert(check(int64_t(130)), "Decode of 130 failed.");
+				oxAssert(check(int64_t(131)), "Decode of 131 failed.");
+				oxAssert(check(uint64_t(1)), "Decode of 1 failed.");
+				oxAssert(check(uint64_t(2)), "Decode of 2 failed.");
+				oxAssert(check(uint64_t(130)), "Decode of 130 failed.");
+				oxAssert(check(uint64_t(131)), "Decode of 131 failed.");
+				oxAssert(check(0xffffffff), "Decode of 0xffffffff failed.");
+				oxAssert(check(0xffffffffffff), "Decode of 0xffffffffffff failed.");
+				oxAssert(check(0xffffffffffffffff), "Decode of U64 max failed.");
+
 				return OxError(0);
 			}
 		},

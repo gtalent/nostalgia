@@ -38,6 +38,18 @@ map<string, function<int()>> tests = {
 		}
 	},
 	{
+		"BString",
+		[]() {
+			ox::BString<100> s;
+			s += "A";
+			s += "B";
+			s += 9;
+			s += "C";
+			oxAssert(s == "AB9C", "BString append broken");
+			return OxError(0);
+		}
+	},
+	{
 		"Vector",
 		[] {
 			ox::Vector<int> v;

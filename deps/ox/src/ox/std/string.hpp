@@ -114,7 +114,7 @@ constexpr const BString<size> &BString<size>::operator+=(const char *str) noexce
 
 template<std::size_t size>
 constexpr const BString<size> &BString<size>::operator+=(char *str) noexcept {
-	return *this = static_cast<const char*>(str);
+	return *this += static_cast<const char*>(str);
 }
 
 template<std::size_t size>

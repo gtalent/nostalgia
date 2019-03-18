@@ -242,12 +242,13 @@ template<typename size_t>
 Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSize, uint8_t fileType) {
 	oxTrace("ox::fs::FileStoreTemplate::write") << "Attempting to write to inode" << id;
 	auto existing = find(id);
+	// TODO: change to !canWrite(...)
 	if (canWrite(existing, dataSize)) {
 		compact();
 		existing = find(id);
 	}
 
-	if (canWrite(existing, dataSize)) {
+	if (!canWrite(existing, dataSize)) {
 		// delete the old node if it exists
 		if (existing.valid()) {
 			oxTrace("ox::fs::FileStoreTemplate::write") << "Freeing old version of inode found at offset:" << existing.offset();
@@ -263,10 +264,12 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 		auto dest = m_buffer->malloc(dataSize);
 		// if first malloc failed, compact and try again
 		if (!dest.valid()) {
+			oxTrace("ox::fs::FileStoreTemplate::write") << "Allocation failed, compacting";
 			compact();
 			dest = m_buffer->malloc(dataSize);
 		}
 		if (dest.valid()) {
+			oxTrace("ox::fs::FileStoreTemplate::write") << "Memory allocated";
 			dest->id = id;
 			dest->fileType = fileType;
 			auto destData = m_buffer->template dataOf<uint8_t>(dest);
@@ -274,17 +277,21 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 				// write data if any was provided
 				if (data != nullptr) {
 					ox_memcpy(destData, data, dest->size());
+					oxTrace("ox::fs::FileStoreTemplate::write") << "Data written";
 				}
 				auto fsData = fileStoreData();
 				if (fsData) {
+					oxTrace("ox::fs::FileStoreTemplate::write") << "Searching for root node at" << fsData->rootNode;
 					auto root = m_buffer->ptr(fsData->rootNode);
 					if (root.valid()) {
 						oxTrace("ox::fs::FileStoreTemplate::write") << "Placing" << dest->id << "on" << root->id << "at" << destData.offset();
 						return placeItem(dest);
 					} else {
-						oxTrace("ox::fs::FileStoreTemplate::write") << "Initializing root inode ( offset:" << dest.offset()
+						oxTrace("ox::fs::FileStoreTemplate::write") << "Initializing root inode:" << dest->id << "( offset:" << dest.offset()
 						                                            << ", data size:" << destData.size() << ")";
 						fsData->rootNode = dest.offset();
+						m_buffer->malloc(dataSize);
+						oxTrace("ox::fs::FileStoreTemplate::write") << "Root inode:" << dest->id;
 						return OxError(0);
 					}
 				} else {
@@ -462,6 +469,10 @@ template<typename size_t>
 void FileStoreTemplate<size_t>::compact() {
 	m_buffer->compact([this](uint64_t oldAddr, ItemPtr item) {
 		if (item.valid()) {
+			oxTrace("ox::FileStoreTemplate::compact::moveItem")
+				<< "Moving Item:" << item->id
+				<< "from" << oldAddr
+				<< "to" << item.offset();
 			auto parent = findParent(rootInode(), item);
 			if (parent.valid()) {
 				if (parent->left == oldAddr) {

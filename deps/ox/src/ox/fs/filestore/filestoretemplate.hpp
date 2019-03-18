@@ -232,7 +232,9 @@ Error FileStoreTemplate<size_t>::decLinks(InodeId_t id) {
 	auto item = find(id);
 	if (item.valid()) {
 		item->links--;
-		// TODO: remove item if links is 0
+		if (item->links == 0) {
+			remove(item);
+		}
 		return OxError(0);
 	}
 	return OxError(1);

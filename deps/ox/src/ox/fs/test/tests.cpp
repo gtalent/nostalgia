@@ -155,14 +155,14 @@ map<string, int(*)(string)> tests = {
 				constexpr auto str2 = "Hello, Moon!";
 				constexpr auto str2Len = ox_strlen(str2) + 1;
 				auto list = new (ox_alloca(buffLen)) ox::ptrarith::NodeBuffer<uint32_t, ox::FileStoreItem<uint32_t>>(buffLen);
-				oxAssert(ox::FileStore32::format(list, buffLen) == 0, "FileStore::format failed.");
+				oxAssert(ox::FileStore32::format(list, buffLen), "FileStore::format failed.");
 				ox::FileStore32 fileStore(list, buffLen);
-				oxAssert(fileStore.write(4, const_cast<char*>(str1), str1Len, 1) == 0, "FileStore::write 1 failed.");
-				oxAssert(fileStore.write(5, const_cast<char*>(str2), str2Len, 1) == 0, "FileStore::write 2 failed.");
+				oxAssert(fileStore.write(4, const_cast<char*>(str1), str1Len, 1), "FileStore::write 1 failed.");
+				oxAssert(fileStore.write(5, const_cast<char*>(str2), str2Len, 1), "FileStore::write 2 failed.");
 
 				char str1Read[str1Len];
 				size_t str1ReadSize = 0;
-				oxAssert(fileStore.read(4, reinterpret_cast<void*>(str1Read), str1Len, &str1ReadSize) == 0, "FileStore::read 1 failed.");
+				oxAssert(fileStore.read(4, reinterpret_cast<void*>(str1Read), str1Len, &str1ReadSize), "FileStore::read 1 failed.");
 
 				return 0;
 			}

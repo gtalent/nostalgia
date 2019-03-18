@@ -595,8 +595,6 @@ Error FileStoreTemplate<size_t>::unplaceItem(ItemPtr item) {
 
 template<typename size_t>
 Error FileStoreTemplate<size_t>::unplaceItem(ItemPtr root, ItemPtr item, int depth) {
-	oxAssert(false, "unplaceItem");
-	oxTrace("ox::fs::FileStoreTemplate::unplaceItem") << item;
 	if (depth >= 5000) {
 		oxTrace("ox::fs::FileStoreTemplate::unplaceItem::fail") << "Excessive recursion depth, stopping before stack overflow.";
 		return OxError(1);

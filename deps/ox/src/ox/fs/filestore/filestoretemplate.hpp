@@ -242,13 +242,12 @@ template<typename size_t>
 Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSize, uint8_t fileType) {
 	oxTrace("ox::fs::FileStoreTemplate::write") << "Attempting to write to inode" << id;
 	auto existing = find(id);
-	// TODO: change to !canWrite(...)
-	if (canWrite(existing, dataSize)) {
+	if (!canWrite(existing, dataSize)) {
 		compact();
 		existing = find(id);
 	}
 
-	if (!canWrite(existing, dataSize)) {
+	if (canWrite(existing, dataSize)) {
 		// delete the old node if it exists
 		if (existing.valid()) {
 			oxTrace("ox::fs::FileStoreTemplate::write") << "Freeing old version of inode found at offset:" << existing.offset();
@@ -594,31 +593,38 @@ Error FileStoreTemplate<size_t>::unplaceItem(ItemPtr item) {
 
 template<typename size_t>
 Error FileStoreTemplate<size_t>::unplaceItem(ItemPtr root, ItemPtr item, int depth) {
-	if (depth < 5000) {
-		if (item->id > root->id) {
-			auto right = m_buffer->ptr(root->right);
-			if (!right.valid() || right->id == item->id) {
-				root->right = item.offset();
-				oxTrace("ox::fs::FileStoreTemplate::unplaceItem") << "Placed Item:" << item->id;
-				return OxError(0);
-			} else {
-				return unplaceItem(right, item, depth + 1);
-			}
-		} else if (item->id < root->id) {
-			auto left = m_buffer->ptr(root->left);
-			if (!left.valid() || left->id == item->id) {
-				root->left = item.offset();
-				oxTrace("ox::fs::FileStoreTemplate::unplaceItem") << "Placed Item:" << item->id;
-				return OxError(0);
-			} else {
-				return unplaceItem(left, item, depth + 1);
-			}
-		}
-		return OxError(1);
-	} else {
+	oxAssert(false, "unplaceItem");
+	oxTrace("ox::fs::FileStoreTemplate::unplaceItem") << item;
+	if (depth >= 5000) {
 		oxTrace("ox::fs::FileStoreTemplate::unplaceItem::fail") << "Excessive recursion depth, stopping before stack overflow.";
 		return OxError(1);
 	}
+	if (item->id > root->id) {
+		auto right = m_buffer->ptr(root->right);
+		if (right->id == item->id) {
+			root->right = 0;
+			oxTrace("ox::fs::FileStoreTemplate::unplaceItem") << "Unplaced Item:" << item->id;
+		} else {
+			return unplaceItem(right, item, depth + 1);
+		}
+	} else if (item->id < root->id) {
+		auto left = m_buffer->ptr(root->left);
+		if (left->id == item->id) {
+			root->left = 0;
+			oxTrace("ox::fs::FileStoreTemplate::unplaceItem") << "Unplaced Item:" << item->id;
+		} else {
+			return unplaceItem(left, item, depth + 1);
+		}
+	} else {
+		return OxError(1);
+	}
+	if (item->right) {
+		oxReturnError(placeItem(m_buffer->ptr(item->right)));
+	}
+	if (item->left) {
+		oxReturnError(placeItem(m_buffer->ptr(item->left)));
+	}
+	return OxError(0);
 }
 
 template<typename size_t>

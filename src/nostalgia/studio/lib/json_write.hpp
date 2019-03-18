@@ -66,7 +66,7 @@ ox::Error JsonWriter::field(QString fieldName, QVector<T> *src) {
 };
 
 template<typename T>
-Error writeJson(QString *json, T *src) {
+ox::Error writeJson(QString *json, T *src) {
 	auto obj = QJsonObject();
 	JsonWriter rdr(obj);
 	auto err = model(&rdr, src);

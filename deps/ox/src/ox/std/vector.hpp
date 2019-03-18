@@ -174,7 +174,7 @@ const T &Vector<T>::back() const noexcept {
 template<typename T>
 std::size_t Vector<T>::size() const noexcept {
 	return m_size;
-};
+}
 
 template<typename T>
 void Vector<T>::resize(std::size_t size) noexcept {

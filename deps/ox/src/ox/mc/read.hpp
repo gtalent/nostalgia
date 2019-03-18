@@ -112,7 +112,7 @@ Error MetalClawReader::field(const char*, T *val) {
 		err |= model(&reader, val);
 	}
 	return err;
-};
+}
 
 template<std::size_t L>
 Error MetalClawReader::field(const char *name, ox::BString<L> *val) {
@@ -134,7 +134,7 @@ Error MetalClawReader::readInteger(I *val) {
 		*val = 0;
 	}
 	return OxError(0);
-};
+}
 
 // array handler
 template<typename T>
@@ -162,7 +162,7 @@ Error MetalClawReader::field(const char*, T *val, std::size_t valLen) {
 		}
 	}
 	return err;
-};
+}
 
 template<typename T>
 Error MetalClawReader::field(const char*, ox::Vector<T> *val) {

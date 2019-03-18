@@ -54,6 +54,11 @@ struct McInt {
 	std::size_t length = 0;
 };
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+#endif
+
 template<typename I>
 [[nodiscard]] McInt encodeInteger(I input) noexcept {
 	McInt out;
@@ -143,6 +148,10 @@ template<typename I>
 	}
 	return {0, OxError(1)};
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 template<typename I>
 [[nodiscard]] ValErr<I> decodeInteger(McInt m) noexcept {

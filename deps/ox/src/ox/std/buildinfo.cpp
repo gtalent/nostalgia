@@ -8,8 +8,10 @@
 
 namespace ox::buildinfo {
 
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-const-variable"
+#endif
 
 #if defined(OX_USE_STDLIB)
 const bool UseStdLib = true;
@@ -37,6 +39,8 @@ const bool BigEndian = false;
 const bool LittleEndian = true;
 #endif
 
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 
 }

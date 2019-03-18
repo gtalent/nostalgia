@@ -27,12 +27,6 @@ static_assert([] {
 	return indirectionLevels(i) == 1;
 }(), "indirectionLevels broken: indirectionLevels(int[])");
 
-static_assert([] {
-	int i[2][2] = {{}};
-	return indirectionLevels(i) == 2;
-}(), "indirectionLevels broken: indirectionLevels(int[][])");
-
-
 TypeDescWriter::TypeDescWriter(TypeStore *typeStore) {
 	if (!typeStore) {
 		m_typeStoreOwnerRef = new TypeStore;

@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#if __has_include(<filesystem>)
+#if __has_include(<filesystem>) && defined(OX_USE_STDLIB)
 
 #include <stdio.h>
 

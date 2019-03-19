@@ -40,8 +40,8 @@ OxFSFile::OxFSFile(PassThroughFS *fs, QString path, OxFSFile *parentItem) {
 			}
 			for (auto name : ls) {
 				if (name != "." && name != "..") {
-					qDebug() << "name:" << m_path + name;
-					auto ch = new OxFSFile(fs, m_path + name, this);
+					const auto path = m_path.size() ? m_path + '/' + name : name;
+					auto ch = new OxFSFile(fs, path, this);
 					m_childItems.push_back(ch);
 				}
 			}

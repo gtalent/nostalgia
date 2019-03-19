@@ -49,22 +49,18 @@ static_assert(highestBit(uint64_t(1) << 31) == 31);
 static_assert(highestBit(uint64_t(1) << 63) == 63);
 
 struct McInt {
-	uint8_t data[9];
+	uint8_t data[9] = {0};
 	// length of integer in bytes
 	std::size_t length = 0;
 };
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-#endif
-
 template<typename I>
-[[nodiscard]] McInt encodeInteger(I input) noexcept {
+[[nodiscard]] constexpr McInt encodeInteger(I input) noexcept {
 	McInt out;
 	// move input to uint64_t to allow consistent bit manipulation, and to avoid
 	// overflow concerns
-	uint64_t val = *reinterpret_cast<Unsigned<I>*>(&input);
+	uint64_t val = 0;
+	ox_memcpy(&val, &input, sizeof(I));
 	if (val) {
 		// bits needed to represent number factoring in space possibly
 		// needed for signed bit
@@ -83,19 +79,20 @@ template<typename I>
 		// move sign bit
 		if constexpr(ox::is_signed<I>) {
 			if (val < 0) {
-				*reinterpret_cast<uint64_t*>(&val) ^= uint64_t(1) << (sizeof(I) * 8 - 1);
-				*reinterpret_cast<uint64_t*>(&val) |= uint64_t(1) << (bitsAvailable - 1);
+				val ^= uint64_t(1) << (sizeof(I) * 8 - 1);
+				val |= uint64_t(1) << (bitsAvailable - 1);
 			}
 		}
 		// ensure we are copying from little endian represenstation
 		LittleEndian<I> leVal = val;
 		if (bytes == 9) {
 			out.data[0] = bytesIndicator;
-			*reinterpret_cast<I*>(&out.data[1]) = leVal.raw();
+			ox_memcpy(&out.data[1], &leVal, sizeof(I));
 		} else {
-			*reinterpret_cast<uint64_t*>(&out.data[0]) =
+			auto intermediate =
 				static_cast<uint64_t>(leVal.raw()) << bytes |
 				static_cast<uint64_t>(bytesIndicator);
+			ox_memcpy(out.data, &intermediate, sizeof(intermediate));
 		}
 		out.length = bytes;
 	}
@@ -123,11 +120,13 @@ static_assert(countBytes(0b01111111) == 8);
 static_assert(countBytes(0b11111111) == 9);
 
 template<typename I>
-[[nodiscard]] ValErr<I> decodeInteger(uint8_t buff[9], std::size_t buffLen, std::size_t *bytesRead) noexcept {
+[[nodiscard]] constexpr ValErr<I> decodeInteger(uint8_t buff[9], std::size_t buffLen, std::size_t *bytesRead) noexcept {
 	const auto bytes = countBytes(buff[0]);
 	if (bytes == 9) {
 		*bytesRead = bytes;
-		return {LittleEndian<I>(*reinterpret_cast<I*>(&buff[1])), 0};
+		I out;
+		ox_memcpy(&out, &buff[1], sizeof(I));
+		return {LittleEndian<I>(out), 0};
 	} else if (buffLen >= bytes) {
 		*bytesRead = bytes;
 		uint64_t decoded = 0;
@@ -142,16 +141,13 @@ template<typename I>
 			// remove sign
 			decoded &= uint64_t(~0) ^ (uint64_t(1) << valBits);
 			// set sign
-			*reinterpret_cast<Unsigned<I>*>(&out) |= sign << (Bits<I> - 1);
+			decoded |= sign << (Bits<I> - 1);
+			ox_memcpy(&out, &decoded, sizeof(out));
 		}
 		return {out, 0};
 	}
 	return {0, OxError(1)};
 }
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
 template<typename I>
 [[nodiscard]] ValErr<I> decodeInteger(McInt m) noexcept {

@@ -8,9 +8,9 @@ TARGET=$1
 BUILD_TYPE=$2
 
 if [[ $TARGET == windows ]]; then
-	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/Mingw.cmake"
+	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/modules/Mingw.cmake"
 elif [[ $TARGET == gba ]]; then
-	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/GBA.cmake -DOX_USE_STDLIB=OFF -DCMAKE_INSTALL_PREFIX=$DEVKITARM"
+	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/modules/GBA.cmake -DOX_USE_STDLIB=OFF -DCMAKE_INSTALL_PREFIX=$DEVKITARM"
 fi
 
 if [[ $BUILD_TYPE == asan ]]; then

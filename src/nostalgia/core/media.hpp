@@ -10,10 +10,8 @@
 
 #include <ox/std/types.hpp>
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 uint8_t *loadRom(const char *path = "");
 
-}
 }

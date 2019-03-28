@@ -12,8 +12,7 @@
 
 #include "../media.hpp"
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 uint8_t *loadRom(const char*) {
 	// put the header in the wrong order to prevent mistaking this code for the
@@ -33,5 +32,4 @@ uint8_t *loadRom(const char*) {
 	return nullptr;
 }
 
-}
 }

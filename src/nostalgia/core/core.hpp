@@ -14,10 +14,8 @@
 #include "media.hpp"
 #include "types.hpp"
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 ox::Error init(Context *ctx);
 
-}
 }

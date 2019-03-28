@@ -12,8 +12,7 @@
 
 using namespace nostalgia::studio;
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 Plugin::Plugin() {
 }
@@ -31,5 +30,4 @@ QVector<studio::WizardMaker> Plugin::importWizards(const studio::Context *args) 
 	};
 }
 
-}
 }

@@ -10,8 +10,7 @@
 
 #include <nostalgia/studio/studio.hpp>
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 class ImportTilesheetWizardPage: public studio::WizardFormPage {
 	private:
@@ -30,5 +29,4 @@ class ImportTilesheetWizardPage: public studio::WizardFormPage {
 		int importImage(QFile &srcFile, QString dest);
 };
 
-}
 }

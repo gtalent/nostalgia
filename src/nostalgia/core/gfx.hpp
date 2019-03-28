@@ -13,8 +13,7 @@
 #include "context.hpp"
 #include "types.hpp"
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 ox::Error initGfx(Context *ctx);
 
@@ -26,5 +25,4 @@ void puts(Context *ctx, int loc, const char *str);
 
 void setTile(Context *ctx, int layer, int column, int row, uint8_t tile);
 
-}
 }

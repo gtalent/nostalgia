@@ -9,8 +9,7 @@
 #include "mem.hpp"
 #include "core.hpp"
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 ox::Error init(Context *ctx) {
 	ox::Error err = 0;
@@ -19,5 +18,4 @@ ox::Error init(Context *ctx) {
 	return err;
 }
 
-}
 }

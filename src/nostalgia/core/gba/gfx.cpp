@@ -17,8 +17,7 @@
 
 #include "../gfx.hpp"
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 using namespace ox;
 
@@ -248,5 +247,4 @@ void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
 	}
 }
 
-}
 }

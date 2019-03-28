@@ -11,8 +11,7 @@
 
 #include "import_tilesheet_wizard.hpp"
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 const QString ImportTilesheetWizardPage::TileSheetDir = "/TileSheets/";
 const QString ImportTilesheetWizardPage::TileSheetName = "projectName";
@@ -74,5 +73,4 @@ int ImportTilesheetWizardPage::importImage(QFile &srcFile, QString tilesheetName
 	}
 }
 
-}
 }

@@ -9,8 +9,7 @@
 #include "../core.hpp"
 #include "panic.hpp"
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 void panic(const char *msg) {
 	initConsole(nullptr);
@@ -23,5 +22,3 @@ void panic(const char *msg) {
 }
 
 }
-}
-

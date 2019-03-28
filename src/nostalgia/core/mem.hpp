@@ -6,10 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 void initHeap();
 
-}
 }

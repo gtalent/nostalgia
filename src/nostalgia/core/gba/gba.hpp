@@ -10,8 +10,7 @@
 
 #include <ox/std/types.hpp>
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 typedef struct { uint32_t data[8]; } __attribute__((aligned(4))) Tile, Tile4;
 // d-tile: double-sized tile (8bpp)
@@ -32,5 +31,4 @@ struct __attribute__((packed)) GbaImageData {
 	uint8_t tiles[1];
 };
 
-}
 }

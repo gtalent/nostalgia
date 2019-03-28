@@ -11,12 +11,10 @@
 
 #include "../media.hpp"
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 uint8_t *loadRom(const char*) {
 	return nullptr;
 }
 
-}
 }

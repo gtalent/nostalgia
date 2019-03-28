@@ -12,8 +12,7 @@
 
 #include <nostalgia/studio/studio.hpp>
 
-namespace nostalgia {
-namespace core {
+namespace nostalgia::core {
 
 class Plugin: public QObject, studio::Plugin {
 	Q_OBJECT
@@ -26,5 +25,4 @@ class Plugin: public QObject, studio::Plugin {
 		QVector<studio::WizardMaker> importWizards(const studio::Context *args) override;
 };
 
-}
 }

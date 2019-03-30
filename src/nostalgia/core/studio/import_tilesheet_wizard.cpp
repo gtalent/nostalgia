@@ -13,14 +13,9 @@
 
 namespace nostalgia::core {
 
-const QString ImportTilesheetWizardPage::TileSheetDir = "/TileSheets/";
-const QString ImportTilesheetWizardPage::TileSheetName = "projectName";
-const QString ImportTilesheetWizardPage::ImportPath = "projectPath";
-const QString ImportTilesheetWizardPage::BPP = "bpp";
-
 ImportTilesheetWizardPage::ImportTilesheetWizardPage(const studio::Context *ctx) {
 	m_ctx = ctx;
-	addLineEdit(tr("&Tile Sheet Name:"), TileSheetName + "*", "", [this](QString) {
+	addLineEdit(tr("&Tile Sheet Name:"), QString(TileSheetName) + "*", "", [this](QString) {
 			auto importPath = field(ImportPath).toString();
 			if (QFile(importPath).exists()) {
 				return 0;
@@ -31,9 +26,9 @@ ImportTilesheetWizardPage::ImportTilesheetWizardPage(const studio::Context *ctx)
 		}
 	);
 	auto fileTypes = "(*.png);;(*.bmp);;(*.jpg);;(*.jpeg)";
-	addPathBrowse(tr("Tile Sheet &Path:"), ImportPath + "*", "",
+	addPathBrowse(tr("Tile Sheet &Path:"), QString(ImportPath) + "*", "",
 	              QFileDialog::ExistingFile, fileTypes);
-	addComboBox(tr("Bits Per Pixe&l:"), BPP, {"4", "8"});
+	//addComboBox(tr("Bits Per Pixe&l:"), BPP, {tr("Auto"), "4", "8"});
 }
 
 int ImportTilesheetWizardPage::accept() {

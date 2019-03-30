@@ -14,10 +14,10 @@ namespace nostalgia::core {
 
 class ImportTilesheetWizardPage: public studio::WizardFormPage {
 	private:
-		static const QString TileSheetDir;
-		static const QString TileSheetName;
-		static const QString ImportPath;
-		static const QString BPP;
+		static constexpr auto TileSheetDir = "/TileSheets/";
+		static constexpr auto TileSheetName = "projectName";
+		static constexpr auto ImportPath = "projectPath";
+		//static constexpr auto BPP = "bpp";
 		const studio::Context *m_ctx = nullptr;
 
 	public:

@@ -55,15 +55,15 @@ int main(int argc, char **args) {
 	int err = 0;
 	QString json;
 	TestStruct ts = {
-		.Bool = true,
-		.Int = 42,
-		.Double = 42.42,
-		.String = "Test String",
-		.Struct = {
-			.Bool = true,
-			.Int = 42,
-			.Double = 42.42,
-			.String = "Test String"
+		true,
+		42,
+		42.42,
+		"Test String",
+		{
+			true,
+			42,
+			42.42,
+			"Test String"
 		}
 	};
 	TestStruct tsOut;

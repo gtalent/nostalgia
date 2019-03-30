@@ -9,6 +9,7 @@
 #include <QColor>
 #include <QImage>
 #include <QMap>
+#include <QVector>
 
 #include <ox/clargs/clargs.hpp>
 #include <ox/fs/fs.hpp>
@@ -22,10 +23,10 @@ using namespace ox;
 using namespace nostalgia::core;
 using namespace nostalgia::common;
 
-uint16_t toGbaColor(QColor c) {
-	auto r = ((uint32_t) c.red()) >> 3;
-	auto g = ((uint32_t) c.green()) >> 3;
-	auto b = ((uint32_t) c.blue()) >> 3;
+[[nodiscard]] uint16_t toGbaColor(QColor c) {
+	const auto r = static_cast<uint32_t>(c.red()) >> 3;
+	const auto g = static_cast<uint32_t>(c.green()) >> 3;
+	const auto b = static_cast<uint32_t>(c.blue()) >> 3;
 	return (r << 10) | (g << 5) | (b << 0);
 }
 
@@ -47,9 +48,9 @@ Error importTileSet(FileSystem *fs, QString romPath, QString importPath, int bpp
 		QMap<QRgb, int> colors;
 		auto tileCount = (src.width() * src.height()) / 64;
 		const auto imgDataBuffSize = sizeof(GbaImageData) + 1 + tileCount * 64;
-		uint8_t imgDataBuff[imgDataBuffSize];
-		memset(&imgDataBuff, 0, imgDataBuffSize);
-		GbaImageData *id = (GbaImageData*) imgDataBuff;
+		QVector<uint8_t> imgDataBuff(imgDataBuffSize);
+		memset(imgDataBuff.data(), 0, imgDataBuffSize);
+		GbaImageData *id = reinterpret_cast<GbaImageData*>(imgDataBuff.data());
 		id->header.bpp = bpp;
 		id->header.tileCount = tileCount;
 		int colorId = 0;
@@ -84,7 +85,7 @@ Error importTileSet(FileSystem *fs, QString romPath, QString importPath, int bpp
 		}
 
 		if (!err) {
-			err |= fs->write(romPath.toUtf8().data(), imgDataBuff, imgDataBuffSize);
+			err |= fs->write(romPath.toUtf8().data(), imgDataBuff.data(), imgDataBuffSize);
 		}
 	} else {
 		err = 4;

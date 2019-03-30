@@ -17,6 +17,8 @@ namespace studio {
 class JsonOperator {
 
 	public:
+		virtual ~JsonOperator() = default;
+
 		virtual int op(QString fieldName, int *dest) = 0;
 
 		virtual int op(QString fieldName, bool *dest) = 0;

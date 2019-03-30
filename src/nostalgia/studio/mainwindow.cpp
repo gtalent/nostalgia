@@ -151,7 +151,7 @@ void MainWindow::setupProjectExplorer() {
 	dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	dock->setObjectName("Project Explorer");
 	addDockWidget(Qt::LeftDockWidgetArea, dock);
-	resizeDocks({dock}, {(int) (width() * 0.25)}, Qt::Horizontal);
+	resizeDocks({dock}, {static_cast<int>(width() * 0.25)}, Qt::Horizontal);
 
 	// setup tree view
 	m_projectExplorer = new QTreeView(dock);

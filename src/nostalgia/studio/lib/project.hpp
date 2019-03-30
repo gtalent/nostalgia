@@ -66,13 +66,13 @@ int Project::writeObj(QString path, T *obj) const {
 
 	// write MetalClaw
 	size_t mcSize = 0;
-	err |= ox::writeMC((uint8_t*) buff.data(), buffLen, obj, &mcSize);
+	err |= ox::writeMC(reinterpret_cast<uint8_t*>(buff.data()), buffLen, obj, &mcSize);
 	if (err) {
 		return err;
 	}
 
 	// write to FS
-	err |= write(path, (uint8_t*) buff.data(), mcSize);
+	err |= write(path, reinterpret_cast<uint8_t*>(buff.data()), mcSize);
 	if (err) {
 		return err;
 	}

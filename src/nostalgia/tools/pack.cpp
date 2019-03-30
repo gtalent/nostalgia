@@ -39,9 +39,9 @@ uint8_t *loadFileBuff(QString path, ::size_t *sizeOut = nullptr) {
 }
 
 uint16_t toGbaColor(QColor c) {
-	auto r = ((uint32_t) c.red()) >> 3;
-	auto g = ((uint32_t) c.green()) >> 3;
-	auto b = ((uint32_t) c.blue()) >> 3;
+	auto r = static_cast<uint32_t>(c.red()) >> 3;
+	auto g = static_cast<uint32_t>(c.green()) >> 3;
+	auto b = static_cast<uint32_t>(c.blue()) >> 3;
 	return (r << 10) | (g << 5) | (b << 0);
 }
 
@@ -76,9 +76,9 @@ int run(ClArgs args) {
 
 		QMap<QRgb, int> colors;
 		const auto imgDataBuffSize = sizeof(GbaImageData) + 1 + argTiles * 64;
-		uint8_t imgDataBuff[imgDataBuffSize];
-		memset(&imgDataBuff, 0, imgDataBuffSize);
-		GbaImageData *id = (GbaImageData*) imgDataBuff;
+		QVector<uint8_t> imgDataBuff(imgDataBuffSize);
+		memset(imgDataBuff.data(), 0, imgDataBuffSize);
+		auto id = reinterpret_cast<GbaImageData*>(imgDataBuff.data());
 		id->header.bpp = argBpp;
 		id->header.tileCount = argTiles;
 		int colorId = 0;
@@ -130,7 +130,7 @@ int run(ClArgs args) {
 					fsBuffSize = sizeNeeded;
 				}
 				fsBuff = fs.buff(); // update fsBuff pointer in case there is a new buff
-				err |= fs.write(argInode, imgDataBuff, imgDataBuffSize);
+				err |= fs.write(argInode, imgDataBuff.data(), imgDataBuffSize);
 
 				if (!err) {
 					if (argCompact) {

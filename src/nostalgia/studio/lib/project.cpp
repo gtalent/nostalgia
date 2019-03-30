@@ -35,7 +35,7 @@ int Project::openRomFs() {
 	auto buff = std::make_unique<uint8_t[]>(buffSize);
 	if (file.exists()) {
 		file.open(QIODevice::ReadOnly);
-		if (file.read((char*) buff.get(), buffSize) > 0) {
+		if (file.read(reinterpret_cast<char*>(buff.get()), buffSize) > 0) {
 			m_fsBuff = std::move(buff);
 			if (m_fs.valid()) {
 				return 0;

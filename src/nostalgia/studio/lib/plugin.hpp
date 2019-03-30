@@ -28,12 +28,16 @@ struct Context {
 };
 
 struct EditorMaker {
+	virtual ~EditorMaker() = default;
+
 	virtual QWidget *make(QString path, const Context *ctx) = 0;
 };
 
 class Plugin {
 
 	public:
+		virtual ~Plugin() = default;
+
 		virtual QVector<WizardMaker> newWizards(const Context *ctx);
 
 		virtual QVector<WizardMaker> importWizards(const Context *ctx);

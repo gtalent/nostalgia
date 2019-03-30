@@ -11,6 +11,7 @@
 #if __has_include(<filesystem>)
 
 #include <filesystem>
+#include <string>
 
 #include "filesystem.hpp"
 
@@ -27,6 +28,8 @@ class PassThroughFS: public FileSystem {
 		PassThroughFS(const char *dirPath);
 
 		~PassThroughFS();
+
+		[[nodiscard]] std::string basePath();
 
 		Error mkdir(const char *path, bool recursive = false) override;
 

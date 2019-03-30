@@ -21,6 +21,10 @@ PassThroughFS::PassThroughFS(const char *dirPath) {
 PassThroughFS::~PassThroughFS() {
 }
 
+std::string PassThroughFS::basePath() {
+	return m_path.string();
+}
+
 Error PassThroughFS::mkdir(const char *path, bool recursive) {
 	bool success = false;
 	const auto p = m_path / stripSlash(path);

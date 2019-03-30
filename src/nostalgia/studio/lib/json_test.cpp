@@ -51,7 +51,7 @@ Error model(T *io, TestStruct *obj) {
 	return err;
 }
 
-int main(int argc, char **args) {
+int main() {
 	int err = 0;
 	QString json;
 	TestStruct ts = {

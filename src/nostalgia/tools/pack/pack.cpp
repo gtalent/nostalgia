@@ -19,18 +19,18 @@ namespace nostalgia {
 }
 
 // stub for now
-ox::Error pathToInode(std::vector<char> *buff) {
+ox::Error pathToInode(std::vector<char>*) {
 	return OxError(0);
 }
 
 // stub for now
-ox::Error toMetalClaw(std::vector<char> *buff) {
+ox::Error toMetalClaw(std::vector<char>*) {
 	return OxError(0);
 }
 
 ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {
 	// copy
-	src->ls(path.c_str(), [src, dest, path](const char *name, ox::InodeId_t inode) {
+	src->ls(path.c_str(), [src, dest, path](const char *name, ox::InodeId_t) {
 		auto stat = src->stat(path.c_str());
 		oxReturnError(stat.error);
 		if (stat.value.fileType == ox::FileType_Directory) {

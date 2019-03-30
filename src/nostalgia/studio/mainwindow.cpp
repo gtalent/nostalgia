@@ -190,7 +190,7 @@ QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 	return action;
 }
 
-int MainWindow::readState(QString path) {
+int MainWindow::readState(QString) {
 	int err = 0;
 
 	QSettings settings(m_profile.orgName, m_profile.appName);
@@ -206,7 +206,7 @@ int MainWindow::readState(QString path) {
 	return err;
 }
 
-int MainWindow::writeState(QString path) {
+int MainWindow::writeState(QString) {
 	int err = 0;
 
 	// generate JSON for application specific state info

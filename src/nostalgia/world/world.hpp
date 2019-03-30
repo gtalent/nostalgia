@@ -94,14 +94,14 @@ struct Region {
 };
 
 template<typename T>
-ox::Error modelRead(T *io, Region *obj) {
+ox::Error modelRead(T *io, Region*) {
 	ox::Error err = 0;
 	io->setTypeInfo("nostalgia::World::Region", Region::Fields);
 	return err;
 }
 
 template<typename T>
-ox::Error modelWrite(T *io, Region *obj) {
+ox::Error modelWrite(T *io, Region*) {
 	ox::Error err = 0;
 	io->setTypeInfo("nostalgia::World::Region", Region::Fields);
 	return err;

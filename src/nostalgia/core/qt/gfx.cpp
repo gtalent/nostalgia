@@ -10,22 +10,22 @@
 
 namespace nostalgia::core {
 
-ox::Error initGfx(Context *ctx) {
+ox::Error initGfx(Context*) {
 	return 1;
 }
 
-ox::Error initConsole(Context *ctx) {
+ox::Error initConsole(Context*) {
 	return 1;
 }
 
-ox::Error loadTileSheet(Context *ctx, InodeId_t inode) {
+ox::Error loadTileSheet(Context*, InodeId_t) {
 	return 1;
 }
 
-void puts(Context *ctx, int loc, const char *str) {
+void puts(Context*, int, const char*) {
 }
 
-void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
+void setTile(Context*, int, int, int, uint8_t) {
 }
 
 }

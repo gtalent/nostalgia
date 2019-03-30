@@ -26,7 +26,7 @@ OxFSFile::OxFSFile(PassThroughFS *fs, QString path, OxFSFile *parentItem) {
 		auto stat = fs->stat(static_cast<const char*>(m_path.toUtf8()));
 		if (!stat.error) {
 			if (stat.value.fileType == FileType_Directory) {
-				fs->ls(m_path.toUtf8(), [&ls](const char *name, ox::InodeId_t inode) {
+				fs->ls(m_path.toUtf8(), [&ls](const char *name, ox::InodeId_t) {
 					ls.push_back(name);
 					return OxError(0);
 				});
@@ -115,7 +115,7 @@ QString OxFSFile::name() const {
 
 // OxFSModel
 
-OxFSModel::OxFSModel(PassThroughFS *fs, QObject *parent) {
+OxFSModel::OxFSModel(PassThroughFS *fs, QObject*) {
 	m_rootItem = new OxFSFile(fs, "");
 }
 
@@ -213,7 +213,7 @@ void OxFSModel::updateFile(QString path) {
 	m_rootItem->appendChild(this, pathItems, "");
 }
 
-void OxFSModel::setupModelData(const QStringList &lines, OxFSFile *parent) {
+void OxFSModel::setupModelData(const QStringList&, OxFSFile*) {
 }
 
 }

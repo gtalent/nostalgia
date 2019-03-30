@@ -11,15 +11,15 @@
 namespace nostalgia {
 namespace studio {
 
-QVector<WizardMaker> Plugin::newWizards(const Context *ctx) {
+QVector<WizardMaker> Plugin::newWizards(const Context*) {
 	return {};
 }
 
-QVector<WizardMaker> Plugin::importWizards(const Context *ctx) {
+QVector<WizardMaker> Plugin::importWizards(const Context*) {
 	return {};
 }
 
-QWidget *Plugin::makeEditor(QString path, const Context *ctx) {
+QWidget *Plugin::makeEditor(QString, const Context*) {
 	return nullptr;
 }
 

@@ -8,13 +8,11 @@
 
 #include "worldeditor.hpp"
 
-namespace nostalgia {
-namespace world {
+namespace nostalgia::world {
 
 using namespace studio;
 
-WorldEditor::WorldEditor(QString path, const Context *ctx) {
+WorldEditor::WorldEditor(QString, const Context*) {
 }
 
-}
 }

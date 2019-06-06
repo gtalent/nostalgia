@@ -4,3 +4,7 @@ build/*-asan
 build/*-debug
 build/*-release
 tags
+conanbuildinfo.cmake
+conanbuildinfo.txt
+conaninfo.txt
+graph_info.json

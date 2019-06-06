@@ -369,14 +369,14 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart,
 	if (src.valid()) {
 		auto srcData = src->data();
 		if (srcData.valid()) {
-			auto sub = srcData.template subPtr<T>(readStart, readSize);
+			auto sub = srcData.template subPtr<uint8_t>(readStart, readSize);
 			if (sub.valid() && sub.size() % sizeof(T)) {
 				for (FsSize_t i = 0; i < sub.size() / sizeof(T); i++) {
 					// do byte-by-byte copy to ensure alignment is right when
 					// copying to final destination
 					T tmp;
 					for (size_t i = 0; i < sizeof(T); i++) {
-						reinterpret_cast<uint8_t*>(&tmp)[i] = *(reinterpret_cast<const uint8_t*>(sub.get()) + i);
+						reinterpret_cast<uint8_t*>(&tmp)[i] = *(sub.get() + i);
 					}
 					*(data + i) = tmp;
 				}

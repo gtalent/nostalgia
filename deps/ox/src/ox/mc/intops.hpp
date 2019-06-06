@@ -124,7 +124,7 @@ template<typename I>
 	const auto bytes = countBytes(buff[0]);
 	if (bytes == 9) {
 		*bytesRead = bytes;
-		I out;
+		I out = 0;
 		ox_memcpy(&out, &buff[1], sizeof(I));
 		return {LittleEndian<I>(out), 0};
 	} else if (buffLen >= bytes) {

@@ -38,4 +38,20 @@ Error FieldPresenceIndicator::set(int i, bool on) {
 	}
 }
 
+void FieldPresenceIndicator::setFields(int fields) noexcept {
+	m_fields = fields;
+}
+
+int FieldPresenceIndicator::getFields() const noexcept {
+	return m_fields;
+}
+
+void FieldPresenceIndicator::setMaxLen(int maxLen) noexcept {
+	m_maskLen = maxLen;
+}
+
+int FieldPresenceIndicator::getMaxLen() const noexcept {
+	return m_maskLen;
+}
+
 }

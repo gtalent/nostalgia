@@ -26,30 +26,14 @@ class FieldPresenceIndicator {
 
 		Error set(int i, bool on);
 
-		constexpr void setFields(int) noexcept;
+		void setFields(int) noexcept;
 
-		constexpr int getFields() const noexcept;
+		int getFields() const noexcept;
 
-		constexpr void setMaxLen(int) noexcept;
+		void setMaxLen(int) noexcept;
 
-		constexpr int getMaxLen() const noexcept;
+		int getMaxLen() const noexcept;
 
 };
-
-constexpr void FieldPresenceIndicator::setFields(int fields) noexcept {
-	m_fields = fields;
-}
-
-constexpr int FieldPresenceIndicator::getFields() const noexcept {
-	return m_fields;
-}
-
-constexpr void FieldPresenceIndicator::setMaxLen(int maxLen) noexcept {
-	m_maskLen = maxLen;
-}
-
-constexpr int FieldPresenceIndicator::getMaxLen() const noexcept {
-	return m_maskLen;
-}
 
 }

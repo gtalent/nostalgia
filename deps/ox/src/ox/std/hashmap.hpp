@@ -53,7 +53,7 @@ class HashMap {
 		/**
 		 * K is assumed to be a null terminated string.
 		 */
-		static std::uint64_t hash(K, int len = 0xFFFF) noexcept;
+		static uint64_t hash(K, int len = 0xFFFF) noexcept;
 
 		/**
 		 * K is assumed to be a null terminated string.
@@ -126,8 +126,8 @@ void HashMap<K, T>::expand() {
 }
 
 template<typename K, typename T>
-std::uint64_t HashMap<K, T>::hash(K k, int len) noexcept {
-	std::uint64_t sum = 1;
+uint64_t HashMap<K, T>::hash(K k, int len) noexcept {
+	uint64_t sum = 1;
 	for (int i = 0; i < len && k[i]; i++) {
 		sum += ((sum + k[i]) * 7) * sum;
 	}

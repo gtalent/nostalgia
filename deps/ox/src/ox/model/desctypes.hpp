@@ -77,7 +77,7 @@ struct DescriptorField {
 
 	~DescriptorField();
 
-	constexpr const DescriptorField &operator=(DescriptorField &&other) noexcept {
+	const DescriptorField &operator=(DescriptorField &&other) noexcept {
 		type = other.type;
 		fieldName = other.fieldName;
 		subscriptLevels = other.subscriptLevels;

@@ -9,6 +9,7 @@
 #pragma once
 
 #include "typetraits.hpp"
+#include "utility.hpp"
 
 #ifdef DEBUG
 #define OxError(x) ox::_error(__FILE__, __LINE__, x)
@@ -59,7 +60,7 @@ struct ValErr {
 
 	inline constexpr ValErr() = default;
 
-	inline constexpr ValErr(T value, Error error = 0): value(value), error(error) {
+	inline constexpr ValErr(T value, Error error = 0): value(ox::move(value)), error(error) {
 	}
 
 	inline constexpr operator const T&() const {

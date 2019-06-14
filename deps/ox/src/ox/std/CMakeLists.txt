@@ -1,6 +1,5 @@
 add_library(
 	OxStd
-		arith.cpp
 		assert.cpp
 		buildinfo.cpp
 		byteswap.cpp
@@ -17,6 +16,11 @@ set_property(
 		OxStd
 	PROPERTY
 		POSITION_INDEPENDENT_CODE ON
+)
+
+target_link_libraries(
+	OxStd PUBLIC
+		$<$<CXX_COMPILER_ID:GNU>:gcc>
 )
 
 install(

@@ -12,6 +12,7 @@
 #include "bitops.hpp"
 #include "byteswap.hpp"
 #include "error.hpp"
+#include "hardware.hpp"
 #include "hashmap.hpp"
 #include "math.hpp"
 #include "memops.hpp"

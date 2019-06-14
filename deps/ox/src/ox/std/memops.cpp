@@ -7,6 +7,23 @@
  */
 
 #include "types.hpp"
+#include "memops.hpp"
+
+#ifndef OX_USE_STDLIB
+
+extern "C" {
+
+void *memcpy(void *dest, const void *src, std::size_t size) {
+	return ox_memcpy(dest, src, size);
+}
+
+void *memset(void *ptr, int val, std::size_t size) {
+	return ox_memset(ptr, val, size);
+}
+
+}
+
+#endif
 
 int ox_memcmp(const void *ptr1, const void *ptr2, std::size_t size) noexcept {
 	int retval = 0;

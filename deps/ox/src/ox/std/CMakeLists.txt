@@ -1,9 +1,11 @@
 add_library(
 	OxStd
+		arith.cpp
 		assert.cpp
 		buildinfo.cpp
 		byteswap.cpp
 		memops.cpp
+		new.cpp
 		random.cpp
 		stacktrace.cpp
 		strops.cpp
@@ -25,6 +27,7 @@ install(
 		byteswap.hpp
 		defines.hpp
 		error.hpp
+		hardware.hpp
 		hashmap.hpp
 		math.hpp
 		memops.hpp

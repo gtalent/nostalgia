@@ -12,9 +12,9 @@
 #include "utility.hpp"
 
 #ifdef DEBUG
-#define OxError(x) ox::_error(__FILE__, __LINE__, x)
+#define OxError(x) ox::_error(__FILE__, __LINE__, static_cast<ox::Error>(x))
 #else
-#define OxError(x) x
+#define OxError(x) static_cast<ox::Error>(x)
 #endif
 
 #define oxReturnError(x) if (const auto _err = x) return _err

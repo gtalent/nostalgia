@@ -6,6 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#undef NDEBUG
+
 #include <assert.h>
 #include <iostream>
 #include <map>

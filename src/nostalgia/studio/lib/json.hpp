@@ -11,8 +11,7 @@
 #include "json_read.hpp"
 #include "json_write.hpp"
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 class JsonOperator {
 
@@ -29,5 +28,4 @@ class JsonOperator {
 
 };
 
-}
 }

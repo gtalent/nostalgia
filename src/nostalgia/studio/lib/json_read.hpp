@@ -66,7 +66,7 @@ ox::Error JsonReader::field(QString fieldName, T *dest) {
 	} else {
 		return JSON_ERR_FIELD_MISSING;
 	}
-};
+}
 
 template<typename T>
 ox::Error JsonReader::field(QString fieldName, QVector<T> *dest) {
@@ -81,7 +81,7 @@ ox::Error JsonReader::field(QString fieldName, QVector<T> *dest) {
 		err |= JSON_ERR_FIELD_MISSING;
 	}
 	return err;
-};
+}
 
 template<typename T>
 ox::Error JsonReader::field(QJsonValueRef src, T *dest) {

@@ -52,7 +52,7 @@ ox::Error JsonWriter::field(QString fieldName, T *src) {
 	auto err = model(&reader, src);
 	m_dest[fieldName] = obj;
 	return err;
-};
+}
 
 template<typename T>
 ox::Error JsonWriter::field(QString fieldName, QVector<T> *src) {
@@ -63,7 +63,7 @@ ox::Error JsonWriter::field(QString fieldName, QVector<T> *src) {
 	}
 	m_dest[fieldName] = a;
 	return err;
-};
+}
 
 template<typename T>
 ox::Error writeJson(QString *json, T *src) {

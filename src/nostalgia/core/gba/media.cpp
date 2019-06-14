@@ -17,11 +17,11 @@ namespace nostalgia::core {
 uint8_t *loadRom(const char*) {
 	// put the header in the wrong order to prevent mistaking this code for the
 	// media section
-	const static auto headerP2 = "_HEADER_________";
-	const static auto headerP1 = "NOSTALGIA_MEDIA";
-	const static auto headerP1Len = 15;
-	const static auto headerP2Len = 16;
-	const static auto headerLen = headerP1Len + headerP2Len + 1;
+	constexpr auto headerP2 = "_HEADER_________";
+	constexpr auto headerP1 = "NOSTALGIA_MEDIA";
+	constexpr auto headerP1Len = 15;
+	constexpr auto headerP2Len = 16;
+	constexpr auto headerLen = headerP1Len + headerP2Len + 1;
 
 	for (auto current = &MEM_ROM; current < ((uint8_t*) 0x0a000000); current += headerLen) {
 		if (ox_memcmp(current, headerP1, headerP1Len) == 0 &&

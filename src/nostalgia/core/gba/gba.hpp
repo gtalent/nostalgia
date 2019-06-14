@@ -21,13 +21,13 @@ typedef Tile  CharBlock[512];
 typedef Tile8 CharBlock8[256];
 
 struct __attribute__((packed)) GbaImageDataHeader {
-	uint8_t bpp;
-	uint16_t tileCount;
+	uint8_t bpp = 0;
+	uint16_t tileCount = 0;
 };
 
 struct __attribute__((packed)) GbaImageData {
 	GbaImageDataHeader header;
-	Palette __attribute__((packed)) pal;
+	Palette __attribute__((packed)) pal = {};
 	uint8_t tiles[1];
 };
 

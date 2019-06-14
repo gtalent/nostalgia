@@ -11,6 +11,8 @@
 
 #include <ox/std/std.hpp>
 
+#pragma GCC diagnostic ignored "-Wcast-align"
+
 namespace nostalgia::core {
 
 struct HeapSegment {
@@ -26,7 +28,7 @@ struct HeapSegment {
 static HeapSegment *volatile _heapIdx = nullptr;
 
 void initHeap() {
-	_heapIdx = ((HeapSegment*) MEM_WRAM_END) - 1;
+	_heapIdx = reinterpret_cast<HeapSegment*>(MEM_WRAM_END) - 1;
 	// set size to half of WRAM
 	_heapIdx->size = (MEM_WRAM_END - MEM_WRAM_BEGIN) / 2;
 	_heapIdx->next = nullptr;
@@ -52,7 +54,7 @@ void *malloc(std::size_t allocSize) {
 		panic("Heap allocation failed");
 	}
 
-	seg = (HeapSegment*) (((uint8_t*) seg) - allocSize);
+	seg = reinterpret_cast<HeapSegment*>(reinterpret_cast<uint8_t*>(seg) - allocSize);
 	if (prev) {
 		prev->next = seg;
 	}
@@ -68,7 +70,7 @@ void *malloc(std::size_t allocSize) {
 	if (hs.size == 0) {
 		_heapIdx = hs.next;
 	} else {
-		_heapIdx = (HeapSegment*) (((uint8_t*) _heapIdx) - fullSize);
+		_heapIdx = reinterpret_cast<HeapSegment*>((reinterpret_cast<uint8_t*>(_heapIdx)) - fullSize);
 		*_heapIdx = hs;
 	}
 
@@ -88,7 +90,7 @@ void free(void *ptrIn) {
 	// ptr was found as a valid memory allocation, deallocate it
 	if (current) {
 		// move header back to end of segment
-		auto newCurrent = (HeapSegment*) current->end() - sizeof(HeapSegment);
+		auto newCurrent = reinterpret_cast<HeapSegment*>(current->end() - sizeof(HeapSegment));
 		*newCurrent = *current;
 		current = newCurrent;
 		prev->next = current;
@@ -130,5 +132,13 @@ void operator delete(void *ptr) {
 }
 
 void operator delete[](void *ptr) {
+	free(ptr);
+}
+
+void operator delete(void *ptr, unsigned) {
+	free(ptr);
+}
+
+void operator delete[](void *ptr, unsigned) {
 	free(ptr);
 }

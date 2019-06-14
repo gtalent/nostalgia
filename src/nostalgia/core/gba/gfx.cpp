@@ -158,7 +158,7 @@ static char charMap[128] = {
 	0,  // ~
 };
 
-ox::Error initGfx(Context *ctx) {
+ox::Error initGfx(Context*) {
 	/* Sprite Mode ----\ */
 	/*             ---\| */
 	/* Background 0 -\|| */
@@ -174,25 +174,25 @@ ox::Error initConsole(Context*) {
 	const auto CharsetInode = 101;
 	const auto PaletteStart = sizeof(GbaImageDataHeader);
 	ox::Error err = 0;
-	auto fs = (FileStore32*) loadRom();
+	ox::FileStore32 fs(loadRom(), 32 * 1024 * 1024);
 
 	GbaImageDataHeader imgData;
 
 	REG_BG0CNT = (28 << 8) | 1;
-	if (fs) {
+	if (fs.valid()) {
 		// load the header
-		err |= fs->read(CharsetInode, 0, sizeof(imgData), &imgData, nullptr);
+		err |= fs.read(CharsetInode, 0, sizeof(imgData), &imgData, nullptr);
 
 		// load palette
-		err |= fs->read(CharsetInode, PaletteStart,
+		err |= fs.read(CharsetInode, PaletteStart,
 		                512, (uint16_t*) &MEM_PALLETE_BG[0], nullptr);
 
 		if (imgData.bpp == 4) {
-			err |= fs->read(CharsetInode, __builtin_offsetof(GbaImageData, tiles),
+			err |= fs.read(CharsetInode, __builtin_offsetof(GbaImageData, tiles),
 			                sizeof(Tile) * imgData.tileCount, (uint16_t*) &TILE_ADDR[0][1], nullptr);
 		} else if (imgData.bpp == 8) {
 			REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
-			err |= fs->read(CharsetInode, __builtin_offsetof(GbaImageData, tiles),
+			err |= fs.read(CharsetInode, __builtin_offsetof(GbaImageData, tiles),
 			                sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
 		} else {
 			err = 1;
@@ -203,27 +203,27 @@ ox::Error initConsole(Context*) {
 	return err;
 }
 
-ox::Error loadTileSheet(Context *ctx, InodeId_t inode) {
+ox::Error loadTileSheet(Context*, InodeId_t inode) {
 	ox::Error err = 0;
 	const auto PaletteStart = sizeof(GbaImageDataHeader);
 	GbaImageDataHeader imgData;
 
-	auto fs = (ox::FileStore32*) ctx->rom->buff();
+	ox::FileStore32 fs(loadRom(), 32 * 1024 * 1024);
 	REG_BG0CNT = (28 << 8) | 1;
-	if (fs) {
+	if (fs.valid()) {
 		// load the header
-		err |= fs->read(inode, 0, sizeof(imgData), &imgData, nullptr);
+		err |= fs.read(inode, 0, sizeof(imgData), &imgData, nullptr);
 
 		// load palette
-		err |= fs->read(inode, PaletteStart,
+		err |= fs.read(inode, PaletteStart,
 		                512, (uint16_t*) &MEM_PALLETE_BG[0], nullptr);
 
 		if (imgData.bpp == 4) {
-			err |= fs->read(inode, __builtin_offsetof(GbaImageData, tiles),
+			err |= fs.read(inode, __builtin_offsetof(GbaImageData, tiles),
 			                sizeof(Tile) * imgData.tileCount, (uint16_t*) &TILE_ADDR[0][1], nullptr);
 		} else if (imgData.bpp == 8) {
 			REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
-			err |= fs->read(inode, __builtin_offsetof(GbaImageData, tiles),
+			err |= fs.read(inode, __builtin_offsetof(GbaImageData, tiles),
 			                sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
 		} else {
 			err = 1;
@@ -241,7 +241,7 @@ void puts(Context*, int loc, const char *str) {
 	}
 }
 
-void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
+void setTile(Context*, int layer, int column, int row, uint8_t tile) {
 	if (column < GBA_TILE_COLUMNS && row < GBA_TILE_ROWS) {
 		MEM_BG_MAP[28 + layer][row * GBA_TILE_COLUMNS + column] = tile;
 	}

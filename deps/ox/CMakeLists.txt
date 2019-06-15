@@ -8,6 +8,7 @@ include(address_sanitizer)
 set(OX_BUILD_EXEC "ON" CACHE STRING "Build executables (ON/OFF)")
 set(OX_RUN_TESTS  "ON" CACHE STRING "Run tests (ON/OFF)")
 set(OX_USE_STDLIB "ON" CACHE STRING "Build libraries that need the std lib (ON/OFF)")
+set(OX_BARE_METAL FALSE CACHE STRING "Bare metal build (TRUE/FALSE)")
 
 # can't run tests without building them
 if(OX_BUILD_EXEC STREQUAL "OFF" OR OX_USE_STDLIB STREQUAL "OFF")

@@ -148,8 +148,8 @@ FileSystemTemplate<FileStore, Directory>::~FileSystemTemplate() {
 template<typename FileStore, typename Directory>
 Error FileSystemTemplate<FileStore, Directory>::format(void *buff, uint64_t buffSize) {
 	oxReturnError(FileStore::format(buff, buffSize));
-
 	FileStore fs(buff, buffSize);
+
 	constexpr auto rootDirInode = MaxValue<typename FileStore::InodeId_t> / 2;
 	Directory rootDir(fs, rootDirInode);
 	oxReturnError(rootDir.init());

@@ -9,24 +9,23 @@ add_library(
 		filesystem/passthroughfs.cpp
 )
 
-if(OX_USE_STDLIB)
+if(NOT OX_BARE_METAL)
 	target_link_libraries(
 		OxFS PUBLIC
 			$<$<CXX_COMPILER_ID:Clang>:c++fs>
 			$<$<CXX_COMPILER_ID:GNU>:stdc++fs>
+	)
+	set_property(
+		TARGET
+			OxFS
+		PROPERTY
+			POSITION_INDEPENDENT_CODE ON
 	)
 endif()
 
 target_link_libraries(
 	OxFS PUBLIC
 		OxMetalClaw
-)
-
-set_property(
-	TARGET
-		OxFS
-	PROPERTY
-		POSITION_INDEPENDENT_CODE ON
 )
 
 if(OX_BUILD_EXEC STREQUAL "ON")

@@ -9,12 +9,14 @@ target_link_libraries(
 		OxStd
 )
 
-set_property(
-	TARGET
-		OxModel
-	PROPERTY
-		POSITION_INDEPENDENT_CODE ON
-)
+if(NOT OX_BARE_METAL)
+	set_property(
+		TARGET
+			OxModel
+		PROPERTY
+			POSITION_INDEPENDENT_CODE ON
+	)
+endif()
 
 install(
 	FILES

@@ -11,12 +11,14 @@ add_library(
 		trace.cpp
 )
 
-set_property(
-	TARGET
-		OxStd
-	PROPERTY
-		POSITION_INDEPENDENT_CODE ON
-)
+if(NOT OX_BARE_METAL)
+	set_property(
+		TARGET
+			OxStd
+		PROPERTY
+			POSITION_INDEPENDENT_CODE ON
+	)
+endif()
 
 target_link_libraries(
 	OxStd PUBLIC

@@ -12,7 +12,7 @@ using namespace nostalgia::common;
 using namespace nostalgia::core;
 using namespace nostalgia::world;
 
-int main() {
+int run() {
 	ox::FileSystem32 fs(ox::FileStore32(loadRom(), 33554432)); // 32 MB
 	Context ctx;
 	init(&ctx);
@@ -22,3 +22,21 @@ int main() {
 	while (1);
 	return 0;
 }
+
+#ifndef OX_USE_STDLIB
+
+extern "C" {
+
+void _start() {
+	run();
+}
+
+}
+
+#else
+
+int main() {
+	return run();
+}
+
+#endif

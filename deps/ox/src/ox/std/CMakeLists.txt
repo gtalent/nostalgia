@@ -6,6 +6,7 @@ add_library(
 		memops.cpp
 		new.cpp
 		random.cpp
+		substitutes.cpp
 		stacktrace.cpp
 		strops.cpp
 		trace.cpp

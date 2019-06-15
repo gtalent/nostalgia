@@ -20,7 +20,7 @@ namespace ox::trace {
 #if defined(OX_USE_STDLIB)
 static const auto OxPrintTrace = std::getenv("OXTRACE");
 #else
-static const auto OxPrintTrace = false;
+constexpr auto OxPrintTrace = false;
 #endif
 
 namespace gdblogger {

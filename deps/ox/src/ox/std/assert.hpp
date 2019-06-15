@@ -14,19 +14,19 @@
 namespace ox {
 
 template<typename T>
-void _assert(const char*, int, T, const char*) {
+void assertFunc(const char*, int, T, const char*) {
 }
 
 template<>
-void _assert<bool>(const char *file, int line, bool pass, const char *msg);
+void assertFunc<bool>(const char *file, int line, bool pass, const char *msg);
 
 template<>
-void _assert<Error>(const char *file, int line, Error err, const char*);
+void assertFunc<Error>(const char *file, int line, Error err, const char*);
 
 }
 
 #ifndef NDEBUG
-#define oxAssert(pass, msg) ox::_assert<decltype(pass)>(__FILE__, __LINE__, pass, msg)
+#define oxAssert(pass, msg) ox::assertFunc<decltype(pass)>(__FILE__, __LINE__, pass, msg)
 #else
 #define oxAssert(pass, msg)
 #endif

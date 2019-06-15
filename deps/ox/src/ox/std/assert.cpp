@@ -18,7 +18,7 @@
 namespace ox {
 
 template<>
-void _assert<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]bool pass, [[maybe_unused]]const char *msg) {
+void assertFunc<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]bool pass, [[maybe_unused]]const char *msg) {
 #if defined(OX_USE_STDLIB)
 	if (!pass) {
 		std::cerr << "\033[31;1;1mASSERT FAILURE:\033[0m (" << file << ':' << line << "): " << msg << std::endl;
@@ -29,7 +29,7 @@ void _assert<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line, [
 }
 
 template<>
-void _assert<Error>([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]Error err, [[maybe_unused]]const char *msg) {
+void assertFunc<Error>([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]Error err, [[maybe_unused]]const char *msg) {
 #if defined(OX_USE_STDLIB)
 	if (err) {
 		auto ei = ErrorInfo(err);

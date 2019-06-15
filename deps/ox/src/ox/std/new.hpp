@@ -15,14 +15,14 @@
 #include <malloc.h>
 #define ox_alloca(size) _alloca(size)
 #elif OX_USE_STDLIB
-#include <alloca.h>
+#include <stdlib.h>
 #define ox_alloca(size) alloca(size)
 #else
 #define ox_alloca(size) __builtin_alloca(size)
 #endif
 
 
-void *operator new(std::size_t, void*);
+void *operator new(std::size_t, void*) noexcept;
 
 
 /**

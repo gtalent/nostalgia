@@ -20,7 +20,7 @@ namespace ox {
 void printStackTrace([[maybe_unused]]int shave) {
 #if defined(OX_USE_STDLIB)
 	std::array<void*, 100> frames;
-	auto size = backtrace(frames.data(), frames.size());
+	auto size = static_cast<int>(backtrace(frames.data(), frames.size()));
 	if (size > shave) {
 		std::cout << "\nStacktrace:\n";
 		backtrace_symbols_fd(frames.data() + shave, size - shave, STDERR_FILENO);

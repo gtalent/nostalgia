@@ -10,11 +10,11 @@
 
 #include "types.hpp"
 
-void *operator new(std::size_t, void *addr) {
+void *operator new(std::size_t, void *addr) noexcept {
 	return addr;
 }
 
-void *operator new[](std::size_t, void *addr) {
+void *operator new[](std::size_t, void *addr) noexcept {
 	return addr;
 }
 

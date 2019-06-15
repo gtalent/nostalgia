@@ -10,6 +10,7 @@ add_library(
 )
 
 if(NOT OX_BARE_METAL)
+	message("fs link c++fs")
 	target_link_libraries(
 		OxFS PUBLIC
 			$<$<CXX_COMPILER_ID:Clang>:c++fs>

@@ -22,7 +22,11 @@
 #endif
 
 
+#if __has_include(<new>)
+#include <new>
+#else
 void *operator new(std::size_t, void*) noexcept;
+#endif
 
 
 /**

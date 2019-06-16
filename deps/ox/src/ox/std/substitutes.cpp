@@ -8,14 +8,10 @@
 
 #ifndef OX_USE_STDLIB
 
-#include <cstdlib>
-#include <stdio.h>
-
 // weak link panic to ensure that it exists, but allow it to be overriden by
 // platform specific code
-void __attribute__((weak)) panic(const char *msg) {
-	printf("Unexpected state:\n%s", msg);
-	std::abort();
+void __attribute__((weak)) panic(const char*) {
+	while (1);
 }
 
 extern "C" {

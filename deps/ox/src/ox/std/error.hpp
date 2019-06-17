@@ -17,7 +17,7 @@
 #define OxError(x) static_cast<ox::Error>(x)
 #endif
 
-#define oxReturnError(x) if (const auto _err = x) return _err
+#define oxReturnError(x) if (const auto _err = ox::error::toError(x)) return _err
 
 namespace ox {
 
@@ -76,6 +76,19 @@ struct ValErr {
 	}
 
 };
+
+namespace error {
+
+[[nodiscard]] constexpr ox::Error toError(ox::Error e) noexcept {
+	return e;
+}
+
+template<typename T>
+[[nodiscard]] constexpr ox::Error toError(ox::ValErr<T> ve) noexcept {
+	return ve.error;
+}
+
+}
 
 }
 

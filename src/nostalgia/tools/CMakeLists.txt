@@ -12,6 +12,7 @@ target_link_libraries(
 		OxMetalClaw
 		NostalgiaCommon
 		NostalgiaCore
+		NostalgiaPack
 )
 
 install(

@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <array>
 #include <iostream>
 #include <QColor>
 #include <QImage>
@@ -14,155 +15,42 @@
 #include <nostalgia/common/point.hpp>
 #include <ox/clargs/clargs.hpp>
 #include <ox/fs/fs.hpp>
+#include <ox/std/units.hpp>
+
+#include "pack/pack.hpp"
 
 using namespace std;
 using namespace ox;
 using namespace nostalgia::core;
 using namespace nostalgia::common;
 
-uint8_t *loadFileBuff(QString path, ::size_t *sizeOut = nullptr) {
+ox::ValErr<std::vector<uint8_t>> loadFileBuff(QString path, ::size_t *sizeOut = nullptr) {
 	auto file = fopen(path.toUtf8(), "rb");
 	if (file) {
 		fseek(file, 0, SEEK_END);
 		const auto size = ftell(file);
 		rewind(file);
-		auto buff = new uint8_t[size];
-		auto itemsRead = fread(buff, size, 1, file);
+		std::vector<uint8_t> buff(size);
+		auto itemsRead = fread(buff.data(), buff.size(), 1, file);
 		fclose(file);
 		if (sizeOut) {
 			*sizeOut = itemsRead ? size : 0;
 		}
 		return buff;
 	} else {
-		return nullptr;
+		return {{}, OxError(1)};
 	}
-}
-
-uint16_t toGbaColor(QColor c) {
-	auto r = static_cast<uint32_t>(c.red()) >> 3;
-	auto g = static_cast<uint32_t>(c.green()) >> 3;
-	auto b = static_cast<uint32_t>(c.blue()) >> 3;
-	return (r << 10) | (g << 5) | (b << 0);
-}
-
-int pointToIdx(int w, int x, int y) {
-	const auto colLength = 64;
-	const auto rowLength = (w / 8) * colLength;
-	const auto colStart = colLength * (x / 8);
-	const auto rowStart = rowLength * (y / 8);
-	const auto colOffset = x % 8;
-	const auto rowOffset = (y % 8) * 8;
-	return colStart + colOffset + rowStart + rowOffset;
 }
 
 int run(ClArgs args) {
-	Error err = 0;
-	int argInode = args.getInt("inode");
-	QString argInPath = args.getString("img").c_str();
-	QString argFsPath = args.getString("fs").c_str();
-	auto argCompact = args.getBool("c");
-	auto argTiles = args.getInt("tiles");
-	auto argBpp = args.getInt("bpp");
-
-	QImage src(argInPath);
-
-	if (!src.isNull()) {
-		if (argTiles == 0) {
-			argTiles = (src.width() * src.height()) / 64;
-		}
-		if (argBpp != 4 && argBpp != 8) {
-			argBpp = 8;
-		}
-
-		QMap<QRgb, int> colors;
-		const auto imgDataBuffSize = sizeof(GbaImageData) + 1 + argTiles * 64;
-		QVector<uint8_t> imgDataBuff(imgDataBuffSize);
-		memset(imgDataBuff.data(), 0, imgDataBuffSize);
-		auto id = reinterpret_cast<GbaImageData*>(imgDataBuff.data());
-		id->header.bpp = argBpp;
-		id->header.tileCount = argTiles;
-		int colorId = 0;
-
-		// copy pixels as color ids
-		for (int x = 0; x < src.width(); x++) {
-			for (int y = 0; y < src.height(); y++) {
-				auto destI = pointToIdx(src.width(), x, y);
-				if (destI <= argTiles * 64) {
-					auto c = src.pixel(x, y);
-					// assign color a color id for the palette
-					if (!colors.contains(c)) {
-						colors[c] = colorId;
-						colorId++;
-					}
-					// set pixel color
-					if (argBpp == 4) {
-						if (destI % 2) { // is odd number pixel
-							id->tiles[destI / 2] |= colors[c] << 4;
-						} else {
-							id->tiles[destI / 2] |= colors[c];
-						}
-					} else {
-						id->tiles[destI] = colors[c];
-					}
-				}
-			}
-		}
-
-		// store colors in palette with the corresponding color id
-		for (auto key : colors.keys()) {
-			auto colorId = colors[key];
-			id->pal[colorId] = toGbaColor(key);
-		}
-
-
-		size_t fsBuffSize;
-		auto fsBuff = loadFileBuff(argFsPath, &fsBuffSize);
-		if (fsBuff && !err) {
-			auto fs = FileSystem32(FileStore32(fsBuff, fsBuffSize));
-
-			if (fs.valid()) {
-				const auto sizeNeeded = fs.size() + fs.spaceNeeded(imgDataBuffSize);
-				if (sizeNeeded > fsBuffSize) {
-					auto newBuff = new uint8_t[sizeNeeded];
-					memcpy(newBuff, fsBuff, fsBuffSize);
-					delete[] fsBuff;
-					fsBuff = newBuff;
-					fsBuffSize = sizeNeeded;
-				}
-				fsBuff = fs.buff(); // update fsBuff pointer in case there is a new buff
-				err |= fs.write(argInode, imgDataBuff.data(), imgDataBuffSize);
-
-				if (!err) {
-					if (argCompact) {
-						FileStore32(fsBuff, fsBuffSize).compact();
-					}
-
-					auto fsFile = fopen(argFsPath.toUtf8(), "wb");
-					if (fsFile) {
-						err = fwrite(fsBuff, fs.size(), 1, fsFile) != 1;
-						err |= fclose(fsFile);
-						if (err) {
-							cerr << "Could not write to file system file.\n";
-						}
-					} else {
-						err = 2;
-					}
-				} else {
-					err = 3;
-				}
-			} else {
-				err = 4;
-			}
-		}
-
-		if (fsBuff) {
-			delete[] fsBuff;
-		}
-	} else {
-		err = 5;
-	}
-
-	return err;
+	QString argSrc = args.getString("src").c_str();
+	QString argDst = args.getString("dst").c_str();
+	std::array<uint8_t, 32 * ox::units::MB> buff;
+	ox::FileSystem32::format(buff.data(), buff.size());
+	ox::PassThroughFS src(argSrc.toUtf8());
+	ox::FileSystem32 dst(ox::FileStore32(buff.data(), buff.size()));
+	oxReturnError(nostalgia::pack(&src, &dst));
+	return 0;
 }
 
 int main(int argc, const char **args) {

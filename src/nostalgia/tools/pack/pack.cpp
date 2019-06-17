@@ -14,17 +14,52 @@
 
 namespace nostalgia {
 
+namespace {
+
 [[nodiscard]] static constexpr bool endsWith(std::string_view str, std::string_view ending) {
 	return str.size() >= ending.size() && str.substr(str.size() - ending.size()) == ending;
 }
 
-// stub for now
+/**
+ * Convert path references to inodes to save space
+ * @param buff buffer holding file
+ * @return error
+ * stub for now
+ */
 ox::Error pathToInode(std::vector<char>*) {
 	return OxError(0);
 }
 
 // stub for now
 ox::Error toMetalClaw(std::vector<char>*) {
+	return OxError(0);
+}
+
+// claw file transformations are broken out because path to inode
+// transformations need to be done after the copy to the new FS is complete
+ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
+	// copy
+	dest->ls(path.c_str(), [dest, path](const char *name, ox::InodeId_t) {
+		auto stat = dest->stat(path.c_str());
+		oxReturnError(stat.error);
+		if (stat.value.fileType == ox::FileType_Directory) {
+			const auto dir = path + name + '/';
+			oxReturnError(transformClaw(dest, dir));
+		} else {
+			// do transforms
+			if (endsWith(path, ".claw")) {
+				// load file
+				std::vector<char> buff(stat.value.size);
+				oxReturnError(dest->read(path.c_str(), buff.data(), buff.size()));
+				// do transformations
+				oxReturnError(pathToInode(&buff));
+				oxReturnError(toMetalClaw(&buff));
+				// write file to dest
+				oxReturnError(dest->write(path.c_str(), buff.data(), buff.size()));
+			}
+		}
+		return OxError(0);
+	});
 	return OxError(0);
 }
 
@@ -38,22 +73,33 @@ ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path)
 			oxReturnError(dest->mkdir(dir.c_str()));
 			oxReturnError(copy(src, dest, dir));
 		} else {
-			std::vector<char> buff(stat.value.size);
-			// load file
-			oxReturnError(src->read(path.c_str(), buff.data(), buff.size()));
+			std::vector<char> buff;
 			// do transforms
-			if (endsWith(path, ".claw")) {
-				oxReturnError(pathToInode(&buff));
-				oxReturnError(toMetalClaw(&buff));
-			} else if (endsWith(path, ".png")) {
+			if (endsWith(path, ".png")) {
+				// load file from full path and transform
 				const auto fullPath = src->basePath() + path;
-				oxReturnError(pngToGba(fullPath.c_str(), 0, 0));
+				buff = pngToGba(fullPath.c_str(), 0, 0);
+				if (!buff.size()) {
+					return OxError(1);
+				}
+			} else {
+				// load file
+				buff.resize(stat.value.size);
+				oxReturnError(src->read(path.c_str(), buff.data(), buff.size()));
 			}
 			// write file to dest
 			oxReturnError(dest->write(path.c_str(), buff.data(), buff.size()));
 		}
 		return OxError(0);
 	});
+	return OxError(0);
+}
+
+}
+
+ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {
+	oxReturnError(copy(src, dest, path));
+	oxReturnError(transformClaw(dest, path));
 	return OxError(0);
 }
 

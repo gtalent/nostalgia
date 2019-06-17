@@ -56,10 +56,12 @@ namespace {
 	return colors.size();
 }
 
-ox::Error pngToGba(QString argInPath, int argTiles, int argBpp) {
-	ox::Error err = 0;
-
+[[nodiscard]] std::vector<char> pngToGba(QString argInPath, int argTiles, int argBpp) {
 	QImage src(argInPath);
+
+	if (src.isNull()) {
+		return {};
+	}
 
 	if (argTiles == 0) {
 		argTiles = (src.width() * src.height()) / 64;
@@ -70,9 +72,8 @@ ox::Error pngToGba(QString argInPath, int argTiles, int argBpp) {
 
 	QMap<QRgb, int> colors;
 	const auto imgDataBuffSize = sizeof(core::GbaImageData) + 1 + argTiles * 64;
-	auto imgDataBuff = std::make_unique<uint8_t[]>(imgDataBuffSize);
-	memset(imgDataBuff.get(), 0, imgDataBuffSize);
-	auto id = reinterpret_cast<core::GbaImageData*>(imgDataBuff.get());
+	std::vector<char> imgDataBuff(imgDataBuffSize);
+	auto id = new (imgDataBuff.data()) core::GbaImageData;
 	id->header.bpp = argBpp;
 	id->header.tileCount = argTiles;
 	int colorId = 0;
@@ -82,7 +83,7 @@ ox::Error pngToGba(QString argInPath, int argTiles, int argBpp) {
 		for (int y = 0; y < src.height(); y++) {
 			auto destI = pointToIdx(src.width(), x, y);
 			if (destI <= argTiles * 64) {
-				auto c = src.pixel(x, y);
+				const auto c = src.pixel(x, y);
 				// assign color a color id for the palette
 				if (!colors.contains(c)) {
 					colors[c] = colorId;
@@ -107,7 +108,8 @@ ox::Error pngToGba(QString argInPath, int argTiles, int argBpp) {
 	  auto colorId = colors[key];
 	  id->pal[colorId] = toGbaColor(key);
 	}
-	return err;
+
+	return imgDataBuff;
 }
 
 }

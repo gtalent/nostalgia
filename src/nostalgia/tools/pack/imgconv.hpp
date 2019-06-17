@@ -13,6 +13,6 @@
 
 namespace nostalgia {
 
-ox::Error pngToGba(QString argInPath, int argTiles, int argBpp = -1);
+[[nodiscard]] std::vector<char> pngToGba(QString argInPath, int argTiles, int argBpp = -1);
 
 }

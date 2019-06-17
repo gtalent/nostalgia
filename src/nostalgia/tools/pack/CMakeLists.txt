@@ -1,12 +1,12 @@
 
 add_library(
-	Pack SHARED
+	NostalgiaPack SHARED
 		imgconv.cpp
 		pack.cpp
 )
 
 target_link_libraries(
-	Pack
+	NostalgiaPack
 		Qt5::Widgets
 		OxClArgs
 		OxFS
@@ -18,7 +18,7 @@ target_link_libraries(
 
 install(
 	TARGETS
-		Pack
+		NostalgiaPack
 	LIBRARY DESTINATION
 		${NOSTALGIA_DIST_LIB}/nostalgia
 )

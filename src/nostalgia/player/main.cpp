@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <ox/std/units.hpp>
 #include <nostalgia/world/world.hpp>
 
 using namespace nostalgia::common;
@@ -13,7 +14,7 @@ using namespace nostalgia::core;
 using namespace nostalgia::world;
 
 int run() {
-	ox::FileSystem32 fs(ox::FileStore32(loadRom(), 33554432)); // 32 MB
+	ox::FileSystem32 fs(ox::FileStore32(loadRom(), 32 * ox::units::MB));
 	Context ctx;
 	init(&ctx);
 	ctx.rom = &fs;
@@ -25,13 +26,12 @@ int run() {
 
 #ifndef OX_USE_STDLIB
 
-extern "C" {
 
+extern "C"
 void _start() {
 	run();
 }
 
-}
 
 #else
 

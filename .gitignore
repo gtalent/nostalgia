@@ -10,3 +10,7 @@ studio_state.json
 CMakeLists.txt.user
 Session.vim
 ROM.oxfs
+conanbuildinfo.cmake
+conanbuildinfo.txt
+conaninfo.txt
+graph_info.json

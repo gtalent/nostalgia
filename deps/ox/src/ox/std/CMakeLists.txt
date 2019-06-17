@@ -48,6 +48,7 @@ install(
 		trace.hpp
 		types.hpp
 		typetraits.hpp
+		units.hpp
 		vector.hpp
 	DESTINATION
 		include/ox/std

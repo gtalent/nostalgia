@@ -25,4 +25,5 @@
 #include "typeinfo.hpp"
 #include "types.hpp"
 #include "typetraits.hpp"
+#include "units.hpp"
 #include "vector.hpp"

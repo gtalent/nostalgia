@@ -6,7 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <array>
 #include <iostream>
 #include <QColor>
 #include <QImage>
@@ -42,17 +41,25 @@ ox::ValErr<std::vector<uint8_t>> loadFileBuff(QString path, ::size_t *sizeOut = 
 	}
 }
 
-int run(ClArgs args) {
-	QString argSrc = args.getString("src").c_str();
-	QString argDst = args.getString("dst").c_str();
-	std::array<uint8_t, 32 * ox::units::MB> buff;
+ox::Error run(ClArgs args) {
+	std::string argSrc = args.getString("src").c_str();
+	std::string argDst = args.getString("dst").c_str();
+	if (argSrc == "") {
+		std::cerr << "error: must specify a source directory\n";
+		return OxError(1);
+	}
+	if (argDst == "") {
+		std::cerr << "error: must specify a destination ROM file\n";
+		return OxError(1);
+	}
+	std::vector<uint8_t> buff(32 * ox::units::MB);
 	ox::FileSystem32::format(buff.data(), buff.size());
-	ox::PassThroughFS src(argSrc.toUtf8());
+	ox::PassThroughFS src(argSrc.c_str());
 	ox::FileSystem32 dst(ox::FileStore32(buff.data(), buff.size()));
 	oxReturnError(nostalgia::pack(&src, &dst));
-	return 0;
+	return OxError(0);
 }
 
 int main(int argc, const char **args) {
-	return run(ClArgs(argc, args));
+	return static_cast<int>(run(ClArgs(argc, args)));
 }

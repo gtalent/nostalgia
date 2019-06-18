@@ -7,9 +7,7 @@
  */
 
 #include <iostream>
-#include <QColor>
-#include <QImage>
-#include <QMap>
+#include <vector>
 #include <nostalgia/core/gba/gba.hpp>
 #include <nostalgia/common/point.hpp>
 #include <ox/clargs/clargs.hpp>
@@ -23,8 +21,8 @@ using namespace ox;
 using namespace nostalgia::core;
 using namespace nostalgia::common;
 
-ox::ValErr<std::vector<uint8_t>> loadFileBuff(QString path, ::size_t *sizeOut = nullptr) {
-	auto file = fopen(path.toUtf8(), "rb");
+ox::ValErr<std::vector<uint8_t>> loadFileBuff(std::string path, ::size_t *sizeOut = nullptr) {
+	auto file = fopen(path.c_str(), "rb");
 	if (file) {
 		fseek(file, 0, SEEK_END);
 		const auto size = ftell(file);

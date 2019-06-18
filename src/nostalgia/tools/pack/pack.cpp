@@ -40,16 +40,16 @@ ox::Error toMetalClaw(std::vector<char>*) {
 ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
 	// copy
 	dest->ls(path.c_str(), [dest, path](const char *name, ox::InodeId_t) {
-		auto stat = dest->stat(path.c_str());
-		oxReturnError(stat.error);
-		if (stat.value.fileType == ox::FileType_Directory) {
+		auto [stat, err] = dest->stat(path.c_str());
+		oxReturnError(err);
+		if (stat.fileType == ox::FileType_Directory) {
 			const auto dir = path + name + '/';
 			oxReturnError(transformClaw(dest, dir));
 		} else {
 			// do transforms
 			if (endsWith(path, ".claw")) {
 				// load file
-				std::vector<char> buff(stat.value.size);
+				std::vector<char> buff(stat.size);
 				oxReturnError(dest->read(path.c_str(), buff.data(), buff.size()));
 				// do transformations
 				oxReturnError(pathToInode(&buff));
@@ -66,9 +66,9 @@ ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
 ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {
 	// copy
 	src->ls(path.c_str(), [src, dest, path](const char *name, ox::InodeId_t) {
-		auto stat = src->stat(path.c_str());
-		oxReturnError(stat.error);
-		if (stat.value.fileType == ox::FileType_Directory) {
+		auto [stat, err] = src->stat(path.c_str());
+		oxReturnError(err);
+		if (stat.fileType == ox::FileType_Directory) {
 			const auto dir = path + name + '/';
 			oxReturnError(dest->mkdir(dir.c_str()));
 			oxReturnError(copy(src, dest, dir));
@@ -84,7 +84,7 @@ ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path)
 				}
 			} else {
 				// load file
-				buff.resize(stat.value.size);
+				buff.resize(stat.size);
 				oxReturnError(src->read(path.c_str(), buff.data(), buff.size()));
 			}
 			// write file to dest

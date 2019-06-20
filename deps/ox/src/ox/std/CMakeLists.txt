@@ -21,6 +21,13 @@ if(NOT OX_BARE_METAL)
 	)
 endif()
 
+if(${OX_USE_STDLIB})
+	target_compile_definitions(
+		OxStd PUBLIC
+			OX_USE_STDLIB
+	)
+endif()
+
 target_link_libraries(
 	OxStd PUBLIC
 		$<$<CXX_COMPILER_ID:GNU>:gcc>

@@ -16,7 +16,7 @@ else()
 endif()
 
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 include(address_sanitizer)
 
 if(NOT NOSTALGIA_BUILD_TYPE STREQUAL "GBA" AND EXISTS ${CMAKE_SOURCE_DIR}/conanbuildinfo.cmake)

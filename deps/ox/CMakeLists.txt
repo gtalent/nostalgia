@@ -12,10 +12,10 @@ if(NOT DEFINED OX_RUN_TESTS)
 	set(OX_RUN_TESTS "ON")
 endif()
 if(NOT DEFINED OX_USE_STDLIB)
-	set(OX_USE_STDLIB "ON")
+	set(OX_USE_STDLIB ON)
 endif()
 if(NOT DEFINED OX_BARE_METAL)
-	set(OX_BARE_METAL FALSE)
+	set(OX_BARE_METAL OFF)
 endif()
 
 set(OX_RUN_TESTS ${OX_RUN_TESTS} CACHE STRING "Run tests (ON/OFF)")
@@ -24,7 +24,7 @@ set(OX_USE_STDLIB ${OX_USE_STDLIB} CACHE STRING "Build libraries that need the s
 set(OX_BARE_METAL ${OX_BARE_METAL} CACHE STRING "Bare metal build (TRUE/FALSE)")
 
 # can't run tests without building them
-if(OX_BUILD_EXEC STREQUAL "OFF" OR OX_USE_STDLIB STREQUAL "OFF")
+if(OX_BUILD_EXEC STREQUAL "OFF" OR NOT ${OX_USE_STDLIB})
 	set(OX_BUILD_EXEC OFF)
 	set(OX_RUN_TESTS OFF)
 endif()
@@ -39,9 +39,7 @@ else()
 	add_definitions(-DDEBUG)
 endif()
 
-if(OX_USE_STDLIB STREQUAL "ON")
-	add_definitions(-DOX_USE_STDLIB)
-else()
+if(NOT ${OX_USE_STDLIB})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nostdlib")
 endif()
 

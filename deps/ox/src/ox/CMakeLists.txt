@@ -1,6 +1,6 @@
-if(OX_USE_STDLIB STREQUAL "ON")
+if(${OX_USE_STDLIB})
 	add_subdirectory(clargs)
-endif(OX_USE_STDLIB STREQUAL "ON")
+endif()
 add_subdirectory(fs)
 add_subdirectory(mc)
 add_subdirectory(ptrarith)

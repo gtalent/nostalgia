@@ -7,10 +7,10 @@ project=$(pwd)/
 buildTool=""
 
 if [[ $TARGET == windows ]]; then
-	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/Mingw.cmake"
+	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/modules/Mingw.cmake"
 	buildTool="-GNinja"
 elif [[ $TARGET == gba ]]; then
-	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/Modules/GBA.cmake"
+	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/modules/GBA.cmake"
 	nostalgiaBuildType="-DNOSTALGIA_BUILD_TYPE=GBA"
 	oxUseStdLib="-DOX_USE_STDLIB=OFF"
 else

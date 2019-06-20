@@ -26,10 +26,10 @@ cmake:
          windows:
             env: nostalgia_devenv
             defs:
-               CMAKE_TOOLCHAIN_FILE: cmake/Modules/Mingw.cmake
+               CMAKE_TOOLCHAIN_FILE: cmake/modules/Mingw.cmake
          gba:
             env: nostalgia_devenv
             defs:
-               CMAKE_TOOLCHAIN_FILE: cmake/Modules/GBA.cmake
+               CMAKE_TOOLCHAIN_FILE: cmake/modules/GBA.cmake
                NOSTALGIA_BUILD_TYPE: GBA
                OX_USE_STDLIB: OFF

@@ -17,6 +17,7 @@
 #include <QLineEdit>
 #include <QMenuBar>
 #include <QPluginLoader>
+#include <QScreen>
 #include <QSettings>
 #include <QTextStream>
 #include <QVector>
@@ -43,7 +44,7 @@ MainWindow::MainWindow(QString profilePath) {
 		readJson(in.readAll(), &m_profile);
 	}
 
-	auto screenSize = QApplication::desktop()->screenGeometry();
+	auto screenSize = QApplication::screens().first()->geometry();
 
 	// set window to 75% of screen width, and center NostalgiaStudioProfile
 	constexpr auto sizePct = 0.75;

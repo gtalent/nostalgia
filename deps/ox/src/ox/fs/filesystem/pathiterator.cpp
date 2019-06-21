@@ -181,7 +181,7 @@ bool PathIterator::valid() const {
 	return m_iterator < m_maxSize && m_path[m_iterator] != 0;
 }
 
-PathIterator PathIterator::operator+(int i) const {
+PathIterator PathIterator::next() const {
 	std::size_t size = 0;
 	auto iterator = m_iterator;
 	if (iterator < m_maxSize && ox_strlen(&m_path[iterator])) {
@@ -199,7 +199,7 @@ PathIterator PathIterator::operator+(int i) const {
 		size = end - start;
 	}
 	iterator += size;
-	return PathIterator(m_path, m_maxSize, iterator + i);
+	return PathIterator(m_path, m_maxSize, iterator + 1);
 }
 
 const char *PathIterator::fullPath() const {

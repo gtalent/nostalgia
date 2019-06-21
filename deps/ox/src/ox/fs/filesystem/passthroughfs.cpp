@@ -54,6 +54,7 @@ Error PassThroughFS::read(const char *path, void *buffer, std::size_t buffSize) 
 			return OxError(itemsRead == 1 ? 0 : 1);
 		}
 	}
+	oxTrace("ox::fs::PassThroughFS::read::error") << "Read failed: " << path;
 	return OxError(1);
 }
 

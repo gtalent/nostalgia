@@ -115,7 +115,7 @@ map<string, int(*)(string)> tests = {
 				const auto path = "/file1";
 				PathIterator it(path, ox_strlen(path));
 				oxAssert(it.hasNext(), "PathIterator shows incorrect hasNext");
-				oxAssert(!(it + 1).hasNext(), "PathIterator shows incorrect hasNext");
+				oxAssert(!it.next().hasNext(), "PathIterator shows incorrect hasNext");
 				return retval;
 			}
 		},
@@ -202,6 +202,8 @@ map<string, int(*)(string)> tests = {
 				ox::FileSystem32 fs(ox::FileStore32(fsBuff.data(), fsBuff.size()));
 
 				oxTrace("ox::fs::test::FileSystem") << "mkdir";
+				oxAssert(fs.mkdir("/dir", true), "mkdir failed");
+				oxAssert(fs.stat("/dir").error, "mkdir failed");
 				oxAssert(fs.mkdir("/l1d1/l2d1/l3d1", true), "mkdir failed");
 				oxAssert(fs.stat("/l1d1/l2d1/l3d1").error, "mkdir failed");
 				oxAssert(fs.mkdir("/l1d1/l2d2", true), "mkdir failed");

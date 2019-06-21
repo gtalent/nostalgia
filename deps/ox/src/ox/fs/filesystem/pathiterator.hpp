@@ -65,7 +65,7 @@ class PathIterator {
 
 		bool valid() const;
 
-		PathIterator operator+(int i) const;
+		[[nodiscard]] PathIterator next() const;
 
 		const char *fullPath() const;
 

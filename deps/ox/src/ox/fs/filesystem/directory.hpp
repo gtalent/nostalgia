@@ -183,7 +183,7 @@ Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents, Fi
 
 		Directory<FileStore, InodeId_t> child(m_fs, childInode);
 		if (path.hasNext()) {
-			oxReturnError(child.mkdir(path + 1, parents, nameBuff));
+			oxReturnError(child.mkdir(path.next(), parents, nameBuff));
 		}
 	}
 	return OxError(0);
@@ -199,7 +199,7 @@ Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode,
 	}
 	auto name = nameBuff;
 
-	if ((path + 1).hasNext()) {
+	if (path.next().hasNext()) { // not yet at target directory, recurse to next one
 		oxReturnError(path.get(name));
 
 		oxTrace("ox::fs::Directory::write") << "Attempting to write to next sub-Directory: "
@@ -212,7 +212,7 @@ Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode,
 			// reuse name because it is a rather large variable and will not be used again
 			// be attentive that this remains true
 			name = nullptr;
-			return Directory(m_fs, nextChild).write(path + 1, inode, nameBuff);
+			return Directory(m_fs, nextChild).write(path.next(), inode, nameBuff);
 		} else {
 			oxTrace("ox::fs::Directory::write") << name->c_str()
 				<< "not found and not allowed to create it.";
@@ -356,7 +356,7 @@ ValErr<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::find(Path
 		return v;
 	}
 	name = nullptr;
-	v = find(path + 1, nameBuff);
+	v = find(path.next(), nameBuff);
 	if (!v.error) {
 		return v;
 	}

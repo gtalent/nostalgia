@@ -11,7 +11,6 @@
 
 #include <iostream>
 #include <assert.h>
-#include <array>
 #include <map>
 #include <vector>
 #include <string>
@@ -170,7 +169,7 @@ map<string, int(*)(string)> tests = {
 		{
 			"Directory",
 			[](string) {
-				std::array<uint8_t, 5000> fsBuff;
+				std::vector<uint8_t> fsBuff(5000);
 				ox::FileStore32::format(fsBuff.data(), fsBuff.size());
 				ox::FileStore32 fileStore(fsBuff.data(), fsBuff.size());
 				auto dir = ox_malloca(1000, ox::Directory32, fileStore, 100);
@@ -197,7 +196,7 @@ map<string, int(*)(string)> tests = {
 		{
 			"FileSystem",
 			[](string) {
-				std::array<uint8_t, 5000> fsBuff;
+				std::vector<uint8_t> fsBuff(5000);
 				oxTrace("ox::fs::test::FileSystem") << "format";
 				oxAssert(ox::FileSystem32::format(fsBuff.data(), fsBuff.size()), "FileSystem format failed");
 				ox::FileSystem32 fs(ox::FileStore32(fsBuff.data(), fsBuff.size()));

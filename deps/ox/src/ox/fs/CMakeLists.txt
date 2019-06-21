@@ -66,11 +66,6 @@ install(
 	ARCHIVE DESTINATION lib/ox
 )
 
-if(OX_BUILD_EXEC STREQUAL "ON")
-	if(OX_RUN_TESTS STREQUAL "ON")
-		add_subdirectory(test)
-	endif()
-	#install(TARGETS oxfstool
-	#		  RUNTIME DESTINATION bin
-	#)
+if(OX_RUN_TESTS)
+	add_subdirectory(test)
 endif()

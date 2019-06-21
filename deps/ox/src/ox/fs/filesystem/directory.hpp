@@ -200,16 +200,23 @@ Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode,
 	auto name = nameBuff;
 
 	if ((path + 1).hasNext()) {
-		oxTrace("ox::fs::Directory::write") << "Attempting to write to next sub-Directory";
-
 		oxReturnError(path.get(name));
-		nextChild = findEntry(*name);
 
-		if (!nextChild && parents) {
-			oxReturnError(Directory(m_fs, nextChild).init());
-			nextChild = findEntry(*name);
-		} else {
-			return OxError(1);
+		oxTrace("ox::fs::Directory::write") << "Attempting to write to next sub-Directory: "
+			<< name->c_str() << " of " << path.fullPath();
+
+		nextChild = findEntry(*name);
+		oxTrace("ox::fs::Directory::write") << name->c_str() << ": " << nextChild;
+
+		if (!nextChild) {
+			if (parents) {
+				oxReturnError(Directory(m_fs, nextChild).init());
+				nextChild = findEntry(*name);
+			} else {
+				oxTrace("ox::fs::Directory::write") << name->c_str()
+					<< "not found and not allowed to create it.";
+				return OxError(1);
+			}
 		}
 
 		if (nextChild) {
@@ -323,13 +330,14 @@ ValErr<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::findEntry
 			if (data.valid()) {
 				oxTrace("ox::fs::Directory::findEntry").del("") << "Comparing \"" << name.c_str() << "\" to \"" << data->name << "\"";
 				if (ox_strncmp(data->name, name.c_str(), name.len()) == 0) {
+					oxTrace("ox::fs::Directory::findEntry").del("") << "\"" << name.c_str() << "\" match found.";
 					return static_cast<InodeId_t>(data->inode);
 				}
 			} else {
 				oxTrace("ox::fs::Directory::findEntry") << "INVALID DIRECTORY ENTRY";
 			}
 		}
-		oxTrace("ox::fs::Directory::findEntry::fail");
+		oxTrace("ox::fs::Directory::findEntry::fail") << "Entry not present";
 		return {0, OxError(1)};
 	} else {
 		oxTrace("ox::fs::Directory::findEntry::fail") << "Could not findEntry directory buffer";

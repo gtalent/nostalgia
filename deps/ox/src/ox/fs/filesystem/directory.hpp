@@ -108,7 +108,7 @@ class Directory {
 		/**
 		 * @param parents indicates the operation should create non-existent directories in the path, like mkdir -p
 		 */
-		Error write(PathIterator it, InodeId_t inode, bool parents = false, FileName *nameBuff = nullptr) noexcept;
+		Error write(PathIterator it, InodeId_t inode, FileName *nameBuff = nullptr) noexcept;
 
 		Error remove(PathIterator it, FileName *nameBuff = nullptr) noexcept;
 
@@ -172,7 +172,7 @@ Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents, Fi
 			Directory<FileStore, InodeId_t> child(m_fs, childInode);
 			oxReturnError(child.init());
 
-			auto err = write(name->c_str(), childInode, false);
+			auto err = write(name->c_str(), childInode);
 			if (err) {
 				oxLogError(err);
 				// could not index the directory, delete it
@@ -190,7 +190,7 @@ Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents, Fi
 }
 
 template<typename FileStore, typename InodeId_t>
-Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode, bool parents, FileName *nameBuff) noexcept {
+Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode, FileName *nameBuff) noexcept {
 	InodeId_t nextChild = 0;
 
 	// reuse nameBuff if it has already been allocated, as it is a rather large variable
@@ -208,22 +208,15 @@ Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode,
 		nextChild = findEntry(*name);
 		oxTrace("ox::fs::Directory::write") << name->c_str() << ": " << nextChild;
 
-		if (!nextChild) {
-			if (parents) {
-				oxReturnError(Directory(m_fs, nextChild).init());
-				nextChild = findEntry(*name);
-			} else {
-				oxTrace("ox::fs::Directory::write") << name->c_str()
-					<< "not found and not allowed to create it.";
-				return OxError(1);
-			}
-		}
-
 		if (nextChild) {
 			// reuse name because it is a rather large variable and will not be used again
 			// be attentive that this remains true
 			name = nullptr;
-			return Directory(m_fs, nextChild).write(path + 1, inode, parents, nameBuff);
+			return Directory(m_fs, nextChild).write(path + 1, inode, nameBuff);
+		} else {
+			oxTrace("ox::fs::Directory::write") << name->c_str()
+				<< "not found and not allowed to create it.";
+			return OxError(1);
 		}
 	} else {
 		// insert the new entry on this directory

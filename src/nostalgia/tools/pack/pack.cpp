@@ -27,20 +27,20 @@ namespace {
  * @return error
  * stub for now
  */
-ox::Error pathToInode(std::vector<char>*) {
+[[nodiscard]] ox::Error pathToInode(std::vector<char>*) {
 	return OxError(0);
 }
 
 // stub for now
-ox::Error toMetalClaw(std::vector<char>*) {
+[[nodiscard]] ox::Error toMetalClaw(std::vector<char>*) {
 	return OxError(0);
 }
 
 // claw file transformations are broken out because path to inode
 // transformations need to be done after the copy to the new FS is complete
-ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
+[[nodiscard]] ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
 	// copy
-	dest->ls(path.c_str(), [dest, path](const char *name, ox::InodeId_t) {
+	return dest->ls(path.c_str(), [dest, path](const char *name, ox::InodeId_t) {
 		auto [stat, err] = dest->stat(path.c_str());
 		oxReturnError(err);
 		if (stat.fileType == ox::FileType_Directory) {
@@ -61,7 +61,6 @@ ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
 		}
 		return OxError(0);
 	});
-	return OxError(0);
 }
 
 [[nodiscard]] ox::Error verifyFile(ox::FileSystem32 *fs, const std::string &path, const std::vector<char> &expected) noexcept {
@@ -70,7 +69,7 @@ ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
 	return buff == expected ? 0 : OxError(1);
 }
 
-ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {
+[[nodiscard]] ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {
 	std::cout << "copying directory: " << path << '\n';
 	// copy
 	return src->ls(path.c_str(), [src, dest, path](const char *name, ox::InodeId_t) {
@@ -107,7 +106,7 @@ ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path)
 
 }
 
-ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {
+[[nodiscard]] ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {
 	oxReturnError(copy(src, dest, path));
 	oxReturnError(transformClaw(dest, path));
 	return OxError(0);

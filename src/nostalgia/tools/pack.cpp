@@ -21,7 +21,7 @@ using namespace ox;
 using namespace nostalgia::core;
 using namespace nostalgia::common;
 
-ox::ValErr<std::vector<uint8_t>> loadFileBuff(std::string path, ::size_t *sizeOut = nullptr) {
+[[nodiscard]] ox::ValErr<std::vector<uint8_t>> loadFileBuff(std::string path, ::size_t *sizeOut = nullptr) {
 	auto file = fopen(path.c_str(), "rb");
 	if (file) {
 		fseek(file, 0, SEEK_END);
@@ -39,7 +39,7 @@ ox::ValErr<std::vector<uint8_t>> loadFileBuff(std::string path, ::size_t *sizeOu
 	}
 }
 
-ox::Error run(ClArgs args) {
+[[nodiscard]] ox::Error run(ClArgs args) {
 	std::string argSrc = args.getString("src").c_str();
 	std::string argDst = args.getString("dst").c_str();
 	if (argSrc == "") {
@@ -51,7 +51,7 @@ ox::Error run(ClArgs args) {
 		return OxError(1);
 	}
 	std::vector<uint8_t> buff(32 * ox::units::MB);
-	ox::FileSystem32::format(buff.data(), buff.size());
+	oxReturnError(ox::FileSystem32::format(buff.data(), buff.size()));
 	ox::PassThroughFS src(argSrc.c_str());
 	ox::FileSystem32 dst(ox::FileStore32(buff.data(), buff.size()));
 	auto err = nostalgia::pack(&src, &dst);

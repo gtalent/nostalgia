@@ -76,8 +76,9 @@ Error PassThroughFS::remove(const char *path, bool recursive) {
 	}
 }
 
-void PassThroughFS::resize(uint64_t, void*) {
+ox::Error PassThroughFS::resize(uint64_t, void*) {
 	// unsupported
+	return OxError(1);
 }
 
 Error PassThroughFS::write(const char *path, void *buffer, uint64_t size, uint8_t) {

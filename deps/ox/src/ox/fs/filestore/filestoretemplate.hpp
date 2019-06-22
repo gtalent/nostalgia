@@ -77,21 +77,21 @@ class FileStoreTemplate {
 
 		FileStoreTemplate(void *buff, size_t buffSize);
 
-		static Error format(void *buffer, size_t bufferSize);
+		[[nodiscard]] static Error format(void *buffer, size_t bufferSize);
 
-		Error setSize(InodeId_t buffSize);
+		[[nodiscard]] Error setSize(InodeId_t buffSize);
 
-		Error incLinks(InodeId_t id);
+		[[nodiscard]] Error incLinks(InodeId_t id);
 
-		Error decLinks(InodeId_t id);
+		[[nodiscard]] Error decLinks(InodeId_t id);
 
-		Error write(InodeId_t id, void *data, FsSize_t dataLen, uint8_t fileType = 0);
+		[[nodiscard]] Error write(InodeId_t id, void *data, FsSize_t dataLen, uint8_t fileType = 0);
 
-		Error remove(InodeId_t id);
+		[[nodiscard]] Error remove(InodeId_t id);
 
-		Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size = nullptr) const;
+		[[nodiscard]] Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size = nullptr) const;
 
-		Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size = nullptr) const;
+		[[nodiscard]] Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size = nullptr) const;
 
 		const ptrarith::Ptr<uint8_t, std::size_t> read(InodeId_t id) const;
 
@@ -106,21 +106,21 @@ class FileStoreTemplate {
 		 * @return 0 if read is a success
 		 */
 		template<typename T>
-		Error read(InodeId_t id, FsSize_t readStart,
+		[[nodiscard]] Error read(InodeId_t id, FsSize_t readStart,
 		           FsSize_t readSize, T *data,
 		           FsSize_t *size) const;
 
-		ValErr<StatInfo> stat(InodeId_t id);
+		[[nodiscard]] ValErr<StatInfo> stat(InodeId_t id);
 
-		Error resize(std::size_t size, void *newBuff = nullptr);
+		[[nodiscard]] Error resize(std::size_t size, void *newBuff = nullptr);
 
-		InodeId_t spaceNeeded(FsSize_t size);
+		[[nodiscard]] InodeId_t spaceNeeded(FsSize_t size);
 
-		InodeId_t size() const;
+		[[nodiscard]] InodeId_t size() const;
 
-		InodeId_t available();
+		[[nodiscard]] InodeId_t available();
 
-		uint8_t *buff();
+		[[nodiscard]] uint8_t *buff();
 
 		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t));
 

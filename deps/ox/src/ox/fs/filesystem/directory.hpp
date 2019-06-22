@@ -45,7 +45,7 @@ struct __attribute__((packed)) DirectoryEntry {
 			init(inode, name, bufferSize);
 		}
 
-		Error init(InodeId_t inode, const char *name, InodeId_t bufferSize) {
+		ox::Error init(InodeId_t inode, const char *name, InodeId_t bufferSize) {
 			m_bufferSize = bufferSize;
 			auto d = data();
 			if (d.valid()) {
@@ -101,23 +101,23 @@ class Directory {
 		/**
 		 * Initializes Directory.
 		 */
-		Error init() noexcept;
+		[[nodiscard]] ox::Error init() noexcept;
 
-		Error mkdir(PathIterator path, bool parents, FileName *nameBuff = nullptr);
+		[[nodiscard]] ox::Error mkdir(PathIterator path, bool parents, FileName *nameBuff = nullptr);
 
 		/**
 		 * @param parents indicates the operation should create non-existent directories in the path, like mkdir -p
 		 */
-		Error write(PathIterator it, InodeId_t inode, FileName *nameBuff = nullptr) noexcept;
+		[[nodiscard]] ox::Error write(PathIterator it, InodeId_t inode, FileName *nameBuff = nullptr) noexcept;
 
-		Error remove(PathIterator it, FileName *nameBuff = nullptr) noexcept;
+		[[nodiscard]] ox::Error remove(PathIterator it, FileName *nameBuff = nullptr) noexcept;
 
 		template<typename F>
-		Error ls(F cb) noexcept;
+		[[nodiscard]] ox::Error ls(F cb) noexcept;
 
-		ValErr<typename FileStore::InodeId_t> findEntry(const FileName &name) const noexcept;
+		[[nodiscard]] ValErr<typename FileStore::InodeId_t> findEntry(const FileName &name) const noexcept;
 
-		ValErr<typename FileStore::InodeId_t> find(PathIterator name, FileName *nameBuff = nullptr) const noexcept;
+		[[nodiscard]] ValErr<typename FileStore::InodeId_t> find(PathIterator name, FileName *nameBuff = nullptr) const noexcept;
 
 };
 
@@ -132,7 +132,7 @@ Directory<FileStore, InodeId_t>::Directory(FileStore fs, InodeId_t inodeId) {
 }
 
 template<typename FileStore, typename InodeId_t>
-Error Directory<FileStore, InodeId_t>::init() noexcept {
+ox::Error Directory<FileStore, InodeId_t>::init() noexcept {
 	constexpr auto Size = sizeof(Buffer);
 	oxReturnError(m_fs.write(m_inodeId, nullptr, Size));
 	auto buff = m_fs.read(m_inodeId);
@@ -146,7 +146,7 @@ Error Directory<FileStore, InodeId_t>::init() noexcept {
 }
 
 template<typename FileStore, typename InodeId_t>
-Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents, FileName *nameBuff) {
+ox::Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents, FileName *nameBuff) {
 	if (path.valid()) {
 		oxTrace("ox::fs::Directory::mkdir") << path.fullPath();
 		// reuse nameBuff if it has already been allocated, as it is a rather large variable
@@ -190,7 +190,7 @@ Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents, Fi
 }
 
 template<typename FileStore, typename InodeId_t>
-Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode, FileName *nameBuff) noexcept {
+ox::Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode, FileName *nameBuff) noexcept {
 	InodeId_t nextChild = 0;
 
 	// reuse nameBuff if it has already been allocated, as it is a rather large variable
@@ -260,7 +260,7 @@ Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode,
 }
 
 template<typename FileStore, typename InodeId_t>
-Error Directory<FileStore, InodeId_t>::remove(PathIterator path, FileName *nameBuff) noexcept {
+ox::Error Directory<FileStore, InodeId_t>::remove(PathIterator path, FileName *nameBuff) noexcept {
 	// reuse nameBuff if it has already been allocated, as it is a rather large variable
 	if (nameBuff == nullptr) {
 		nameBuff = reinterpret_cast<FileName*>(ox_alloca(sizeof(FileName)));
@@ -291,7 +291,7 @@ Error Directory<FileStore, InodeId_t>::remove(PathIterator path, FileName *nameB
 
 template<typename FileStore, typename InodeId_t>
 template<typename F>
-Error Directory<FileStore, InodeId_t>::ls(F cb) noexcept {
+ox::Error Directory<FileStore, InodeId_t>::ls(F cb) noexcept {
 	oxTrace("ox::fs::Directory::ls");
 	auto buff = m_fs.read(m_inodeId).template to<Buffer>();
 	if (buff.valid()) {

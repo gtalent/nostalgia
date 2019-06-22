@@ -170,7 +170,7 @@ map<string, int(*)(string)> tests = {
 			"Directory",
 			[](string) {
 				std::vector<uint8_t> fsBuff(5000);
-				ox::FileStore32::format(fsBuff.data(), fsBuff.size());
+				oxAssert(ox::FileStore32::format(fsBuff.data(), fsBuff.size()), "FS format failed");
 				ox::FileStore32 fileStore(fsBuff.data(), fsBuff.size());
 				auto dir = ox_malloca(1000, ox::Directory32, fileStore, 100);
 

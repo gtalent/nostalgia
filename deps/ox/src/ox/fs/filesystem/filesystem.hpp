@@ -102,6 +102,11 @@ class FileSystemTemplate: public FileSystem {
 
 		[[nodiscard]] ox::Error remove(const char *path, bool recursive = false) override;
 
+		/**
+		 * Resizes FileSystem to minimum possible size.
+		 */
+		void resize();
+
 		[[nodiscard]] ox::Error resize(uint64_t size, void *buffer = nullptr) override;
 
 		[[nodiscard]] ox::Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
@@ -235,6 +240,11 @@ ox::Error FileSystemTemplate<FileStore, Directory>::remove(const char *path, boo
 		return OxError(1);
 	}
 	return OxError(0);
+}
+
+template<typename FileStore, typename Directory>
+void FileSystemTemplate<FileStore, Directory>::resize() {
+	m_fs.resize();
 }
 
 template<typename FileStore, typename Directory>

@@ -106,13 +106,15 @@ class FileStoreTemplate {
 		 * @return 0 if read is a success
 		 */
 		template<typename T>
-		[[nodiscard]] Error read(InodeId_t id, FsSize_t readStart,
+		[[nodiscard]] ox::Error read(InodeId_t id, FsSize_t readStart,
 		           FsSize_t readSize, T *data,
 		           FsSize_t *size) const;
 
 		[[nodiscard]] ValErr<StatInfo> stat(InodeId_t id);
 
-		[[nodiscard]] Error resize(std::size_t size, void *newBuff = nullptr);
+		void resize();
+
+		[[nodiscard]] ox::Error resize(std::size_t size, void *newBuff = nullptr);
 
 		[[nodiscard]] InodeId_t spaceNeeded(FsSize_t size);
 
@@ -410,6 +412,12 @@ const ptrarith::Ptr<uint8_t, std::size_t> FileStoreTemplate<size_t>::read(InodeI
 }
 
 template<typename size_t>
+void FileStoreTemplate<size_t>::resize() {
+	compact();
+	m_buffSize = size() - available();
+}
+
+template<typename size_t>
 Error FileStoreTemplate<size_t>::resize(std::size_t size, void *newBuff) {
 	m_buffSize = size;
 	if (newBuff) {
@@ -484,6 +492,7 @@ void FileStoreTemplate<size_t>::compact() {
 				<< "from" << oldAddr
 				<< "to" << item.offset();
 			auto parent = findParent(rootInode(), item);
+			oxAssert(parent.valid(), "Parent inode not found.");
 			if (parent.valid()) {
 				if (parent->left == oldAddr) {
 					parent->left = item;

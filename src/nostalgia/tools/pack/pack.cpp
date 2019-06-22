@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <iostream>
 #include <string_view>
 #include <vector>
 
@@ -63,21 +64,29 @@ ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
 	return OxError(0);
 }
 
+[[nodiscard]] ox::Error verifyFile(ox::FileSystem32 *fs, const std::string &path, const std::vector<char> &expected) noexcept {
+	std::vector<char> buff(expected.size());
+	oxReturnError(fs->read(path.c_str(), buff.data(), buff.size()));
+	return buff == expected ? 0 : OxError(1);
+}
+
 ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {
+	std::cout << "copying directory: " << path << '\n';
 	// copy
-	src->ls(path.c_str(), [src, dest, path](const char *name, ox::InodeId_t) {
-		auto [stat, err] = src->stat(path.c_str());
+	return src->ls(path.c_str(), [src, dest, path](const char *name, ox::InodeId_t) {
+		std::cout << "reading " << name << '\n';
+		const auto currentFile = path + name;
+		auto [stat, err] = src->stat((currentFile).c_str());
 		oxReturnError(err);
 		if (stat.fileType == ox::FileType_Directory) {
-			const auto dir = path + name + '/';
-			oxReturnError(dest->mkdir(dir.c_str()));
-			oxReturnError(copy(src, dest, dir));
+			oxReturnError(dest->mkdir(currentFile.c_str(), true));
+			oxReturnError(copy(src, dest, currentFile + '/'));
 		} else {
 			std::vector<char> buff;
 			// do transforms
-			if (endsWith(path, ".png")) {
+			if (endsWith(currentFile, ".png")) {
 				// load file from full path and transform
-				const auto fullPath = src->basePath() + path;
+				const auto fullPath = src->basePath() + currentFile;
 				buff = pngToGba(fullPath.c_str(), 0, 0);
 				if (!buff.size()) {
 					return OxError(1);
@@ -85,14 +94,15 @@ ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path)
 			} else {
 				// load file
 				buff.resize(stat.size);
-				oxReturnError(src->read(path.c_str(), buff.data(), buff.size()));
+				oxReturnError(src->read(currentFile.c_str(), buff.data(), buff.size()));
 			}
 			// write file to dest
-			oxReturnError(dest->write(path.c_str(), buff.data(), buff.size()));
+			std::cout << "writing " << currentFile << '\n';
+			oxReturnError(dest->write(currentFile.c_str(), buff.data(), buff.size()));
+			oxReturnError(verifyFile(dest, currentFile, buff));
 		}
 		return OxError(0);
 	});
-	return OxError(0);
 }
 
 }

@@ -54,7 +54,9 @@ ox::Error run(ClArgs args) {
 	ox::FileSystem32::format(buff.data(), buff.size());
 	ox::PassThroughFS src(argSrc.c_str());
 	ox::FileSystem32 dst(ox::FileStore32(buff.data(), buff.size()));
-	oxReturnError(nostalgia::pack(&src, &dst));
+	auto err = nostalgia::pack(&src, &dst);
+	oxAssert(err, "pack failed");
+	oxReturnError(err);
 	return OxError(0);
 }
 

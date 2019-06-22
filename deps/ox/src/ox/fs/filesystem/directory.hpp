@@ -41,11 +41,7 @@ struct __attribute__((packed)) DirectoryEntry {
 	public:
 		DirectoryEntry() = default;
 
-		DirectoryEntry(InodeId_t inode, const char *name, InodeId_t bufferSize) {
-			init(inode, name, bufferSize);
-		}
-
-		ox::Error init(InodeId_t inode, const char *name, InodeId_t bufferSize) {
+		[[nodiscard]] ox::Error init(InodeId_t inode, const char *name, InodeId_t bufferSize) {
 			m_bufferSize = bufferSize;
 			auto d = data();
 			if (d.valid()) {
@@ -241,7 +237,7 @@ ox::Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t in
 				auto val = cpy->malloc(entryDataSize);
 				if (val.valid()) {
 					oxTrace("ox::fs::Directory::write") << "Attempting to write Directory to FileStore";
-					val->init(inode, name->data(), entrySize);
+					oxReturnError(val->init(inode, name->data(), entrySize));
 					return m_fs.write(m_inodeId, cpy, cpy->size());
 				} else {
 					oxTrace("ox::fs::Directory::write::fail") << "Could not allocate memory for new directory entry";
@@ -294,22 +290,22 @@ template<typename F>
 ox::Error Directory<FileStore, InodeId_t>::ls(F cb) noexcept {
 	oxTrace("ox::fs::Directory::ls");
 	auto buff = m_fs.read(m_inodeId).template to<Buffer>();
-	if (buff.valid()) {
-		oxTrace("ox::fs::Directory::ls") << "Found directory buffer.";
-		for (auto i = buff->iterator(); i.valid(); i.next()) {
-			auto data = i->data();
-			if (data.valid()) {
-				oxReturnError(cb(data->name, data->inode));
-			} else {
-				oxTrace("ox::fs::Directory::ls") << "INVALID DIRECTORY ENTRY";
-			}
-		}
-		oxTrace("ox::fs::Directory::ls::fail");
-		return OxError(1);
-	} else {
+	if (!buff.valid()) {
 		oxTrace("ox::fs::Directory::ls::fail") << "Could not directory buffer";
-		return OxError(2);
+		return OxError(1);
 	}
+
+	oxTrace("ox::fs::Directory::ls") << "Found directory buffer.";
+	for (auto i = buff->iterator(); i.valid(); i.next()) {
+		auto data = i->data();
+		if (data.valid()) {
+			oxReturnError(cb(data->name, data->inode));
+		} else {
+			oxTrace("ox::fs::Directory::ls") << "INVALID DIRECTORY ENTRY";
+		}
+	}
+
+	return OxError(0);
 }
 
 template<typename FileStore, typename InodeId_t>

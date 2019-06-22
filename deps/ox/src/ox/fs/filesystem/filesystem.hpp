@@ -209,10 +209,9 @@ ox::Error FileSystemTemplate<FileStore, Directory>::read(uint64_t inode, std::si
 template<typename FileStore, typename Directory>
 template<typename F>
 ox::Error FileSystemTemplate<FileStore, Directory>::ls(const char *path, F cb) {
-	auto s = stat(path);
-	oxReturnError(s.error);
-
-	Directory dir(m_fs, s.value.inode);
+	auto [s, err] = stat(path);
+	oxReturnError(err);
+	Directory dir(m_fs, s.inode);
 	return dir.ls(cb);
 }
 

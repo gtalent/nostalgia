@@ -311,7 +311,7 @@ Error FileStoreTemplate<size_t>::remove(InodeId_t id) {
 }
 
 template<typename size_t>
-Error FileStoreTemplate<size_t>::read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size) const {
+Error FileStoreTemplate<size_t>::read(InodeId_t id, void *out, FsSize_t outSize, FsSize_t *size) const {
 	oxTrace("ox::fs::FileStoreTemplate::read") << "Attempting to read from inode" << id;
 
 	auto src = find(id);
@@ -325,19 +325,19 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, void *data, FsSize_t dataSiz
 	auto srcData = m_buffer->template dataOf<uint8_t>(src);
 	oxTrace("ox::fs::FileStoreTemplate::read::found") << id << "found at"<< src.offset()
 		<< "with data section at" << srcData.offset();
-	oxTrace("ox::fs::FileStoreTemplate::read::outSize") << srcData.offset() << srcData.size() << dataSize;
+	oxTrace("ox::fs::FileStoreTemplate::read::outSize") << srcData.offset() << srcData.size() << outSize;
 
 	// error check
-	if (!(srcData.valid() && srcData.size() <= dataSize)) {
+	if (!(srcData.valid() && srcData.size() <= outSize)) {
 		oxTrace("ox::fs::FileStoreTemplate::read::fail")
 			<< "Could not read data section of item:" << id;
 		oxTrace("ox::fs::FileStoreTemplate::read::fail").del("")
 			<< "Item data section size: " << srcData.size()
-			<< ", Expected size: " << dataSize;
+			<< ", Expected size: " << outSize;
 		return OxError(1);
 	}
 
-	ox_memcpy(data, srcData, srcData.size());
+	ox_memcpy(out, srcData, srcData.size());
 	if (size) {
 		*size = src.size();
 	}

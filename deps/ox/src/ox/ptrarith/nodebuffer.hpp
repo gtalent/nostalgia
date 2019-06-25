@@ -19,7 +19,7 @@ class __attribute__((packed)) NodeBuffer {
 
 	public:
 		struct __attribute__((packed)) Header {
-			ox::LittleEndian<size_t> size = sizeof(Header);
+			ox::LittleEndian<size_t> size = sizeof(Header); // capacity
 			ox::LittleEndian<size_t> bytesUsed = sizeof(Header);
 			ox::LittleEndian<size_t> firstItem = 0;
 		};
@@ -67,7 +67,7 @@ class __attribute__((packed)) NodeBuffer {
 					return m_current;
 				}
 
-				bool valid() const noexcept {
+				[[nodiscard]] bool valid() const noexcept {
 					return m_current.valid();
 				}
 
@@ -113,22 +113,29 @@ class __attribute__((packed)) NodeBuffer {
 		template<typename T>
 		Ptr<T, size_t, sizeof(Item)> dataOf(ItemPtr);
 
-		ItemPtr prev(Item *item);
+		[[nodiscard]] ItemPtr prev(Item *item);
 
-		ItemPtr next(Item *item);
+		[[nodiscard]] ItemPtr next(Item *item);
 
-		ItemPtr ptr(size_t offset);
+		[[nodiscard]] ItemPtr ptr(size_t offset);
 
-		ItemPtr ptr(void *item);
+		[[nodiscard]] ItemPtr ptr(void *item);
 
-		ItemPtr malloc(size_t size);
+		[[nodiscard]] ItemPtr malloc(size_t size);
 
-		Error free(ItemPtr item);
+		[[nodiscard]] ox::Error free(ItemPtr item);
 
-		bool valid(size_t maxSize);
+		[[nodiscard]] bool valid(size_t maxSize);
 
-		Error setSize(size_t size);
+		/**
+		 * Set size, capacity.
+		 */
+		[[nodiscard]] ox::Error setSize(size_t size);
 
+		/**
+		 * Get size, capacity.
+		 * @return capacity
+		 */
 		size_t size();
 
 		/**
@@ -278,16 +285,26 @@ Error NodeBuffer<size_t, Item>::free(ItemPtr item) {
 	auto prev = this->prev(item);
 	auto next = this->next(item);
 	if (prev.valid() && next.valid()) {
-		prev->next = next.offset();
-		next->prev = prev.offset();
+		if (next != item) {
+			prev->next = next.offset();
+			next->prev = prev.offset();
+			if (item.offset() == m_header.firstItem) {
+				m_header.firstItem = next;
+			}
+		} else {
+			// only one item, null out first
+			oxTrace("ox::ptrarith::NodeBuffer::free") << "Nulling out firstItem.";
+			m_header.firstItem = 0;
+		}
 	} else {
 		if (!prev.valid()) {
 			oxTrace("ox::ptrarith::NodeBuffer::free::fail") << "NodeBuffer free failed due to invalid prev element pointer:" << prev.offset();
+			return OxError(1);
 		}
 		if (!next.valid()) {
 			oxTrace("ox::ptrarith::NodeBuffer::free::fail") << "NodeBuffer free failed due to invalid next element pointer:" << next.offset();
+			return OxError(1);
 		}
-		return OxError(1);
 	}
 	m_header.bytesUsed -= item.size();
 	return OxError(0);

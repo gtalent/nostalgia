@@ -5,3 +5,5 @@ install(
 	DESTINATION
 		include/ox/ptrarith
 )
+
+add_subdirectory(test)

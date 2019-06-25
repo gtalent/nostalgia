@@ -31,7 +31,7 @@ class Ptr {
 
 		inline Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize = sizeof(T), size_t itemTypeSize = sizeof(T));
 
-		inline bool valid() const;
+		[[nodiscard]] inline bool valid() const;
 
 		inline size_t size() const;
 

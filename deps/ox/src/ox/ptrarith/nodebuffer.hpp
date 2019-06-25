@@ -219,8 +219,9 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t 
 	std::size_t itemSpace = m_header.size - itemOffset;
 	auto item = reinterpret_cast<Item*>(reinterpret_cast<uint8_t*>(this) + itemOffset);
 	if (itemOffset >= sizeof(Header) &&
-		 itemSpace >= sizeof(Item) &&
-		 itemSpace >= item->fullSize()) {
+	    itemOffset + itemSpace <= size() &&
+	    itemSpace >= sizeof(Item) &&
+	    itemSpace >= item->fullSize()) {
 		return ItemPtr(this, m_header.size, itemOffset, item->fullSize());
 	} else {
 		//oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemOffset:" << itemOffset;

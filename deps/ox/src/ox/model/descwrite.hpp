@@ -38,8 +38,8 @@ class TypeDescWriter {
 
 			TypeName name;
 
-			constexpr void setTypeInfo(const char *name, int) noexcept {
-				this->name = name;
+			constexpr void setTypeInfo(const char *n, int) noexcept {
+				this->name = n;
 			}
 
 			template<typename T>

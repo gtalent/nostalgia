@@ -175,7 +175,8 @@ def handle_tracepoint(event):
         # end: iterate over frames
         msg = json.dumps(Msg('TraceEvent', TraceEvent(channel, log_msg, frames)))
         if log_server is not None:
-            log_server.send(bytes(msg, 'utf-8'))
+            print(log_msg)
+            log_server.send(bytes(msg + '\n', 'utf-8'))
     gdb.execute('set scheduler-locking off')
     gdb.post_event(Executor("continue"))
 
@@ -217,4 +218,4 @@ gdb.events.stop.connect(handle_tracepoint)
 gdb.events.exited.connect(handle_exit)
 
 if log_server is not None:
-    log_server.send(bytes(json.dumps(Msg('Init', InitMsg(''))), 'utf-8'))
+    log_server.send(bytes(json.dumps(Msg('Init', InitMsg(''))) + '\n', 'utf-8'))

@@ -6,6 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <algorithm>
+
 #include <QDebug>
 #include <QDir>
 #include <QVector>
@@ -30,7 +32,7 @@ OxFSFile::OxFSFile(PassThroughFS *fs, QString path, OxFSFile *parentItem) {
 					ls.push_back(name);
 					return OxError(0);
 				});
-				qSort(ls);
+				std::sort(ls.begin(), ls.end());
 			}
 			auto p = m_path;
 			// make sure ends with path separator

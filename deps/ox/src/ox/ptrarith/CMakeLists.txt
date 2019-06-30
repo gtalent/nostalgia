@@ -6,4 +6,6 @@ install(
 		include/ox/ptrarith
 )
 
-add_subdirectory(test)
+if(OX_RUN_TESTS)
+	add_subdirectory(test)
+endif()

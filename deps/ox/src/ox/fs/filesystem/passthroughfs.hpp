@@ -13,11 +13,22 @@
 #include <filesystem>
 #include <string>
 
-#include "filesystem.hpp"
+#define OX_PASSTHROUGHFS_HAS_DEPENDENCIES
 
-#ifdef OX_USE_BOOSTFS
+#elif defined(OX_USE_BOOSTFS)
+
+#include <boost/filesystem>
+#include <string>
+
 using std::filesystem = boost::filesystem;
+
+#define OX_PASSTHROUGHFS_HAS_DEPENDENCIES
+
 #endif
+
+#ifdef OX_PASSTHROUGHFS_HAS_DEPENDENCIES
+
+#include "filesystem.hpp"
 
 namespace ox {
 

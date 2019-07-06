@@ -15,6 +15,10 @@
 
 #include "filesystem.hpp"
 
+#ifdef OX_USE_BOOSTFS
+using std::filesystem = boost::filesystem;
+#endif
+
 namespace ox {
 
 /**

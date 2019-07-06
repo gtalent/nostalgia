@@ -10,10 +10,19 @@ add_library(
 )
 
 if(NOT OX_BARE_METAL)
+	if(APPLE)
+		find_package(Boost COMPONENTS system filesystem REQUIRED)
+		set(BOOST_LIBS ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+		target_compile_definitions(
+			OxFS PUBLIC
+				OX_USE_BOOSTFS
+		)
+	endif()
 	target_link_libraries(
 		OxFS PUBLIC
 			$<$<CXX_COMPILER_ID:Clang>:c++fs>
 			$<$<CXX_COMPILER_ID:GNU>:stdc++fs>
+			${BOOST_LIBS}
 	)
 	set_property(
 		TARGET

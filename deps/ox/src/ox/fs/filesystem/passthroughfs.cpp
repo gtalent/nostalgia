@@ -6,11 +6,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#if OX_PASSTHROUGHFS_HAS_DEPENDENCIES && defined(OX_USE_STDLIB)
+#include "passthroughfs.hpp"
+
+#if defined(OX_PASSTHROUGHFS_HAS_DEPENDENCIES)
 
 #include <stdio.h>
-
-#include "passthroughfs.hpp"
 
 namespace ox {
 

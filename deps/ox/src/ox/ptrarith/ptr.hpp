@@ -147,11 +147,15 @@ inline T *Ptr<T, size_t, minOffset>::operator->() {
 
 template<typename T, typename size_t, size_t minOffset>
 inline Ptr<T, size_t, minOffset>::operator const T*() const {
+	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::operator const T*())");
+	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::operator const T*())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
 inline Ptr<T, size_t, minOffset>::operator T*() {
+	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::operator T*())");
+	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::operator T*())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 

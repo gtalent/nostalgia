@@ -13,6 +13,8 @@
 
 #include "defines.hpp"
 #include "stacktrace.hpp"
+#include "trace.hpp"
+
 #include "assert.hpp"
 
 namespace ox {
@@ -23,6 +25,7 @@ void assertFunc<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line
 	if (!pass) {
 		std::cerr << "\033[31;1;1mASSERT FAILURE:\033[0m (" << file << ':' << line << "): " << msg << std::endl;
 		printStackTrace(2);
+		oxTrace("assert").del("") << "Failed assert: " << msg << " (" << file << ":" << line << ")";
 		std::abort();
 	}
 #endif

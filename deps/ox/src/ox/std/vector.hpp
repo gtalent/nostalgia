@@ -85,7 +85,7 @@ template<typename T>
 Vector<T>::Vector(std::size_t size) noexcept {
 	m_size = size;
 	m_cap = m_size;
-	m_items = new T[m_cap];
+	m_items = reinterpret_cast<T*>(new char[m_cap * sizeof(T)]);
 	for (std::size_t i = 0; i < size; i++) {
 		m_items[i] = {};
 	}
@@ -95,7 +95,7 @@ template<typename T>
 Vector<T>::Vector(Vector<T> &other) noexcept {
 	m_size = other.m_size;
 	m_cap = other.m_cap;
-	m_items = new T[m_cap];
+	m_items = reinterpret_cast<T*>(new char[m_cap * sizeof(T)]);
 	for (std::size_t i = 0; i < m_size; i++) {
 		m_items[i] = ox::move(other.m_items[i]);
 	}
@@ -113,7 +113,12 @@ Vector<T>::Vector(Vector<T> &&other) noexcept {
 
 template<typename T>
 Vector<T>::~Vector() noexcept {
-	delete[] m_items;
+	if constexpr(ox::is_class<T>()) {
+		for (std::size_t i = 0; i < m_size; i++) {
+			m_items[i].~T();
+		}
+	}
+	delete[] reinterpret_cast<char*>(m_items);
 	m_items = nullptr;
 }
 
@@ -244,7 +249,7 @@ template<typename T>
 void Vector<T>::expandCap(std::size_t cap) noexcept {
 	auto oldItems = m_items;
 	m_cap = cap;
-	m_items = new T[m_cap];
+	m_items = reinterpret_cast<T*>(new char[m_cap * sizeof(T)]);
 	if (oldItems) { // move over old items
 		const auto itRange = cap > m_size ? m_size : cap;
 		for (std::size_t i = 0; i < itRange; i++) {
@@ -253,7 +258,7 @@ void Vector<T>::expandCap(std::size_t cap) noexcept {
 		for (std::size_t i = itRange; i < m_cap; i++) {
 			new (&m_items[i]) T;
 		}
-		delete[] oldItems;
+		delete[] reinterpret_cast<char*>(m_items);
 	}
 }
 

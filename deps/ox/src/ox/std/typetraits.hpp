@@ -10,6 +10,21 @@
 
 #include "bitops.hpp"
 
+#if __has_include(<type_traits>)
+
+#include <type_traits>
+
+#else
+
+namespace std {
+
+template<typename T>
+constexpr bool is_union_v<T> = __is_union(T);
+
+}
+
+#endif
+
 namespace ox {
 
 template<typename T>
@@ -50,6 +65,25 @@ template<> struct is_integral<int32_t> : ox::true_type {};
 template<> struct is_integral<uint32_t>: ox::true_type {};
 template<> struct is_integral<int64_t> : ox::true_type {};
 template<> struct is_integral<uint64_t>: ox::true_type {};
+
+template<typename T> struct is_union: ox::integral_constant<bool, std::is_union_v<T>> {};
+
+// indicates the type can have members, but not that it necessarily does
+template<typename T>
+constexpr uint8_t memberable(int T::*) { return true; }
+template<typename T>
+constexpr uint16_t memberable(...) { return false; }
+
+template<typename T>
+struct is_class: ox::integral_constant<bool, !ox::is_union<T>::value && ox::memberable<T>(0)> {};
+
+namespace test {
+class TestClass {int i;};
+union TestUnion {int i;};
+static_assert(ox::is_class<TestClass>::value == true);
+static_assert(ox::is_class<TestUnion>::value == false);
+static_assert(ox::is_class<int>::value == false);
+}
 
 template<typename T>
 constexpr bool is_signed = ox::integral_constant<bool, T(-1) < T(0)>::value;

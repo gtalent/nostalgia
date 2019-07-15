@@ -127,7 +127,7 @@ Vector<T> &Vector<T>::operator=(Vector<T> &other) noexcept {
 	this->~Vector<T>();
 	m_size = other.m_size;
 	m_cap = other.m_cap;
-	m_items = new T[m_cap];
+	m_items = reinterpret_cast<T*>(new char[m_cap * sizeof(T)]);
 	for (std::size_t i = 0; i < m_size; i++) {
 		m_items[i] = other.m_items[i];
 	}

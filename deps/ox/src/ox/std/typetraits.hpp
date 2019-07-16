@@ -81,7 +81,7 @@ template<typename T>
 struct is_class: ox::integral_constant<bool, !ox::is_union<T>::value && ox::memberable<T>(0)> {};
 
 namespace test {
-class TestClass {int i;};
+struct TestClass {int i;};
 union TestUnion {int i;};
 static_assert(ox::is_class<TestClass>::value == true);
 static_assert(ox::is_class<TestUnion>::value == false);

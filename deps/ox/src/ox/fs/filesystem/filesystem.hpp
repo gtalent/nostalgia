@@ -105,7 +105,7 @@ class FileSystemTemplate: public FileSystem {
 		/**
 		 * Resizes FileSystem to minimum possible size.
 		 */
-		void resize();
+		[[nodiscard]] ox::Error resize();
 
 		[[nodiscard]] ox::Error resize(uint64_t size, void *buffer = nullptr) override;
 
@@ -243,8 +243,8 @@ ox::Error FileSystemTemplate<FileStore, Directory>::remove(const char *path, boo
 }
 
 template<typename FileStore, typename Directory>
-void FileSystemTemplate<FileStore, Directory>::resize() {
-	m_fs.resize();
+ox::Error FileSystemTemplate<FileStore, Directory>::resize() {
+	return m_fs.resize();
 }
 
 template<typename FileStore, typename Directory>

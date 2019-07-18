@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 project(nostalgia)
 
 set(NOSTALGIA_BUILD_TYPE "Native" CACHE STRING "The type of build to produce(Native/GBA)")
-set(NOSTALGIA_IDE_BUILD "ON" CACHE STRING "Build for IDE's to run")
+set(NOSTALGIA_IDE_BUILD ON CACHE STRING "Build for IDE's to run")
 set(NOSTALGIA_QT_PATH "" CACHE STRING "Path to Qt Libraries")
 
 if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
@@ -76,7 +76,7 @@ if(NOT MSVC)
 	endif()
 endif()
 
-if(NOSTALGIA_IDE_BUILD STREQUAL "ON")
+if(NOSTALGIA_IDE_BUILD)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 endif()

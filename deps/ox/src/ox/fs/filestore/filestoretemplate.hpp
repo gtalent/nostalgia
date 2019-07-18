@@ -112,7 +112,7 @@ class FileStoreTemplate {
 
 		[[nodiscard]] ValErr<StatInfo> stat(InodeId_t id);
 
-		void resize();
+		[[nodiscard]] ox::Error resize();
 
 		[[nodiscard]] ox::Error resize(std::size_t size, void *newBuff = nullptr);
 
@@ -277,6 +277,7 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 			dest->fileType = fileType;
 			auto destData = m_buffer->template dataOf<uint8_t>(dest);
 			if (destData.valid()) {
+				oxAssert(destData.size() == dataSize, "Allocation size does not match data.");
 				// write data if any was provided
 				if (data != nullptr) {
 					ox_memcpy(destData, data, dest->size());
@@ -293,7 +294,6 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 						oxTrace("ox::fs::FileStoreTemplate::write") << "Initializing root inode:" << dest->id << "( offset:" << dest.offset()
 						                                            << ", data size:" << destData.size() << ")";
 						fsData->rootNode = dest.offset();
-						m_buffer->malloc(dataSize);
 						oxTrace("ox::fs::FileStoreTemplate::write") << "Root inode:" << dest->id;
 						return OxError(0);
 					}
@@ -302,7 +302,7 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 				}
 			}
 		}
-		m_buffer->free(dest);
+		oxReturnError(m_buffer->free(dest));
 	}
 	return OxError(1);
 }
@@ -386,8 +386,8 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart,
 					// do byte-by-byte copy to ensure alignment is right when
 					// copying to final destination
 					T tmp;
-					for (size_t i = 0; i < sizeof(T); i++) {
-						reinterpret_cast<uint8_t*>(&tmp)[i] = *(sub.get() + i);
+					for (size_t ii = 0; ii < sizeof(T); ii++) {
+						reinterpret_cast<uint8_t*>(&tmp)[ii] = *(sub.get() + ii);
 					}
 					*(data + i) = tmp;
 				}
@@ -412,16 +412,23 @@ const ptrarith::Ptr<uint8_t, std::size_t> FileStoreTemplate<size_t>::read(InodeI
 }
 
 template<typename size_t>
-void FileStoreTemplate<size_t>::resize() {
+ox::Error FileStoreTemplate<size_t>::resize() {
 	compact();
-	m_buffSize = size() - available();
+	oxReturnError(m_buffer->setSize(size() - available()));
+	oxTrace("ox::fs::FileStoreTemplate::resize") << "resize to:" << size() - available();
+	oxTrace("ox::fs::FileStoreTemplate::resize") << "resized to:" << m_buffer->size();
+	return OxError(0);
 }
 
 template<typename size_t>
 Error FileStoreTemplate<size_t>::resize(std::size_t size, void *newBuff) {
+	if (m_buffer->size() > size) {
+		return OxError(1);
+	}
 	m_buffSize = size;
 	if (newBuff) {
 		m_buffer = reinterpret_cast<Buffer*>(newBuff);
+		oxReturnError(m_buffer->setSize(size));
 	}
 	return OxError(0);
 }
@@ -491,6 +498,11 @@ void FileStoreTemplate<size_t>::compact() {
 				<< "Moving Item:" << item->id
 				<< "from" << oldAddr
 				<< "to" << item.offset();
+			// update rootInode if this is it
+			auto fsData = fileStoreData();
+			if (fsData && oldAddr == fsData->rootNode) {
+				fsData->rootNode = item.offset();
+			}
 			auto parent = findParent(rootInode(), item);
 			oxAssert(parent.valid(), "Parent inode not found.");
 			if (parent.valid()) {
@@ -683,24 +695,26 @@ typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::findParen
 
 template<typename size_t>
 typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(ItemPtr item, InodeId_t id, int depth) const {
-	if (depth < 5000) {
-		if (item.valid()) {
-			if (id > item->id) {
-				oxTrace("ox::fs::FileStoreTemplate::find") << "Not a match, searching on" << item->right;
-				return find(m_buffer->ptr(item->right), id, depth + 1);
-			} else if (id < item->id) {
-				oxTrace("ox::fs::FileStoreTemplate::find") << "Not a match, searching on" << item->left;
-				return find(m_buffer->ptr(item->left), id, depth + 1);
-			} else if (id == item->id) {
-				oxTrace("ox::fs::FileStoreTemplate::find") << "Found" << id << "at" << item;
-				return item;
-			}
-		} else {
-			oxTrace("ox::fs::FileStoreTemplate::find::fail") << "item invalid";
-		}
-	} else {
+	if (depth > 5000) {
 		oxTrace("ox::fs::FileStoreTemplate::find::fail") << "Excessive recursion depth, stopping before stack overflow. Search for:" << id;
+		return nullptr;
 	}
+	if (!item.valid()) {
+		oxTrace("ox::fs::FileStoreTemplate::find::fail") << "item invalid";
+		return nullptr;
+	}
+
+	if (id > item->id) {
+		oxTrace("ox::fs::FileStoreTemplate::find") << "Not a match, searching on" << item->right;
+		return find(m_buffer->ptr(item->right), id, depth + 1);
+	} else if (id < item->id) {
+		oxTrace("ox::fs::FileStoreTemplate::find") << "Not a match, searching on" << item->left;
+		return find(m_buffer->ptr(item->left), id, depth + 1);
+	} else if (id == item->id) {
+		oxTrace("ox::fs::FileStoreTemplate::find") << "Found" << id << "at" << item;
+		return item;
+	}
+
 	return nullptr;
 }
 

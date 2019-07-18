@@ -28,7 +28,6 @@ using namespace ox;
 template<typename T>
 struct __attribute__((packed)) NodeType: public ox::ptrarith::Item<T> {
 	public:
-		int i = 0;
 		size_t fullSize() const {
 			return this->size() + sizeof(*this);
 		}
@@ -42,8 +41,17 @@ map<string, int(*)(string)> tests = {
 				using BuffPtr_t = uint32_t;
 				std::vector<char> buff(5 * ox::units::MB);
 				auto buffer = new (buff.data()) ox::ptrarith::NodeBuffer<BuffPtr_t, NodeType<BuffPtr_t>>(buff.size());
-				auto a1 = buffer->malloc(50);
-				auto a2 = buffer->malloc(50);
+				using String = BString<6>;
+				auto a1 = buffer->malloc(sizeof(String));
+				auto a2 = buffer->malloc(sizeof(String));
+				oxAssert(a1.valid(), "Allocation 1 failed.");
+				oxAssert(a2.valid(), "Allocation 2 failed.");
+				auto &s1 = *new (buffer->dataOf<String>(a1)) String("asdf");
+				auto &s2 = *new (buffer->dataOf<String>(a2)) String("aoeu");
+				oxTrace("test") << "s1: " << s1.c_str();
+				oxTrace("test") << "s2: " << s2.c_str();
+				oxAssert(s1 == "asdf", "Allocation 1 not as expected.");
+				oxAssert(s2 == "aoeu", "Allocation 2 not as expected.");
 				oxAssert(buffer->free(a1), "Free failed.");
 				oxAssert(buffer->free(a2), "Free failed.");
 				oxAssert(buffer->setSize(buffer->size() - buffer->available()), "Resize failed.");

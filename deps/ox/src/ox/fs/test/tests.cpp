@@ -172,23 +172,23 @@ map<string, int(*)(string)> tests = {
 				std::vector<uint8_t> fsBuff(5000);
 				oxAssert(ox::FileStore32::format(fsBuff.data(), fsBuff.size()), "FS format failed");
 				ox::FileStore32 fileStore(fsBuff.data(), fsBuff.size());
-				auto dir = ox_malloca(1000, ox::Directory32, fileStore, 100);
+				ox::Directory32 dir(fileStore, 105);
 
 				oxTrace("ox::fs::test::Directory") << "Init";
-				oxAssert(dir->init(), "Init failed");
+				oxAssert(dir.init(), "Init failed");
 
 				oxTrace("ox::fs::test::Directory") << "write 1";
-				oxAssert(dir->write("/file1", 1), "Directory write of file1 failed");
+				oxAssert(dir.write("/file1", 1), "Directory write of file1 failed");
 
 				oxTrace("ox::fs::test::Directory") << "find";
-				oxAssert(dir->find("file1").error, "Could not find file1");
-				oxAssert(dir->find("file1") == 1, "Could not find file1");
+				oxAssert(dir.find("file1").error, "Could not find file1");
+				oxAssert(dir.find("file1") == 1, "Could not find file1");
 
 				oxTrace("ox::fs::test::Directory") << "write 2";
-				oxAssert(dir->write("/file3", 3) == 0, "Directory write of file3 failed");
+				oxAssert(dir.write("/file3", 3) == 0, "Directory write of file3 failed");
 
 				oxTrace("ox::fs::test::Directory") << "write 3";
-				oxAssert(dir->write("/file2", 2) == 0, "Directory write of file2 failed");
+				oxAssert(dir.write("/file2", 2) == 0, "Directory write of file2 failed");
 
 				return 0;
 			}

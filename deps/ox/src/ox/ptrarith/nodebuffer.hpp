@@ -242,7 +242,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 		if (last.valid()) {
 			addr = last.offset() + last.size();
 		} else {
-			// there is no first item, so this may be the first item
+			// there is no first item, so this must be the first item
 			if (!m_header.firstItem) {
 				oxTrace("ox::ptrarith::NodeBuffer::malloc") << "No first item, initializing.";
 				m_header.firstItem = sizeof(m_header);
@@ -255,6 +255,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 			out->setSize(size);
 
 			auto first = firstItem();
+			auto oldLast = last;
 			out->next = first.offset();
 			if (first.valid()) {
 				first->prev = out.offset();
@@ -263,18 +264,22 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 				return nullptr;
 			}
 
-			auto last = lastItem();
-			out->prev = last.offset();
-			if (last.valid()) {
-				last->next = out.offset();
-			} else {
-				oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "NodeBuffer malloc failed due to invalid last element pointer.";
-				return nullptr;
+			if (oldLast.valid()) {
+				out->prev = oldLast.offset();
+				oldLast->next = out.offset();
+			} else { // check to see if this is the first allocation
+				if (out.offset() != first.offset()) {
+					// if this is not the first allocation, there should be an oldLast
+					oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "NodeBuffer malloc failed due to invalid last element pointer.";
+					return nullptr;
+				}
+				out->prev = out.offset();
 			}
 			m_header.bytesUsed += out.size();
 		} else {
 			oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "Unknown";
 		}
+		oxTrace("ox::ptrarith::NodeBuffer::malloc") << "Offset:" << out.offset();
 		return out;
 	}
 	oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "Insufficient space:" << fullSize << "needed," << available() << "available";
@@ -283,6 +288,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 
 template<typename size_t, typename Item>
 Error NodeBuffer<size_t, Item>::free(ItemPtr item) {
+	oxTrace("ox::ptrarith::NodeBuffer::free") << "offset:" << item.offset();
 	auto prev = this->prev(item);
 	auto next = this->next(item);
 	if (prev.valid() && next.valid()) {

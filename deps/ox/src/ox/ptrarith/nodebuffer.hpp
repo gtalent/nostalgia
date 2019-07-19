@@ -278,6 +278,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 			m_header.bytesUsed += out.size();
 		} else {
 			oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "Unknown";
+			return nullptr;
 		}
 		oxTrace("ox::ptrarith::NodeBuffer::malloc") << "Offset:" << out.offset();
 		return out;
@@ -293,8 +294,8 @@ Error NodeBuffer<size_t, Item>::free(ItemPtr item) {
 	auto next = this->next(item);
 	if (prev.valid() && next.valid()) {
 		if (next != item) {
-			prev->next = next.offset();
-			next->prev = prev.offset();
+			prev->next = next;
+			next->prev = prev;
 			if (item.offset() == m_header.firstItem) {
 				m_header.firstItem = next;
 			}
@@ -319,8 +320,11 @@ Error NodeBuffer<size_t, Item>::free(ItemPtr item) {
 
 template<typename size_t, typename Item>
 Error NodeBuffer<size_t, Item>::setSize(size_t size) {
+	oxTrace("ox::ptrarith::NodeBuffer::setSize") << size;
 	auto last = lastItem();
-	if ((last.valid() && last.end() >= size) || size < sizeof(m_header)) {
+	auto end = last.valid() ? last.end() : sizeof(m_header);
+	oxTrace("ox::ptrarith::NodeBuffer::setSize") << "end:" << end;
+	if (end > size) {
 		return OxError(1);
 	} else {
 		m_header.size = size;
@@ -358,7 +362,7 @@ void NodeBuffer<size_t, Item>::compact(F cb) {
 		ox_memcpy(dest, src, src.size());
 		cb(src, dest);
 		// update surrounding nodes
-		auto prev = ptr(dest->next);
+		auto prev = ptr(dest->prev);
 		if (prev.valid()) {
 			prev->next = dest;
 		}

@@ -57,6 +57,16 @@ typedef uint32_t uintptr_t;
 
 namespace ox {
 
+/**
+ * Aliases type T in size and alignment to allow allocating space for a T
+ * without running the constructor.
+ */
+template<typename T>
+struct alignas(alignof(T)) AllocAlias {
+	char buff[sizeof(T)];
+};
+
+
 template<std::size_t sz>
 struct SignedType {
 };

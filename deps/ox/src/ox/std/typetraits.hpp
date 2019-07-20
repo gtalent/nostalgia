@@ -19,7 +19,7 @@
 namespace std {
 
 template<typename T>
-constexpr bool is_union_v<T> = __is_union(T);
+constexpr bool is_union_v = __is_union(T);
 
 }
 

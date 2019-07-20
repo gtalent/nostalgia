@@ -164,7 +164,7 @@ class FileStoreTemplate {
 		/**
 		 * Finds the parent an inode by its ID.
 		 */
-		ItemPtr findParent(ItemPtr ptr, size_t id) const;
+		ItemPtr findParent(ItemPtr ptr, size_t id, size_t oldAddr) const;
 
 		/**
 		 * Finds an inode by its ID.
@@ -492,25 +492,32 @@ ValErr<typename FileStoreTemplate<size_t>::InodeId_t> FileStoreTemplate<size_t>:
 
 template<typename size_t>
 void FileStoreTemplate<size_t>::compact() {
-	m_buffer->compact([this](uint64_t oldAddr, ItemPtr item) {
-		if (item.valid()) {
-			oxTrace("ox::FileStoreTemplate::compact::moveItem")
-				<< "Moving Item:" << item->id
-				<< "from" << oldAddr
-				<< "to" << item.offset();
-			// update rootInode if this is it
-			auto fsData = fileStoreData();
-			if (fsData && oldAddr == fsData->rootNode) {
-				fsData->rootNode = item.offset();
-			}
-			auto parent = findParent(rootInode(), item);
-			oxAssert(parent.valid(), "Parent inode not found.");
-			if (parent.valid()) {
-				if (parent->left == oldAddr) {
-					parent->left = item;
-				} else if (parent->right == oldAddr) {
-					parent->right = item;
-				}
+	auto isFirstItem = true;
+	m_buffer->compact([this, &isFirstItem](uint64_t oldAddr, ItemPtr item) {
+		if (isFirstItem) {
+			isFirstItem = false;
+			return;
+		}
+		if (!item.valid()) {
+			return;
+		}
+		oxTrace("ox::FileStoreTemplate::compact::moveItem")
+			<< "Moving Item:" << item->id
+			<< "from" << oldAddr
+			<< "to" << item.offset();
+		// update rootInode if this is it
+		auto fsData = fileStoreData();
+		if (fsData && oldAddr == fsData->rootNode) {
+			fsData->rootNode = item.offset();
+		}
+		auto parent = findParent(rootInode(), item->id, oldAddr);
+		oxAssert(parent.valid() || rootInode() == item.offset(),
+		         "Parent inode not found for item that should have parent.");
+		if (parent.valid()) {
+			if (parent->left == oldAddr) {
+				parent->left = item;
+			} else if (parent->right == oldAddr) {
+				parent->right = item;
 			}
 		}
 	});
@@ -668,25 +675,25 @@ Error FileStoreTemplate<size_t>::remove(ItemPtr item) {
 }
 
 template<typename size_t>
-typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::findParent(ItemPtr item, size_t id) const {
+typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::findParent(ItemPtr item, size_t id, size_t oldAddr) const {
+	// This is a little bit confusing. findParent uses the inode ID to find
+	// where the target ID should be, but the actual address of that item is
+	// currently invalid, so we check it against what is known to be the old
+	// address of the item to confirm that we have the right item.
 	if (item.valid()) {
 		if (id > item->id) {
-			auto right = m_buffer->ptr(item->right);
-			if (right.valid()) {
-				if (right->id == id) {
-					return item;
-				} else {
-					return findParent(right, id);
-				}
+			if (item->right == oldAddr) {
+				return item;
+			} else {
+				auto right = m_buffer->ptr(item->right);
+				return findParent(right, id, oldAddr);
 			}
 		} else if (id < item->id) {
-			auto left = m_buffer->ptr(item->left);
-			if (left.valid()) {
-				if (left->id == id) {
-					return item;
-				} else {
-					return findParent(left, id);
-				}
+			if (item->left == oldAddr) {
+				return item;
+			} else {
+				auto left = m_buffer->ptr(item->left);
+				return findParent(left, id, oldAddr);
 			}
 		}
 	}

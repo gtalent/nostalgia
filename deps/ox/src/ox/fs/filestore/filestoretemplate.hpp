@@ -130,7 +130,7 @@ class FileStoreTemplate {
 
 		bool valid() const;
 
-		void compact();
+		ox::Error compact();
 
 	private:
 		FileStoreData *fileStoreData() const;
@@ -247,7 +247,7 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 	oxTrace("ox::fs::FileStoreTemplate::write") << "Attempting to write to inode" << id;
 	auto existing = find(id);
 	if (!canWrite(existing, dataSize)) {
-		compact();
+		oxReturnError(compact());
 		existing = find(id);
 	}
 
@@ -268,7 +268,7 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSi
 		// if first malloc failed, compact and try again
 		if (!dest.valid()) {
 			oxTrace("ox::fs::FileStoreTemplate::write") << "Allocation failed, compacting";
-			compact();
+			oxReturnError(compact());
 			dest = m_buffer->malloc(dataSize);
 		}
 		if (dest.valid()) {
@@ -413,7 +413,7 @@ const ptrarith::Ptr<uint8_t, std::size_t> FileStoreTemplate<size_t>::read(InodeI
 
 template<typename size_t>
 ox::Error FileStoreTemplate<size_t>::resize() {
-	compact();
+	oxReturnError(compact());
 	oxReturnError(m_buffer->setSize(size() - available()));
 	oxTrace("ox::fs::FileStoreTemplate::resize") << "resize to:" << size() - available();
 	oxTrace("ox::fs::FileStoreTemplate::resize") << "resized to:" << m_buffer->size();
@@ -491,15 +491,15 @@ ValErr<typename FileStoreTemplate<size_t>::InodeId_t> FileStoreTemplate<size_t>:
 }
 
 template<typename size_t>
-void FileStoreTemplate<size_t>::compact() {
+ox::Error FileStoreTemplate<size_t>::compact() {
 	auto isFirstItem = true;
-	m_buffer->compact([this, &isFirstItem](uint64_t oldAddr, ItemPtr item) {
+	return m_buffer->compact([this, &isFirstItem](uint64_t oldAddr, ItemPtr item) -> ox::Error {
 		if (isFirstItem) {
 			isFirstItem = false;
-			return;
+			return OxError(0);
 		}
 		if (!item.valid()) {
-			return;
+			return OxError(1);
 		}
 		oxTrace("ox::FileStoreTemplate::compact::moveItem")
 			<< "Moving Item:" << item->id
@@ -520,6 +520,7 @@ void FileStoreTemplate<size_t>::compact() {
 				parent->right = item;
 			}
 		}
+		return OxError(0);
 	});
 }
 

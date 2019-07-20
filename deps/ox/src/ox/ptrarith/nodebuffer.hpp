@@ -150,7 +150,7 @@ class __attribute__((packed)) NodeBuffer {
 		size_t spaceNeeded(size_t size);
 
 		template<typename F>
-		void compact(F cb = [](uint64_t, ItemPtr) {});
+		ox::Error compact(F cb = [](uint64_t, ItemPtr) {});
 
 		void truncate();
 
@@ -354,13 +354,13 @@ size_t NodeBuffer<size_t, Item>::spaceNeeded(size_t size) {
 
 template<typename size_t, typename Item>
 template<typename F>
-void NodeBuffer<size_t, Item>::compact(F cb) {
+ox::Error NodeBuffer<size_t, Item>::compact(F cb) {
 	auto src = firstItem();
 	auto dest = ptr(sizeof(*this));
 	while (src.valid() && dest.valid() && dest.offset() <= src.offset()) {
 		// move node
 		ox_memcpy(dest, src, src.size());
-		cb(src, dest);
+		oxReturnError(cb(src, dest));
 		// update surrounding nodes
 		auto prev = ptr(dest->prev);
 		if (prev.valid()) {
@@ -374,6 +374,7 @@ void NodeBuffer<size_t, Item>::compact(F cb) {
 		src = ptr(dest->next);
 		dest = ptr(dest.offset() + dest.size());
 	}
+	return OxError(0);
 }
 
 template<typename size_t, typename Item>

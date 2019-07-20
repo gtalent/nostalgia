@@ -357,7 +357,7 @@ template<typename F>
 void NodeBuffer<size_t, Item>::compact(F cb) {
 	auto src = firstItem();
 	auto dest = ptr(sizeof(*this));
-	while (src.valid() && dest.valid() && dest.offset() < src.offset()) {
+	while (src.valid() && dest.valid() && dest.offset() <= src.offset()) {
 		// move node
 		ox_memcpy(dest, src, src.size());
 		cb(src, dest);

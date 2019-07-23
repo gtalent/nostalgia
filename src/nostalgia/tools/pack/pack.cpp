@@ -74,7 +74,7 @@ namespace {
 	// copy
 	return src->ls(path.c_str(), [src, dest, path](const char *name, ox::InodeId_t) {
 		std::cout << "reading " << name << '\n';
-		const auto currentFile = path + name;
+		auto currentFile = path + name;
 		auto [stat, err] = src->stat((currentFile).c_str());
 		oxReturnError(err);
 		if (stat.fileType == ox::FileType_Directory) {
@@ -83,10 +83,13 @@ namespace {
 		} else {
 			std::vector<char> buff;
 			// do transforms
-			if (endsWith(currentFile, ".png")) {
+			constexpr std::string_view PngExt = ".png";
+			constexpr std::string_view GbagExt = ".ng";
+			if (endsWith(currentFile, PngExt)) {
 				// load file from full path and transform
 				const auto fullPath = src->basePath() + currentFile;
 				buff = pngToGba(fullPath.c_str(), 0, 0);
+				currentFile = currentFile.substr(0, currentFile.size() - PngExt.size()) + GbagExt.data();
 				if (!buff.size()) {
 					return OxError(1);
 				}

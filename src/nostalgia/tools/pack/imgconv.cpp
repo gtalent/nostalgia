@@ -105,8 +105,8 @@ namespace {
 
 	// store colors in palette with the corresponding color id
 	for (auto key : colors.keys()) {
-	  auto colorId = colors[key];
-	  id->pal[colorId] = toGbaColor(key);
+		auto colorId = colors[key];
+		id->pal[colorId] = toGbaColor(key);
 	}
 
 	return imgDataBuff;

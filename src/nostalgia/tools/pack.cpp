@@ -6,6 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <stdio.h>
+
 #include <iostream>
 #include <vector>
 #include <nostalgia/core/gba/gba.hpp>
@@ -39,6 +41,16 @@ using namespace nostalgia::common;
 	}
 }
 
+[[nodiscard]] static ox::Error writeFileBuff(const std::string &path, const std::vector<uint8_t> &buff) {
+	auto file = fopen(path.c_str(), "wb");
+	if (!file) {
+		return OxError(1);
+	}
+	oxReturnError(OxError(fwrite(buff.data(), buff.size(), 1, file) != 1));
+	oxReturnError(OxError(fclose(file)));
+	return OxError(0);
+}
+
 [[nodiscard]] ox::Error run(ClArgs args) {
 	std::string argSrc = args.getString("src").c_str();
 	std::string argDst = args.getString("dst").c_str();
@@ -55,11 +67,20 @@ using namespace nostalgia::common;
 	ox::PassThroughFS src(argSrc.c_str());
 	ox::FileSystem32 dst(ox::FileStore32(buff.data(), buff.size()));
 	auto err = nostalgia::pack(&src, &dst);
-	oxAssert(err, "pack failed");
-	oxReturnError(err);
-	return OxError(0);
+	if (err) {
+		std::cerr << "pack failed...";
+	}
+
+	oxReturnError(dst.resize());
+	std::cout << "new size: " << dst.size() << '\n';
+	buff.resize(dst.size());
+
+	oxReturnError(writeFileBuff(argDst, buff));
+	return err;
 }
 
 int main(int argc, const char **args) {
-	return static_cast<int>(run(ClArgs(argc, args)));
+	auto err = run(ClArgs(argc, args));
+	oxAssert(err, "pack failed");
+	return static_cast<int>(err);
 }

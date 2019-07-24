@@ -61,9 +61,9 @@ namespace ox {
  * Aliases type T in size and alignment to allow allocating space for a T
  * without running the constructor.
  */
-template<typename T>
+template<typename T, std::size_t sz = sizeof(T)>
 struct alignas(alignof(T)) AllocAlias {
-	char buff[sizeof(T)];
+	char buff[sz];
 };
 
 

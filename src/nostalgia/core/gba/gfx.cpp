@@ -171,10 +171,11 @@ ox::Error initGfx(Context*) {
 
 // Do NOT use Context in the GBA version of this function.
 ox::Error initConsole(Context*) {
-	const auto CharsetInode = 101;
 	const auto PaletteStart = sizeof(GbaImageDataHeader);
 	ox::Error err = 0;
-	ox::FileStore32 fs(loadRom(), 32 * 1024 * 1024);
+	ox::FileStore32 fs(loadRom(), 32 * ox::units::MB);
+	ox::FileSystem32 fileSystem(fs);
+	const auto CharsetInode = fileSystem.stat("/TileSheets/Charset.ng").value.inode;
 
 	GbaImageDataHeader imgData;
 
@@ -185,15 +186,15 @@ ox::Error initConsole(Context*) {
 
 		// load palette
 		err |= fs.read(CharsetInode, PaletteStart,
-		                512, (uint16_t*) &MEM_PALLETE_BG[0], nullptr);
+		               512, (uint16_t*) &MEM_PALLETE_BG[0], nullptr);
 
 		if (imgData.bpp == 4) {
 			err |= fs.read(CharsetInode, __builtin_offsetof(GbaImageData, tiles),
-			                sizeof(Tile) * imgData.tileCount, (uint16_t*) &TILE_ADDR[0][1], nullptr);
+			               sizeof(Tile) * imgData.tileCount, (uint16_t*) &TILE_ADDR[0][1], nullptr);
 		} else if (imgData.bpp == 8) {
 			REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
 			err |= fs.read(CharsetInode, __builtin_offsetof(GbaImageData, tiles),
-			                sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
+			               sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
 		} else {
 			err = 1;
 		}

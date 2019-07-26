@@ -150,7 +150,7 @@ class __attribute__((packed)) NodeBuffer {
 		size_t spaceNeeded(size_t size);
 
 		template<typename F>
-		ox::Error compact(F cb = [](uint64_t, ItemPtr) {});
+		[[nodiscard]] ox::Error compact(F cb = [](uint64_t, ItemPtr) {});
 
 		void truncate();
 

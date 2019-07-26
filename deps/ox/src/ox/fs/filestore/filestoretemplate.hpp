@@ -124,13 +124,13 @@ class FileStoreTemplate {
 
 		[[nodiscard]] uint8_t *buff();
 
-		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t));
+		[[nodiscard]] Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t));
 
-		ValErr<InodeId_t> generateInodeId();
+		[[nodiscard]] ValErr<InodeId_t> generateInodeId();
 
 		bool valid() const;
 
-		ox::Error compact();
+		[[nodiscard]] ox::Error compact();
 
 	private:
 		FileStoreData *fileStoreData() const;

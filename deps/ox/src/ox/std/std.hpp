@@ -20,6 +20,7 @@
 #include "random.hpp"
 #include "stacktrace.hpp"
 #include "stddef.hpp"
+#include "strongint.hpp"
 #include "strops.hpp"
 #include "string.hpp"
 #include "typeinfo.hpp"

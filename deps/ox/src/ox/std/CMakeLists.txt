@@ -49,6 +49,7 @@ install(
 		random.hpp
 		stacktrace.hpp
 		string.hpp
+		strongint.hpp
 		strops.hpp
 		std.hpp
 		stddef.hpp

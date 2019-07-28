@@ -22,7 +22,9 @@
 
 namespace ox {
 
-using Error = Uint64;
+class BaseError {};
+
+using Error = Integer<uint64_t, BaseError>;
 
 constexpr Error errCode(Error err) {
 	return (err >> 59) & onMask<Error>(5);

@@ -12,12 +12,14 @@
 
 namespace ox {
 
+class BaseInteger {};
+
 /**
  * Integer is a strongly typed integer wrapper used to create strongly typed
  * integers.
  */
-template<typename T>
-class Integer {
+template<typename T, class Base = BaseInteger>
+class Integer: Base {
 	private:
 		T m_i;
 
@@ -26,71 +28,71 @@ class Integer {
 
 		constexpr explicit Integer(T i) noexcept;
 
-		constexpr Integer<T> operator=(Integer<T> i) noexcept;
+		constexpr Integer<T, Base> operator=(Integer<T, Base> i) noexcept;
 
-		constexpr Integer<T> operator==(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator==(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator!=(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator!=(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator<(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator<(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator>(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator>(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator<=(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator<=(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator>=(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator>=(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator+(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator+(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator+=(Integer<T> i) noexcept;
+		constexpr Integer<T, Base> operator+=(Integer<T, Base> i) noexcept;
 
-		constexpr Integer<T> operator-(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator-(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator-=(Integer<T> i) noexcept;
+		constexpr Integer<T, Base> operator-=(Integer<T, Base> i) noexcept;
 
-		constexpr Integer<T> operator*(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator*(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator*=(Integer<T> i) noexcept;
+		constexpr Integer<T, Base> operator*=(Integer<T, Base> i) noexcept;
 
-		constexpr Integer<T> operator/(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator/(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator/=(Integer<T> i) noexcept;
+		constexpr Integer<T, Base> operator/=(Integer<T, Base> i) noexcept;
 
-		constexpr Integer<T> operator%(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator%(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator%=(Integer<T> i) noexcept;
+		constexpr Integer<T, Base> operator%=(Integer<T, Base> i) noexcept;
 
-		constexpr Integer<T> operator>>(int i) const noexcept;
+		constexpr Integer<T, Base> operator>>(int i) const noexcept;
 
-		constexpr Integer<T> operator>>=(int i) noexcept;
+		constexpr Integer<T, Base> operator>>=(int i) noexcept;
 
-		constexpr Integer<T> operator<<(int i) const noexcept;
+		constexpr Integer<T, Base> operator<<(int i) const noexcept;
 
-		constexpr Integer<T> operator<<=(int i) noexcept;
+		constexpr Integer<T, Base> operator<<=(int i) noexcept;
 
-		constexpr Integer<T> operator|(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator|(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator|=(Integer<T> i) noexcept;
+		constexpr Integer<T, Base> operator|=(Integer<T, Base> i) noexcept;
 
-		constexpr Integer<T> operator&(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator&(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator&=(Integer<T> i) noexcept;
+		constexpr Integer<T, Base> operator&=(Integer<T, Base> i) noexcept;
 
-		constexpr Integer<T> operator^(Integer<T> i) const noexcept;
+		constexpr Integer<T, Base> operator^(Integer<T, Base> i) const noexcept;
 
-		constexpr Integer<T> operator^=(Integer<T> i) noexcept;
+		constexpr Integer<T, Base> operator^=(Integer<T, Base> i) noexcept;
 
 		// Prefix increment
-		constexpr Integer<T> operator++() noexcept;
+		constexpr Integer<T, Base> operator++() noexcept;
 
 		// Postfix increment
-		constexpr Integer<T> operator++(int) noexcept;
+		constexpr Integer<T, Base> operator++(int) noexcept;
 
 		// Prefix decrement
-		constexpr Integer<T> operator--() noexcept;
+		constexpr Integer<T, Base> operator--() noexcept;
 
 		// Postfix decrement
-		constexpr Integer<T> operator--(int) noexcept;
+		constexpr Integer<T, Base> operator--(int) noexcept;
 
 		constexpr explicit operator T() const noexcept;
 
@@ -98,177 +100,177 @@ class Integer {
 
 };
 
-template<typename T>
-constexpr Integer<T>::Integer(T i) noexcept {
+template<typename T, class Base>
+constexpr Integer<T, Base>::Integer(T i) noexcept {
 	m_i = i;
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator=(Integer<T> i) noexcept {
-	return Integer<T>(m_i = i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator=(Integer<T, Base> i) noexcept {
+	return Integer<T, Base>(m_i = i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator==(Integer<T> i) const noexcept {
-	return Integer<T>(m_i == i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator==(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i == i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator!=(Integer<T> i) const noexcept {
-	return Integer<T>(m_i != i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator!=(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i != i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator<(Integer<T> i) const noexcept {
-	return Integer<T>(m_i < i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator<(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i < i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator>(Integer<T> i) const noexcept {
-	return Integer<T>(m_i > i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator>(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i > i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator<=(Integer<T> i) const noexcept {
-	return Integer<T>(m_i <= i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator<=(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i <= i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator>=(Integer<T> i) const noexcept {
-	return Integer<T>(m_i >= i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator>=(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i >= i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator+(Integer<T> i) const noexcept {
-	return Integer<T>(m_i + i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator+(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i + i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator+=(Integer<T> i) noexcept {
-	return Integer<T>(m_i += i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator+=(Integer<T, Base> i) noexcept {
+	return Integer<T, Base>(m_i += i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator-(Integer<T> i) const noexcept {
-	return Integer<T>(m_i - i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator-(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i - i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator-=(Integer<T> i) noexcept {
-	return Integer<T>(m_i -= i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator-=(Integer<T, Base> i) noexcept {
+	return Integer<T, Base>(m_i -= i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator*(Integer<T> i) const noexcept {
-	return Integer<T>(m_i * i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator*(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i * i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator*=(Integer<T> i) noexcept {
-	return Integer<T>(m_i *= i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator*=(Integer<T, Base> i) noexcept {
+	return Integer<T, Base>(m_i *= i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator/(Integer<T> i) const noexcept {
-	return Integer<T>(m_i / i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator/(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i / i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator/=(Integer<T> i) noexcept {
-	return Integer<T>(m_i /= i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator/=(Integer<T, Base> i) noexcept {
+	return Integer<T, Base>(m_i /= i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator%(Integer<T> i) const noexcept {
-	return Integer<T>(m_i % i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator%(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i % i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator%=(Integer<T> i) noexcept {
-	return Integer<T>(m_i %= i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator%=(Integer<T, Base> i) noexcept {
+	return Integer<T, Base>(m_i %= i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator>>(int i) const noexcept {
-	return Integer<T>(m_i >> i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator>>(int i) const noexcept {
+	return Integer<T, Base>(m_i >> i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator>>=(int i) noexcept {
-	return Integer<T>(m_i >>= i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator>>=(int i) noexcept {
+	return Integer<T, Base>(m_i >>= i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator<<(int i) const noexcept {
-	return Integer<T>(m_i << i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator<<(int i) const noexcept {
+	return Integer<T, Base>(m_i << i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator<<=(int i) noexcept {
-	return Integer<T>(m_i <<= i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator<<=(int i) noexcept {
+	return Integer<T, Base>(m_i <<= i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator|(Integer<T> i) const noexcept {
-	return Integer<T>(m_i | i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator|(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i | i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator|=(Integer<T> i) noexcept {
-	return Integer<T>(m_i |= i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator|=(Integer<T, Base> i) noexcept {
+	return Integer<T, Base>(m_i |= i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator&(Integer<T> i) const noexcept {
-	return Integer<T>(m_i & i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator&(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i & i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator&=(Integer<T> i) noexcept {
-	return Integer<T>(m_i &= i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator&=(Integer<T, Base> i) noexcept {
+	return Integer<T, Base>(m_i &= i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator^(Integer<T> i) const noexcept {
-	return Integer<T>(m_i ^ i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator^(Integer<T, Base> i) const noexcept {
+	return Integer<T, Base>(m_i ^ i.m_i);
 }
 
-template<typename T>
-constexpr Integer<T> Integer<T>::operator^=(Integer<T> i) noexcept {
-	return Integer<T>(m_i ^= i.m_i);
+template<typename T, class Base>
+constexpr Integer<T, Base> Integer<T, Base>::operator^=(Integer<T, Base> i) noexcept {
+	return Integer<T, Base>(m_i ^= i.m_i);
 }
 
 // Prefix increment
-template<typename T>
-constexpr inline Integer<T> Integer<T>::operator++() noexcept {
-	return Integer<T>(++m_i);
+template<typename T, class Base>
+constexpr inline Integer<T, Base> Integer<T, Base>::operator++() noexcept {
+	return Integer<T, Base>(++m_i);
 }
 
 // Postfix increment
-template<typename T>
-constexpr inline Integer<T> Integer<T>::operator++(int) noexcept {
-	return Integer<T>(m_i++);
+template<typename T, class Base>
+constexpr inline Integer<T, Base> Integer<T, Base>::operator++(int) noexcept {
+	return Integer<T, Base>(m_i++);
 }
 
 // Prefix decrement
-template<typename T>
-constexpr inline Integer<T> Integer<T>::operator--() noexcept {
-	return Integer<T>(--m_i);
+template<typename T, class Base>
+constexpr inline Integer<T, Base> Integer<T, Base>::operator--() noexcept {
+	return Integer<T, Base>(--m_i);
 }
 
 // Postfix decrement
-template<typename T>
-constexpr inline Integer<T> Integer<T>::operator--(int) noexcept {
-	return Integer<T>(m_i--);
+template<typename T, class Base>
+constexpr inline Integer<T, Base> Integer<T, Base>::operator--(int) noexcept {
+	return Integer<T, Base>(m_i--);
 }
 
-template<typename T>
-constexpr Integer<T>::operator T() const noexcept {
+template<typename T, class Base>
+constexpr Integer<T, Base>::operator T() const noexcept {
 	return m_i;
 }
 
-template<typename T>
-constexpr Integer<T>::operator bool() const noexcept {
+template<typename T, class Base>
+constexpr Integer<T, Base>::operator bool() const noexcept {
 	return m_i;
 }
 

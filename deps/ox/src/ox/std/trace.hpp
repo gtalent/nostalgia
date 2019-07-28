@@ -22,12 +22,12 @@ struct TraceMsg {
 
 template<typename T>
 Error model(T *io, ox::trace::TraceMsg *obj) {
-	Error err = 0;
+	auto err = OxError(0);
 	io->setTypeInfo("ox::trace::TraceMsg", 5);
-	err |= io->field("file", &obj->file);
-	err |= io->field("line", &obj->line);
-	err |= io->field("time", &obj->time);
-	err |= io->field("msg", &obj->msg);
+	oxReturnError(io->field("file", &obj->file));
+	oxReturnError(io->field("line", &obj->line));
+	oxReturnError(io->field("time", &obj->time));
+	oxReturnError(io->field("msg", &obj->msg));
 	return err;
 }
 

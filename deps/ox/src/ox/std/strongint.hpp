@@ -6,6 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#pragma once
+
 #include "types.hpp"
 
 namespace ox {
@@ -58,13 +60,13 @@ class Integer {
 
 		constexpr Integer<T> operator%=(Integer<T> i) noexcept;
 
-		constexpr Integer<T> operator>>(Integer<T> i) const noexcept;
+		constexpr Integer<T> operator>>(int i) const noexcept;
 
-		constexpr Integer<T> operator>>=(Integer<T> i) noexcept;
+		constexpr Integer<T> operator>>=(int i) noexcept;
 
-		constexpr Integer<T> operator<<(Integer<T> i) const noexcept;
+		constexpr Integer<T> operator<<(int i) const noexcept;
 
-		constexpr Integer<T> operator<<=(Integer<T> i) noexcept;
+		constexpr Integer<T> operator<<=(int i) noexcept;
 
 		constexpr Integer<T> operator|(Integer<T> i) const noexcept;
 
@@ -90,8 +92,9 @@ class Integer {
 		// Postfix decrement
 		constexpr Integer<T> operator--(int) noexcept;
 
-		// Postfix decrement
 		constexpr explicit operator T() const noexcept;
+
+		constexpr operator bool() const noexcept;
 
 };
 
@@ -102,117 +105,137 @@ constexpr Integer<T>::Integer(T i) noexcept {
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator=(Integer<T> i) noexcept {
-	return m_i = i.m_i;
+	return Integer<T>(m_i = i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator==(Integer<T> i) const noexcept {
-	return m_i == i.m_i;
+	return Integer<T>(m_i == i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator!=(Integer<T> i) const noexcept {
-	return m_i != i.m_i;
+	return Integer<T>(m_i != i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator<(Integer<T> i) const noexcept {
-	return m_i < i.m_i;
+	return Integer<T>(m_i < i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator>(Integer<T> i) const noexcept {
-	return m_i > i.m_i;
+	return Integer<T>(m_i > i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator<=(Integer<T> i) const noexcept {
-	return m_i <= i.m_i;
+	return Integer<T>(m_i <= i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator>=(Integer<T> i) const noexcept {
-	return m_i >= i.m_i;
+	return Integer<T>(m_i >= i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator+(Integer<T> i) const noexcept {
-	return m_i + i.m_i;
+	return Integer<T>(m_i + i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator+=(Integer<T> i) noexcept {
-	return m_i += i.m_i;
+	return Integer<T>(m_i += i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator-(Integer<T> i) const noexcept {
-	return m_i - i.m_i;
+	return Integer<T>(m_i - i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator-=(Integer<T> i) noexcept {
-	return m_i -= i.m_i;
+	return Integer<T>(m_i -= i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator*(Integer<T> i) const noexcept {
-	return m_i * i.m_i;
+	return Integer<T>(m_i * i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator*=(Integer<T> i) noexcept {
-	return m_i *= i.m_i;
+	return Integer<T>(m_i *= i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator/(Integer<T> i) const noexcept {
-	return m_i / i.m_i;
+	return Integer<T>(m_i / i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator/=(Integer<T> i) noexcept {
-	return m_i /= i.m_i;
+	return Integer<T>(m_i /= i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator%(Integer<T> i) const noexcept {
-	return m_i % i.m_i;
+	return Integer<T>(m_i % i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator%=(Integer<T> i) noexcept {
-	return m_i %= i.m_i;
+	return Integer<T>(m_i %= i.m_i);
+}
+
+template<typename T>
+constexpr Integer<T> Integer<T>::operator>>(int i) const noexcept {
+	return Integer<T>(m_i >> i);
+}
+
+template<typename T>
+constexpr Integer<T> Integer<T>::operator>>=(int i) noexcept {
+	return Integer<T>(m_i >>= i);
+}
+
+template<typename T>
+constexpr Integer<T> Integer<T>::operator<<(int i) const noexcept {
+	return Integer<T>(m_i << i);
+}
+
+template<typename T>
+constexpr Integer<T> Integer<T>::operator<<=(int i) noexcept {
+	return Integer<T>(m_i <<= i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator|(Integer<T> i) const noexcept {
-	return m_i | i.m_i;
+	return Integer<T>(m_i | i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator|=(Integer<T> i) noexcept {
-	return m_i |= i.m_i;
+	return Integer<T>(m_i |= i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator&(Integer<T> i) const noexcept {
-	return m_i & i.m_i;
+	return Integer<T>(m_i & i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator&=(Integer<T> i) noexcept {
-	return m_i &= i.m_i;
+	return Integer<T>(m_i &= i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator^(Integer<T> i) const noexcept {
-	return m_i ^ i.m_i;
+	return Integer<T>(m_i ^ i.m_i);
 }
 
 template<typename T>
 constexpr Integer<T> Integer<T>::operator^=(Integer<T> i) noexcept {
-	return m_i ^= i.m_i;
+	return Integer<T>(m_i ^= i.m_i);
 }
 
 // Prefix increment
@@ -241,6 +264,11 @@ constexpr inline Integer<T> Integer<T>::operator--(int) noexcept {
 
 template<typename T>
 constexpr Integer<T>::operator T() const noexcept {
+	return m_i;
+}
+
+template<typename T>
+constexpr Integer<T>::operator bool() const noexcept {
 	return m_i;
 }
 

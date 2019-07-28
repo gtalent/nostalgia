@@ -6,14 +6,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <QString>
+#include <QDebug>
+#include <QDir>
 
 #include <ox/fs/fs.hpp>
 
+#include "tilesetimport.hpp"
+
 namespace nostalgia {
 
-[[nodiscard]] ox::ValErr<int> countColors(QString importPath);
-
-ox::Error importTileSet(ox::FileSystem *fs, QString romPath, QString importPath);
+ox::Error pack(QDir src, ox::FileSystem *dest) {
+	for (auto entry : src.entryList()) {
+		qDebug() << entry;
+		oxReturnError(importTileSet(dest, entry, entry));
+	}
+	return OxError(0);
+}
 
 }
+

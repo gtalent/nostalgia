@@ -1,10 +1,9 @@
-cmake_minimum_required(VERSION 2.8.11)
-
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 add_library(
 	NostalgiaTool SHARED
+		pack.cpp
 		tilesetimport.cpp
 )
 
@@ -19,6 +18,7 @@ target_link_libraries(
 
 install(
 	FILES
+		pack.hpp
 		tilesetimport.hpp
 	DESTINATION
 		include/nostalgia/tools/lib

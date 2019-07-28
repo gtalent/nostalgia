@@ -7,6 +7,7 @@
  */
 
 #include <iostream>
+#include <ox/std/assert.hpp>
 #include "json.hpp"
 
 using namespace std;
@@ -22,7 +23,7 @@ struct TestStructNest {
 
 template<typename T>
 Error model(T *io, TestStructNest *obj) {
-	Error err = 0;
+	auto err = OxError(0);
 	err |= io->setTypeInfo("TestStructNest", 4);
 	err |= io->field("Bool", &obj->Bool);
 	err |= io->field("Int", &obj->Int);
@@ -41,7 +42,7 @@ struct TestStruct {
 
 template<typename T>
 Error model(T *io, TestStruct *obj) {
-	Error err = 0;
+	auto err = OxError(0);
 	err |= io->setTypeInfo("TestStruct", 5);
 	err |= io->field("Bool", &obj->Bool);
 	err |= io->field("Int", &obj->Int);
@@ -52,7 +53,7 @@ Error model(T *io, TestStruct *obj) {
 }
 
 int main() {
-	int err = 0;
+	auto err = OxError(0);
 	QString json;
 	TestStruct ts = {
 		true,
@@ -75,15 +76,15 @@ int main() {
 	cout << tsOut.Double << endl;
 	cout << tsOut.String.toStdString() << endl;
 
-	err |= !(tsOut.Bool) << 0;
-	err |= !(tsOut.Int == 42) << 1;
-	err |= !(tsOut.Double == 42.42) << 2;
-	err |= !(tsOut.String == "Test String") << 3;
+	oxAssert(tsOut.Bool, "Arg 1 failed");
+	oxAssert(tsOut.Int == 42, "Arg 2 failed");
+	oxAssert(tsOut.Double == 42.42, "Arg 3 failed");
+	oxAssert(tsOut.String == "Test String", "Arg 4 failed");
 
-	err |= !(tsOut.Struct.Bool) << 4;
-	err |= !(tsOut.Struct.Int == 42) << 5;
-	err |= !(tsOut.Struct.Double == 42.42) << 6;
-	err |= !(tsOut.Struct.String == "Test String") << 7;
+	oxAssert(tsOut.Struct.Bool, "Arg 5 failed");
+	oxAssert(tsOut.Struct.Int == 42, "Arg 6 failed");
+	oxAssert(tsOut.Struct.Double == 42.42, "Arg 7 failed");
+	oxAssert(tsOut.Struct.String == "Test String", "Arg 8 failed");
 
-	return err;
+	return static_cast<int>(err);
 }

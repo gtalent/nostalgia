@@ -26,7 +26,7 @@ struct Tile {
 
 template<typename T>
 ox::Error modelRead(T *io, Tile *obj) {
-	ox::Error err = 0;
+	auto err = OxError(0);
 	io->setTypeInfo("nostalgia::world::Tile", Tile::Fields);
 	err |= io->field("bgTile", &obj->bgTile);
 	err |= io->field("type", &obj->type);
@@ -62,7 +62,7 @@ struct Zone {
 
 template<typename T>
 ox::Error modelRead(T *io, Zone *obj) {
-	ox::Error err = 0;
+	auto err = OxError(0);
 	io->setTypeInfo("nostalgia::world::Zone", Zone::Fields);
 	err |= io->field("bounds", &obj->m_bounds);
 	return err;
@@ -70,7 +70,7 @@ ox::Error modelRead(T *io, Zone *obj) {
 
 template<typename T>
 ox::Error modelWrite(T *io, Zone *obj) {
-	ox::Error err = 0;
+	auto err = OxError(0);
 	io->setTypeInfo("nostalgia::world::Zone", Zone::Fields);
 	err |= io->field("bounds", &obj->m_bounds);
 	return err;
@@ -95,14 +95,14 @@ struct Region {
 
 template<typename T>
 ox::Error modelRead(T *io, Region*) {
-	ox::Error err = 0;
+	auto err = OxError(0);
 	io->setTypeInfo("nostalgia::World::Region", Region::Fields);
 	return err;
 }
 
 template<typename T>
 ox::Error modelWrite(T *io, Region*) {
-	ox::Error err = 0;
+	auto err = OxError(0);
 	io->setTypeInfo("nostalgia::World::Region", Region::Fields);
 	return err;
 }

@@ -16,8 +16,7 @@
 
 #include "json_err.hpp"
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 class JsonWriter {
 
@@ -56,7 +55,7 @@ ox::Error JsonWriter::field(QString fieldName, T *src) {
 
 template<typename T>
 ox::Error JsonWriter::field(QString fieldName, QVector<T> *src) {
-	ox::Error err = 0;
+	auto err = OxError(0);
 	QJsonArray a;
 	for (int i = 0; i < src->size(); i++) {
 		err |= field(a[i], &src->at(i));
@@ -74,5 +73,4 @@ ox::Error writeJson(QString *json, T *src) {
 	return err;
 }
 
-}
 }

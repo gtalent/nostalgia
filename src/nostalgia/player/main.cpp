@@ -14,24 +14,22 @@ using namespace nostalgia::core;
 using namespace nostalgia::world;
 
 int run() {
+	while(1);
 	ox::FileSystem32 fs(ox::FileStore32(loadRom(), 32 * ox::units::MB));
 	Context ctx;
 	init(&ctx);
 	ctx.rom = &fs;
-	Zone zone(&ctx, Bounds{0, 0, 40, 40}, 102);
-	zone.draw(&ctx);
+	//Zone zone(&ctx, Bounds{0, 0, 40, 40}, 102);
+	//zone.draw(&ctx);
 	while (1);
 	return 0;
 }
 
 #ifndef OX_USE_STDLIB
 
-
-extern "C"
-void _start() {
+extern "C" void _start() {
 	run();
 }
-
 
 #else
 

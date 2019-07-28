@@ -19,7 +19,6 @@
 
 namespace nostalgia {
 
-using namespace ox;
 using namespace nostalgia::core;
 using namespace nostalgia::common;
 
@@ -30,8 +29,8 @@ using namespace nostalgia::common;
 	return (r << 10) | (g << 5) | (b << 0);
 }
 
-int pointToIdx(int w, int x, int y) {
-	const auto colLength = 64;
+[[nodiscard]] constexpr int pointToIdx(int w, int x, int y) noexcept {
+	constexpr auto colLength = 64;
 	const auto rowLength = (w / 8) * colLength;
 	const auto colStart = colLength * (x / 8);
 	const auto rowStart = rowLength * (y / 8);
@@ -40,58 +39,81 @@ int pointToIdx(int w, int x, int y) {
 	return colStart + colOffset + rowStart + rowOffset;
 }
 
-Error importTileSet(FileSystem *fs, QString romPath, QString importPath, int bpp) {
-	Error err = 0;
-
+[[nodiscard]] ox::ValErr<int> countColors(QString importPath) {
 	QImage src(importPath);
 	if (!src.isNull()) {
-		QMap<QRgb, int> colors;
-		auto tileCount = (src.width() * src.height()) / 64;
-		const auto imgDataBuffSize = sizeof(GbaImageData) + 1 + tileCount * 64;
-		QVector<uint8_t> imgDataBuff(imgDataBuffSize);
-		memset(imgDataBuff.data(), 0, imgDataBuffSize);
-		GbaImageData *id = reinterpret_cast<GbaImageData*>(imgDataBuff.data());
-		id->header.bpp = bpp;
-		id->header.tileCount = tileCount;
-		int colorId = 0;
-
-		// copy pixels as color ids
-		for (int x = 0; x < src.width(); x++) {
-			for (int y = 0; y < src.height(); y++) {
-				auto destI = pointToIdx(src.width(), x, y);
-				auto c = src.pixel(x, y);
-				// assign color a color id for the palette
-				if (!colors.contains(c)) {
-					colors[c] = colorId;
-					colorId++;
-				}
-				// set pixel color
-				if (bpp == 4) {
-					if (destI % 2) { // is odd number pixel
-						id->tiles[destI / 2] |= colors[c] << 4;
-					} else {
-						id->tiles[destI / 2] |= colors[c];
-					}
-				} else {
-					id->tiles[destI] = colors[c];
-				}
-			}
-		}
-
-		// store colors in palette with the corresponding color id
-		for (auto key : colors.keys()) {
-			auto colorId = colors[key];
-			id->pal[colorId] = toGbaColor(key);
-		}
-
-		if (!err) {
-			err |= fs->write(romPath.toUtf8().data(), imgDataBuff.data(), imgDataBuffSize);
-		}
-	} else {
-		err = 4;
+		return {{}, OxError(1)};
 	}
 
-	return err;
+	QMap<QRgb, bool> colors;
+
+	// copy pixels as color ids
+	for (int x = 0; x < src.width(); x++) {
+		for (int y = 0; y < src.height(); y++) {
+			auto c = src.pixel(x, y);
+			// assign color a color id for the palette
+			if (!colors.contains(c)) {
+				colors[c] = true;
+			}
+		}
+	}
+
+	return colors.size();
+}
+
+[[nodiscard]] ox::ValErr<QVector<uint8_t>> convertImg(QString importPath, int bpp) {
+	QImage src(importPath);
+	if (!src.isNull()) {
+		return {{}, OxError(1)};
+	}
+
+	QMap<QRgb, int> colors;
+	auto tileCount = (src.width() * src.height()) / 64;
+	const auto imgDataBuffSize = sizeof(GbaImageData) + 1 + tileCount * 64;
+	QVector<uint8_t> imgDataBuff(imgDataBuffSize);
+	memset(imgDataBuff.data(), 0, imgDataBuffSize);
+	GbaImageData *id = reinterpret_cast<GbaImageData*>(imgDataBuff.data());
+	id->header.bpp = bpp;
+	id->header.tileCount = tileCount;
+	int colorId = 0;
+
+	// copy pixels as color ids
+	for (int x = 0; x < src.width(); x++) {
+		for (int y = 0; y < src.height(); y++) {
+			auto destI = pointToIdx(src.width(), x, y);
+			auto c = src.pixel(x, y);
+			// assign color a color id for the palette
+			if (!colors.contains(c)) {
+				colors[c] = colorId;
+				colorId++;
+			}
+			// set pixel color
+			if (bpp == 4) {
+				if (destI % 2) { // is odd number pixel
+					id->tiles[destI / 2] |= colors[c] << 4;
+				} else {
+					id->tiles[destI / 2] |= colors[c];
+				}
+			} else {
+				id->tiles[destI] = colors[c];
+			}
+		}
+	}
+
+	// store colors in palette with the corresponding color id
+	for (auto key : colors.keys()) {
+		auto colorId = colors[key];
+		id->pal[colorId] = toGbaColor(key);
+	}
+
+	return imgDataBuff;
+}
+
+ox::Error importTileSet(ox::FileSystem *fs, QString romPath, QString importPath) {
+	const auto bpp = countColors(importPath) > 16 ? 8 : 4;
+	auto [imgDataBuff, err] = convertImg(importPath, bpp);
+	oxReturnError(err);
+	return fs->write(romPath.toUtf8().data(), imgDataBuff.data(), imgDataBuff.size());
 }
 
 }

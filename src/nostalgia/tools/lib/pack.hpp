@@ -6,14 +6,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <QString>
+#pragma once
+
+#include <QDir>
 
 #include <ox/fs/fs.hpp>
 
 namespace nostalgia {
 
-[[nodiscard]] ox::ValErr<int> countColors(QString importPath);
-
-ox::Error importTileSet(ox::FileSystem *fs, QString romPath, QString importPath);
+ox::Error pack(QDir src, ox::FileSystem *dest);
 
 }
+

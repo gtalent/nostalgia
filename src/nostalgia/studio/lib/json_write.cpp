@@ -8,31 +8,29 @@
 
 #include "json_write.hpp"
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 JsonWriter::JsonWriter(QJsonObject &obj): m_dest(obj) {
 }
 
 ox::Error JsonWriter::field(QString fieldName, int *src) {
 	m_dest[fieldName] = *src;
-	return 0;
+	return OxError(0);
 }
 
 ox::Error JsonWriter::field(QString fieldName, bool *src) {
 	m_dest[fieldName] = *src;
-	return 0;
+	return OxError(0);
 }
 
 ox::Error JsonWriter::field(QString fieldName, double *src) {
 	m_dest[fieldName] = *src;
-	return 0;
+	return OxError(0);
 }
 
 ox::Error JsonWriter::field(QString fieldName, QString *src) {
 	m_dest[fieldName] = *src;
-	return 0;
+	return OxError(0);
 }
 
-}
 }

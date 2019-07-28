@@ -1,8 +1,17 @@
 
-add_executable(
-	nostalgia
-		main.cpp
-)
+if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
+	enable_language(C ASM)
+	add_executable(
+		nostalgia
+			main.cpp
+			startup.s
+	)
+else()
+	add_executable(
+		nostalgia
+			main.cpp
+	)
+endif()
 
 if(COMMAND OBJCOPY_FILE)
 	set_target_properties(nostalgia

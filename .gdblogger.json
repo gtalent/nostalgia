@@ -1,7 +1,7 @@
 {
 	"log_functions": [
 		{
-			"function": "ox::trace::gdblogger::captureLogFunc",
+			"function": "oxTraceHook",
 			"ignore_frames": 3,
 			"file_var": "file",
 			"line_var": "line",

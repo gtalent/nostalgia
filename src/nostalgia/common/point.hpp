@@ -60,7 +60,7 @@ class Point {
 
 template<typename T>
 ox::Error model(T *io, Point *obj) {
-	ox::Error err = 0;
+	auto err = OxError(0);
 	io->setTypeInfo("nostalgia::common::Bounds", 2);
 	err |= io->field("x", &obj->x);
 	err |= io->field("y", &obj->y);

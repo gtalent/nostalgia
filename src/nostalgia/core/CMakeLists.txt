@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 2.8.11)
-
 if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 	enable_language(C ASM)
 	set(

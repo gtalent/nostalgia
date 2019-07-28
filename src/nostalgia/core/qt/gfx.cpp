@@ -11,15 +11,15 @@
 namespace nostalgia::core {
 
 ox::Error initGfx(Context*) {
-	return 1;
+	return OxError(1);
 }
 
 ox::Error initConsole(Context*) {
-	return 1;
+	return OxError(1);
 }
 
 ox::Error loadTileSheet(Context*, InodeId_t) {
-	return 1;
+	return OxError(1);
 }
 
 void puts(Context*, int, const char*) {

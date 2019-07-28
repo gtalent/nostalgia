@@ -66,7 +66,7 @@ namespace {
 [[nodiscard]] ox::Error verifyFile(ox::FileSystem32 *fs, const std::string &path, const std::vector<char> &expected) noexcept {
 	std::vector<char> buff(expected.size());
 	oxReturnError(fs->read(path.c_str(), buff.data(), buff.size()));
-	return buff == expected ? 0 : OxError(1);
+	return OxError(buff == expected ? 0 : 1);
 }
 
 [[nodiscard]] ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {

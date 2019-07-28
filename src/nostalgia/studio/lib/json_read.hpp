@@ -16,8 +16,7 @@
 
 #include "json_err.hpp"
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 class JsonReader {
 
@@ -64,21 +63,21 @@ ox::Error JsonReader::field(QString fieldName, T *dest) {
 		auto reader = JsonReader(obj);
 		return model(&reader, dest);
 	} else {
-		return JSON_ERR_FIELD_MISSING;
+		return OxError(JSON_ERR_FIELD_MISSING);
 	}
 }
 
 template<typename T>
 ox::Error JsonReader::field(QString fieldName, QVector<T> *dest) {
-	ox::Error err = 0;
+	auto err = OxError(0);
 	if (m_src.contains(fieldName)) {
 		auto a = m_src[fieldName].toArray();
 		dest->resize(a.size());
 		for (int i = 0; i < dest->size(); i++) {
-			err |= field(a[i], &(*dest)[i]);
+			oxReturnError(field(a[i], &(*dest)[i]));
 		}
 	} else {
-		err |= JSON_ERR_FIELD_MISSING;
+		err = OxError(JSON_ERR_FIELD_MISSING);
 	}
 	return err;
 }
@@ -97,5 +96,4 @@ ox::Error readJson(QString json, T *dest) {
 	return model(&rdr, dest);
 }
 
-}
 }

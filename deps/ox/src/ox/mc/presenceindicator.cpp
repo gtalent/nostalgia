@@ -32,9 +32,9 @@ Error FieldPresenceIndicator::set(int i, bool on) {
 		} else {
 			m_mask[i / 8] &= ~(1 << (i % 8));
 		}
-		return 0;
+		return OxError(0);
 	} else {
-		return MC_PRESENCEMASKOUTBOUNDS;
+		return OxError(MC_PRESENCEMASKOUTBOUNDS);
 	}
 }
 

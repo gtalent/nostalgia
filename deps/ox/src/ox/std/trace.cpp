@@ -15,6 +15,11 @@
 
 #include "trace.hpp"
 
+extern "C"
+void oxTraceHook([[maybe_unused]] const char *file, [[maybe_unused]] int line,
+                 [[maybe_unused]] const char *ch, [[maybe_unused]] const char *msg) {
+}
+
 namespace ox::trace {
 
 #if defined(OX_USE_STDLIB)
@@ -22,18 +27,6 @@ static const auto OxPrintTrace = std::getenv("OXTRACE");
 #else
 constexpr auto OxPrintTrace = false;
 #endif
-
-namespace gdblogger {
-
-void captureLogFunc([[maybe_unused]] const char *file, [[maybe_unused]] int line,
-                    [[maybe_unused]] const char *ch, [[maybe_unused]] const char *msg) {
-}
-
-void logFunc(const char *file, int line, const char *ch, const char *msg) {
-	captureLogFunc(file, line, ch, msg);
-}
-
-}
 
 OutStream::OutStream(const char *file, int line, const char *ch, const char *msg) {
 	m_msg.file = file;
@@ -43,7 +36,7 @@ OutStream::OutStream(const char *file, int line, const char *ch, const char *msg
 }
 
 OutStream::~OutStream() {
-	gdblogger::logFunc(m_msg.file.c_str(), m_msg.line, m_msg.ch.c_str(), m_msg.msg.c_str());
+	oxTraceHook(m_msg.file.c_str(), m_msg.line, m_msg.ch.c_str(), m_msg.msg.c_str());
 }
 
 
@@ -55,7 +48,7 @@ StdOutStream::StdOutStream(const char *file, int line, const char *ch, const cha
 }
 
 StdOutStream::~StdOutStream() {
-	gdblogger::logFunc(m_msg.file.c_str(), m_msg.line, m_msg.ch.c_str(), m_msg.msg.c_str());
+	oxTraceHook(m_msg.file.c_str(), m_msg.line, m_msg.ch.c_str(), m_msg.msg.c_str());
 #if defined(OX_USE_STDLIB)
 	if (OxPrintTrace) {
 		std::cout << std::setw(53) << std::left << m_msg.ch.c_str() << '|';

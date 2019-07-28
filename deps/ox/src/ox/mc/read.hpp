@@ -106,7 +106,7 @@ class MetalClawReader {
 
 template<typename T>
 Error MetalClawReader::field(const char*, T *val) {
-	Error err = 0;
+	auto err = OxError(0);
 	if (val && m_fieldPresence.get(m_field++)) {
 		auto reader = child();
 		err |= model(&reader, val);
@@ -139,7 +139,7 @@ Error MetalClawReader::readInteger(I *val) {
 // array handler
 template<typename T>
 Error MetalClawReader::field(const char*, T *val, std::size_t valLen) {
-	Error err = 0;
+	auto err = OxError(0);
 	if (m_fieldPresence.get(m_field++)) {
 		// read the length
 		if (m_buffIt >= m_buffLen) {

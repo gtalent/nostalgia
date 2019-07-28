@@ -59,9 +59,9 @@ Error PathIterator::fileName(char *out, std::size_t outSize) {
 // Gets the get item in the path
 Error PathIterator::get(char *pathOut, std::size_t pathOutSize) {
 	std::size_t size = 0;
-	Error retval = 1;
+	auto retval = OxError(1);
 	if (m_iterator < m_maxSize && ox_strlen(&m_path[m_iterator])) {
-		retval = 0;
+		retval = OxError(0);
 		auto start = m_iterator;
 		if (m_path[start] == '/') {
 			start++;
@@ -85,15 +85,15 @@ Error PathIterator::get(char *pathOut, std::size_t pathOutSize) {
 		size--;
 	}
 	pathOut[size] = 0; // end with null terminator
-	return OxError(retval);
+	return retval;
 }
 
 // Gets the get item in the path
 Error PathIterator::next(char *pathOut, std::size_t pathOutSize) {
 	std::size_t size = 0;
-	Error retval = 1;
+	auto retval = OxError(1);
 	if (m_iterator < m_maxSize && ox_strlen(&m_path[m_iterator])) {
-		retval = 0;
+		retval = OxError(0);
 		if (m_path[m_iterator] == '/') {
 			m_iterator++;
 		}
@@ -118,7 +118,7 @@ Error PathIterator::next(char *pathOut, std::size_t pathOutSize) {
 	}
 	pathOut[size] = 0; // end with null terminator
 	m_iterator += size;
-	return OxError(retval);
+	return retval;
 }
 
 /**
@@ -137,10 +137,10 @@ Error PathIterator::next(BString<MaxFileNameLength> *fileName) {
 
 ValErr<std::size_t> PathIterator::nextSize() const {
 	std::size_t size = 0;
-	Error retval = 1;
+	auto retval = OxError(1);
 	auto it = m_iterator;
 	if (it < m_maxSize && ox_strlen(&m_path[it])) {
-		retval = 0;
+		retval = OxError(0);
 		if (m_path[it] == '/') {
 			it++;
 		}
@@ -155,7 +155,7 @@ ValErr<std::size_t> PathIterator::nextSize() const {
 		size = end - start;
 	}
 	it += size;
-	return {size, OxError(retval)};
+	return {size, retval};
 }
 
 bool PathIterator::hasNext() const {

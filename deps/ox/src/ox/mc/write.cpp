@@ -61,7 +61,7 @@ Error MetalClawWriter::field(const char*, bool *val) {
 }
 
 Error MetalClawWriter::field(const char*, SerStr val) {
-	int err = 0;
+	auto err = OxError(0);
 	bool fieldSet = false;
 	if (val.cap()) {
 		// write the length
@@ -75,7 +75,7 @@ Error MetalClawWriter::field(const char*, SerStr val) {
 			m_buffIt += val.bytes();
 			fieldSet = true;
 		} else {
-			err = MC_BUFFENDED;
+			err = OxError(MC_BUFFENDED);
 		}
 	}
 	err |= m_fieldPresence.set(m_field, fieldSet);

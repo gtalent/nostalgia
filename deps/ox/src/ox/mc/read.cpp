@@ -62,7 +62,7 @@ Error MetalClawReader::field(const char*, uint64_t *val) {
 
 Error MetalClawReader::field(const char*, bool *val) {
 	*val = m_fieldPresence.get(m_field++);
-	return 0;
+	return OxError(0);
 }
 
 Error MetalClawReader::field(const char*, SerStr val) {

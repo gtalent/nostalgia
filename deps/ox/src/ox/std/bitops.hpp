@@ -20,7 +20,7 @@ template<typename T>
 
 template<typename T>
 [[nodiscard]] constexpr T onMask(int bits = sizeof(T) << 3 /* *8 */) noexcept {
-	T out = 0;
+	T out = T(0);
 	for (auto i = 0; i < bits; i++) {
 		out |= static_cast<T>(1) << i;
 	}

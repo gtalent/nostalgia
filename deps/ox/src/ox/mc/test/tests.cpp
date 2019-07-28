@@ -43,7 +43,7 @@ struct TestStruct {
 
 template<typename T>
 ox::Error model(T *io, TestStructNest *obj) {
-	ox::Error err = 0;
+	auto err = OxError(0);
 	io->setTypeInfo("TestStructNest", 3);
 	err |= io->field("Bool", &obj->Bool);
 	err |= io->field("Int", &obj->Int);
@@ -53,7 +53,7 @@ ox::Error model(T *io, TestStructNest *obj) {
 
 template<typename T>
 ox::Error model(T *io, TestStruct *obj) {
-	ox::Error err = 0;
+	auto err = OxError(0);
 	io->setTypeInfo("TestStruct", 14);
 	err |= io->field("Bool", &obj->Bool);
 	err |= io->field("Int", &obj->Int);
@@ -81,7 +81,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 				// doesn't segfault
 				constexpr size_t buffLen = 1024;
 				uint8_t buff[buffLen];
-				ox::Error err = 0;
+				auto err = ox::Error(0);
 				TestStruct ts;
 
 				err |= ox::writeMC(buff, buffLen, &ts);
@@ -241,7 +241,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 		{
 			"MetalClawDef",
 			[] {
-				ox::Error err = 0;
+				auto err = OxError(0);
 				//constexpr size_t descBuffLen = 1024;
 				//uint8_t descBuff[descBuffLen];
 				constexpr size_t dataBuffLen = 1024;

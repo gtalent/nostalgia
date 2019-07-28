@@ -263,7 +263,7 @@ ox::Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void
 	oxReturnError(rootDir.error);
 	oxReturnError(rootDir.value.write(path, inode));
 	oxReturnError(write(inode, buffer, size, fileType));
-	return 0;
+	return OxError(0);
 }
 
 template<typename FileStore, typename Directory>

@@ -126,7 +126,7 @@ template<typename I>
 		*bytesRead = bytes;
 		I out = 0;
 		ox_memcpy(&out, &buff[1], sizeof(I));
-		return {LittleEndian<I>(out), 0};
+		return {LittleEndian<I>(out), OxError(0)};
 	} else if (buffLen >= bytes) {
 		*bytesRead = bytes;
 		uint64_t decoded = 0;
@@ -144,7 +144,7 @@ template<typename I>
 			decoded |= sign << (Bits<I> - 1);
 			ox_memcpy(&out, &decoded, sizeof(out));
 		}
-		return {out, 0};
+		return {out, OxError(0)};
 	}
 	return {0, OxError(1)};
 }

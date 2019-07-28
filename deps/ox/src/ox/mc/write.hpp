@@ -84,7 +84,7 @@ Error MetalClawWriter::field(const char *name, ox::BString<L> *val) {
 
 template<typename T>
 Error MetalClawWriter::field(const char*, T *val) {
-	int err = 0;
+	auto err = OxError(0);
 	bool fieldSet = false;
 	MetalClawWriter writer(m_buff + m_buffIt, m_buffLen - m_buffIt);
 	if (val) {
@@ -106,7 +106,7 @@ Error MetalClawWriter::field(const char*, ox::Vector<T> *val) {
 
 template<typename T>
 Error MetalClawWriter::field(const char*, T *val, std::size_t len) {
-	Error err = 0;
+	auto err = OxError(0);
 	bool fieldSet = false;
 
 	if (len) {
@@ -116,7 +116,7 @@ Error MetalClawWriter::field(const char*, T *val, std::size_t len) {
 			ox_memcpy(&m_buff[m_buffIt], arrLen.data, arrLen.length);
 			m_buffIt += arrLen.length;
 		} else {
-			err = MC_BUFFENDED;
+			err = OxError(MC_BUFFENDED);
 		}
 
 		MetalClawWriter writer(m_buff + m_buffIt, m_buffLen - m_buffIt);
@@ -138,7 +138,7 @@ Error MetalClawWriter::field(const char*, T *val, std::size_t len) {
 
 template<typename I>
 Error MetalClawWriter::appendInteger(I val) {
-	Error err = 0;
+	auto err = OxError(0);
 	bool fieldSet = false;
 	if (val) {
 		auto mi = mc::encodeInteger(val);
@@ -147,7 +147,7 @@ Error MetalClawWriter::appendInteger(I val) {
 			ox_memcpy(&m_buff[m_buffIt], mi.data, mi.length);
 			m_buffIt += mi.length;
 		} else {
-			err |= MC_BUFFENDED;
+			err |= OxError(MC_BUFFENDED);
 		}
 	}
 	err |= m_fieldPresence.set(m_field, fieldSet);

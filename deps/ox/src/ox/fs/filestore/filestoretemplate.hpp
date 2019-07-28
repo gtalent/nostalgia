@@ -444,7 +444,7 @@ ValErr<StatInfo> FileStoreTemplate<size_t>::stat(InodeId_t id) {
 			inode->fileType,
 		});
 	}
-	return ValErr<StatInfo>({}, 1);
+	return ValErr<StatInfo>({}, OxError(0));
 }
 
 template<typename size_t>
@@ -547,7 +547,7 @@ Error FileStoreTemplate<size_t>::placeItem(ItemPtr item) {
 				item->left = root->left;
 				item->right = root->right;
 				oxTrace("ox::fs::FileStoreTemplate::placeItem") << "Overwrote Root Item:" << item->id;
-				return 0;
+				return OxError(0);
 			} else {
 				return placeItem(root, item);
 			}

@@ -22,7 +22,7 @@ class FieldPresenceIndicator {
 	public:
 		FieldPresenceIndicator(uint8_t *mask, std::size_t maxLen);
 
-		bool get(int i) const;
+		ValErr<bool> get(int i) const;
 
 		Error set(int i, bool on);
 

@@ -118,7 +118,7 @@ struct DescriptorType {
 
 template<typename T>
 Error model(T *io, DescriptorType *type) {
-	Error err = 0;
+	auto err = OxError(0);
 	io->setTypeInfo("ox::DescriptorType", 4);
 	err |= io->field("typeName", &type->typeName);
 	err |= io->field("primitiveType", &type->primitiveType);
@@ -129,7 +129,7 @@ Error model(T *io, DescriptorType *type) {
 
 template<typename T>
 Error modelWrite(T *io, DescriptorField *field) {
-	Error err = 0;
+	auto err = OxError(0);
 	io->setTypeInfo("ox::DescriptorField", 4);
 	if (field->ownsType) {
 		err |= io->field("typeName", "");
@@ -147,7 +147,7 @@ Error modelWrite(T *io, DescriptorField *field) {
 
 template<typename T>
 Error modelRead(T *io, DescriptorField *field) {
-	Error err = 0;
+	auto err = OxError(0);
 	auto &typeStore = io->typeStore();
 	io->setTypeInfo("ox::DescriptorField", 4);
 	err |= io->field("typeName", &field->typeName);

@@ -182,7 +182,7 @@ map<string, int(*)(string)> tests = {
 
 				oxTrace("ox::fs::test::Directory") << "find";
 				oxAssert(dir.find("file1").error, "Could not find file1");
-				oxAssert(dir.find("file1") == 1, "Could not find file1");
+				oxAssert(dir.find("file1").value == 1, "Could not find file1");
 
 				oxTrace("ox::fs::test::Directory") << "write 2";
 				oxAssert(dir.write("/file3", 3) == 0, "Directory write of file3 failed");

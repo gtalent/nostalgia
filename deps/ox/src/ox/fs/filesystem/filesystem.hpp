@@ -184,8 +184,8 @@ ox::Error FileSystemTemplate<FileStore, Directory>::move(const char *src, const 
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
 	Directory rootDir(m_fs, fd.value.rootDirInode);
-	auto inode = rootDir.find(src);
-	oxReturnError(inode.error);
+	auto [inode, err] = rootDir.find(src);
+	oxReturnError(err);
 	oxReturnError(rootDir.write(dest, inode));
 	oxReturnError(rootDir.remove(src));
 	return OxError(0);
@@ -196,8 +196,8 @@ ox::Error FileSystemTemplate<FileStore, Directory>::read(const char *path, void 
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
 	Directory rootDir(m_fs, fd.value.rootDirInode);
-	auto inode = rootDir.find(path);
-	oxReturnError(inode.error);
+	auto [inode, err] = rootDir.find(path);
+	oxReturnError(err);
 	return read(inode, buffer, buffSize);
 }
 
@@ -227,12 +227,12 @@ ox::Error FileSystemTemplate<FileStore, Directory>::remove(const char *path, boo
 	Directory rootDir(m_fs, fd.value.rootDirInode);
 	auto inode = rootDir.find(path);
 	oxReturnError(inode.error);
-	auto st = stat(inode);
+	auto st = stat(inode.value);
 	oxReturnError(st.error);
 	if (st.value.fileType == FileType_NormalFile || recursive) {
 		if (auto err = rootDir.remove(path)) {
 			// removal failed, try putting the index back
-			oxLogError(rootDir.write(path, inode));
+			oxLogError(rootDir.write(path, inode.value));
 			return err;
 		}
 	} else {
@@ -255,9 +255,11 @@ ox::Error FileSystemTemplate<FileStore, Directory>::resize(uint64_t size, void *
 
 template<typename FileStore, typename Directory>
 ox::Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void *buffer, uint64_t size, uint8_t fileType) {
-	auto inode = find(path);
-	if (inode.error) {
-		inode.value = m_fs.generateInodeId();
+	auto [inode, err] = find(path);
+	if (err) {
+		auto generated = m_fs.generateInodeId();
+		oxReturnError(generated.error);
+		inode = generated.value;
 	}
 	auto rootDir = this->rootDir();
 	oxReturnError(rootDir.error);

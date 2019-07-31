@@ -151,10 +151,10 @@ Error MetalClawReader::field(const char*, T *val, std::size_t valLen) {
 		oxReturnError(len.error);
 
 		// read the list
-		if (valLen >= len) {
+		if (valLen >= len.value) {
 			auto reader = child();
-			reader.setTypeInfo("List", len);
-			for (std::size_t i = 0; i < len; i++) {
+			reader.setTypeInfo("List", len.value);
+			for (std::size_t i = 0; i < len.value; i++) {
 				err |= reader.field("", &val[i]);
 			}
 		} else {

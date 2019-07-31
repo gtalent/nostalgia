@@ -61,8 +61,9 @@ Error MetalClawReader::field(const char*, uint64_t *val) {
 }
 
 Error MetalClawReader::field(const char*, bool *val) {
-	*val = m_fieldPresence.get(m_field++);
-	return OxError(0);
+	auto valErr = m_fieldPresence.get(m_field++);
+	*val = valErr.value;
+	return OxError(valErr.error);
 }
 
 Error MetalClawReader::field(const char*, SerStr val) {
@@ -72,9 +73,9 @@ Error MetalClawReader::field(const char*, SerStr val) {
 			return OxError(MC_BUFFENDED);
 		}
 		std::size_t bytesRead = 0;
-		auto size = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+		auto [size, err] = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
 		m_buffIt += bytesRead;
-		oxReturnError(size.error);
+		oxReturnError(err);
 
 		// read the string
 		if (val.cap() > -1 && static_cast<StringLength>(val.cap()) >= size) {
@@ -101,7 +102,7 @@ Error MetalClawReader::field(const char*, SerStr val) {
 			return OxError(MC_BUFFENDED);
 		}
 		std::size_t bytesRead = 0;
-		len = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+		auto [len, _] = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
 		if (pass) {
 			m_buffIt += sizeof(ArrayLength);
 		}
@@ -113,7 +114,8 @@ Error MetalClawReader::field(const char*, SerStr val) {
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
 		std::size_t bytesRead = 0;
-		return mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+		auto [len, _] = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+		return len;
 	}
 	return 0;
 }
@@ -130,11 +132,11 @@ MetalClawReader MetalClawReader::child() {
 }
 
 bool MetalClawReader::fieldPresent() const {
-	return m_fieldPresence.get(m_field);
+	return m_fieldPresence.get(m_field).value;
 }
 
 bool MetalClawReader::fieldPresent(int fieldNo) const {
-	return m_fieldPresence.get(fieldNo);
+	return m_fieldPresence.get(fieldNo).value;
 }
 
 void MetalClawReader::nextField() noexcept {

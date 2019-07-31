@@ -167,19 +167,19 @@ ox::Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents
 			oxReturnError(childInode.error);
 
 			// initialize the directory
-			Directory<FileStore, InodeId_t> child(m_fs, childInode);
+			Directory<FileStore, InodeId_t> child(m_fs, childInode.value);
 			oxReturnError(child.init());
 
-			auto err = write(name->c_str(), childInode);
+			auto err = write(name->c_str(), childInode.value);
 			if (err) {
 				oxLogError(err);
 				// could not index the directory, delete it
-				oxLogError(m_fs.remove(childInode));
+				oxLogError(m_fs.remove(childInode.value));
 				return err;
 			}
 		}
 
-		Directory<FileStore, InodeId_t> child(m_fs, childInode);
+		Directory<FileStore, InodeId_t> child(m_fs, childInode.value);
 		if (path.hasNext()) {
 			oxReturnError(child.mkdir(path.next(), parents, nameBuff));
 		}
@@ -189,8 +189,6 @@ ox::Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents
 
 template<typename FileStore, typename InodeId_t>
 ox::Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode, FileName *nameBuff) noexcept {
-	InodeId_t nextChild = 0;
-
 	// reuse nameBuff if it has already been allocated, as it is a rather large variable
 	if (nameBuff == nullptr) {
 		nameBuff = reinterpret_cast<FileName*>(ox_alloca(sizeof(FileName)));
@@ -203,7 +201,9 @@ ox::Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t in
 		oxTrace("ox::fs::Directory::write") << "Attempting to write to next sub-Directory: "
 			<< name->c_str() << " of " << path.fullPath();
 
-		nextChild = findEntry(*name);
+		auto [nextChild, err] = findEntry(*name);
+		oxReturnError(err);
+
 		oxTrace("ox::fs::Directory::write") << name->c_str() << ": " << nextChild;
 
 		if (nextChild) {

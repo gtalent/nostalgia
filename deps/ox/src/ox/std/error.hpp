@@ -61,21 +61,27 @@ struct ValErr {
 	T value;
 	Error error;
 
-	inline constexpr ValErr() = default;
-
-	inline constexpr ValErr(T value, Error error = OxError(0)): value(ox::move(value)), error(error) {
+	constexpr ValErr() noexcept: error(0) {
 	}
 
-	inline constexpr operator const T&() const {
+	constexpr ValErr(T value, Error error = OxError(0)) noexcept: value(ox::move(value)), error(error) {
+	}
+
+	explicit constexpr operator const T&() const noexcept {
 		return value;
 	}
 
-	inline constexpr operator T&() {
+	explicit constexpr operator T&() noexcept {
 		return value;
 	}
 
-	inline constexpr bool ok() const {
+	constexpr bool ok() const noexcept {
 		return error == 0;
+	}
+
+	constexpr ox::Error get(T *val) noexcept {
+		*val = value;
+		return error;
 	}
 
 };

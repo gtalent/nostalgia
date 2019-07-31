@@ -75,11 +75,11 @@ struct ValErr {
 		return value;
 	}
 
-	constexpr bool ok() const noexcept {
+	[[nodiscard]] constexpr bool ok() const noexcept {
 		return error == 0;
 	}
 
-	constexpr ox::Error get(T *val) noexcept {
+	[[nodiscard]] constexpr ox::Error get(T *val) noexcept {
 		*val = value;
 		return error;
 	}

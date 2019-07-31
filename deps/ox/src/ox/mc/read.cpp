@@ -102,7 +102,7 @@ Error MetalClawReader::field(const char*, SerStr val) {
 			return OxError(MC_BUFFENDED);
 		}
 		std::size_t bytesRead = 0;
-		auto [len, _] = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+		len = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead).value;
 		if (pass) {
 			m_buffIt += sizeof(ArrayLength);
 		}
@@ -114,8 +114,8 @@ Error MetalClawReader::field(const char*, SerStr val) {
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
 		std::size_t bytesRead = 0;
-		auto [len, _] = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
-		return len;
+		auto len = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+		return len.value;
 	}
 	return 0;
 }

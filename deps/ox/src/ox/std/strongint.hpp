@@ -28,6 +28,8 @@ class Integer: Base {
 
 		constexpr explicit Integer(T i) noexcept;
 
+		constexpr Integer(const Integer<T, Base> &i) noexcept;
+
 		constexpr Integer<T, Base> operator=(Integer<T, Base> i) noexcept;
 
 		constexpr Integer<T, Base> operator==(Integer<T, Base> i) const noexcept;
@@ -103,6 +105,10 @@ class Integer: Base {
 template<typename T, class Base>
 constexpr Integer<T, Base>::Integer(T i) noexcept {
 	m_i = i;
+}
+
+template<typename T, class Base>
+constexpr Integer<T, Base>::Integer(const Integer<T, Base> &i) noexcept:m_i(i.m_i) {
 }
 
 template<typename T, class Base>

@@ -166,13 +166,13 @@ ox::Error initGfx(Context*) {
 	/*              |||| */
 	REG_DISPCNT = 0x1100;
 
-	return 0;
+	return OxError(0);
 }
 
 // Do NOT use Context in the GBA version of this function.
 ox::Error initConsole(Context*) {
 	const auto PaletteStart = sizeof(GbaImageDataHeader);
-	ox::Error err = 0;
+	ox::Error err(0);
 	ox::FileStore32 fs(loadRom(), 32 * ox::units::MB);
 	ox::FileSystem32 fileSystem(fs);
 	const auto CharsetInode = fileSystem.stat("/TileSheets/Charset.ng").value.inode;
@@ -196,16 +196,16 @@ ox::Error initConsole(Context*) {
 			err |= fs.read(CharsetInode, __builtin_offsetof(GbaImageData, tiles),
 			               sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
 		} else {
-			err = 1;
+			err = OxError(1);
 		}
 	} else {
-		err = 1;
+		err = OxError(1);
 	}
 	return err;
 }
 
 ox::Error loadTileSheet(Context*, InodeId_t inode) {
-	ox::Error err = 0;
+	ox::Error err(0);
 	const auto PaletteStart = sizeof(GbaImageDataHeader);
 	GbaImageDataHeader imgData;
 
@@ -227,10 +227,10 @@ ox::Error loadTileSheet(Context*, InodeId_t inode) {
 			err |= fs.read(inode, __builtin_offsetof(GbaImageData, tiles),
 			                sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
 		} else {
-			err = 1;
+			err = OxError(1);
 		}
 	} else {
-		err = 1;
+		err = OxError(1);
 	}
 	return err;
 }

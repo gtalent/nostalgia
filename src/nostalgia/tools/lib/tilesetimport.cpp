@@ -110,7 +110,9 @@ using namespace nostalgia::common;
 }
 
 ox::Error importTileSet(ox::FileSystem *fs, QString romPath, QString importPath) {
-	const auto bpp = countColors(importPath) > 16 ? 8 : 4;
+	int colors = 0;
+	oxReturnError(countColors(importPath).get(&colors));
+	const auto bpp = colors > 16 ? 8 : 4;
 	auto [imgDataBuff, err] = convertImg(importPath, bpp);
 	oxReturnError(err);
 	return fs->write(romPath.toUtf8().data(), imgDataBuff.data(), imgDataBuff.size());

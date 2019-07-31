@@ -76,7 +76,7 @@ int Project::write(QString path, uint8_t *buff, size_t buffLen) const {
 }
 
 ox::FileStat Project::stat(QString path) const {
-	return m_fs.stat(path.toUtf8().data());
+	return m_fs.stat(path.toUtf8().data()).value;
 }
 
 }

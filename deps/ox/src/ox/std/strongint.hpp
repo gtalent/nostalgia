@@ -84,6 +84,8 @@ class Integer: Base {
 
 		constexpr Integer<T, Base> operator^=(Integer<T, Base> i) noexcept;
 
+		constexpr Integer<T, Base> operator~() const noexcept;
+
 		// Prefix increment
 		constexpr Integer<T, Base> operator++() noexcept;
 
@@ -244,6 +246,11 @@ constexpr Integer<T, Base> Integer<T, Base>::operator^(Integer<T, Base> i) const
 template<typename T, class Base>
 constexpr Integer<T, Base> Integer<T, Base>::operator^=(Integer<T, Base> i) noexcept {
 	return Integer<T, Base>(m_i ^= i.m_i);
+}
+
+template<typename T, class Base>
+constexpr inline Integer<T, Base> Integer<T, Base>::operator~() const noexcept {
+	return Integer<T, Base>(~m_i);
 }
 
 // Prefix increment

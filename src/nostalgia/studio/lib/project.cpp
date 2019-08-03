@@ -29,7 +29,7 @@ void Project::create() {
 	QDir().mkpath(m_path);
 }
 
-int Project::openRomFs() {
+ox::Error Project::openRomFs() {
 	QFile file(m_path + ROM_FILE);
 	auto buffSize = file.size();
 	auto buff = std::make_unique<uint8_t[]>(buffSize);
@@ -38,20 +38,20 @@ int Project::openRomFs() {
 		if (file.read(reinterpret_cast<char*>(buff.get()), buffSize) > 0) {
 			m_fsBuff = std::move(buff);
 			if (m_fs.valid()) {
-				return 0;
+				return OxError(0);
 			} else {
-				return 1;
+				return OxError(1);
 			}
 		} else {
-			return 2;
+			return OxError(2);
 		}
 	} else {
-		return 3;
+		return OxError(3);
 	}
 }
 
-int Project::saveRomFs() const {
-	int err = 0;
+ox::Error Project::saveRomFs() const {
+	ox::Error err(0);
 	//QFile file(m_path + ROM_FILE);
 	//err |= file.open(QIODevice::WriteOnly) == false;
 	//err |= file.write((const char*) m_fsBuff.get(), m_fs.size()) == -1;
@@ -63,20 +63,20 @@ PassThroughFS *Project::romFs() {
 	return &m_fs;
 }
 
-int Project::mkdir(QString path) const {
+ox::Error Project::mkdir(QString path) const {
 	auto err = m_fs.mkdir(path.toUtf8().data(), true);
 	emit updated(path);
 	return err;
 }
 
-int Project::write(QString path, uint8_t *buff, size_t buffLen) const {
+ox::Error Project::write(QString path, uint8_t *buff, size_t buffLen) const {
 	auto err = m_fs.write(path.toUtf8().data(), buff, buffLen);
 	emit updated(path);
 	return err;
 }
 
-ox::FileStat Project::stat(QString path) const {
-	return m_fs.stat(path.toUtf8().data()).value;
+ox::ValErr<ox::FileStat> Project::stat(QString path) const {
+	return m_fs.stat(path.toUtf8().data());
 }
 
 }

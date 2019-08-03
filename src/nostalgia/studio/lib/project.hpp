@@ -35,23 +35,23 @@ class Project: public QObject {
 
 		void create();
 
-		int openRomFs();
+		ox::Error openRomFs();
 
-		int saveRomFs() const;
+		ox::Error saveRomFs() const;
 
 		ox::PassThroughFS *romFs();
 
-		int mkdir(QString path) const;
+		ox::Error mkdir(QString path) const;
 
-		int write(QString path, uint8_t *buff, size_t buffLen) const;
+		ox::Error write(QString path, uint8_t *buff, size_t buffLen) const;
 
 		/**
 		 * Writes a MetalClaw object to the project at the given path.
 		 */
 		template<typename T>
-		int writeObj(QString path, T *obj) const;
+		ox::Error writeObj(QString path, T *obj) const;
 
-		ox::FileStat stat(QString path) const;
+		ox::ValErr<ox::FileStat> stat(QString path) const;
 
 	signals:
 		void updated(QString path) const;
@@ -59,27 +59,19 @@ class Project: public QObject {
 };
 
 template<typename T>
-int Project::writeObj(QString path, T *obj) const {
-	int err = 0;
+ox::Error Project::writeObj(QString path, T *obj) const {
 	auto buffLen = 1024 * 1024 * 10;
 	QByteArray buff(buffLen, 0);
 
 	// write MetalClaw
 	size_t mcSize = 0;
-	err |= ox::writeMC(reinterpret_cast<uint8_t*>(buff.data()), buffLen, obj, &mcSize);
-	if (err) {
-		return err;
-	}
-
+	oxReturnError(ox::writeMC(reinterpret_cast<uint8_t*>(buff.data()), buffLen, obj, &mcSize));
 	// write to FS
-	err |= write(path, reinterpret_cast<uint8_t*>(buff.data()), mcSize);
-	if (err) {
-		return err;
-	}
+	oxReturnError(write(path, reinterpret_cast<uint8_t*>(buff.data()), mcSize));
 
 	emit updated(path);
 
-	return err;
+	return OxError(0);
 }
 
 }

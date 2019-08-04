@@ -8,13 +8,11 @@
 
 #pragma once
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 enum {
 	JSON_ERR_FIELD_MISSING = 1,
 	JSON_ERR_UNEXPECTED_TYPE = 2,
 };
 
-}
 }

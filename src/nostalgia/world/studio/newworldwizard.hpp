@@ -12,8 +12,7 @@
 
 #include <nostalgia/studio/studio.hpp>
 
-namespace nostalgia {
-namespace world {
+namespace nostalgia::world {
 
 struct NewWorldWizard: public studio::WizardFormPage {
 
@@ -23,5 +22,4 @@ struct NewWorldWizard: public studio::WizardFormPage {
 
 };
 
-}
 }

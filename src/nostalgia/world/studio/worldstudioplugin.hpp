@@ -12,8 +12,7 @@
 
 #include <nostalgia/studio/studio.hpp>
 
-namespace nostalgia {
-namespace world {
+namespace nostalgia::world {
 
 class WorldEditorPlugin: public QObject, public studio::Plugin {
 	Q_OBJECT
@@ -27,5 +26,4 @@ class WorldEditorPlugin: public QObject, public studio::Plugin {
 
 };
 
-}
 }

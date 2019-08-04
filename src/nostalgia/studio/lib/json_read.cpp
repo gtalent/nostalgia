@@ -8,8 +8,7 @@
 
 #include "json_read.hpp"
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 JsonReader::JsonReader(QJsonObject &obj): m_src(obj) {
 }
@@ -85,5 +84,4 @@ ox::Error JsonReader::field(QJsonValueRef src, QString *dest) {
 }
 
 
-}
 }

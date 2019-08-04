@@ -10,8 +10,7 @@
 
 #include <nostalgia/studio/studio.hpp>
 
-namespace nostalgia {
-namespace world {
+namespace nostalgia::world {
 
 class WorldEditor: public QWidget {
 
@@ -20,5 +19,4 @@ class WorldEditor: public QWidget {
 
 };
 
-}
 }

@@ -14,8 +14,7 @@
 
 #include <ox/fs/fs.hpp>
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 class OxFSFile {
 	private:
@@ -81,5 +80,4 @@ class OxFSModel: public QAbstractItemModel {
 		void setupModelData(const QStringList &lines, OxFSFile *parent);
 };
 
-}
 }

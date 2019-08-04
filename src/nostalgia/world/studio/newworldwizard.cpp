@@ -11,8 +11,7 @@
 #include "consts.hpp"
 #include "newworldwizard.hpp"
 
-namespace nostalgia {
-namespace world {
+namespace nostalgia::world {
 
 using namespace studio;
 
@@ -21,15 +20,14 @@ const QString NewWorldWizard::FIELD_WORLD_PATH = "World.WorldPath";
 NewWorldWizard::NewWorldWizard(const Context *ctx) {
 	addLineEdit(tr("&Name:"), FIELD_WORLD_PATH, "", [this, ctx](QString worldName) {
 			worldName = PATH_ZONES + worldName;
-			if (ctx->project->stat(worldName).inode == 0) {
-				return 0;
-			} else {
+			auto [stat, err] = ctx->project->stat(worldName);
+			if (err) {
 				this->showValidationError(tr("World already exists: %1").arg(worldName));
 				return 1;
 			}
+			return 0;
 		}
 	);
 }
 
-}
 }

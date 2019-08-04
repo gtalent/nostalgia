@@ -15,8 +15,7 @@
 #include <ox/fs/fs.hpp>
 #include <ox/mc/mc.hpp>
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 class Project: public QObject {
 	Q_OBJECT
@@ -74,5 +73,4 @@ ox::Error Project::writeObj(QString path, T *obj) const {
 	return OxError(0);
 }
 
-}
 }

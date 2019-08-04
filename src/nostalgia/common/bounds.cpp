@@ -7,8 +7,7 @@
  */
 #include "bounds.hpp"
 
-namespace nostalgia {
-namespace common {
+namespace nostalgia::common {
 
 Bounds::Bounds(int x, int y, int w, int h) {
 	this->x = x;
@@ -41,5 +40,4 @@ Point Bounds::pt2() {
 	return Point(x2(), y2());
 }
 
-}
 }

@@ -27,8 +27,7 @@
 #include "lib/plugin.hpp"
 #include "lib/project.hpp"
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 struct NostalgiaStudioState {
 	QString projectPath;
@@ -144,5 +143,4 @@ class MainWindow: public QMainWindow {
 		void refreshProjectExplorer(QString path);
 };
 
-}
 }

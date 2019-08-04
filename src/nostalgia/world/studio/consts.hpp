@@ -10,10 +10,8 @@
 
 #include <QString>
 
-namespace nostalgia {
-namespace world {
+namespace nostalgia::world {
 
 extern QString PATH_ZONES;
 
-}
 }

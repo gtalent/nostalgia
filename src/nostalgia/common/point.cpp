@@ -7,8 +7,7 @@
  */
 #include "point.hpp"
 
-namespace nostalgia {
-namespace common {
+namespace nostalgia::common {
 
 Point::Point() {
 }
@@ -121,5 +120,4 @@ Point Point::operator/=(int i) {
 	return *this;
 }
 
-}
 }

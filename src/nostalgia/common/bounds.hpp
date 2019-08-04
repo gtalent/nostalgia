@@ -9,8 +9,7 @@
 
 #include "point.hpp"
 
-namespace nostalgia {
-namespace common {
+namespace nostalgia::common {
 
 class Bounds {
 	public:
@@ -47,5 +46,4 @@ ox::Error model(T *io, Bounds *obj) {
 	return err;
 }
 
-}
 }

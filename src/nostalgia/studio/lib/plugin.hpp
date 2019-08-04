@@ -19,8 +19,7 @@
 #include "project.hpp"
 #include "wizard.hpp"
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 struct Context {
 	QWidget *tabParent = nullptr;
@@ -46,7 +45,6 @@ class Plugin {
 
 };
 
-}
 }
 
 #define PluginInterface_iid "net.drinkingtea.nostalgia.studio.Plugin"

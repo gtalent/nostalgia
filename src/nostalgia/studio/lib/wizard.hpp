@@ -19,8 +19,7 @@
 #include <QVector>
 #include <QWizard>
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 struct WizardMaker {
 	QString name;
@@ -131,5 +130,4 @@ class Wizard: public QWizard {
 		void accept();
 };
 
-}
 }

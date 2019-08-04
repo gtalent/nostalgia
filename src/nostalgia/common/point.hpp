@@ -10,8 +10,7 @@
 
 #include <ox/std/error.hpp>
 
-namespace nostalgia {
-namespace common {
+namespace nostalgia::common {
 
 class Point {
 	public:
@@ -67,5 +66,4 @@ ox::Error model(T *io, Point *obj) {
 	return err;
 }
 
-}
 }

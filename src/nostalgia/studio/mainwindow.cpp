@@ -29,8 +29,7 @@
 
 #include "mainwindow.hpp"
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 const QString MainWindow::StateFilePath = "studio_state.json";
 
@@ -374,5 +373,4 @@ void MainWindow::refreshProjectExplorer(QString path) {
 	}
 }
 
-}
 }

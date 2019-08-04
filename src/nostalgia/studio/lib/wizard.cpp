@@ -18,8 +18,7 @@
 #include "plugin.hpp"
 #include "wizard.hpp"
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 using std::function;
 
@@ -342,5 +341,4 @@ void Wizard::accept() {
 	}
 }
 
-}
 }

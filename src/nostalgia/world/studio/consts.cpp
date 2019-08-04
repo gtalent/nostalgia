@@ -8,10 +8,8 @@
 
 #include "consts.hpp"
 
-namespace nostalgia {
-namespace world {
+namespace nostalgia::world {
 
 QString PATH_ZONES = "/World/Zones/";
 
-}
 }

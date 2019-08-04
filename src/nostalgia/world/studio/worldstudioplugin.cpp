@@ -16,8 +16,7 @@
 
 #include "worldstudioplugin.hpp"
 
-namespace nostalgia {
-namespace world {
+namespace nostalgia::world {
 
 using namespace studio;
 
@@ -32,11 +31,10 @@ QVector<WizardMaker> WorldEditorPlugin::newWizards(const Context *ctx) {
 				qDebug() << "creating Region";
 				auto path = PATH_ZONES + w->field(NewWorldWizard::FIELD_WORLD_PATH).toString();
 				Region rgn;
-				auto err = ctx->project->mkdir(PATH_ZONES);
+				oxReturnError(ctx->project->mkdir(PATH_ZONES));
 				ctx->project->saveRomFs();
-				qDebug() << "err:" << err;
-				err |= ctx->project->writeObj(path, &rgn);
-				return err;
+				oxReturnError(ctx->project->writeObj(path, &rgn));
+				return OxError(0);
 			}
 		}
 	};
@@ -50,5 +48,4 @@ QWidget *WorldEditorPlugin::makeEditor(QString path, const Context *ctx) {
 	}
 }
 
-}
 }

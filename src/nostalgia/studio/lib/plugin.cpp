@@ -8,8 +8,7 @@
 
 #include "plugin.hpp"
 
-namespace nostalgia {
-namespace studio {
+namespace nostalgia::studio {
 
 QVector<WizardMaker> Plugin::newWizards(const Context*) {
 	return {};
@@ -23,5 +22,4 @@ QWidget *Plugin::makeEditor(QString, const Context*) {
 	return nullptr;
 }
 
-}
 }

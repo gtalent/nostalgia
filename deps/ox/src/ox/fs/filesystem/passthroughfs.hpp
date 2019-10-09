@@ -15,15 +15,6 @@
 
 #define OX_PASSTHROUGHFS_HAS_DEPENDENCIES
 
-#elif defined(OX_USE_BOOSTFS)
-
-#include <boost/filesystem>
-#include <string>
-
-using std::filesystem = boost::filesystem;
-
-#define OX_PASSTHROUGHFS_HAS_DEPENDENCIES
-
 #endif
 
 #ifdef OX_PASSTHROUGHFS_HAS_DEPENDENCIES

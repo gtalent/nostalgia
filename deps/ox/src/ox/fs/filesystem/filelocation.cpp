@@ -10,8 +10,23 @@
 
 namespace ox {
 
-FileLocation::~FileLocation() {
-	if (m_type == Path) {
+FileAddress::FileAddress(uint64_t inode) {
+	m_data.inode = inode;
+	m_type = FileAddressType::Inode;
+}
+
+FileAddress::FileAddress(char *path) {
+	m_data.path = path;
+	m_type = FileAddressType::Path;
+}
+
+FileAddress::FileAddress(const char *path) {
+	m_data.constPath = path;
+	m_type = FileAddressType::ConstPath;
+}
+
+FileAddress::~FileAddress() {
+	if (m_type == FileAddressType::Path) {
 		delete m_data.path;
 		m_data.path = nullptr;
 	}

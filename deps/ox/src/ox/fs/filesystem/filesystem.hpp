@@ -9,6 +9,7 @@
 #pragma once
 
 #include <ox/fs/filestore/filestoretemplate.hpp>
+#include <ox/fs/filesystem/filelocation.hpp>
 #include <ox/fs/filesystem/types.hpp>
 
 #include "directory.hpp"
@@ -35,7 +36,13 @@ class FileSystem {
 
 		virtual ox::Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) = 0;
 
+		[[nodiscard]] ox::Error read(FileAddress addr, void *buffer, std::size_t size);
+
+		[[nodiscard]] ox::Error read(FileAddress addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size);
+
 		virtual ox::Error remove(const char *path, bool recursive = false) = 0;
+
+		[[nodiscard]] ox::Error remove(FileAddress addr, bool recursive = false);
 
 		virtual ox::Error resize(uint64_t size, void *buffer = nullptr) = 0;
 
@@ -43,9 +50,13 @@ class FileSystem {
 
 		virtual ox::Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) = 0;
 
+		[[nodiscard]] ox::Error write(FileAddress addr, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile);
+
 		virtual ox::ValErr<FileStat> stat(uint64_t inode) = 0;
 
 		virtual ox::ValErr<FileStat> stat(const char *path) = 0;
+
+		[[nodiscard]] ox::ValErr<FileStat> stat(FileAddress addr);
 
 		virtual uint64_t spaceNeeded(uint64_t size) = 0;
 

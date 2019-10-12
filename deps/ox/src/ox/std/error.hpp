@@ -64,6 +64,10 @@ struct ValErr {
 	constexpr ValErr() noexcept: error(0) {
 	}
 
+	constexpr ValErr(Error error) noexcept: value(ox::move(value)), error(error) {
+		this->error = error;
+	}
+
 	constexpr ValErr(T value, Error error = OxError(0)) noexcept: value(ox::move(value)), error(error) {
 	}
 

@@ -9,6 +9,7 @@
 #pragma once
 
 #include "filestore/filestoretemplate.hpp"
+#include "filesystem/filelocation.hpp"
 #include "filesystem/filesystem.hpp"
 #include "filesystem/passthroughfs.hpp"
 #include "filesystem/directory.hpp"

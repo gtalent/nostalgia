@@ -13,7 +13,7 @@ add_executable(
 target_link_libraries(
 	nostalgia-studio
 		NostalgiaStudio
-		NostalgiaTool
+		NostalgiaPack
 )
 
 if(APPLE)

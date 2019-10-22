@@ -10,6 +10,12 @@
 
 #include "types.hpp"
 
+#if __has_include(<cstring>)
+#include<cstring>
+#else
+void *memcpy(void *dest, const void *src, std::size_t size);
+#endif
+
 int ox_memcmp(const void *ptr1, const void *ptr2, std::size_t size) noexcept;
 
 constexpr void *ox_memcpy(void *dest, const void *src, std::size_t size) noexcept {

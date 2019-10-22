@@ -10,6 +10,11 @@
 
 namespace ox {
 
+FileAddress::FileAddress() {
+	m_data.inode = 0;
+	m_type = FileAddressType::Inode;
+}
+
 FileAddress::FileAddress(uint64_t inode) {
 	m_data.inode = inode;
 	m_type = FileAddressType::Inode;

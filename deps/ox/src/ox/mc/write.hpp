@@ -84,19 +84,18 @@ Error MetalClawWriter::field(const char *name, ox::BString<L> *val) {
 
 template<typename T>
 Error MetalClawWriter::field(const char*, T *val) {
-	auto err = OxError(0);
 	bool fieldSet = false;
 	MetalClawWriter writer(m_buff + m_buffIt, m_buffLen - m_buffIt);
 	if (val) {
-		err |= model(&writer, val);
+		oxReturnError(model(&writer, val));
 		if (static_cast<std::size_t>(writer.m_fieldPresence.getMaxLen()) < writer.m_buffIt) {
 			m_buffIt += writer.m_buffIt;
 			fieldSet = true;
 		}
 	}
-	err |= m_fieldPresence.set(m_field, fieldSet);
+	oxReturnError(m_fieldPresence.set(m_field, fieldSet));
 	m_field++;
-	return err;
+	return OxError(0);
 }
 
 template<typename T>

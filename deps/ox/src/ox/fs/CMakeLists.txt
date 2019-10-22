@@ -52,7 +52,6 @@ install(
 
 install(
 	FILES
-		filestore/filestoretemplate.hpp
 		filesystem/filesystem.hpp
 		filesystem/pathiterator.hpp
 	DESTINATION

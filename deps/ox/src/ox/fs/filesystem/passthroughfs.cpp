@@ -84,6 +84,9 @@ ox::Error PassThroughFS::resize(uint64_t, void*) {
 Error PassThroughFS::write(const char *path, void *buffer, uint64_t size, uint8_t) {
 	auto p = (m_path / stripSlash(path));
 	auto f = fopen(p.c_str(), "w");
+	if (!f) {
+		return OxError(1);
+	}
 	auto err = OxError(fwrite(buffer, size, 1, f) == 1 ? 0 : 1);
 	fclose(f);
 	return err;

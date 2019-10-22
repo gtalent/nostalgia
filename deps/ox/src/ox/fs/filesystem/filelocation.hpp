@@ -9,18 +9,26 @@
 #pragma once
 
 #include <ox/std/std.hpp>
+#include <ox/model/types.hpp>
 
 namespace ox {
 
-enum class FileAddressType {
-	None  = -1,
+enum class FileAddressType: int8_t {
+	None = -1,
 	Path,
 	ConstPath,
 	Inode,
 };
 
 class FileAddress {
-	private:
+
+	template<typename T>
+	friend ox::Error modelWrite(T*, FileAddress*);
+
+	public:
+		static constexpr auto Fields = 2;
+
+	protected:
 		FileAddressType m_type = FileAddressType::None;
 		union {
 			char *path;
@@ -29,6 +37,8 @@ class FileAddress {
 		} m_data;
 
 	public:
+		FileAddress();
+
 		FileAddress(uint64_t inode);
 
 		FileAddress(char *path);
@@ -68,5 +78,39 @@ class FileAddress {
 		}
 
 };
+
+template<typename T>
+ox::Error modelWrite(T *io, FileAddress *fa) {
+	io->setTypeInfo("ox::FileAddress", FileAddress::Fields);
+	switch (fa->m_type) {
+		case FileAddressType::Path:
+		case FileAddressType::ConstPath:
+		{
+			decltype(fa->m_data.inode) blank = 0;
+			const auto strSize = ox_strlen(fa->m_data.constPath) + 1;
+			auto path = ox_malloca(strSize, char, 0);
+			memcpy(path.get(), fa->m_data.constPath, strSize);
+			oxReturnError(io->field("path", SerStr(path.get(), strSize - 1)));
+			oxReturnError(io->field("inode", &blank));
+			break;
+		}
+		case FileAddressType::Inode:
+		{
+			char blankPath[1] = "";
+			oxReturnError(io->field("path", SerStr(blankPath, 0)));
+			oxReturnError(io->field("inode", &fa->m_data.inode));
+			break;
+		}
+		case FileAddressType::None:
+		{
+			char blankPath[1] = "";
+			decltype(fa->m_data.inode) blankInode = 0;
+			oxReturnError(io->field("path", SerStr(blankPath, 0)));
+			oxReturnError(io->field("inode", &blankInode));
+			break;
+		}
+	}
+	return OxError(0);
+}
 
 }

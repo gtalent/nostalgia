@@ -12,21 +12,32 @@
 
 namespace nostalgia::core {
 
-class ImportTilesheetWizardPage: public studio::WizardFormPage {
+constexpr auto TileSheetDir = "/TileSheets/";
+constexpr auto PaletteDir = "/Palettes/";
+constexpr auto TileSheetName = "tilesheetName";
+constexpr auto ImportPath = "importPath";
+constexpr auto Palette = "palette";
+constexpr auto PaletteName = "paletteName";
+constexpr auto TileCount = "tileCount";
+
+class ImportTilesheetWizardMainPage: public studio::WizardFormPage {
 	private:
-		static constexpr auto TileSheetDir = "/TileSheets/";
-		static constexpr auto TileSheetName = "projectName";
-		static constexpr auto ImportPath = "projectPath";
 		//static constexpr auto BPP = "bpp";
 		const studio::Context *m_ctx = nullptr;
 
 	public:
-		ImportTilesheetWizardPage(const studio::Context *args);
+		ImportTilesheetWizardMainPage(const studio::Context *args);
+};
+
+class ImportTilesheetWizardPalettePage: public studio::WizardFormPage {
+	private:
+		//static constexpr auto BPP = "bpp";
+		const studio::Context *m_ctx = nullptr;
+
+	public:
+		ImportTilesheetWizardPalettePage(const studio::Context *args);
 
 		int accept();
-
-	private:
-		int importImage(QFile &srcFile, QString dest);
 };
 
 }

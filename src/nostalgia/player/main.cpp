@@ -13,28 +13,27 @@ using namespace nostalgia::common;
 using namespace nostalgia::core;
 using namespace nostalgia::world;
 
-int run() {
-	while(1);
-	ox::FileSystem32 fs(ox::FileStore32(loadRom(), 32 * ox::units::MB));
+int run(ox::FileSystem *fs) {
 	Context ctx;
 	init(&ctx);
-	ctx.rom = &fs;
-	//Zone zone(&ctx, Bounds{0, 0, 40, 40}, 102);
-	//zone.draw(&ctx);
-	while (1);
+	ctx.rom = fs;
+	Zone zone(&ctx, Bounds{0, 0, 40, 40}, "/TileSheets/GeneralWorld");
+	zone.draw(&ctx);
+	run();
 	return 0;
 }
 
 #ifndef OX_USE_STDLIB
 
 extern "C" void _start() {
-	run();
+	ox::FileSystem32 fs(ox::FileStore32(loadRom(), 32 * ox::units::MB));
+	run(&fs);
 }
 
 #else
 
 int main() {
-	return run();
+	return run(nullptr);
 }
 
 #endif

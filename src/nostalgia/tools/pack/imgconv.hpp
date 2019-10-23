@@ -11,8 +11,24 @@
 #include <ox/std/error.hpp>
 #include <ox/std/types.hpp>
 
+#include <ox/mc/mc.hpp>
+
+#include <nostalgia/core/gfx.hpp>
+
 namespace nostalgia {
 
-[[nodiscard]] std::vector<char> pngToGba(QString argInPath, int argTiles, int argBpp = -1);
+template<typename T>
+[[nodiscard]] ox::ValErr<std::vector<uint8_t>> toBuffer(T *data, std::size_t buffSize = ox::units::MB) {
+	std::vector<uint8_t> buff(buffSize);
+	std::size_t sz = 0;
+	oxReturnError(ox::writeMC(buff.data(), buff.size(), data, &sz));
+	if (sz > buffSize) {
+		return OxError(1);
+	}
+	buff.resize(sz);
+	return buff;
+}
+
+[[nodiscard]] std::unique_ptr<core::NostalgiaGraphic> imgToNg(QString argInPath, int argTiles, int argBpp = -1);
 
 }

@@ -6,6 +6,10 @@ if(NOSTALGIA_BUILD_STUDIO)
 	set(CMAKE_AUTOMOC ON)
 endif()
 
+if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
+	find_package(SDL2 REQUIRED)
+endif()
+
 #project packages
 
 add_subdirectory(core)

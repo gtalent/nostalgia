@@ -169,7 +169,7 @@ bool WizardFormPage::validatePage() {
 	return retval;
 }
 
-void WizardFormPage::addComboBox(QString displayName, QString fieldName, QVector<QString> options) {
+QComboBox *WizardFormPage::addComboBox(QString displayName, QString fieldName, QStringList options) {
 	auto lbl = new QLabel(displayName, this);
 	auto cb = new QComboBox(this);
 	lbl->setBuddy(cb);
@@ -199,9 +199,11 @@ void WizardFormPage::addComboBox(QString displayName, QString fieldName, QVector
 	);
 
 	m_currentLine++;
+
+	return cb;
 }
 
-void WizardFormPage::addLineEdit(QString displayName, QString fieldName, QString defaultVal, function<int(QString)> validator) {
+QLineEdit *WizardFormPage::addLineEdit(QString displayName, QString fieldName, QString defaultVal, function<int(QString)> validator) {
 	auto lbl = new QLabel(displayName, this);
 	auto le = new QLineEdit(this);
 	lbl->setBuddy(le);
@@ -229,6 +231,7 @@ void WizardFormPage::addLineEdit(QString displayName, QString fieldName, QString
 	);
 
 	m_currentLine++;
+	return le;
 }
 
 void WizardFormPage::addPathBrowse(QString displayName, QString fieldName, QString defaultVal,

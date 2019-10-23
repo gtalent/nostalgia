@@ -27,12 +27,12 @@ namespace {
  * @return error
  * stub for now
  */
-[[nodiscard]] ox::Error pathToInode(std::vector<char>*) {
+[[nodiscard]] ox::Error pathToInode(std::vector<uint8_t>*) {
 	return OxError(0);
 }
 
 // stub for now
-[[nodiscard]] ox::Error toMetalClaw(std::vector<char>*) {
+[[nodiscard]] ox::Error toMetalClaw(std::vector<uint8_t>*) {
 	return OxError(0);
 }
 
@@ -50,7 +50,7 @@ namespace {
 			// do transforms
 			if (endsWith(path, ".claw")) {
 				// load file
-				std::vector<char> buff(stat.size);
+				std::vector<uint8_t> buff(stat.size);
 				oxReturnError(dest->read(path.c_str(), buff.data(), buff.size()));
 				// do transformations
 				oxReturnError(pathToInode(&buff));
@@ -63,8 +63,8 @@ namespace {
 	});
 }
 
-[[nodiscard]] ox::Error verifyFile(ox::FileSystem32 *fs, const std::string &path, const std::vector<char> &expected) noexcept {
-	std::vector<char> buff(expected.size());
+[[nodiscard]] ox::Error verifyFile(ox::FileSystem32 *fs, const std::string &path, const std::vector<uint8_t> &expected) noexcept {
+	std::vector<uint8_t> buff(expected.size());
 	oxReturnError(fs->read(path.c_str(), buff.data(), buff.size()));
 	return OxError(buff == expected ? 0 : 1);
 }
@@ -81,15 +81,15 @@ namespace {
 			oxReturnError(dest->mkdir(currentFile.c_str(), true));
 			oxReturnError(copy(src, dest, currentFile + '/'));
 		} else {
-			std::vector<char> buff;
+			std::vector<uint8_t> buff;
 			// do transforms
-			constexpr std::string_view PngExt = ".png";
-			constexpr std::string_view GbagExt = ".ng";
-			if (endsWith(currentFile, PngExt)) {
+			const std::string OldExt = path.substr(path.find_last_of('.'));
+			constexpr std::string_view NgExt = ".ng";
+			if (OldExt != NgExt) {
 				// load file from full path and transform
 				const auto fullPath = src->basePath() + currentFile;
-				buff = pngToGba(fullPath.c_str(), 0, 0);
-				currentFile = currentFile.substr(0, currentFile.size() - PngExt.size()) + GbagExt.data();
+				oxReturnError(toBuffer(imgToNg(fullPath.c_str(), 0, 0).get()).get(&buff));
+				currentFile = currentFile.substr(0, currentFile.size() - OldExt.size()) + NgExt.data();
 				if (!buff.size()) {
 					return OxError(1);
 				}

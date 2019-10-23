@@ -10,6 +10,7 @@
 
 #include <ox/fs/fs.hpp>
 
+#include "consts.hpp"
 #include "gfx.hpp"
 #include "media.hpp"
 #include "types.hpp"
@@ -17,5 +18,7 @@
 namespace nostalgia::core {
 
 ox::Error init(Context *ctx);
+
+ox::Error run();
 
 }

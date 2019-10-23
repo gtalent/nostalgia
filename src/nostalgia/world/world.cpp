@@ -13,7 +13,7 @@ namespace nostalgia::world {
 using namespace common;
 using namespace core;
 
-Zone::Zone(Context *ctx, Bounds bnds, InodeId_t tileSheet) {
+Zone::Zone(Context *ctx, Bounds bnds, ox::FileAddress tileSheet) {
 	const auto size = bnds.width * bnds.height;
 	m_tiles = new Tile[size];
 	m_bounds = bnds;

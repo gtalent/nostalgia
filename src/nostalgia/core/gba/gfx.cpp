@@ -204,7 +204,7 @@ ox::Error initConsole(Context*) {
 	return err;
 }
 
-ox::Error loadTileSheet(Context*, InodeId_t inode) {
+ox::Error loadTileSheet(Context*, ox::FileAddress inode) {
 	ox::Error err(0);
 	const auto PaletteStart = sizeof(GbaImageDataHeader);
 	GbaImageDataHeader imgData;
@@ -217,15 +217,15 @@ ox::Error loadTileSheet(Context*, InodeId_t inode) {
 
 		// load palette
 		err |= fs.read(inode, PaletteStart,
-		                512, (uint16_t*) &MEM_PALLETE_BG[0], nullptr);
+		               512, (uint16_t*) &MEM_PALLETE_BG[0], nullptr);
 
 		if (imgData.bpp == 4) {
 			err |= fs.read(inode, __builtin_offsetof(GbaImageData, tiles),
-			                sizeof(Tile) * imgData.tileCount, (uint16_t*) &TILE_ADDR[0][1], nullptr);
+			               sizeof(Tile) * imgData.tileCount, (uint16_t*) &TILE_ADDR[0][1], nullptr);
 		} else if (imgData.bpp == 8) {
 			REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
 			err |= fs.read(inode, __builtin_offsetof(GbaImageData, tiles),
-			                sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
+			               sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
 		} else {
 			err = OxError(1);
 		}

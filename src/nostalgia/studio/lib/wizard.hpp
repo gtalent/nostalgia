@@ -10,10 +10,12 @@
 
 #include <functional>
 
+#include <QComboBox>
 #include <QDir>
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QListWidget>
 #include <QMap>
 #include <QVector>
@@ -86,9 +88,9 @@ class WizardFormPage: public QWizardPage {
 
 		bool validatePage() override;
 
-		void addComboBox(QString displayName, QString fieldName, QVector<QString> options);
+		QComboBox *addComboBox(QString displayName, QString fieldName, QStringList options);
 
-		void addLineEdit(QString displayName, QString fieldName,
+		QLineEdit *addLineEdit(QString displayName, QString fieldName,
                        QString defaultVal = "",
 							  std::function<int(QString)> validator = [](QString) { return 0; });
 

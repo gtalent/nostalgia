@@ -17,11 +17,10 @@
 namespace nostalgia::world {
 
 struct Tile {
-	static constexpr auto Fields = 3;
+	static constexpr auto Fields = 2;
 
 	uint8_t bgTile = 0;
 	uint8_t type = 0;
-	void *occupant = nullptr;
 };
 
 template<typename T>
@@ -48,7 +47,7 @@ struct Zone {
 		Tile *m_tiles = nullptr;
 
 	public:
-		Zone(core::Context *ctx, common::Bounds bnds, core::InodeId_t tileSheet);
+		Zone(core::Context *ctx, common::Bounds bnds, ox::FileAddress tileSheet);
 
 		void draw(core::Context *ctx);
 

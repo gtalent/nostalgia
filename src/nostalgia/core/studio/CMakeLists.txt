@@ -3,6 +3,7 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
 	add_library(
 		NostalgiaCore-Studio SHARED
 			import_tilesheet_wizard.cpp
+			new_tilesheet_wizard.cpp
 			plugin.cpp
 	)
 endif()
@@ -12,6 +13,7 @@ target_link_libraries(
 		Qt5::Core
 		Qt5::Widgets
 		NostalgiaStudio
+		NostalgiaPack
 		OxFS
 		OxStd
 )

@@ -6,11 +6,13 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 			main.cpp
 			startup.s
 	)
+	set(NOSTALGIA_PLAYER_DEPS "")
 else()
 	add_executable(
 		nostalgia
 			main.cpp
 	)
+	set(NOSTALGIA_PLAYER_DEPS "NostalgiaCore-SDL")
 endif()
 
 if(COMMAND OBJCOPY_FILE)
@@ -27,11 +29,8 @@ endif()
 target_link_libraries(
 	nostalgia
 		NostalgiaWorld
-		NostalgiaCommon
 		NostalgiaCore
-		OxFS
-		OxStd
-		OxMetalClaw
+		${NOSTALGIA_PLAYER_DEPS}
 )
 
 add_custom_target("nostalgia.bin")

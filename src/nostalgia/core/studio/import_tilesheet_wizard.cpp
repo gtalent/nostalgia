@@ -7,13 +7,21 @@
  */
 
 #include <QBuffer>
+#include <QDebug>
 #include <QFile>
+
+#include <nostalgia/core/consts.hpp>
+#include <nostalgia/tools/pack/imgconv.hpp>
 
 #include "import_tilesheet_wizard.hpp"
 
 namespace nostalgia::core {
 
-ImportTilesheetWizardPage::ImportTilesheetWizardPage(const studio::Context *ctx) {
+static const auto PaletteOption_Bundle = QObject::tr("Bundle");
+static const auto PaletteOption_New = QObject::tr("New");
+static const auto PaletteOptions = QStringList{PaletteOption_Bundle, PaletteOption_New};
+
+ImportTilesheetWizardMainPage::ImportTilesheetWizardMainPage(const studio::Context *ctx) {
 	m_ctx = ctx;
 	addLineEdit(tr("&Tile Sheet Name:"), QString(TileSheetName) + "*", "", [this](QString) {
 			auto importPath = field(ImportPath).toString();
@@ -28,44 +36,52 @@ ImportTilesheetWizardPage::ImportTilesheetWizardPage(const studio::Context *ctx)
 	auto fileTypes = "(*.png);;(*.bmp);;(*.jpg);;(*.jpeg)";
 	addPathBrowse(tr("Tile Sheet &Path:"), QString(ImportPath) + "*", "",
 	              QFileDialog::ExistingFile, fileTypes);
-	//addComboBox(tr("Bits Per Pixe&l:"), BPP, {tr("Auto"), "4", "8"});
+	addLineEdit(tr("Til&es:"), QString(TileCount), "");
 }
 
-int ImportTilesheetWizardPage::accept() {
-	auto tilesheetName = field(TileSheetName).toString();
-	auto importPath = field(ImportPath).toString();
-	QFile importFile(importPath);
-	if (importFile.exists()) {
-		return importImage(importFile, field(TileSheetName).toString());
-	} else {
-		return 1;
-	}
-}
+ImportTilesheetWizardPalettePage::ImportTilesheetWizardPalettePage(const studio::Context *ctx) {
+	m_ctx = ctx;
+	auto cb = addComboBox(tr("P&alette:"), Palette, PaletteOptions);
+	auto name = addLineEdit(tr("Palette &Name:"), PaletteName);
+	name->setDisabled(true);
 
-int ImportTilesheetWizardPage::importImage(QFile &srcFile, QString tilesheetName) {
-	if (srcFile.exists()) {
-		srcFile.open(QIODevice::ReadOnly);
-		auto buff = srcFile.readAll();
-		QImage srcImg;
-		if (srcImg.loadFromData(buff)) {
-			int err = 0;
-			// ensure image is PNG
-			QByteArray out;
-			QBuffer outBuffer(&out);
-			outBuffer.open(QIODevice::WriteOnly);
-			srcImg.save(&outBuffer, "PNG");
-			// make sure tile sheet directory exists
-			m_ctx->project->mkdir(TileSheetDir);
-			// write image
-			err |= m_ctx->project->write(TileSheetDir + tilesheetName + ".png", reinterpret_cast<uint8_t*>(out.data()), out.size());
-			err |= m_ctx->project->saveRomFs();
-			return err;
-		} else {
-			return 1;
+	connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), [name](int idx) {
+			if (idx == 1) {
+				name->setDisabled(false);
+			} else {
+				name->setDisabled(true);
+			}
 		}
-	} else {
-		return 2;
+	);
+	cb->setCurrentIndex(0);
+}
+
+int ImportTilesheetWizardPalettePage::accept() {
+	const auto tilesheetName = field(TileSheetName).toString();
+	const auto importPath = field(ImportPath).toString();
+	const auto tileCount = field(TileCount).toInt();
+	const auto palette = field(Palette).toInt();
+	const auto paletteName = field(PaletteName).toString();
+	const auto outPath = TileSheetDir + tilesheetName + FileExt_ng;
+	if (!QFile(importPath).exists()) {
+		return OxError(1);
 	}
+	auto ng = imgToNg(importPath, tileCount, 0);
+	if (!ng) {
+		return OxError(1);
+	}
+	if (palette != PaletteOptions.indexOf(PaletteOption_Bundle)) {
+		const auto outPath = PaletteDir + paletteName + FileExt_npal;
+		core::NostalgiaPalette pal;
+		pal.colors = std::move(ng->pal);
+		auto [buff, err] = toBuffer(&pal);
+		oxReturnError(err);
+		oxReturnError(m_ctx->project->write(outPath, buff.data(), buff.size()));
+	}
+	auto [buff, err] = toBuffer(ng.get());
+	oxReturnError(err);
+	oxReturnError(m_ctx->project->write(outPath, buff.data(), buff.size()));
+	return m_ctx->project->saveRomFs();
 }
 
 }

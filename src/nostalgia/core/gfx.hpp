@@ -15,11 +15,43 @@
 
 namespace nostalgia::core {
 
+using Color = uint16_t;
+
+struct NostalgiaPalette {
+	static constexpr auto Fields = 1;
+	ox::Vector<Color> colors;
+};
+
+struct NostalgiaGraphic {
+	static constexpr auto Fields = 4;
+	uint8_t bpp = 0;
+	ox::FileAddress defaultPalette;
+	ox::Vector<Color> pal;
+	ox::Vector<uint8_t> tiles;
+};
+
+template<typename T>
+ox::Error modelWrite(T *io, NostalgiaGraphic *ng) {
+	io->setTypeInfo("nostalgia::core::NostalgiaGraphic", NostalgiaGraphic::Fields);
+	oxReturnError(io->field("bpp", &ng->bpp));
+	oxReturnError(io->field("defaultPalette", &ng->defaultPalette));
+	oxReturnError(io->field("pal", &ng->pal));
+	oxReturnError(io->field("tiles", &ng->tiles));
+	return OxError(0);
+}
+
+template<typename T>
+ox::Error modelWrite(T *io, NostalgiaPalette *pal) {
+	io->setTypeInfo("nostalgia::core::NostalgiaPalette", NostalgiaPalette::Fields);
+	oxReturnError(io->field("colors", &pal->colors));
+	return OxError(0);
+}
+
 ox::Error initGfx(Context *ctx);
 
 ox::Error initConsole(Context *ctx);
 
-ox::Error loadTileSheet(Context *ctx, InodeId_t inode);
+ox::Error loadTileSheet(Context *ctx, ox::FileAddress file);
 
 void puts(Context *ctx, int loc, const char *str);
 

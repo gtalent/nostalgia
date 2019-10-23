@@ -13,14 +13,14 @@ elseif(NOSTALGIA_BUILD_STUDIO)
 
 	set(
 		CPP
-			qt/gfx.cpp
+			#qt/gfx.cpp
 			userland/media.cpp
 			userland/mem.cpp
 	)
 else()
 	set(
 		CPP
-			qt/gfx.cpp # does not currently use any Qt stuff, but will need to replace with SDL version 
+			#qt/gfx.cpp # does not currently use any Qt stuff, but will need to replace with SDL version 
 			userland/media.cpp
 			userland/mem.cpp
 	)
@@ -32,12 +32,21 @@ add_library(
 		core.cpp
 )
 
+target_link_libraries(
+	NostalgiaCore PUBLIC
+		NostalgiaCommon
+)
+
+if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
+	add_subdirectory(sdl)
+endif()
 if(NOSTALGIA_BUILD_STUDIO)
 	add_subdirectory(studio)
 endif()
 
 install(
 	FILES
+		consts.hpp
 		core.hpp
 		gfx.hpp
 		media.hpp

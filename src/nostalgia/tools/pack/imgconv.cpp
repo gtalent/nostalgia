@@ -56,28 +56,34 @@ namespace {
 	return colors.size();
 }
 
-[[nodiscard]] std::vector<char> pngToGba(QString argInPath, int argTiles, int argBpp) {
-	QImage src(argInPath);
+[[nodiscard]] std::unique_ptr<core::NostalgiaGraphic> imgToNg(QString argSrc, int argTiles, int argBpp) {
+	constexpr auto TilePixels = 64;
+	QImage src(argSrc);
 
 	if (src.isNull()) {
 		return {};
 	}
 
+	const auto Pixels = argTiles ? argTiles * TilePixels : src.width() * src.height();
 	if (argTiles == 0) {
-		argTiles = (src.width() * src.height()) / 64;
+		argTiles = Pixels / 64;
 	}
+	const auto Colors = countColors(src, argTiles);
 	if (argBpp != 4 && argBpp != 8) {
-		argBpp = countColors(src, argTiles) > 16 ? 8 : 4;
+		argBpp = Colors > 16 ? 8 : 4;
 	}
 
 	QMap<QRgb, int> colors;
-	const auto imgDataBuffSize = sizeof(core::GbaImageData) + 1 + argTiles * 64;
-	std::vector<char> imgDataBuff(imgDataBuffSize);
-	auto id = new (imgDataBuff.data()) core::GbaImageData;
-	id->header.bpp = argBpp;
-	id->header.tileCount = argTiles;
-	int colorId = 0;
+	auto ng = std::make_unique<core::NostalgiaGraphic>();
+	ng->pal.resize(countColors(src, argTiles));
+	if (argBpp == 4) {
+		ng->tiles.resize(Pixels / 2);
+	} else {
+		ng->tiles.resize(Pixels);
+	}
+	ng->bpp = argBpp;
 
+	int colorIdx = 0;
 	// copy pixels as color ids
 	for (int x = 0; x < src.width(); x++) {
 		for (int y = 0; y < src.height(); y++) {
@@ -86,18 +92,18 @@ namespace {
 				const auto c = src.pixel(x, y);
 				// assign color a color id for the palette
 				if (!colors.contains(c)) {
-					colors[c] = colorId;
-					colorId++;
+					colors[c] = colorIdx;
+					colorIdx++;
 				}
 				// set pixel color
 				if (argBpp == 4) {
 					if (destI % 2) { // is odd number pixel
-						id->tiles[destI / 2] |= colors[c] << 4;
+						ng->tiles[destI / 2] |= colors[c] << 4;
 					} else {
-						id->tiles[destI / 2] |= colors[c];
+						ng->tiles[destI / 2] |= colors[c];
 					}
 				} else {
-					id->tiles[destI] = colors[c];
+					ng->tiles[destI] = colors[c];
 				}
 			}
 		}
@@ -106,10 +112,10 @@ namespace {
 	// store colors in palette with the corresponding color id
 	for (auto key : colors.keys()) {
 		auto colorId = colors[key];
-		id->pal[colorId] = toGbaColor(key);
+		ng->pal[colorId] = toGbaColor(key);
 	}
 
-	return imgDataBuff;
+	return ng;
 }
 
 }

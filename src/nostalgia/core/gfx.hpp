@@ -31,7 +31,7 @@ struct NostalgiaGraphic {
 };
 
 template<typename T>
-ox::Error modelWrite(T *io, NostalgiaGraphic *ng) {
+ox::Error model(T *io, NostalgiaGraphic *ng) {
 	io->setTypeInfo("nostalgia::core::NostalgiaGraphic", NostalgiaGraphic::Fields);
 	oxReturnError(io->field("bpp", &ng->bpp));
 	oxReturnError(io->field("defaultPalette", &ng->defaultPalette));
@@ -41,7 +41,7 @@ ox::Error modelWrite(T *io, NostalgiaGraphic *ng) {
 }
 
 template<typename T>
-ox::Error modelWrite(T *io, NostalgiaPalette *pal) {
+ox::Error model(T *io, NostalgiaPalette *pal) {
 	io->setTypeInfo("nostalgia::core::NostalgiaPalette", NostalgiaPalette::Fields);
 	oxReturnError(io->field("colors", &pal->colors));
 	return OxError(0);

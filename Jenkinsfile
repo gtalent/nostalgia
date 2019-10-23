@@ -3,7 +3,7 @@ pipeline {
 	stages {
 		stage('Build') {
 			steps {
-				sh 'make release'
+				sh 'make configure-debug configure-release'
 				sh 'make'
 			}
 		}

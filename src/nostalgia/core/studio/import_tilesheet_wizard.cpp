@@ -18,7 +18,7 @@
 namespace nostalgia::core {
 
 static const auto PaletteOption_Bundle = QObject::tr("Bundle");
-static const auto PaletteOption_New = QObject::tr("New");
+static const auto PaletteOption_New = QObject::tr("External");
 static const auto PaletteOptions = QStringList{PaletteOption_Bundle, PaletteOption_New};
 
 ImportTilesheetWizardMainPage::ImportTilesheetWizardMainPage(const studio::Context *ctx) {

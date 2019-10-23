@@ -6,7 +6,6 @@ add_library(
 
 target_link_libraries(
 	NostalgiaPack PUBLIC
-		Qt5::Widgets
 		OxClArgs
 		OxFS
 		OxStd

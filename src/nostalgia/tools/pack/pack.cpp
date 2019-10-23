@@ -10,7 +10,6 @@
 #include <string_view>
 #include <vector>
 
-#include "imgconv.hpp"
 #include "pack.hpp"
 
 namespace nostalgia {
@@ -83,21 +82,10 @@ namespace {
 		} else {
 			std::vector<uint8_t> buff;
 			// do transforms
-			const std::string OldExt = path.substr(path.find_last_of('.'));
-			constexpr std::string_view NgExt = ".ng";
-			if (OldExt != NgExt) {
-				// load file from full path and transform
-				const auto fullPath = src->basePath() + currentFile;
-				oxReturnError(toBuffer(imgToNg(fullPath.c_str(), 0, 0).get()).get(&buff));
-				currentFile = currentFile.substr(0, currentFile.size() - OldExt.size()) + NgExt.data();
-				if (!buff.size()) {
-					return OxError(1);
-				}
-			} else {
-				// load file
-				buff.resize(stat.size);
-				oxReturnError(src->read(currentFile.c_str(), buff.data(), buff.size()));
-			}
+			//const std::string OldExt = path.substr(path.find_last_of('.'));
+			// load file
+			buff.resize(stat.size);
+			oxReturnError(src->read(currentFile.c_str(), buff.data(), buff.size()));
 			// write file to dest
 			std::cout << "writing " << currentFile << '\n';
 			oxReturnError(dest->write(currentFile.c_str(), buff.data(), buff.size()));

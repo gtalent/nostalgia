@@ -1,7 +1,6 @@
 
 add_library(
 	NostalgiaPack SHARED
-		imgconv.cpp
 		pack.cpp
 )
 

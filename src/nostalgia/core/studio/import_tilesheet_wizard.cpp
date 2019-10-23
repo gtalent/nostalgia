@@ -11,8 +11,8 @@
 #include <QFile>
 
 #include <nostalgia/core/consts.hpp>
-#include <nostalgia/tools/pack/imgconv.hpp>
 
+#include "imgconv.hpp"
 #include "import_tilesheet_wizard.hpp"
 
 namespace nostalgia::core {

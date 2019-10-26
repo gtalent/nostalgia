@@ -125,12 +125,12 @@ template<typename I>
 	if (bytes == 9) {
 		*bytesRead = bytes;
 		I out = 0;
-		ox_memcpy(&out, &buff[1], sizeof(I));
+		memcpy(&out, &buff[1], sizeof(I));
 		return {LittleEndian<I>(out), OxError(0)};
 	} else if (buffLen >= bytes) {
 		*bytesRead = bytes;
 		uint64_t decoded = 0;
-		ox_memcpy(&decoded, &buff[0], bytes);
+		memcpy(&decoded, &buff[0], bytes);
 		decoded >>= bytes;
 		auto out = static_cast<I>(decoded);
 		// move sign bit
@@ -142,7 +142,7 @@ template<typename I>
 			decoded &= uint64_t(~0) ^ (uint64_t(1) << valBits);
 			// set sign
 			decoded |= sign << (Bits<I> - 1);
-			ox_memcpy(&out, &decoded, sizeof(out));
+			memcpy(&out, &decoded, sizeof(out));
 		}
 		return {out, OxError(0)};
 	}

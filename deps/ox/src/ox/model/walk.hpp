@@ -86,7 +86,8 @@ static ox::Error parseField(const DescriptorField &field, Reader *rdr, DataWalke
 	walker->pushNamePath(field.fieldName);
 	if (field.subscriptLevels) {
 		// add array handling
-		const auto arrayLen = rdr->arrayLength(true);
+		const auto [arrayLen, err] = rdr->arrayLength(true);
+		oxReturnError(err);
 		auto child = rdr->child();
 		child.setTypeInfo(field.fieldName.c_str(), arrayLen);
 		DescriptorField f(field); // create mutable copy

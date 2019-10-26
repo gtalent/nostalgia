@@ -12,6 +12,7 @@
 #include <ox/model/types.hpp>
 #include <ox/std/byteswap.hpp>
 #include <ox/std/string.hpp>
+#include <ox/std/trace.hpp>
 #include <ox/std/vector.hpp>
 
 #include "err.hpp"
@@ -68,7 +69,7 @@ class MetalClawReader {
 		 * Reads an array length from the current location in the buffer.
 		 * @param pass indicates that the parsing should iterate past the array length
 		 */
-		[[nodiscard]] ArrayLength arrayLength(bool pass = true);
+		[[nodiscard]] ValErr<ArrayLength> arrayLength(bool pass = true);
 
 		/**
 		 * Reads an string length from the current location in the buffer.
@@ -106,12 +107,11 @@ class MetalClawReader {
 
 template<typename T>
 Error MetalClawReader::field(const char*, T *val) {
-	auto err = OxError(0);
 	if (val && m_fieldPresence.get(m_field++)) {
 		auto reader = child();
-		err |= model(&reader, val);
+		oxReturnError(model(&reader, val));
 	}
-	return err;
+	return OxError(0);
 }
 
 template<std::size_t L>
@@ -138,8 +138,7 @@ Error MetalClawReader::readInteger(I *val) {
 
 // array handler
 template<typename T>
-Error MetalClawReader::field(const char*, T *val, std::size_t valLen) {
-	auto err = OxError(0);
+Error MetalClawReader::field(const char *name, T *val, std::size_t valLen) {
 	if (m_fieldPresence.get(m_field++)) {
 		// read the length
 		if (m_buffIt >= m_buffLen) {
@@ -155,18 +154,22 @@ Error MetalClawReader::field(const char*, T *val, std::size_t valLen) {
 			auto reader = child();
 			reader.setTypeInfo("List", len.value);
 			for (std::size_t i = 0; i < len.value; i++) {
-				err |= reader.field("", &val[i]);
+				oxReturnError(reader.field("", &val[i]));
 			}
 		} else {
-			err = OxError(MC_OUTBUFFENDED);
+			oxTrace("ox::mc::read::field(T)") << name << ", size:" << valLen;
+			return OxError(MC_OUTBUFFENDED);
 		}
 	}
-	return err;
+	return OxError(0);
 }
 
 template<typename T>
-Error MetalClawReader::field(const char*, ox::Vector<T> *val) {
-	return field(nullptr, val->data(), val->size());
+Error MetalClawReader::field(const char* name, ox::Vector<T> *val) {
+	const auto [len, err] = arrayLength(false);
+	oxReturnError(err);
+	val->resize(len);
+	return field(name, val->data(), val->size());
 }
 
 template<typename T>

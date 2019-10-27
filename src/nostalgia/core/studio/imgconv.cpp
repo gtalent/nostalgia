@@ -75,7 +75,7 @@ namespace {
 
 	QMap<QRgb, int> colors;
 	auto ng = std::make_unique<core::NostalgiaGraphic>();
-	ng->pal.resize(countColors(src, argTiles));
+	ng->pal.colors.resize(countColors(src, argTiles));
 	if (argBpp == 4) {
 		ng->tiles.resize(Pixels / 2);
 	} else {
@@ -112,7 +112,7 @@ namespace {
 	// store colors in palette with the corresponding color id
 	for (auto key : colors.keys()) {
 		auto colorId = colors[key];
-		ng->pal[colorId] = toGbaColor(key);
+		ng->pal.colors[colorId] = toGbaColor(key);
 	}
 
 	return ng;

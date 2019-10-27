@@ -73,7 +73,7 @@ int ImportTilesheetWizardPalettePage::accept() {
 	if (palette != PaletteOptions.indexOf(PaletteOption_Bundle)) {
 		const auto outPath = PaletteDir + paletteName + FileExt_npal;
 		core::NostalgiaPalette pal;
-		pal.colors = std::move(ng->pal);
+		pal = std::move(ng->pal);
 		auto [buff, err] = toBuffer(&pal);
 		oxReturnError(err);
 		oxReturnError(m_ctx->project->write(outPath, buff.data(), buff.size()));

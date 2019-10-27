@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <ox/fs/fs.hpp>
 #include <ox/std/units.hpp>
 #include <nostalgia/world/world.hpp>
 
@@ -13,14 +14,16 @@ using namespace nostalgia::common;
 using namespace nostalgia::core;
 using namespace nostalgia::world;
 
-int run(ox::FileSystem *fs) {
+ox::Error run(ox::FileSystem *fs) {
 	Context ctx;
-	init(&ctx);
+	oxReturnError(init(&ctx));
 	ctx.rom = fs;
-	Zone zone(&ctx, Bounds{0, 0, 40, 40}, "/TileSheets/GeneralWorld");
+	Zone zone;
+	oxReturnError(zone.init(&ctx, Bounds{0, 0, 40, 40}, "/TileSheets/Charset.ng", "/Palettes/Charset.npal"));
 	zone.draw(&ctx);
-	run();
-	return 0;
+	oxReturnError(run());
+	oxReturnError(shutdownGfx());
+	return OxError(0);
 }
 
 #ifndef OX_USE_STDLIB
@@ -32,8 +35,14 @@ extern "C" void _start() {
 
 #else
 
-int main() {
-	return run(nullptr);
+int main(int argc, const char **argv) {
+	if (argc > 1) {
+		ox::PassThroughFS fs(argv[1]);
+		auto err = run(&fs);
+		oxAssert(err, "Something went wrong...");
+		return err;
+	}
+	return 2;
 }
 
 #endif

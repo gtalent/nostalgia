@@ -12,6 +12,8 @@
 
 namespace nostalgia::core {
 
+void draw();
+
 ox::Error run() {
 	for (auto running = true; running;) {
 		SDL_Event event;
@@ -28,7 +30,7 @@ ox::Error run() {
 				}
 			}
 		}
-		SDL_Delay(1);
+		draw();
 	}
 	return OxError(0);
 }

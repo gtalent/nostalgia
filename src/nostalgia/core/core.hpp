@@ -17,8 +17,8 @@
 
 namespace nostalgia::core {
 
-ox::Error init(Context *ctx);
+[[nodiscard]] ox::Error init(Context *ctx);
 
-ox::Error run();
+[[nodiscard]] ox::Error run();
 
 }

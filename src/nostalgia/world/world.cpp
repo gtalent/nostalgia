@@ -13,11 +13,15 @@ namespace nostalgia::world {
 using namespace common;
 using namespace core;
 
-Zone::Zone(Context *ctx, Bounds bnds, ox::FileAddress tileSheet) {
+ox::Error Zone::init(Context *ctx, Bounds bnds, ox::FileAddress tileSheet, ox::FileAddress palette) {
 	const auto size = bnds.width * bnds.height;
 	m_tiles = new Tile[size];
 	m_bounds = bnds;
-	core::loadTileSheet(ctx, tileSheet);
+	return core::loadTileSheet(ctx, core::TileSheetSpace::Background, 0, tileSheet, palette);
+}
+
+Zone::~Zone() {
+	delete[] m_tiles;
 }
 
 void Zone::draw(Context *ctx) {

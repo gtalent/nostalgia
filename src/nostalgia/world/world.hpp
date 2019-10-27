@@ -47,7 +47,11 @@ struct Zone {
 		Tile *m_tiles = nullptr;
 
 	public:
-		Zone(core::Context *ctx, common::Bounds bnds, ox::FileAddress tileSheet);
+		Zone() = default;
+
+		~Zone();
+
+		[[nodiscard]] ox::Error init(core::Context *ctx, common::Bounds bnds, ox::FileAddress tileSheet, ox::FileAddress palette = {});
 
 		void draw(core::Context *ctx);
 

@@ -15,6 +15,11 @@
 
 namespace nostalgia::core {
 
+enum class TileSheetSpace {
+	Background,
+	Sprite
+};
+
 using Color = uint16_t;
 
 struct NostalgiaPalette {
@@ -26,7 +31,7 @@ struct NostalgiaGraphic {
 	static constexpr auto Fields = 4;
 	uint8_t bpp = 0;
 	ox::FileAddress defaultPalette;
-	ox::Vector<Color> pal;
+	NostalgiaPalette pal;
 	ox::Vector<uint8_t> tiles;
 };
 
@@ -47,9 +52,16 @@ ox::Error model(T *io, NostalgiaPalette *pal) {
 	return OxError(0);
 }
 
-ox::Error initGfx(Context *ctx);
+[[nodiscard]] ox::Error initGfx(Context *ctx);
 
-ox::Error initConsole(Context *ctx);
+[[nodiscard]] ox::Error shutdownGfx();
+
+[[nodiscard]] ox::Error initConsole(Context *ctx);
+
+/**
+ * @param section describes which section of the selected TileSheetSpace to use (e.g. MEM_PALLETE_BG[section])
+ */
+[[nodiscard]] ox::Error loadTileSheet(Context *ctx, TileSheetSpace tss, int section, ox::FileAddress tilesheet, ox::FileAddress palette = nullptr);
 
 ox::Error loadTileSheet(Context *ctx, ox::FileAddress file);
 

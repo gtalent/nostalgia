@@ -23,6 +23,9 @@ enum class FileAddressType: int8_t {
 class FileAddress {
 
 	template<typename T>
+	friend ox::Error modelRead(T*, FileAddress*);
+
+	template<typename T>
 	friend ox::Error modelWrite(T*, FileAddress*);
 
 	public:
@@ -39,6 +42,10 @@ class FileAddress {
 	public:
 		FileAddress();
 
+		FileAddress(const FileAddress &other);
+
+		FileAddress(std::nullptr_t);
+
 		FileAddress(uint64_t inode);
 
 		FileAddress(char *path);
@@ -46,6 +53,8 @@ class FileAddress {
 		FileAddress(const char *path);
 
 		~FileAddress();
+
+		const FileAddress &operator=(const FileAddress &other);
 
 		[[nodiscard]] constexpr FileAddressType type() const noexcept {
 			switch (m_type) {
@@ -77,7 +86,30 @@ class FileAddress {
 			}
 		}
 
+		operator bool() const {
+			return m_type != FileAddressType::None;
+		}
+
 };
+
+template<typename T>
+ox::Error modelRead(T *io, FileAddress *fa) {
+	io->setTypeInfo("ox::FileAddress", FileAddress::Fields);
+	decltype(fa->m_data.inode) inode = 0;
+	const auto strSize = io->stringLength() + 1;
+	auto path = new char[strSize];
+	oxReturnError(io->field("path", SerStr(path, strSize - 1)));
+	oxReturnError(io->field("inode", &inode));
+	if (strSize) {
+		fa->m_data.path = path;
+		fa->m_type = FileAddressType::Path;
+	} else {
+		fa->m_data.inode = inode;
+		fa->m_type = FileAddressType::Inode;
+		delete[] path;
+	}
+	return OxError(0);
+}
 
 template<typename T>
 ox::Error modelWrite(T *io, FileAddress *fa) {

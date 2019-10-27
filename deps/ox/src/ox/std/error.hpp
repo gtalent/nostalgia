@@ -22,13 +22,20 @@
 
 namespace ox {
 
-class BaseError {};
+struct BaseError {
+	const char *file = "";
+	uint16_t line = 0;
+
+	BaseError() = default;
+
+	constexpr BaseError(const BaseError &o) noexcept {
+		file = o.file;
+		line = o.line;
+	}
+
+};
 
 using Error = Integer<uint64_t, BaseError>;
-
-constexpr Error errCode(Error err) {
-	return (err >> 59) & onMask<Error>(5);
-}
 
 struct ErrorInfo {
 	const char *file = nullptr;
@@ -38,22 +45,17 @@ struct ErrorInfo {
 	ErrorInfo() = default;
 
 	ErrorInfo(Error err) {
-		this->file = reinterpret_cast<const char*>(static_cast<uint64_t>(err & onMask<Error>(48)));
-		this->line = static_cast<int>((err >> 48) & onMask<Error>(11));
-		this->errCode = ox::errCode(err);
+		this->file = err.file;
+		this->line = err.line;
+		this->errCode = err;
 	}
 };
 
-static constexpr Error _errorTags(Error line, Error errCode) {
-	line &= onMask<Error>(11);
-	line <<= 48;
-	errCode &= onMask<Error>(5);
-	errCode <<= 59;
-	return errCode | line;
-}
-
 static constexpr Error _error(const char *file, uint32_t line, Error errCode) {
-	return Error(errCode ? reinterpret_cast<uint64_t>(file) | _errorTags(Error(line), errCode) : 0);
+	Error err = errCode;
+	err.file = file;
+	err.line = line;
+	return err;
 }
 
 template<typename T>

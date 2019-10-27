@@ -19,7 +19,7 @@ class BaseInteger {};
  * integers.
  */
 template<typename T, class Base = BaseInteger>
-class Integer: Base {
+class Integer: public Base {
 	private:
 		T m_i;
 
@@ -110,7 +110,7 @@ constexpr Integer<T, Base>::Integer(T i) noexcept {
 }
 
 template<typename T, class Base>
-constexpr Integer<T, Base>::Integer(const Integer<T, Base> &i) noexcept:m_i(i.m_i) {
+constexpr Integer<T, Base>::Integer(const Integer<T, Base> &i) noexcept: Base(i), m_i(i.m_i) {
 }
 
 template<typename T, class Base>

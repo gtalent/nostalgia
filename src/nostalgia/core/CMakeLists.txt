@@ -2,6 +2,7 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 	enable_language(C ASM)
 	set(
 		CPP
+			gba/core.cpp
 			gba/gfx.cpp
 			gba/media.cpp
 			gba/mem.cpp
@@ -35,6 +36,7 @@ add_library(
 target_link_libraries(
 	NostalgiaCore PUBLIC
 		NostalgiaCommon
+		OxFS
 )
 
 if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")

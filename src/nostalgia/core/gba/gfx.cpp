@@ -169,6 +169,10 @@ ox::Error initGfx(Context*) {
 	return OxError(0);
 }
 
+ox::Error shutdownGfx() {
+	return OxError(0);
+}
+
 // Do NOT use Context in the GBA version of this function.
 ox::Error initConsole(Context*) {
 	const auto PaletteStart = sizeof(GbaImageDataHeader);
@@ -204,7 +208,12 @@ ox::Error initConsole(Context*) {
 	return err;
 }
 
-ox::Error loadTileSheet(Context*, ox::FileAddress inode) {
+ox::Error loadTileSheet(Context*,
+                        TileSheetSpace,
+                        int,
+                        ox::FileAddress tilesheetPath,
+                        ox::FileAddress) {
+	auto inode = tilesheetPath.getInode().value;
 	ox::Error err(0);
 	const auto PaletteStart = sizeof(GbaImageDataHeader);
 	GbaImageDataHeader imgData;

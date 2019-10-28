@@ -12,7 +12,7 @@
 namespace nostalgia::core {
 
 void panic(const char *msg) {
-	initConsole(nullptr);
+	oxIgnoreError(initConsole(nullptr));
 	puts(nullptr,  1 * 32 + 0, "SADNESS...");
 	puts(nullptr,  4 * 32 + 0, "UNEXPECTED STATE:");
 	puts(nullptr,  6 * 32 + 2, msg);

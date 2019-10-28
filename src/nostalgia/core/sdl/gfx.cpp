@@ -122,7 +122,7 @@ ox::Error loadTileSheet(Context *ctx,
 	return OxError(0);
 }
 
-void drawBackground(std::size_t bg) {
+void drawBackground(SDL_Texture *tex) {
 	//oxTrace("nostalgia::core::drawBackground") << "Drawing background";
 	SDL_Rect src = {}, dst = {};
 	src.x = 0;
@@ -132,7 +132,6 @@ void drawBackground(std::size_t bg) {
 	dst.y = 0;
 	dst.w = 64;
 	dst.h = 64;
-	const auto tex = bgTextures[bg];
 	if (tex) {
 		for (auto &m : bgTileMaps) {
 			for (auto t : m) {
@@ -148,10 +147,9 @@ void drawBackground(std::size_t bg) {
 
 void draw() {
 	SDL_RenderClear(renderer);
-	drawBackground(0);
-	drawBackground(1);
-	drawBackground(2);
-	drawBackground(3);
+	for (auto tex : bgTextures) {
+		drawBackground(tex);
+	}
 	SDL_RenderPresent(renderer);
 }
 

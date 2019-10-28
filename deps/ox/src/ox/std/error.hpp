@@ -18,6 +18,7 @@
 #define OxError(x) static_cast<ox::Error>(x)
 #endif
 
+#define oxIgnoreError(x)
 #define oxReturnError(x) if (const auto _err = ox::error::toError(x)) return _err
 
 namespace ox {

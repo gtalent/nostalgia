@@ -25,7 +25,7 @@ struct __attribute__((packed)) DirectoryEntry {
 			char name[MaxFileNameLength];
 
 			static constexpr std::size_t spaceNeeded(std::size_t chars) {
-				return offsetof(DirectoryEntryData, name) + chars;
+				return offsetof(DirectoryEntryData, name) + chars + 1;
 			}
 
 		};
@@ -227,35 +227,33 @@ ox::Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t in
 		// find existing version of directory
 		oxTrace("ox::fs::Directory::write") << "Searching for inode" << m_inodeId;
 		auto old = m_fs.read(m_inodeId);
-		if (old.valid()) {
-			const auto entrySize = DirectoryEntry<InodeId_t>::spaceNeeded(name->len());
-			const auto entryDataSize =DirectoryEntry<InodeId_t>::DirectoryEntryData::spaceNeeded(name->len());
-			const auto newSize = m_size + entrySize;
-			auto cpy = ox_malloca(newSize, Buffer, old);
-			if (cpy != nullptr) {
-				// TODO: look for old version of this entry and delete it
-
-				oxReturnError(cpy->setSize(newSize));
-				auto val = cpy->malloc(entryDataSize);
-				if (val.valid()) {
-					oxTrace("ox::fs::Directory::write") << "Attempting to write Directory entry:" << name->data();
-					oxTrace("ox::fs::Directory::write") << "Attempting to write Directory to FileStore";
-					oxReturnError(val->init(inode, name->data(), entrySize));
-					return m_fs.write(m_inodeId, cpy, cpy->size());
-				} else {
-					oxTrace("ox::fs::Directory::write::fail") << "Could not allocate memory for new directory entry";
-					return OxError(1);
-				}
-			} else {
-				oxTrace("ox::fs::Directory::write::fail") << "Could not allocate memory for copy of Directory";
-				return OxError(1);
-			}
-		} else {
+		if (!old.valid()) {
 			oxTrace("ox::fs::Directory::write::fail") << "Could not read existing version of Directory";
 			return OxError(1);
 		}
+
+		const auto entrySize = DirectoryEntry<InodeId_t>::spaceNeeded(name->len() + 1); // add 1 for \0
+		const auto entryDataSize = DirectoryEntry<InodeId_t>::DirectoryEntryData::spaceNeeded(name->len());
+		const auto newSize = Buffer::spaceNeeded(m_size + entrySize);
+		auto cpy = ox_malloca(newSize, Buffer, old);
+		if (cpy == nullptr) {
+			oxTrace("ox::fs::Directory::write::fail") << "Could not allocate memory for copy of Directory";
+			return OxError(1);
+		}
+
+		// TODO: look for old version of this entry and delete it
+		oxReturnError(cpy->setSize(newSize));
+		auto val = cpy->malloc(entryDataSize);
+		if (!val.valid()) {
+			oxTrace("ox::fs::Directory::write::fail") << "Could not allocate memory for new directory entry";
+			return OxError(1);
+		}
+
+		oxTrace("ox::fs::Directory::write") << "Attempting to write Directory entry:" << name->data();
+		oxTrace("ox::fs::Directory::write") << "Attempting to write Directory to FileStore";
+		oxReturnError(val->init(inode, name->data(), entrySize));
+		return m_fs.write(m_inodeId, cpy, cpy->size());
 	}
-	return OxError(1);
 }
 
 template<typename FileStore, typename InodeId_t>
@@ -324,7 +322,7 @@ ValErr<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::findEntry
 		auto data = i->data();
 		if (data.valid()) {
 			oxTrace("ox::fs::Directory::findEntry").del("") << "Comparing \"" << name.c_str() << "\" to \"" << data->name << "\"";
-			if (ox_strncmp(data->name, name.c_str(), name.len()) == 0) {
+			if (ox_strncmp(data->name, name.c_str(), MaxFileNameLength) == 0) { // <-- TODO: bad compare
 				oxTrace("ox::fs::Directory::findEntry").del("") << "\"" << name.c_str() << "\" match found.";
 				return static_cast<InodeId_t>(data->inode);
 			}
@@ -345,9 +343,7 @@ ValErr<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::find(Path
 
 	// determine if already exists
 	auto name = nameBuff;
-	if (path.get(name)) {
-		return {0, OxError(1)};
-	}
+	oxReturnError(path.get(name));
 
 	auto v = findEntry(name->c_str());
 	if (!v.error) {

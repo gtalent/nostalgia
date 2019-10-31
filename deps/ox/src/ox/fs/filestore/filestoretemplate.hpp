@@ -414,8 +414,9 @@ const ptrarith::Ptr<uint8_t, std::size_t> FileStoreTemplate<size_t>::read(InodeI
 template<typename size_t>
 ox::Error FileStoreTemplate<size_t>::resize() {
 	oxReturnError(compact());
-	oxReturnError(m_buffer->setSize(size() - available()));
-	oxTrace("ox::fs::FileStoreTemplate::resize") << "resize to:" << size() - available();
+	const auto newSize = size() - available();
+	oxTrace("ox::fs::FileStoreTemplate::resize") << "resize to:" << newSize;
+	oxReturnError(m_buffer->setSize(newSize));
 	oxTrace("ox::fs::FileStoreTemplate::resize") << "resized to:" << m_buffer->size();
 	return OxError(0);
 }

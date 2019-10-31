@@ -225,6 +225,7 @@ ox::Error FileSystemTemplate<FileStore, Directory>::read(uint64_t inode, std::si
 template<typename FileStore, typename Directory>
 template<typename F>
 ox::Error FileSystemTemplate<FileStore, Directory>::ls(const char *path, F cb) {
+	oxTrace("ox::FileSystemTemplate::ls") << "path:" << path;
 	auto [s, err] = stat(path);
 	oxReturnError(err);
 	Directory dir(m_fs, s.inode);
@@ -349,6 +350,10 @@ ValErr<uint64_t> FileSystemTemplate<FileStore, Directory>::find(const char *path
 	auto fd = fileSystemData();
 	if (fd.error) {
 		return {0, fd.error};
+	}
+	// return root as a special case
+	if (ox_strcmp(path, "/") == 0) {
+		return static_cast<uint64_t>(fd.value.rootDirInode);
 	}
 	Directory rootDir(m_fs, fd.value.rootDirInode);
 	auto inode = rootDir.find(path);

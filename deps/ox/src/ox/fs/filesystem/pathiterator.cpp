@@ -75,7 +75,7 @@ Error PathIterator::get(char *pathOut, std::size_t pathOutSize) {
 		std::size_t end = substr - m_path;
 		size = end - start;
 		// cannot fit the output in the output parameter
-		if (size >= pathOutSize) {
+		if (size >= pathOutSize || size == 0) {
 			return OxError(1);
 		}
 		ox_memcpy(pathOut, &m_path[start], size);

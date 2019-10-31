@@ -117,6 +117,12 @@ class __attribute__((packed)) NodeBuffer {
 
 		[[nodiscard]] ItemPtr next(Item *item);
 
+		/**
+		 * Like pointer but omits checks that assume the memory at the offset has
+		 * already been initialed as an Item.
+		 */
+		[[nodiscard]] ItemPtr uninitializedPtr(size_t offset);
+
 		[[nodiscard]] ItemPtr ptr(size_t offset);
 
 		[[nodiscard]] ItemPtr ptr(void *item);
@@ -147,7 +153,7 @@ class __attribute__((packed)) NodeBuffer {
 		 * @return the actual number a bytes need to store the given number of
 		 * bytes
 		 */
-		size_t spaceNeeded(size_t size);
+		static size_t spaceNeeded(size_t size);
 
 		template<typename F>
 		[[nodiscard]] ox::Error compact(F cb = [](uint64_t, ItemPtr) {});
@@ -211,6 +217,23 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::prev(Item *
 template<typename size_t, typename Item>
 typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::next(Item *item) {
 	return ptr(item->next);
+}
+
+template<typename size_t, typename Item>
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::uninitializedPtr(size_t itemOffset) {
+	// make sure this can be read as an Item, and then use Item::size for the size
+	std::size_t itemSpace = m_header.size - itemOffset;
+	if (itemOffset >= sizeof(Header) &&
+	    itemOffset + itemSpace <= size() &&
+	    itemSpace >= sizeof(Item)) {
+		return ItemPtr(this, m_header.size, itemOffset, itemSpace);
+	} else {
+		//oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemOffset:" << itemOffset;
+		//oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemOffset >= sizeof(Header):" << (itemOffset >= sizeof(Header));
+		//oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemSpace >= sizeof(Item):" << (itemSpace >= sizeof(Item));
+		//oxTrace("ox::ptrarith::NodeBuffer::ptr::null") << "itemSpace >= item->fullSize():" << (itemSpace >= item->fullSize());
+		return ItemPtr(this, m_header.size, 0, 0);
+	}
 }
 
 template<typename size_t, typename Item>
@@ -320,11 +343,12 @@ Error NodeBuffer<size_t, Item>::free(ItemPtr item) {
 
 template<typename size_t, typename Item>
 Error NodeBuffer<size_t, Item>::setSize(size_t size) {
-	oxTrace("ox::ptrarith::NodeBuffer::setSize") << size;
+	oxTrace("ox::ptrarith::NodeBuffer::setSize") << m_header.size << "to" << size;
 	auto last = lastItem();
 	auto end = last.valid() ? last.end() : sizeof(m_header);
 	oxTrace("ox::ptrarith::NodeBuffer::setSize") << "end:" << end;
 	if (end > size) {
+		// resizing to less than buffer size
 		return OxError(1);
 	} else {
 		m_header.size = size;
@@ -357,9 +381,16 @@ template<typename F>
 ox::Error NodeBuffer<size_t, Item>::compact(F cb) {
 	auto src = firstItem();
 	auto dest = ptr(sizeof(*this));
-	while (src.valid() && dest.valid() && dest.offset() <= src.offset()) {
+	while (dest.offset() <= src.offset()) {
+		if (!src.valid()) {
+			return OxError(1);
+		}
+		if (!dest.valid()) {
+			dest.valid();
+			return OxError(2);
+		}
 		// move node
-		ox_memcpy(dest, src, src.size());
+		ox_memcpy(dest, src, src->fullSize());
 		oxReturnError(cb(src, dest));
 		// update surrounding nodes
 		auto prev = ptr(dest->prev);
@@ -372,7 +403,7 @@ ox::Error NodeBuffer<size_t, Item>::compact(F cb) {
 		}
 		// update iterators
 		src = ptr(dest->next);
-		dest = ptr(dest.offset() + dest.size());
+		dest = uninitializedPtr(dest.offset() + dest->fullSize());
 	}
 	return OxError(0);
 }

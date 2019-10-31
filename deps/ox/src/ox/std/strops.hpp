@@ -14,9 +14,13 @@
 
 template<typename T1, typename T2>
 constexpr char *ox_strncpy(T1 dest, T2 src, std::size_t maxLen) noexcept {
-	for (std::size_t i = 0; i < maxLen && src[i]; i++) {
+	std::size_t i = 0;
+	while (i < maxLen && src[i]) {
 		dest[i] = src[i];
+		++i;
 	}
+	// set null terminator
+	dest[i] = 0;
 	return dest;
 }
 
@@ -50,10 +54,10 @@ template<typename T1, typename T2>
 	return retval;
 }
 
-[[nodiscard]] constexpr int ox_strncmp(const char *str1, const char *str2, std::size_t len) noexcept {
+[[nodiscard]] constexpr int ox_strncmp(const char *str1, const char *str2, const std::size_t maxLen) noexcept {
 	auto retval = 0;
 	std::size_t i = 0;
-	while (i < len && (str1[i] || str2[i])) {
+	while (i < maxLen && (str1[i] || str2[i])) {
 		if (str1[i] < str2[i]) {
 			retval = -1;
 			break;
@@ -134,7 +138,7 @@ constexpr T ox_itoa(Integer v, T str) noexcept {
 			auto digit = v / mod;
 			v %= mod;
 			mod /= base;
-			if (it or digit) {
+			if (it || digit) {
 				int start = '0';
 				if (digit >= 10) {
 					start = 'a';

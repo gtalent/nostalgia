@@ -1,17 +1,12 @@
 
+add_executable(
+	nostalgia
+		main.cpp
+)
+
 if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
-	enable_language(C ASM)
-	add_executable(
-		nostalgia
-			main.cpp
-			startup.s
-	)
-	set(NOSTALGIA_PLAYER_DEPS "")
+	set(NOSTALGIA_PLAYER_DEPS "NostalgiaCore-GBA")
 else()
-	add_executable(
-		nostalgia
-			main.cpp
-	)
 	set(NOSTALGIA_PLAYER_DEPS "NostalgiaCore-SDL")
 endif()
 

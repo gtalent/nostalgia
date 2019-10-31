@@ -1,20 +1,22 @@
 add_library(
-	NostalgiaCore-SDL
+	NostalgiaCore-GBA
 		core.cpp
 		gfx.cpp
+		media.cpp
+		mem.cpp
+		panic.cpp
 )
 
 target_link_libraries(
-	NostalgiaCore-SDL PUBLIC
-		SDL2::Main
+	NostalgiaCore-GBA PUBLIC
+		GbaStartup
 		OxFS
 		OxStd
-		NostalgiaCore-Userspace
 )
 
 install(
 	TARGETS
-		NostalgiaCore-SDL
+		NostalgiaCore-GBA
 	DESTINATION
 		include/nostalgia/core
 )

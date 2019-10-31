@@ -123,6 +123,7 @@ ox::Error loadTileSheet(Context *ctx,
 }
 
 void drawBackground(SDL_Texture *tex) {
+	constexpr auto DstSize = 32;
 	//oxTrace("nostalgia::core::drawBackground") << "Drawing background";
 	SDL_Rect src = {}, dst = {};
 	src.x = 0;
@@ -130,16 +131,16 @@ void drawBackground(SDL_Texture *tex) {
 	src.h = 8;
 	dst.x = 0;
 	dst.y = 0;
-	dst.w = 64;
-	dst.h = 64;
+	dst.w = DstSize;
+	dst.h = DstSize;
 	if (tex) {
 		for (auto &m : bgTileMaps) {
 			for (auto t : m) {
 				src.y = t * 8;
 				SDL_RenderCopy(renderer, tex, &src, &dst);
-				dst.y += 64;
+				dst.y += DstSize;
 			}
-			dst.x += 64;
+			dst.x += DstSize;
 			dst.y = 0;
 		}
 	}

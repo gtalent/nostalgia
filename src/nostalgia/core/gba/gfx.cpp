@@ -215,7 +215,7 @@ ox::Error loadTileSheet(Context*,
                         ox::FileAddress) {
 	auto inode = tilesheetPath.getInode().value;
 	ox::Error err(0);
-	const auto PaletteStart = sizeof(GbaImageDataHeader);
+	constexpr auto PaletteStart = sizeof(GbaImageDataHeader);
 	GbaImageDataHeader imgData;
 
 	ox::FileStore32 fs(loadRom(), 32 * 1024 * 1024);

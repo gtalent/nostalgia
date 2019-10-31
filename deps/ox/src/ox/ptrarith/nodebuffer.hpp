@@ -386,7 +386,6 @@ ox::Error NodeBuffer<size_t, Item>::compact(F cb) {
 			return OxError(1);
 		}
 		if (!dest.valid()) {
-			dest.valid();
 			return OxError(2);
 		}
 		// move node

@@ -58,6 +58,10 @@ Error PassThroughFS::read(const char *path, void *buffer, std::size_t buffSize) 
 	return OxError(1);
 }
 
+ValErr<const uint8_t*> PassThroughFS::read(const char*) {
+	return OxError(1);
+}
+
 Error PassThroughFS::read(uint64_t, void*, std::size_t) {
 	// unsupported
 	return OxError(1);
@@ -65,6 +69,10 @@ Error PassThroughFS::read(uint64_t, void*, std::size_t) {
 
 Error PassThroughFS::read(uint64_t, std::size_t, std::size_t, void*, std::size_t*) {
 	// unsupported
+	return OxError(1);
+}
+
+ValErr<const uint8_t*> PassThroughFS::read(uint64_t) {
 	return OxError(1);
 }
 

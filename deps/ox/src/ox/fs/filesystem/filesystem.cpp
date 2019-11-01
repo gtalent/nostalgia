@@ -10,6 +10,18 @@
 
 namespace ox {
 
+[[nodiscard]] ox::ValErr<const uint8_t*> FileSystem::read(FileAddress addr) {
+	switch (addr.type()) {
+		case FileAddressType::Inode:
+			return read(addr.getInode().value);
+		case FileAddressType::ConstPath:
+		case FileAddressType::Path:
+			return read(addr.getPath().value);
+		default:
+			return OxError(1);
+	}
+}
+
 [[nodiscard]] ox::Error FileSystem::read(FileAddress addr, void *buffer, std::size_t size) {
 	switch (addr.type()) {
 		case FileAddressType::Inode:

@@ -322,7 +322,7 @@ ValErr<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::findEntry
 		auto data = i->data();
 		if (data.valid()) {
 			oxTrace("ox::fs::Directory::findEntry").del("") << "Comparing \"" << name.c_str() << "\" to \"" << data->name << "\"";
-			if (ox_strncmp(data->name, name.c_str(), MaxFileNameLength) == 0) { // <-- TODO: bad compare
+			if (ox_strncmp(data->name, name.c_str(), MaxFileNameLength) == 0) {
 				oxTrace("ox::fs::Directory::findEntry").del("") << "\"" << name.c_str() << "\" match found.";
 				return static_cast<InodeId_t>(data->inode);
 			}

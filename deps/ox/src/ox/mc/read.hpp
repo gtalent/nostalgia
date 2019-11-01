@@ -54,6 +54,14 @@ class MetalClawReader {
 		template<typename T>
 		Error field(const char*, T *val, std::size_t len);
 
+		// array handler, with callback to allow handling individual elements
+		template<typename T, typename Handler>
+		Error field(const char*, Handler *val);
+
+		// array handler, with callback to allow handling individual elements
+		template<typename T, typename Handler>
+		Error field(const char*, Handler *val, ArrayLength len);
+
 		template<typename T>
 		Error field(const char*, ox::Vector<T> *val);
 
@@ -145,7 +153,7 @@ Error MetalClawReader::field(const char *name, T *val, std::size_t valLen) {
 			return OxError(MC_BUFFENDED);
 		}
 		std::size_t bytesRead = 0;
-		auto len = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+		auto len = mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
 		m_buffIt += bytesRead;
 		oxReturnError(len.error);
 
@@ -159,6 +167,32 @@ Error MetalClawReader::field(const char *name, T *val, std::size_t valLen) {
 		} else {
 			oxTrace("ox::mc::read::field(T)") << name << ", size:" << valLen;
 			return OxError(MC_OUTBUFFENDED);
+		}
+	}
+	return OxError(0);
+}
+
+template<typename T, typename Handler>
+Error MetalClawReader::field(const char *name, Handler *handler) {
+	auto [arrayLen, err] = arrayLength(true);
+	oxReturnError(err);
+	return field(name, handler, arrayLen);
+}
+
+template<typename T, typename Handler>
+Error MetalClawReader::field(const char*, Handler *handler, ArrayLength len) {
+	if (m_fieldPresence.get(m_field++)) {
+		// read the length
+		if (m_buffIt >= m_buffLen) {
+			return OxError(MC_BUFFENDED);
+		}
+		// read the list
+		auto reader = child();
+		reader.setTypeInfo("List", len);
+		for (std::size_t i = 0; i < len; i++) {
+			T val;
+			oxReturnError(reader.field("", &val));
+			oxReturnError(handler(i, &val));
 		}
 	}
 	return OxError(0);

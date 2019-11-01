@@ -158,6 +158,47 @@ static char charMap[128] = {
 	0,  // ~
 };
 
+struct GbaPaletteTarget {
+	uint16_t *palette = nullptr;
+};
+
+struct GbaTileMapTarget {
+	static constexpr auto Fields = 4;
+	uint8_t bpp = 0;
+	ox::FileAddress defaultPalette;
+	GbaPaletteTarget pal;
+	uint16_t *tileMap = nullptr;
+};
+
+template<typename T>
+ox::Error modelRead(T *io, GbaPaletteTarget *t) {
+	io->setTypeInfo("nostalgia::core::NostalgiaPalette", NostalgiaPalette::Fields);
+	oxReturnError(io->template field<uint16_t>("colors", [t](auto i, uint16_t c) {
+		t->palette[i] = c;
+		return OxError(0);
+	}));
+	return OxError(0);
+}
+
+template<typename T>
+ox::Error modelRead(T *io, GbaTileMapTarget *t) {
+	io->setTypeInfo("nostalgia::core::NostalgiaGraphic", NostalgiaGraphic::Fields);
+	oxReturnError(io->field("bpp", &t->bpp));
+	oxReturnError(io->field("defaultPalette", &t->defaultPalette));
+	oxReturnError(io->field("pal", &t->pal));
+	uint16_t intermediate;
+	oxReturnError(io->template field<uint8_t>("tileMap", [t, &intermediate](auto i, uint8_t tile) {
+		if (i & 1) { // i is odd
+			intermediate |= tile >> 8;
+			t->tileMap[i / 2] = intermediate;
+		} else { // i is even
+			intermediate = tile & 0xff;
+		}
+		return OxError(0);
+	}));
+	return OxError(0);
+}
+
 ox::Error initGfx(Context*) {
 	/* Sprite Mode ----\ */
 	/*             ---\| */

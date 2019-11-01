@@ -36,19 +36,19 @@ struct NostalgiaGraphic {
 };
 
 template<typename T>
+ox::Error model(T *io, NostalgiaPalette *pal) {
+	io->setTypeInfo("nostalgia::core::NostalgiaPalette", NostalgiaPalette::Fields);
+	oxReturnError(io->field("colors", &pal->colors));
+	return OxError(0);
+}
+
+template<typename T>
 ox::Error model(T *io, NostalgiaGraphic *ng) {
 	io->setTypeInfo("nostalgia::core::NostalgiaGraphic", NostalgiaGraphic::Fields);
 	oxReturnError(io->field("bpp", &ng->bpp));
 	oxReturnError(io->field("defaultPalette", &ng->defaultPalette));
 	oxReturnError(io->field("pal", &ng->pal));
 	oxReturnError(io->field("tiles", &ng->tiles));
-	return OxError(0);
-}
-
-template<typename T>
-ox::Error model(T *io, NostalgiaPalette *pal) {
-	io->setTypeInfo("nostalgia::core::NostalgiaPalette", NostalgiaPalette::Fields);
-	oxReturnError(io->field("colors", &pal->colors));
 	return OxError(0);
 }
 

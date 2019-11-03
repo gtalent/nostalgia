@@ -133,13 +133,13 @@ ox::Error Directory<FileStore, InodeId_t>::init() noexcept {
 	oxTrace("ox::fs::Directory::init") << "Initializing Directory with Inode ID:" << m_inodeId;
 	oxReturnError(m_fs.write(m_inodeId, nullptr, Size));
 	auto buff = m_fs.read(m_inodeId).template to<Buffer>();
-	if (buff.valid()) {
-		new (buff) Buffer(Size);
-		m_size = Size;
-		return OxError(0);
+	if (!buff.valid()) {
+		m_size = 0;
+		return OxError(1);
 	}
-	m_size = 0;
-	return OxError(1);
+	new (buff) Buffer(Size);
+	m_size = Size;
+	return OxError(0);
 }
 
 template<typename FileStore, typename InodeId_t>
@@ -217,25 +217,27 @@ ox::Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t in
 			return OxError(1);
 		}
 	} else {
+		oxTrace("ox::fs::Directory::write") << path.fullPath();
 		// insert the new entry on this directory
 
 		// get the name
 		path.next(name);
 
-		oxTrace("ox::fs::Directory::write") << "Attempting to write Directory to FileStore";
-
 		// find existing version of directory
-		oxTrace("ox::fs::Directory::write") << "Searching for inode" << m_inodeId;
-		auto old = m_fs.read(m_inodeId);
+		oxTrace("ox::fs::Directory::write") << "Searching for directory inode" << m_inodeId;
+		auto oldStat = m_fs.stat(m_inodeId);
+		oxReturnError(oldStat);
+		oxTrace("ox::fs::Directory::write") << "Found existing directory of size" << oldStat.value.size;
+		auto old = m_fs.read(m_inodeId).template to<Buffer>();
 		if (!old.valid()) {
 			oxTrace("ox::fs::Directory::write::fail") << "Could not read existing version of Directory";
 			return OxError(1);
 		}
 
-		const auto entrySize = DirectoryEntry<InodeId_t>::spaceNeeded(name->len() + 1); // add 1 for \0
-		const auto entryDataSize = DirectoryEntry<InodeId_t>::DirectoryEntryData::spaceNeeded(name->len());
+		const auto entryDataSize = DirectoryEntry<InodeId_t>::DirectoryEntryData::spaceNeeded(name->len() + 1);
+		const auto entrySize = DirectoryEntry<InodeId_t>::spaceNeeded(entryDataSize);
 		const auto newSize = Buffer::spaceNeeded(m_size + entrySize);
-		auto cpy = ox_malloca(newSize, Buffer, old);
+		auto cpy = ox_malloca(newSize, Buffer, *old, oldStat.value.size);
 		if (cpy == nullptr) {
 			oxTrace("ox::fs::Directory::write::fail") << "Could not allocate memory for copy of Directory";
 			return OxError(1);
@@ -346,16 +348,14 @@ ValErr<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::find(Path
 	oxReturnError(path.get(name));
 
 	auto v = findEntry(name->c_str());
-	if (!v.error) {
-		return v;
+	oxReturnError(v);
+	// recurse if not at end of path
+	if (auto p = path.next(); p.valid()) {
+		Directory dir(m_fs, v.value);
+		name = nullptr;
+		return dir.find(p, nameBuff);
 	}
-	name = nullptr;
-	v = find(path.next(), nameBuff);
-	if (!v.error) {
-		return v;
-	}
-
-	return {0, OxError(1)};
+	return v;
 }
 
 

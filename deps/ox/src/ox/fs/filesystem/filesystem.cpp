@@ -10,7 +10,7 @@
 
 namespace ox {
 
-[[nodiscard]] ox::ValErr<const uint8_t*> FileSystem::read(FileAddress addr) {
+[[nodiscard]] ox::ValErr<uint8_t*> FileSystem::read(FileAddress addr) {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return read(addr.getInode().value);

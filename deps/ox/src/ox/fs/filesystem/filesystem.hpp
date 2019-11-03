@@ -32,19 +32,19 @@ class FileSystem {
 
 		[[nodiscard]] virtual ox::Error read(const char *path, void *buffer, std::size_t buffSize) = 0;
 
-		[[nodiscard]] virtual ox::ValErr<const uint8_t*> read(const char *path) = 0;
+		[[nodiscard]] virtual ox::ValErr<uint8_t*> read(const char *path) = 0;
 
 		[[nodiscard]] virtual ox::Error read(uint64_t inode, void *buffer, std::size_t size) = 0;
 
 		[[nodiscard]] virtual ox::Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) = 0;
 
-		[[nodiscard]] virtual ox::ValErr<const uint8_t*> read(uint64_t inode) = 0;
+		[[nodiscard]] virtual ox::ValErr<uint8_t*> read(uint64_t inode) = 0;
 
 		[[nodiscard]] ox::Error read(FileAddress addr, void *buffer, std::size_t size);
 
 		[[nodiscard]] ox::Error read(FileAddress addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size);
 
-		[[nodiscard]] ox::ValErr<const uint8_t*> read(FileAddress addr);
+		[[nodiscard]] ox::ValErr<uint8_t*> read(FileAddress addr);
 
 		[[nodiscard]] virtual ox::Error remove(const char *path, bool recursive = false) = 0;
 
@@ -110,13 +110,13 @@ class FileSystemTemplate: public FileSystem {
 
 		[[nodiscard]] ox::Error read(const char *path, void *buffer, std::size_t buffSize) override;
 
-		[[nodiscard]] ox::ValErr<const uint8_t*> read(const char*) override;
+		[[nodiscard]] ox::ValErr<uint8_t*> read(const char*) override;
 
 		[[nodiscard]] ox::Error read(uint64_t inode, void *buffer, std::size_t size) override;
 
 		[[nodiscard]] ox::Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) override;
 
-		[[nodiscard]] ox::ValErr<const uint8_t*> read(uint64_t) override;
+		[[nodiscard]] ox::ValErr<uint8_t*> read(uint64_t) override;
 
 		template<typename F>
 		[[nodiscard]] ox::Error ls(const char *dir, F cb);
@@ -185,8 +185,9 @@ ox::Error FileSystemTemplate<FileStore, Directory>::format(void *buff, uint64_t 
 	oxTrace("ox::fs::FileSystemTemplate::format") << "rootDirInode:" << fd.rootDirInode;
 	oxReturnError(fs.write(InodeFsData, &fd, sizeof(fd)));
 
-	if (fs.read(fd.rootDirInode).valid()) {
+	if (!fs.read(fd.rootDirInode).valid()) {
 		oxTrace("ox::fs::FileSystemTemplate::format::error") << "FileSystemTemplate::format did not correctly create root directory";
+		return OxError(1);
 	}
 
 	return OxError(0);
@@ -223,7 +224,7 @@ ox::Error FileSystemTemplate<FileStore, Directory>::read(const char *path, void 
 }
 
 template<typename FileStore, typename Directory>
-[[nodiscard]] ox::ValErr<const uint8_t*> FileSystemTemplate<FileStore, Directory>::read(const char *path) {
+[[nodiscard]] ox::ValErr<uint8_t*> FileSystemTemplate<FileStore, Directory>::read(const char *path) {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
 	Directory rootDir(m_fs, fd.value.rootDirInode);
@@ -243,7 +244,7 @@ ox::Error FileSystemTemplate<FileStore, Directory>::read(uint64_t inode, std::si
 }
 
 template<typename FileStore, typename Directory>
-[[nodiscard]] ox::ValErr<const uint8_t*> FileSystemTemplate<FileStore, Directory>::read(uint64_t inode) {
+[[nodiscard]] ox::ValErr<uint8_t*> FileSystemTemplate<FileStore, Directory>::read(uint64_t inode) {
 	auto data = m_fs.read(inode);
 	if (!data.valid()) {
 		return OxError(1);

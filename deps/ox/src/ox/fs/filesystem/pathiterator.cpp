@@ -8,6 +8,7 @@
 
 #include <ox/std/memops.hpp>
 #include <ox/std/strops.hpp>
+#include <ox/std/trace.hpp>
 #include "pathiterator.hpp"
 
 namespace ox {
@@ -59,33 +60,37 @@ Error PathIterator::fileName(char *out, std::size_t outSize) {
 // Gets the get item in the path
 Error PathIterator::get(char *pathOut, std::size_t pathOutSize) {
 	std::size_t size = 0;
-	auto retval = OxError(1);
-	if (m_iterator < m_maxSize && ox_strlen(&m_path[m_iterator])) {
-		retval = OxError(0);
-		auto start = m_iterator;
-		if (m_path[start] == '/') {
-			start++;
-		}
-		// end is at the next /
-		const char *substr = ox_strchr(&m_path[start], '/', m_maxSize - start);
-		// correct end if it is invalid, which happens if there is no next /
-		if (!substr) {
-			substr = ox_strchr(&m_path[start], 0, m_maxSize - start);
-		}
-		std::size_t end = substr - m_path;
-		size = end - start;
-		// cannot fit the output in the output parameter
-		if (size >= pathOutSize || size == 0) {
-			return OxError(1);
-		}
-		ox_memcpy(pathOut, &m_path[start], size);
+	if (m_iterator >= m_maxSize) {
+		oxTrace("ox::fs::PathIterator::get") << "m_iterator >= m_maxSize";
+		return OxError(1);
 	}
+	if (!ox_strlen(&m_path[m_iterator])) {
+		oxTrace("ox::fs::PathIterator::get") << "!ox_strlen(&m_path[m_iterator])";
+		return OxError(1);
+	}
+	auto start = m_iterator;
+	if (m_path[start] == '/') {
+		start++;
+	}
+	// end is at the next /
+	const char *substr = ox_strchr(&m_path[start], '/', m_maxSize - start);
+	// correct end if it is invalid, which happens if there is no next /
+	if (!substr) {
+		substr = ox_strchr(&m_path[start], 0, m_maxSize - start);
+	}
+	std::size_t end = substr - m_path;
+	size = end - start;
+	// cannot fit the output in the output parameter
+	if (size >= pathOutSize || size == 0) {
+		return OxError(1);
+	}
+	ox_memcpy(pathOut, &m_path[start], size);
 	// truncate trailing /
 	if (size && pathOut[size - 1] == '/') {
 		size--;
 	}
 	pathOut[size] = 0; // end with null terminator
-	return retval;
+	return OxError(0);
 }
 
 // Gets the get item in the path

@@ -729,6 +729,7 @@ typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(Item
 
 template<typename size_t>
 typename FileStoreTemplate<size_t>::ItemPtr FileStoreTemplate<size_t>::find(InodeId_t id) const {
+	oxTrace("ox::fs::FileStoreTemplate::find") << "Searching for inode:" << id;
 	auto fsData = fileStoreData();
 	if (fsData) {
 		auto root = m_buffer->ptr(fsData->rootNode);

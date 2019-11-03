@@ -95,19 +95,19 @@ Error MetalClawReader::field(const char*, SerStr val) {
 }
 
 [[nodiscard]] ValErr<ArrayLength> MetalClawReader::arrayLength(bool pass) {
-	std::size_t len = 0;
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
 		if (m_buffIt >= m_buffLen) {
 			return OxError(MC_BUFFENDED);
 		}
 		std::size_t bytesRead = 0;
-		len = mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead).value;
+		auto out = mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead).value;
 		if (pass) {
-			m_buffIt += sizeof(ArrayLength);
+			m_buffIt += bytesRead;
 		}
+		return out;
 	}
-	return len;
+	return OxError(1);
 }
 
 [[nodiscard]] StringLength MetalClawReader::stringLength() {

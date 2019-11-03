@@ -93,9 +93,10 @@ class __attribute__((packed)) NodeBuffer {
 		Header m_header;
 
 	public:
-		NodeBuffer() = default;
+		NodeBuffer() {
+		}
 
-		NodeBuffer(const NodeBuffer &other);
+		NodeBuffer(const NodeBuffer &other, size_t size);
 
 		explicit NodeBuffer(size_t size);
 
@@ -168,11 +169,13 @@ class __attribute__((packed)) NodeBuffer {
 template<typename size_t, typename Item>
 NodeBuffer<size_t, Item>::NodeBuffer(size_t size) {
 	m_header.size = size;
+	oxTrace("ox::NodeBuffer::constructor") << m_header.firstItem;
 }
 
 template<typename size_t, typename Item>
-NodeBuffer<size_t, Item>::NodeBuffer(const NodeBuffer &other) {
-	ox_memcpy(this, &other, other.size());
+NodeBuffer<size_t, Item>::NodeBuffer(const NodeBuffer &other, size_t size) {
+	oxTrace("ox::ptrarith::NodeBuffer::copy") << "other.m_header.firstItem:" << other.m_header.firstItem;
+	ox_memcpy(this, &other, size);
 }
 
 template<typename size_t, typename Item>
@@ -270,39 +273,44 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 				oxTrace("ox::ptrarith::NodeBuffer::malloc") << "No first item, initializing.";
 				m_header.firstItem = sizeof(m_header);
 				addr = m_header.firstItem;
-			}
-		}
-		auto out = ItemPtr(this, m_header.size, addr, fullSize);
-		if (out.valid()) {
-			new (out) Item;
-			out->setSize(size);
-
-			auto first = firstItem();
-			auto oldLast = last;
-			out->next = first.offset();
-			if (first.valid()) {
-				first->prev = out.offset();
 			} else {
-				oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "NodeBuffer malloc failed due to invalid first element pointer.";
+				oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "NodeBuffer is in invalid state.";
 				return nullptr;
 			}
-
-			if (oldLast.valid()) {
-				out->prev = oldLast.offset();
-				oldLast->next = out.offset();
-			} else { // check to see if this is the first allocation
-				if (out.offset() != first.offset()) {
-					// if this is not the first allocation, there should be an oldLast
-					oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "NodeBuffer malloc failed due to invalid last element pointer.";
-					return nullptr;
-				}
-				out->prev = out.offset();
-			}
-			m_header.bytesUsed += out.size();
-		} else {
+		}
+		oxTrace("ox::ptrarith::NodeBuffer::malloc") << "buffer size:" << m_header.size
+		                                            << ";addr:" << addr
+																  << ";fullSize:" << fullSize;
+		auto out = ItemPtr(this, m_header.size, addr, fullSize);
+		if (!out.valid()) {
 			oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "Unknown";
 			return nullptr;
 		}
+		new (out) Item;
+		out->setSize(size);
+
+		auto first = firstItem();
+		auto oldLast = last;
+		out->next = first.offset();
+		if (first.valid()) {
+			first->prev = out.offset();
+		} else {
+			oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "NodeBuffer malloc failed due to invalid first element pointer.";
+			return nullptr;
+		}
+
+		if (oldLast.valid()) {
+			out->prev = oldLast.offset();
+			oldLast->next = out.offset();
+		} else { // check to see if this is the first allocation
+			if (out.offset() != first.offset()) {
+				// if this is not the first allocation, there should be an oldLast
+				oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "NodeBuffer malloc failed due to invalid last element pointer.";
+				return nullptr;
+			}
+			out->prev = out.offset();
+		}
+		m_header.bytesUsed += out.size();
 		oxTrace("ox::ptrarith::NodeBuffer::malloc") << "Offset:" << out.offset();
 		return out;
 	}

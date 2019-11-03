@@ -163,14 +163,14 @@ template<typename T, typename size_t, size_t minOffset>
 inline const T &Ptr<T, size_t, minOffset>::operator*() const {
 	oxAssert(m_validated, "Unvalidated pointer dereference. (ox::fs::Ptr::operator*())");
 	oxAssert(valid(), "Invalid pointer dereference. (ox::fs::Ptr::operator*())");
-	return *reinterpret_cast<T*>(this);
+	return *reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
 inline T &Ptr<T, size_t, minOffset>::operator*() {
 	oxAssert(m_validated, "Unvalidated pointer dereference. (ox::fs::Ptr::operator*())");
 	oxAssert(valid(), "Invalid pointer dereference. (ox::fs::Ptr::operator*())");
-	return *reinterpret_cast<T*>(this);
+	return *reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>

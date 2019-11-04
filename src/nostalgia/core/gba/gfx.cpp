@@ -7,6 +7,7 @@
  */
 
 #include <ox/fs/fs.hpp>
+#include <ox/mc/mc.hpp>
 #include <ox/std/std.hpp>
 
 #include "../media.hpp"
@@ -24,8 +25,8 @@ using namespace ox;
 #define TILE_ADDR  ((CharBlock*) 0x06000000)
 #define TILE8_ADDR ((CharBlock8*) 0x06000000)
 
-const auto GBA_TILE_COLUMNS = 32;
-const auto GBA_TILE_ROWS = 32;
+constexpr auto GBA_TILE_COLUMNS = 32;
+constexpr auto GBA_TILE_ROWS = 32;
 
 // map ASCII values to the nostalgia charset
 static char charMap[128] = {
@@ -159,22 +160,22 @@ static char charMap[128] = {
 };
 
 struct GbaPaletteTarget {
-	uint16_t *palette = nullptr;
+	volatile uint16_t *palette = nullptr;
 };
 
 struct GbaTileMapTarget {
 	static constexpr auto Fields = 4;
-	uint8_t bpp = 0;
+	volatile uint32_t *bgCtl = nullptr;
 	ox::FileAddress defaultPalette;
 	GbaPaletteTarget pal;
-	uint16_t *tileMap = nullptr;
+	volatile uint16_t *tileMap = nullptr;
 };
 
 template<typename T>
 ox::Error modelRead(T *io, GbaPaletteTarget *t) {
 	io->setTypeInfo("nostalgia::core::NostalgiaPalette", NostalgiaPalette::Fields);
-	oxReturnError(io->template field<uint16_t>("colors", [t](auto i, uint16_t c) {
-		t->palette[i] = c;
+	oxReturnError(io->template field<Color>("colors", [t](auto i, Color *c) {
+		t->palette[i] = *c;
 		return OxError(0);
 	}));
 	return OxError(0);
@@ -183,20 +184,27 @@ ox::Error modelRead(T *io, GbaPaletteTarget *t) {
 template<typename T>
 ox::Error modelRead(T *io, GbaTileMapTarget *t) {
 	io->setTypeInfo("nostalgia::core::NostalgiaGraphic", NostalgiaGraphic::Fields);
-	oxReturnError(io->field("bpp", &t->bpp));
+
+	uint8_t bpp;
+	oxReturnError(io->field("bpp", &bpp));
+	constexpr auto Bpp8 = 1 << 7;
+	*t->bgCtl = (*t->bgCtl | Bpp8) ^ Bpp8; // set to use 4 bits per pixel
+	*t->bgCtl |= Bpp8; // set to use 8 bits per pixel
+	*t->bgCtl = (28 << 8) | 1;
+
 	oxReturnError(io->field("defaultPalette", &t->defaultPalette));
 	oxReturnError(io->field("pal", &t->pal));
-	uint16_t intermediate;
-	oxReturnError(io->template field<uint8_t>("tileMap", [t, &intermediate](auto i, uint8_t tile) {
+	uint16_t intermediate = 0;
+	auto err = io->template field<uint8_t>("tileMap", [t, &intermediate](auto i, uint8_t *tile) {
 		if (i & 1) { // i is odd
-			intermediate |= tile >> 8;
+			intermediate |= static_cast<uint16_t>(*tile) << 8;
 			t->tileMap[i / 2] = intermediate;
 		} else { // i is even
-			intermediate = tile & 0xff;
+			intermediate = *tile & 0x00ff;
 		}
 		return OxError(0);
-	}));
-	return OxError(0);
+	});
+	return OxError(err);
 }
 
 ox::Error initGfx(Context*) {
@@ -214,75 +222,58 @@ ox::Error shutdownGfx() {
 	return OxError(0);
 }
 
-// Do NOT use Context in the GBA version of this function.
-ox::Error initConsole(Context*) {
-	const auto PaletteStart = sizeof(GbaImageDataHeader);
-	ox::Error err(0);
-	ox::FileStore32 fs(loadRom(), 32 * ox::units::MB);
-	ox::FileSystem32 fileSystem(fs);
-	const auto CharsetInode = fileSystem.stat("/TileSheets/Charset.ng").value.inode;
-
-	GbaImageDataHeader imgData;
-
-	REG_BG0CNT = (28 << 8) | 1;
-	if (fs.valid()) {
-		// load the header
-		err |= fs.read(CharsetInode, 0, sizeof(imgData), &imgData, nullptr);
-
-		// load palette
-		err |= fs.read(CharsetInode, PaletteStart,
-		               512, (uint16_t*) &MEM_PALLETE_BG[0], nullptr);
-
-		if (imgData.bpp == 4) {
-			err |= fs.read(CharsetInode, __builtin_offsetof(GbaImageData, tiles),
-			               sizeof(Tile) * imgData.tileCount, (uint16_t*) &TILE_ADDR[0][1], nullptr);
-		} else if (imgData.bpp == 8) {
-			REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
-			err |= fs.read(CharsetInode, __builtin_offsetof(GbaImageData, tiles),
-			               sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
-		} else {
-			err = OxError(1);
-		}
-	} else {
-		err = OxError(1);
+[[nodiscard]] constexpr volatile uint32_t &bgCtl(int bg) noexcept {
+	switch (bg) {
+		case 0:
+			return REG_BG0CNT;
+		case 1:
+			return REG_BG1CNT;
+		case 2:
+			return REG_BG2CNT;
+		case 3:
+			return REG_BG3CNT;
+		default:
+			panic("Looking up non-existent register");
+			return REG_BG0CNT;
 	}
-	return err;
 }
 
-ox::Error loadTileSheet(Context*,
-                        TileSheetSpace,
-                        int,
-                        ox::FileAddress tilesheetPath,
-                        ox::FileAddress) {
-	auto inode = tilesheetPath.getInode().value;
-	ox::Error err(0);
-	constexpr auto PaletteStart = sizeof(GbaImageDataHeader);
-	GbaImageDataHeader imgData;
-
-	ox::FileStore32 fs(loadRom(), 32 * 1024 * 1024);
-	REG_BG0CNT = (28 << 8) | 1;
-	if (fs.valid()) {
-		// load the header
-		err |= fs.read(inode, 0, sizeof(imgData), &imgData, nullptr);
-
-		// load palette
-		err |= fs.read(inode, PaletteStart,
-		               512, (uint16_t*) &MEM_PALLETE_BG[0], nullptr);
-
-		if (imgData.bpp == 4) {
-			err |= fs.read(inode, __builtin_offsetof(GbaImageData, tiles),
-			               sizeof(Tile) * imgData.tileCount, (uint16_t*) &TILE_ADDR[0][1], nullptr);
-		} else if (imgData.bpp == 8) {
-			REG_BG0CNT |= (1 << 7); // set to use 8 bits per pixel
-			err |= fs.read(inode, __builtin_offsetof(GbaImageData, tiles),
-			               sizeof(Tile8) * imgData.tileCount, (uint16_t*) &TILE8_ADDR[0][1], nullptr);
-		} else {
-			err = OxError(1);
-		}
-	} else {
-		err = OxError(1);
+// Do NOT rely on Context in the GBA version of this function.
+ox::Error initConsole(Context *ctx) {
+	constexpr auto TilesheetAddr = "/TileSheets/Charset.ng";
+	constexpr auto PaletteAddr = "/Palettes/Charset.npal";
+	if (!ctx) {
+		ctx = new (ox_alloca(sizeof(Context))) Context();
+		ox::FileStore32 fs(loadRom(), 32 * ox::units::MB);
+		ctx->rom = new (ox_alloca(sizeof(ox::FileSystem32))) ox::FileSystem32(fs);
 	}
-	return err;
+	return loadTileSheet(ctx, TileSheetSpace::Background, 0, TilesheetAddr, PaletteAddr);
+}
+
+ox::Error loadTileSheet(Context *ctx,
+                        TileSheetSpace,
+                        int section,
+                        ox::FileAddress tilesheetAddr,
+                        ox::FileAddress paletteAddr) {
+	auto [tsStat, tsStatErr] = ctx->rom->stat(tilesheetAddr);
+	oxReturnError(tsStatErr);
+	auto [ts, tserr] = ctx->rom->read(tilesheetAddr);
+	oxReturnError(tserr);
+	GbaTileMapTarget target;
+	target.pal.palette = &MEM_PALLETE_BG[section];
+	target.bgCtl = &bgCtl(section);
+	target.tileMap = reinterpret_cast<uint16_t*>(&TILE_ADDR[section][0]);
+	oxReturnError(ox::readMC(ts, tsStat.size, &target));
+	// load external palette if available
+	if (paletteAddr) {
+		auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
+		oxReturnError(palStatErr);
+		auto [pal, palErr] = ctx->rom->read(paletteAddr);
+		oxReturnError(palErr);
+		oxReturnError(ox::readMC(pal, palStat.size, &target.pal));
+	}
+
+	return OxError(0);
 }
 
 // Do NOT use Context in the GBA version of this function.

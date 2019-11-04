@@ -16,11 +16,13 @@ using namespace nostalgia::world;
 
 ox::Error run(ox::FileSystem *fs) {
 	Context ctx;
-	oxReturnError(init(&ctx));
 	ctx.rom = fs;
-	Zone zone;
-	oxReturnError(zone.init(&ctx, Bounds{0, 0, 40, 40}, "/TileSheets/Charset.ng", "/Palettes/Charset.npal"));
-	zone.draw(&ctx);
+	oxReturnError(init(&ctx));
+	//Zone zone;
+	//oxReturnError(zone.init(&ctx, Bounds{0, 0, 40, 40}, "/TileSheets/Charset.ng", "/Palettes/Charset.npal"));
+	//zone.draw(&ctx);
+	oxReturnError(initConsole(&ctx));
+	puts(nullptr, 9 * 32 + 10, "DOPENESS!!!");
 	oxReturnError(run());
 	oxReturnError(shutdownGfx());
 	return OxError(0);
@@ -28,9 +30,14 @@ ox::Error run(ox::FileSystem *fs) {
 
 #ifndef OX_USE_STDLIB
 
-extern "C" void _start() {
-	ox::FileSystem32 fs(ox::FileStore32(loadRom(), 32 * ox::units::MB));
+int main() {
+	auto rom = loadRom();
+	if (!rom) {
+		return 1;
+	}
+	ox::FileSystem32 fs(ox::FileStore32(rom, 32 * ox::units::MB));
 	run(&fs);
+	return 0;
 }
 
 #else

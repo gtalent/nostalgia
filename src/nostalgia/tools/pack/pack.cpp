@@ -39,6 +39,7 @@ namespace {
 // transformations need to be done after the copy to the new FS is complete
 [[nodiscard]] ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
 	// copy
+	oxTrace("pack::transformClaw") << "path:" << path.c_str();
 	return dest->ls(path.c_str(), [dest, path](const char *name, ox::InodeId_t) {
 		auto [stat, err] = dest->stat(path.c_str());
 		oxReturnError(err);
@@ -68,10 +69,16 @@ namespace {
 	return OxError(buff == expected ? 0 : 1);
 }
 
+struct VerificationPair {
+	std::string path;
+	std::vector<uint8_t> buff;
+};
+
 [[nodiscard]] ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {
 	std::cout << "copying directory: " << path << '\n';
+	std::vector<VerificationPair> verficationPairs;
 	// copy
-	return src->ls(path.c_str(), [src, dest, path](const char *name, ox::InodeId_t) {
+	oxReturnError(src->ls(path.c_str(), [&verficationPairs, src, dest, path](const char *name, ox::InodeId_t) {
 		std::cout << "reading " << name << '\n';
 		auto currentFile = path + name;
 		auto [stat, err] = src->stat((currentFile).c_str());
@@ -90,16 +97,26 @@ namespace {
 			std::cout << "writing " << currentFile << '\n';
 			oxReturnError(dest->write(currentFile.c_str(), buff.data(), buff.size()));
 			oxReturnError(verifyFile(dest, currentFile, buff));
+			verficationPairs.push_back({currentFile, buff});
 		}
 		return OxError(0);
-	});
+	}));
+
+	// verify all at once in addition to right after the files are written
+	for (auto v : verficationPairs) {
+		oxReturnError(verifyFile(dest, v.path, v.buff));
+	}
+
+	return OxError(0);
 }
 
 }
 
-[[nodiscard]] ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {
-	oxReturnError(copy(src, dest, path));
-	oxReturnError(transformClaw(dest, path));
+[[nodiscard]] ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest) {
+	oxReturnError(copy(src, dest, "/"));
+	oxReturnError(dest->stat("/TileSheets/Charset.ng").error);
+	oxReturnError(dest->stat("/Palettes/Charset.npal").error);
+	oxReturnError(transformClaw(dest, "/"));
 	return OxError(0);
 }
 

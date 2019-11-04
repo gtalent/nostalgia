@@ -12,6 +12,6 @@
 
 namespace nostalgia {
 
-ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path = "/");
+ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest);
 
 }

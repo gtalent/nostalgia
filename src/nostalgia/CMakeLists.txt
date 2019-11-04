@@ -17,7 +17,10 @@ add_subdirectory(common)
 add_subdirectory(player)
 add_subdirectory(world)
 
-if(NOSTALGIA_BUILD_STUDIO)
+if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
 	add_subdirectory(tools)
+endif()
+
+if(NOSTALGIA_BUILD_STUDIO)
 	add_subdirectory(studio)
 endif()

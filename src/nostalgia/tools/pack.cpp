@@ -66,21 +66,21 @@ using namespace nostalgia::common;
 	oxReturnError(ox::FileSystem32::format(buff.data(), buff.size()));
 	ox::PassThroughFS src(argSrc.c_str());
 	ox::FileSystem32 dst(ox::FileStore32(buff.data(), buff.size()));
-	auto err = nostalgia::pack(&src, &dst);
-	if (err) {
-		std::cerr << "pack failed...";
-	}
+	oxReturnError(nostalgia::pack(&src, &dst));
 
 	oxReturnError(dst.resize());
 	std::cout << "new size: " << dst.size() << '\n';
 	buff.resize(dst.size());
 
 	oxReturnError(writeFileBuff(argDst, buff));
-	return err;
+	return OxError(0);
 }
 
 int main(int argc, const char **args) {
 	auto err = run(ClArgs(argc, args));
 	oxAssert(err, "pack failed");
+	if (err) {
+		std::cerr << "pack failed...\n";
+	}
 	return static_cast<int>(err);
 }

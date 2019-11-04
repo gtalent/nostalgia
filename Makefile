@@ -31,13 +31,13 @@ test:
 	${ENV_RUN} ./scripts/run-make build test
 
 run: install
-	${ENV_RUN} ./dist/current/bin/nostalgia -debug
+	${ENV_RUN} ./dist/current/bin/nostalgia sample_project
 run-studio: install
 	${ENV_RUN} ./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json
 gba-run: pkg-gba
 	mgba-qt nostalgia.gba
-gdb: make
-	${ENV_RUN} gdb ./build/current/src/wombat/wombat
+gdb: install
+	${ENV_RUN} gdb --args ./dist/current/bin/nostalgia sample_project
 gdb-studio: install
 	${ENV_RUN} gdb --args ./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json
 

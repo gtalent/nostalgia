@@ -108,6 +108,10 @@ endif()
 
 enable_testing()
 
+if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
+	add_subdirectory(deps/gbastartup)
+endif()
+
 add_subdirectory(deps/ox)
 include_directories(deps/ox/src)
 

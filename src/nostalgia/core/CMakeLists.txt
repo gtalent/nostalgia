@@ -1,6 +1,7 @@
 add_library(
 	NostalgiaCore
 		core.cpp
+		gfx.cpp
 )
 
 target_link_libraries(

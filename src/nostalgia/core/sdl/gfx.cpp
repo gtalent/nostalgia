@@ -55,8 +55,10 @@ ox::Error shutdownGfx() {
 	return OxError(0);
 }
 
-ox::Error initConsole(Context*) {
-	return OxError(1);
+ox::Error initConsole(Context *ctx) {
+	constexpr auto TilesheetAddr = "/TileSheets/Charset.ng";
+	constexpr auto PaletteAddr = "/Palettes/Charset.npal";
+	return loadTileSheet(ctx, TileSheetSpace::Background, 0, TilesheetAddr, PaletteAddr);
 }
 
 SDL_Color createSDL_Color(Color nc) {
@@ -152,9 +154,6 @@ void draw() {
 		drawBackground(tex);
 	}
 	SDL_RenderPresent(renderer);
-}
-
-void puts(Context*, int, const char*) {
 }
 
 void setTile(Context*, int, int, int, uint8_t) {

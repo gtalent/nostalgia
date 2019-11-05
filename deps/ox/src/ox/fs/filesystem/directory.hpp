@@ -236,7 +236,7 @@ ox::Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t in
 
 		const auto entryDataSize = DirectoryEntry<InodeId_t>::DirectoryEntryData::spaceNeeded(name->len() + 1);
 		const auto entrySize = DirectoryEntry<InodeId_t>::spaceNeeded(entryDataSize);
-		const auto newSize = Buffer::spaceNeeded(m_size + entrySize);
+		const auto newSize = old.size() + Buffer::spaceNeeded(m_size + entrySize);
 		auto cpy = ox_malloca(newSize, Buffer, *old, oldStat.value.size);
 		if (cpy == nullptr) {
 			oxTrace("ox::fs::Directory::write::fail") << "Could not allocate memory for copy of Directory";

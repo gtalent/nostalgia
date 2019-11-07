@@ -93,8 +93,7 @@ class __attribute__((packed)) NodeBuffer {
 		Header m_header;
 
 	public:
-		NodeBuffer() {
-		}
+		NodeBuffer();
 
 		NodeBuffer(const NodeBuffer &other, size_t size);
 
@@ -169,12 +168,16 @@ class __attribute__((packed)) NodeBuffer {
 template<typename size_t, typename Item>
 NodeBuffer<size_t, Item>::NodeBuffer(size_t size) {
 	m_header.size = size;
+	auto data = reinterpret_cast<uint8_t*>(this) + sizeof(*this);
+	ox_memset(data, 0, size - sizeof(*this));
 	oxTrace("ox::NodeBuffer::constructor") << m_header.firstItem;
 }
 
 template<typename size_t, typename Item>
 NodeBuffer<size_t, Item>::NodeBuffer(const NodeBuffer &other, size_t size) {
 	oxTrace("ox::ptrarith::NodeBuffer::copy") << "other.m_header.firstItem:" << other.m_header.firstItem;
+	auto data = reinterpret_cast<uint8_t*>(this) + sizeof(*this);
+	ox_memset(data, 0, size - sizeof(*this));
 	ox_memcpy(this, &other, size);
 }
 
@@ -286,6 +289,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 			oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "Unknown";
 			return nullptr;
 		}
+		ox_memset(out, 0, fullSize);
 		new (out) Item;
 		out->setSize(size);
 
@@ -360,6 +364,8 @@ Error NodeBuffer<size_t, Item>::setSize(size_t size) {
 		return OxError(1);
 	} else {
 		m_header.size = size;
+		auto data = reinterpret_cast<uint8_t*>(this) + end;
+		ox_memset(data, 0, size - end);
 		return OxError(0);
 	}
 }

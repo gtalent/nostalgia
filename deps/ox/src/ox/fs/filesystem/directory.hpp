@@ -25,7 +25,7 @@ struct __attribute__((packed)) DirectoryEntry {
 			char name[MaxFileNameLength];
 
 			static constexpr std::size_t spaceNeeded(std::size_t chars) {
-				return offsetof(DirectoryEntryData, name) + chars + 1;
+				return offsetof(DirectoryEntryData, name) + chars;
 			}
 
 		};
@@ -234,9 +234,9 @@ ox::Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t in
 			return OxError(1);
 		}
 
-		const auto entryDataSize = DirectoryEntry<InodeId_t>::DirectoryEntryData::spaceNeeded(name->len() + 1);
-		const auto entrySize = DirectoryEntry<InodeId_t>::spaceNeeded(entryDataSize);
-		const auto newSize = old.size() + Buffer::spaceNeeded(m_size + entrySize);
+		const auto pathSize = name->len() + 1;
+		const auto entryDataSize = DirectoryEntry<InodeId_t>::DirectoryEntryData::spaceNeeded(pathSize);
+		const auto newSize = oldStat.value.size + Buffer::spaceNeeded(entryDataSize);
 		auto cpy = ox_malloca(newSize, Buffer, *old, oldStat.value.size);
 		if (cpy == nullptr) {
 			oxTrace("ox::fs::Directory::write::fail") << "Could not allocate memory for copy of Directory";
@@ -253,7 +253,7 @@ ox::Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t in
 
 		oxTrace("ox::fs::Directory::write") << "Attempting to write Directory entry:" << name->data();
 		oxTrace("ox::fs::Directory::write") << "Attempting to write Directory to FileStore";
-		oxReturnError(val->init(inode, name->data(), entrySize));
+		oxReturnError(val->init(inode, name->data(), val.size()));
 		return m_fs.write(m_inodeId, cpy, cpy->size());
 	}
 }

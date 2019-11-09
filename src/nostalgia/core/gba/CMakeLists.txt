@@ -9,6 +9,7 @@ add_library(
 
 target_link_libraries(
 	NostalgiaCore-GBA PUBLIC
+		NostalgiaCore
 		GbaStartup
 		OxFS
 		OxStd

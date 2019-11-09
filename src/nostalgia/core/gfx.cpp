@@ -141,9 +141,9 @@ char charMap[128] = {
 	0,  // ~
 };
 
-void puts(Context *ctx, int loc, const char *str) {
+void puts(Context *ctx, int column, int row, const char *str) {
 	for (int i = 0; str[i]; i++) {
-		setTile(ctx, 0, loc + i, 0, charMap[static_cast<int>(str[i])]);
+		setTile(ctx, 0, column + i, row, charMap[static_cast<int>(str[i])]);
 	}
 }
 

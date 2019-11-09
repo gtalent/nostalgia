@@ -12,6 +12,4 @@
 
 namespace nostalgia::core {
 
-typedef ox::FileStore32::InodeId_t InodeId_t;
-
 }

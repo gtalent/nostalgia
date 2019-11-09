@@ -112,7 +112,11 @@ ox::Error initConsole(Context *ctx) {
 	constexpr auto PaletteAddr = "/Palettes/Charset.npal";
 	if (!ctx) {
 		ctx = new (ox_alloca(sizeof(Context))) Context();
-		ox::FileStore32 fs(loadRom(), 32 * ox::units::MB);
+		auto rom = loadRom();
+		if (!rom) {
+			return OxError(1);
+		}
+		ox::FileStore32 fs(rom, 32 * ox::units::MB);
 		ctx->rom = new (ox_alloca(sizeof(ox::FileSystem32))) ox::FileSystem32(fs);
 	}
 	return loadTileSheet(ctx, TileSheetSpace::Background, 0, TilesheetAddr, PaletteAddr);

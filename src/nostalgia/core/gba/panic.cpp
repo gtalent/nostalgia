@@ -13,10 +13,10 @@ namespace nostalgia::core {
 
 void panic(const char *msg) {
 	oxIgnoreError(initConsole(nullptr));
-	puts(nullptr,  1 * 32 + 0, "SADNESS...");
-	puts(nullptr,  4 * 32 + 0, "UNEXPECTED STATE:");
-	puts(nullptr,  6 * 32 + 2, msg);
-	puts(nullptr, 10 * 32 + 0, "PLEASE RESTART THE SYSTEM");
+	puts(nullptr, 32 + 0,  1, "SADNESS...");
+	puts(nullptr, 32 + 0,  4, "UNEXPECTED STATE:");
+	puts(nullptr, 32 + 2,  6, msg);
+	puts(nullptr, 32 + 0, 10, "PLEASE RESTART THE SYSTEM");
 	// TODO: properly end program execution, this wastes power
 	while (1);
 }

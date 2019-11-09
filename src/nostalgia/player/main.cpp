@@ -22,7 +22,7 @@ ox::Error run(ox::FileSystem *fs) {
 	//oxReturnError(zone.init(&ctx, Bounds{0, 0, 40, 40}, "/TileSheets/Charset.ng", "/Palettes/Charset.npal"));
 	//zone.draw(&ctx);
 	oxReturnError(initConsole(&ctx));
-	puts(&ctx, 9 * 32 + 10, "DOPENESS!!!");
+	puts(&ctx, 10, 9, "DOPENESS!!!");
 	oxReturnError(run());
 	oxReturnError(shutdownGfx());
 	return OxError(0);

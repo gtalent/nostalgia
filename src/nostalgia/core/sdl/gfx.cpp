@@ -21,7 +21,8 @@ static SDL_Window *window = nullptr;
 static SDL_Renderer *renderer = nullptr;
 
 static std::array<SDL_Texture*, 4> bgTextures;
-static std::vector<std::vector<int>> bgTileMaps(128, std::vector<int>(128, 0));
+using TileMap = std::array<std::array<int, 128>, 128>;
+static std::array<TileMap, 4> bgTileMaps;
 
 [[nodiscard]] static ox::ValErr<ox::Vector<uint8_t>> readFile(Context *ctx, const ox::FileAddress &file) {
 	auto [stat, err] = ctx->rom->stat(file);
@@ -124,39 +125,42 @@ ox::Error loadTileSheet(Context *ctx,
 	return OxError(0);
 }
 
-void drawBackground(SDL_Texture *tex) {
-	constexpr auto DstSize = 32;
-	//oxTrace("nostalgia::core::drawBackground") << "Drawing background";
-	SDL_Rect src = {}, dst = {};
-	src.x = 0;
-	src.w = 8;
-	src.h = 8;
-	dst.x = 0;
-	dst.y = 0;
-	dst.w = DstSize;
-	dst.h = DstSize;
+void drawBackground(const TileMap &tm, SDL_Texture *tex) {
 	if (tex) {
-		for (auto &m : bgTileMaps) {
+		constexpr auto DstSize = 32;
+		//oxTrace("nostalgia::core::drawBackground") << "Drawing background";
+		SDL_Rect src = {}, dst = {};
+		src.x = 0;
+		src.w = 8;
+		src.h = 8;
+		dst.x = 0;
+		dst.y = 0;
+		dst.w = DstSize;
+		dst.h = DstSize;
+		for (auto &m : tm) {
 			for (auto t : m) {
 				src.y = t * 8;
 				SDL_RenderCopy(renderer, tex, &src, &dst);
-				dst.y += DstSize;
+				dst.x += DstSize;
 			}
-			dst.x += DstSize;
-			dst.y = 0;
+			dst.x = 0;
+			dst.y += DstSize;
 		}
 	}
 }
 
 void draw() {
 	SDL_RenderClear(renderer);
-	for (auto tex : bgTextures) {
-		drawBackground(tex);
+	for (std::size_t i = 0; i < bgTileMaps.size(); i++) {
+		auto tex = bgTextures[i];
+		auto &tm = bgTileMaps[i];
+		drawBackground(tm, tex);
 	}
 	SDL_RenderPresent(renderer);
 }
 
-void setTile(Context*, int, int, int, uint8_t) {
+void setTile(Context*, int layer, int column, int row, uint8_t tile) {
+	bgTileMaps[layer][row][column] = tile;
 }
 
 }

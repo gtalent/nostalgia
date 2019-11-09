@@ -11,17 +11,21 @@
 
 #ifndef OX_USE_STDLIB
 
+#define ox_inhibit_loop_to_libcall __attribute__((__optimize__ ("-fno-tree-loop-distribute-patterns")))
+
 extern "C" {
 
-void *memcpy(void *dest, const void *src, std::size_t size) {
+void *ox_inhibit_loop_to_libcall memcpy(void *dest, const void *src, std::size_t size) {
 	return ox_memcpy(dest, src, size);
 }
 
-void *memset(void *ptr, int val, std::size_t size) {
+void *ox_inhibit_loop_to_libcall memset(void *ptr, int val, std::size_t size) {
 	return ox_memset(ptr, val, size);
 }
 
 }
+
+#undef ox_inhibit_loop_to_libcall
 
 #endif
 

@@ -28,9 +28,9 @@ constexpr void *ox_memcpy(void *dest, const void *src, std::size_t size) noexcep
 }
 
 constexpr void *ox_memset(void *ptr, int val, std::size_t size) noexcept {
-	auto buf = static_cast<char*>(ptr);
+	auto buf = reinterpret_cast<uint8_t*>(ptr);
 	for (std::size_t i = 0; i < size; i++) {
-		buf[i] = val;
+		buf[i] = static_cast<uint8_t>(val);
 	}
 	return ptr;
 }

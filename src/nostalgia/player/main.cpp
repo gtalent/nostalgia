@@ -42,10 +42,40 @@ int main() {
 
 #else
 
+#include <vector>
+#include <stdio.h>
+
+std::vector<uint8_t> loadFileBuff(const char *path) {
+	auto file = fopen(path, "r");
+	if (file) {
+		fseek(file, 0, SEEK_END);
+		const auto size = ftell(file);
+		rewind(file);
+		std::vector<uint8_t> buff(size);
+		fread(buff.data(), size, 1, file);
+		fclose(file);
+		return buff;
+	} else {
+		return {};
+	}
+}
+
 int main(int argc, const char **argv) {
 	if (argc > 1) {
-		ox::PassThroughFS fs(argv[1]);
-		auto err = run(&fs);
+		std::unique_ptr<ox::FileSystem> fs;
+		std::vector<uint8_t> rom;
+		std::string path = argv[1];
+		const std::string fsExt = path.substr(path.find_last_of('.'));
+		if (fsExt == ".oxfs") {
+			rom = loadFileBuff(path.c_str());
+			if (!rom.size()) {
+				return 1;
+			}
+			fs = std::make_unique<ox::FileSystem32>(ox::FileStore32(rom.data(), 32 * ox::units::MB));
+		} else {
+			fs = std::make_unique<ox::PassThroughFS>(path.c_str());
+		}
+		auto err = run(fs.get());
 		oxAssert(err, "Something went wrong...");
 		return err;
 	}

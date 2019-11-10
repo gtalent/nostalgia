@@ -23,7 +23,6 @@ endif()
 target_link_libraries(
 	nostalgia
 		NostalgiaWorld
-		NostalgiaCore
 		${NOSTALGIA_PLAYER_DEPS}
 )
 

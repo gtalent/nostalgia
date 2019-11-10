@@ -65,7 +65,8 @@ int main(int argc, const char **argv) {
 		std::unique_ptr<ox::FileSystem> fs;
 		std::vector<uint8_t> rom;
 		std::string path = argv[1];
-		const std::string fsExt = path.substr(path.find_last_of('.'));
+		const auto lastDot = path.find_last_of('.');
+		const std::string fsExt = lastDot != std::string::npos ? path.substr(lastDot) : "";
 		if (fsExt == ".oxfs") {
 			rom = loadFileBuff(path.c_str());
 			if (!rom.size()) {

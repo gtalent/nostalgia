@@ -14,15 +14,13 @@
 #include <nostalgia/core/gfx.hpp>
 
 #include "addresses.hpp"
-#include "gba.hpp"
 #include "panic.hpp"
 
 namespace nostalgia::core {
 
 extern char charMap[128];
 
-#define TILE_ADDR  ((CharBlock*) 0x06000000)
-#define TILE8_ADDR ((CharBlock8*) 0x06000000)
+#define TILE_ADDR reinterpret_cast<uint16_t*>(0x06000000)
 
 constexpr auto GBA_TILE_COLUMNS = 32;
 constexpr auto GBA_TILE_ROWS = 32;
@@ -134,7 +132,7 @@ ox::Error loadTileSheet(Context *ctx,
 	GbaTileMapTarget target;
 	target.pal.palette = &MEM_PALLETE_BG[section];
 	target.bgCtl = &bgCtl(section);
-	target.tileMap = reinterpret_cast<uint16_t*>(&TILE_ADDR[section][0]);
+	target.tileMap = &TILE_ADDR[section];
 	oxReturnError(ox::readMC(ts, tsStat.size, &target));
 	// load external palette if available
 	if (paletteAddr) {

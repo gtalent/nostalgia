@@ -10,7 +10,6 @@
 #include <QImage>
 #include <QMap>
 
-#include <nostalgia/core/gba/gba.hpp>
 #include <nostalgia/core/core.hpp>
 
 #include "imgconv.hpp"

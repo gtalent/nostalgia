@@ -10,7 +10,6 @@
 
 #include <iostream>
 #include <vector>
-#include <nostalgia/core/gba/gba.hpp>
 #include <nostalgia/common/point.hpp>
 #include <ox/clargs/clargs.hpp>
 #include <ox/fs/fs.hpp>
@@ -20,7 +19,6 @@
 
 using namespace std;
 using namespace ox;
-using namespace nostalgia::core;
 using namespace nostalgia::common;
 
 [[nodiscard]] ox::ValErr<std::vector<uint8_t>> loadFileBuff(std::string path, ::size_t *sizeOut = nullptr) {

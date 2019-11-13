@@ -1,6 +1,6 @@
 
 add_library(
-	NostalgiaPack SHARED
+	NostalgiaPack
 		pack.cpp
 )
 
@@ -17,6 +17,6 @@ target_link_libraries(
 install(
 	TARGETS
 		NostalgiaPack
-	LIBRARY DESTINATION
+	ARCHIVE DESTINATION
 		${NOSTALGIA_DIST_LIB}/nostalgia
 )

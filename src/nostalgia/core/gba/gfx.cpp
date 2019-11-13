@@ -132,7 +132,7 @@ ox::Error loadTileSheet(Context *ctx,
 	GbaTileMapTarget target;
 	target.pal.palette = &MEM_PALLETE_BG[section];
 	target.bgCtl = &bgCtl(section);
-	target.tileMap = &TILE_ADDR[section];
+	target.tileMap = &TILE_ADDR[section * 512];
 	oxReturnError(ox::readMC(ts, tsStat.size, &target));
 	// load external palette if available
 	if (paletteAddr) {

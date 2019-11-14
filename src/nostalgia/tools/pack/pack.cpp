@@ -114,8 +114,6 @@ struct VerificationPair {
 
 [[nodiscard]] ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest) {
 	oxReturnError(copy(src, dest, "/"));
-	oxReturnError(dest->stat("/TileSheets/Charset.ng").error);
-	oxReturnError(dest->stat("/Palettes/Charset.npal").error);
 	oxReturnError(transformClaw(dest, "/"));
 	return OxError(0);
 }

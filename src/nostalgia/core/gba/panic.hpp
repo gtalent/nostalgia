@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include "panic.hpp"
-
 namespace nostalgia::core {
 
 void panic(const char *msg);

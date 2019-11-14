@@ -13,6 +13,14 @@ ifneq ($(shell which docker 2> /dev/null),)
 	endif
 endif
 
+ifeq ($(OS),darwin)
+	NOSTALGIA_STUDIO=./dist/current/nostalgia-studio.app/Contents/MacOS/nostalgia-studio
+	NOSTALGIA_STUDIO_PROFILE=dist/current/nostalgia-studio.app/Contents/Resources/nostalgia-studio.json
+else
+	NOSTALGIA_STUDIO=./dist/current/bin/nostalgia-studio
+	NOSTALGIA_STUDIO_PROFILE=dist/current/share/nostalgia-studio.json
+endif
+
 all:
 	${ENV_RUN} ./scripts/run-make build
 pkg-gba:
@@ -33,7 +41,7 @@ test:
 run: install
 	${ENV_RUN} ./dist/current/bin/nostalgia sample_project
 run-studio: install
-	${ENV_RUN} ./dist/current/bin/nostalgia-studio -profile dist/current/share/nostalgia-studio.json
+	${ENV_RUN} ${NOSTALGIA_STUDIO} -profile ${NOSTALGIA_STUDIO_PROFILE}
 gba-run: pkg-gba
 	mgba-qt nostalgia.gba
 gdb: install

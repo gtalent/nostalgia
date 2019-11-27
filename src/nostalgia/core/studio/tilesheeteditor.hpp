@@ -9,6 +9,7 @@
 #pragma once
 
 #include <QSplitter>
+#include <QStringList>
 #include <QStringView>
 #include <QTableWidget>
 #include <QWidget>
@@ -22,12 +23,15 @@ class SheetData: public QObject {
 	Q_OBJECT
 
 	private:
-		QVector<Color32> m_pixels;
+		QStringList m_palette;
+		QVector<uint8_t> m_pixels;
 
 	public:
 		Q_INVOKABLE QString pixel(int index);
 
-		void updatePixels(const studio::Context *ctx, QString path);
+		void updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal);
+
+		void updatePixels(const studio::Context *ctx, QString ngPath, QString palPath = "");
 
 	signals:
 		void refreshTileSheet();

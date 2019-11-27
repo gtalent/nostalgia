@@ -17,20 +17,26 @@
 
 namespace nostalgia::core {
 
-[[nodiscard]]
-QVector<Color32> toPixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal) {
+
+QString SheetData::pixel(int index) {
+	return m_palette[m_pixels[index]];
+}
+
+void SheetData::updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal) {
 	if (!npal) {
 		npal = &ng->pal;
 	}
 
-	QVector<Color32> out;
-	out.reserve(ng->tiles.size() * sizeof(Color16));
+	// load palette
+	for (std::size_t i = 0; i < npal->colors.size(); i++) {
+		auto c = toColor32(npal->colors[i]);
+		auto color = "#" + QString("%1").arg(QString::number(c, 16), 8, '0');
+		m_palette.append(color);
+	}
 
 	if (ng->bpp == 8) {
 		for (std::size_t i = 0; i < ng->tiles.size(); i++) {
-			auto p = ng->tiles[i];
-			auto c = p < npal->colors.size() ? npal->colors[p] : 0;
-			out.push_back(toColor32(c));
+			m_pixels.push_back(ng->tiles[i]);
 		}
 	} else {
 		for (std::size_t i = 0; i < ng->tiles.size() * 2; i++) {
@@ -40,16 +46,12 @@ QVector<Color32> toPixels(const NostalgiaGraphic *ng, const NostalgiaPalette *np
 			} else {
 				p = ng->tiles[i / 2] & 0xF;
 			}
-			auto c = p < npal->colors.size() ? npal->colors[p] : 0;
-			out.push_back(toColor32(c));
+			m_pixels.push_back(p);
 		}
 	}
-
-	return out;
 }
 
-[[nodiscard]]
-QVector<Color32> toPixels(const studio::Context *ctx, QString ngPath, QString palPath = "") {
+void SheetData::updatePixels(const studio::Context *ctx, QString ngPath, QString palPath) {
 	auto ng = ctx->project->loadObj<NostalgiaGraphic>(ngPath);
 	std::unique_ptr<NostalgiaPalette> npal;
 	if (palPath == "" && ng->defaultPalette.type() == ox::FileAddressType::Path) {
@@ -61,16 +63,7 @@ QVector<Color32> toPixels(const studio::Context *ctx, QString ngPath, QString pa
 	} catch (ox::Error) {
 		qWarning() << "Could not open palette" << palPath;
 	}
-	return toPixels(ng.get(), npal.get());
-}
-
-
-QString SheetData::pixel(int index) {
-	return "#" + QString("%1").arg(QString::number(m_pixels[index], 16), 8, '0');
-}
-
-void SheetData::updatePixels(const studio::Context *ctx, QString path) {
-	m_pixels = toPixels(ctx, path);
+	return updatePixels(ng.get(), npal.get());
 }
 
 

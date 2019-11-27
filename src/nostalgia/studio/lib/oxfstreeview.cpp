@@ -114,6 +114,10 @@ QString OxFSFile::name() const {
 	return m_path.mid(m_path.lastIndexOf("/") + 1);
 }
 
+QString OxFSFile::path() const {
+	return "/" + m_path;
+}
+
 
 // OxFSModel
 

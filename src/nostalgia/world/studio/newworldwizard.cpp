@@ -20,8 +20,8 @@ const QString NewWorldWizard::FIELD_WORLD_PATH = "World.WorldPath";
 NewWorldWizard::NewWorldWizard(const Context *ctx) {
 	addLineEdit(tr("&Name:"), FIELD_WORLD_PATH, "", [this, ctx](QString worldName) {
 			worldName = PATH_ZONES + worldName;
-			auto [stat, err] = ctx->project->stat(worldName);
-			if (err) {
+			auto exists = ctx->project->exists(worldName);
+			if (exists) {
 				this->showValidationError(tr("World already exists: %1").arg(worldName));
 				return 1;
 			}

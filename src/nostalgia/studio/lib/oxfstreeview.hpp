@@ -42,6 +42,8 @@ class OxFSFile {
 		OxFSFile *parentItem();
 
 		QString name() const;
+
+		QString path() const;
 };
 
 class OxFSModel: public QAbstractItemModel {

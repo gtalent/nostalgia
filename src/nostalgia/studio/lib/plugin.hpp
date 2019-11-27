@@ -10,9 +10,6 @@
 
 #include <functional>
 
-#include <QMainWindow>
-#include <QPointer>
-#include <QSharedPointer>
 #include <QVector>
 #include <QWizardPage>
 
@@ -22,14 +19,15 @@
 namespace nostalgia::studio {
 
 struct Context {
+	QString appName;
+	QString orgName;
 	QWidget *tabParent = nullptr;
 	const Project *project = nullptr;
 };
 
 struct EditorMaker {
-	virtual ~EditorMaker() = default;
-
-	virtual QWidget *make(QString path, const Context *ctx) = 0;
+	QStringList fileTypes;
+	std::function<QWidget*(QString)> make;
 };
 
 class Plugin {
@@ -42,6 +40,8 @@ class Plugin {
 		virtual QVector<WizardMaker> importWizards(const Context *ctx);
 
 		virtual QWidget *makeEditor(QString path, const Context *ctx);
+
+		virtual QVector<EditorMaker> editors(const Context *ctx);
 
 };
 

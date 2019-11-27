@@ -17,7 +17,7 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QString>
-#include <QTabBar>
+#include <QTabWidget>
 #include <QTreeView>
 #include <QVector>
 
@@ -91,8 +91,9 @@ class MainWindow: public QMainWindow {
 		QVector<QPointer<QDockWidget>> m_dockWidgets;
 		QTreeView *m_projectExplorer = nullptr;
 		QVector<Plugin*> m_plugins;
+		QHash<QString, EditorMaker> m_editorMakers;
 		QPointer<OxFSModel> m_oxfsView = nullptr;
-		QTabBar *m_tabbar = nullptr;
+		QTabWidget *m_tabs = nullptr;
 
 	public:
 		MainWindow(QString profilePath);
@@ -122,25 +123,47 @@ class MainWindow: public QMainWindow {
 		QAction *addAction(QMenu *menu, QString text, QString toolTip,
 		                   QKeySequence::StandardKey key, void (*cb)());
 
-		int readState(QString path = StateFilePath);
+		int readState();
 
-		int writeState(QString path = StateFilePath);
+		void writeState();
 
-		int openProject(QString);
+		/**
+		 * Read open editor tabs for current project.
+		 */
+		QStringList readTabs();
 
-		int closeProject();
+		/**
+		 * Write open editor tabs for current project.
+		 */
+		void writeTabs(QStringList tabs);
+
+		void openProject(QString);
+
+		void closeProject();
+
+		/**
+		 * @param force forces the reopening of the file even if it is already open
+		 */
+		void openFile(QString path, bool force = false);
 
 	public slots:
 		void onExit();
 
 	private slots:
-		int openProject();
+		void openProject();
+
+		void openFileSlot(QModelIndex);
+
+		void closeTab(int idx);
+
+		void moveTab(int from, int to);
 
 		void showNewWizard();
 
 		void showImportWizard();
 
 		void refreshProjectExplorer(QString path);
+
 };
 
 }

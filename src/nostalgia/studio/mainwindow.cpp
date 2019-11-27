@@ -52,9 +52,16 @@ MainWindow::MainWindow(QString profilePath) {
 	move(screenSize.width() * (1 - sizePct) / 2, screenSize.height() * (1 - sizePct) / 2);
 
 	setWindowTitle(m_profile.appName);
+	m_ctx.appName = m_profile.appName;
+	m_ctx.orgName = m_profile.orgName;
 
-	m_tabbar = new QTabBar(this);
-	setCentralWidget(m_tabbar);
+	m_tabs = new QTabWidget(this);
+	auto tabBar = m_tabs->tabBar();
+	setCentralWidget(m_tabs);
+	m_tabs->setTabsClosable(true);
+	connect(m_tabs, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
+	connect(tabBar, &QTabBar::tabMoved, this, &MainWindow::moveTab);
+	tabBar->setMovable(true);
 
 	setupMenu();
 	setupProjectExplorer();
@@ -95,6 +102,12 @@ void MainWindow::loadPlugin(QString pluginPath) {
 	auto plugin = qobject_cast<Plugin*>(loader.instance());
 	if (plugin) {
 		m_plugins.push_back(plugin);
+		auto editorMakers = plugin->editors(&m_ctx);
+		for (const auto &em : editorMakers) {
+			for (const auto &ext : em.fileTypes) {
+				m_editorMakers[ext] = em;
+			}
+		}
 	} else {
 		qInfo() << loader.errorString();
 	}
@@ -157,6 +170,8 @@ void MainWindow::setupProjectExplorer() {
 	m_projectExplorer = new QTreeView(dock);
 	m_projectExplorer->header()->hide();
 	dock->setWidget(m_projectExplorer);
+
+	connect(m_projectExplorer, &QTreeView::activated, this, &MainWindow::openFileSlot);
 }
 
 void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockWidget) {
@@ -190,7 +205,7 @@ QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 	return action;
 }
 
-int MainWindow::readState(QString) {
+int MainWindow::readState() {
 	int err = 0;
 
 	QSettings settings(m_profile.orgName, m_profile.appName);
@@ -201,17 +216,15 @@ int MainWindow::readState(QString) {
 	err |= readJson(json, &m_state);
 	settings.endGroup();
 
-	err |= openProject(m_state.projectPath);
+	openProject(m_state.projectPath);
 
 	return err;
 }
 
-int MainWindow::writeState(QString) {
-	int err = 0;
-
+void MainWindow::writeState() {
 	// generate JSON for application specific state info
 	QString json;
-	err |= writeJson(&json, &m_state);
+	writeJson(&json, &m_state);
 
 	QSettings settings(m_profile.orgName, m_profile.appName);
 	settings.beginGroup("MainWindow");
@@ -219,31 +232,66 @@ int MainWindow::writeState(QString) {
 	settings.setValue("windowState", saveState());
 	settings.setValue("json", json);
 	settings.endGroup();
-
-	return err;
 }
 
-int MainWindow::openProject(QString projectPath) {
-	auto err = closeProject();
-	auto project = new Project(projectPath);
-	if (err == 0) {
-		if (m_ctx.project) {
-			delete m_ctx.project;
-			m_ctx.project = nullptr;
-		}
-		m_ctx.project = project;
-		m_oxfsView = new OxFSModel(project->romFs());
-		m_projectExplorer->setModel(m_oxfsView);
-		connect(m_ctx.project, SIGNAL(updated(QString)), m_oxfsView, SLOT(updateFile(QString)));
-		m_importAction->setEnabled(true);
-		m_state.projectPath = projectPath;
-		qInfo() << "Open project:" << projectPath;
+/**
+ * Read open editor tabs for current project.
+ */
+QStringList MainWindow::readTabs() {
+	QStringList tabs;
+	QSettings settings(m_profile.orgName, m_profile.appName);
+	settings.beginReadArray("MainWindow/Project:" + m_state.projectPath);
+	auto size = settings.beginReadArray("openEditors");
+	for (int i = 0; i < size; i++) {
+		settings.setArrayIndex(i);
+		tabs.append(settings.value("filePath").toString());
 	}
-	return err;
+	settings.endArray();
+	return tabs;
 }
 
-int MainWindow::closeProject() {
-	auto err = 0;
+/**
+ * Write open editor tabs for current project.
+ */
+void MainWindow::writeTabs(QStringList tabs) {
+	QSettings settings(m_profile.orgName, m_profile.appName);
+	settings.beginWriteArray("MainWindow/Project:" + m_state.projectPath + "/openEditors");
+	for (int i = 0; i < tabs.size(); i++) {
+		settings.setArrayIndex(i);
+		settings.setValue("filePath", tabs[i]);
+	}
+	settings.endArray();
+}
+
+void MainWindow::openProject(QString projectPath) {
+	closeProject();
+	auto project = new Project(projectPath);
+	if (m_ctx.project) {
+		delete m_ctx.project;
+		m_ctx.project = nullptr;
+	}
+	m_ctx.project = project;
+	m_oxfsView = new OxFSModel(project->romFs());
+	m_projectExplorer->setModel(m_oxfsView);
+	connect(m_ctx.project, &Project::updated, m_oxfsView, &OxFSModel::updateFile);
+	m_importAction->setEnabled(true);
+	m_state.projectPath = projectPath;
+	// reopen tabs
+	auto openTabs = readTabs();
+	for (auto t : openTabs) {
+		openFile(t, true);
+	}
+	qInfo() << "Open project:" << projectPath;
+}
+
+void MainWindow::closeProject() {
+	// delete tabs
+	while (m_tabs->count()) {
+		auto t = m_tabs->widget(0);
+		m_tabs->removeTab(0);
+		delete t;
+	}
+	
 	if (m_ctx.project) {
 		disconnect(m_ctx.project, SIGNAL(updated(QString)), m_oxfsView, SLOT(updateFile(QString)));
 
@@ -261,7 +309,29 @@ int MainWindow::closeProject() {
 	m_importAction->setEnabled(false);
 
 	m_state.projectPath = "";
-	return err;
+}
+
+void MainWindow::openFile(QString path, bool force) {
+	if (!force && readTabs().contains(path)) {
+		return;
+	}
+	const auto dotIdx = path.lastIndexOf('.') + 1;
+	if (dotIdx == -1) {
+		return;
+	}
+	const auto ext = path.mid(dotIdx);
+	const auto lastSlash = path.lastIndexOf('/') + 1;
+	auto tabName = path.mid(lastSlash);
+	if (m_editorMakers.contains(ext)) {
+		auto tab = m_editorMakers[ext].make(path);
+		m_tabs->addTab(tab, tabName);
+		// save new tab to application state
+		auto openTabs = readTabs();
+		if (!openTabs.contains(path)) {
+			openTabs.append(path);
+		}
+		writeTabs(openTabs);
+	}
 }
 
 void MainWindow::onExit() {
@@ -271,16 +341,35 @@ void MainWindow::onExit() {
 
 // private slots
 
-int MainWindow::openProject() {
+void MainWindow::openProject() {
 	auto projectPath = QFileDialog::getExistingDirectory(this, tr("Select Project Directory..."), QDir::homePath());
-	int err = 0;
 	if (projectPath != "") {
-		err |= openProject(projectPath);
-		if (err == 0) {
-			err |= writeState();
-		}
+		openProject(projectPath);
+		writeState();
 	}
-	return err;
+}
+
+void MainWindow::openFileSlot(QModelIndex file) {
+	auto path = static_cast<OxFSFile*>(file.internalPointer())->path();
+	return openFile(path);
+}
+
+void MainWindow::closeTab(int idx) {
+	auto tab = m_tabs->widget(idx);
+	m_tabs->removeTab(idx);
+	delete tab;
+
+	// remove from open tabs list
+	auto tabs = readTabs();
+	tabs.removeAt(idx);
+	writeTabs(tabs);
+}
+
+void MainWindow::moveTab(int from, int to) {
+	// move tab in open tabs list
+	auto tabs = readTabs();
+	tabs.move(from, to);
+	writeTabs(tabs);
 }
 
 void MainWindow::showNewWizard() {

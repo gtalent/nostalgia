@@ -21,10 +21,7 @@ class Project: public QObject {
 	Q_OBJECT
 
 	private:
-		static QString ROM_FILE;
-
 		QString m_path = "";
-		std::unique_ptr<uint8_t[]> m_fsBuff;
 		mutable ox::PassThroughFS m_fs;
 
 	public:
@@ -34,23 +31,27 @@ class Project: public QObject {
 
 		void create();
 
-		ox::Error openRomFs();
-
-		ox::Error saveRomFs() const;
-
 		ox::PassThroughFS *romFs();
 
-		ox::Error mkdir(QString path) const;
-
-		ox::Error write(QString path, uint8_t *buff, size_t buffLen) const;
+		void mkdir(QString path) const;
 
 		/**
 		 * Writes a MetalClaw object to the project at the given path.
 		 */
 		template<typename T>
-		ox::Error writeObj(QString path, T *obj) const;
+		void writeObj(QString path, T *obj) const;
 
-		ox::ValErr<ox::FileStat> stat(QString path) const;
+		template<typename T>
+		std::unique_ptr<T> loadObj(QString path) const;
+
+		ox::FileStat stat(QString path) const;
+
+		bool exists(QString path) const;
+
+	private:
+		void writeBuff(QString path, uint8_t *buff, size_t buffLen) const;
+
+		std::vector<uint8_t> loadBuff(QString path) const;
 
 	signals:
 		void updated(QString path) const;
@@ -58,19 +59,22 @@ class Project: public QObject {
 };
 
 template<typename T>
-ox::Error Project::writeObj(QString path, T *obj) const {
-	auto buffLen = 1024 * 1024 * 10;
-	QByteArray buff(buffLen, 0);
-
+void Project::writeObj(QString path, T *obj) const {
+	std::vector<uint8_t> buff(10 * ox::units::MB, 0);
 	// write MetalClaw
 	size_t mcSize = 0;
-	oxReturnError(ox::writeMC(reinterpret_cast<uint8_t*>(buff.data()), buffLen, obj, &mcSize));
+	oxThrowError(ox::writeMC(buff.data(), buff.size(), obj, &mcSize));
 	// write to FS
-	oxReturnError(write(path, reinterpret_cast<uint8_t*>(buff.data()), mcSize));
-
+	writeBuff(path, buff.data(), mcSize);
 	emit updated(path);
+}
 
-	return OxError(0);
+template<typename T>
+std::unique_ptr<T> Project::loadObj(QString path) const {
+	auto obj = std::make_unique<T>();
+	auto buff = loadBuff(path);
+	oxThrowError(ox::readMC<T>(buff.data(), buff.size(), obj.get()));
+	return obj;
 }
 
 }

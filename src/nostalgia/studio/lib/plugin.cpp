@@ -22,4 +22,8 @@ QWidget *Plugin::makeEditor(QString, const Context*) {
 	return nullptr;
 }
 
+QVector<EditorMaker> Plugin::editors(const Context*) {
+	return {};
+}
+
 }

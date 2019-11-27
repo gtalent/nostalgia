@@ -15,8 +15,6 @@ namespace nostalgia::studio {
 
 using namespace ox;
 
-QString Project::ROM_FILE = "/ROM.oxfs";
-
 Project::Project(QString path): m_fs(path.toUtf8()) {
 	qDebug() << "Project:" << path;
 	m_path = path;
@@ -29,54 +27,35 @@ void Project::create() {
 	QDir().mkpath(m_path);
 }
 
-ox::Error Project::openRomFs() {
-	QFile file(m_path + ROM_FILE);
-	auto buffSize = file.size();
-	auto buff = std::make_unique<uint8_t[]>(buffSize);
-	if (file.exists()) {
-		file.open(QIODevice::ReadOnly);
-		if (file.read(reinterpret_cast<char*>(buff.get()), buffSize) > 0) {
-			m_fsBuff = std::move(buff);
-			if (m_fs.valid()) {
-				return OxError(0);
-			} else {
-				return OxError(1);
-			}
-		} else {
-			return OxError(2);
-		}
-	} else {
-		return OxError(3);
-	}
-}
-
-ox::Error Project::saveRomFs() const {
-	ox::Error err(0);
-	//QFile file(m_path + ROM_FILE);
-	//err |= file.open(QIODevice::WriteOnly) == false;
-	//err |= file.write((const char*) m_fsBuff.get(), m_fs.size()) == -1;
-	//file.close();
-	return err;
-}
-
 PassThroughFS *Project::romFs() {
 	return &m_fs;
 }
 
-ox::Error Project::mkdir(QString path) const {
-	auto err = m_fs.mkdir(path.toUtf8().data(), true);
+void Project::mkdir(QString path) const {
+	oxThrowError(m_fs.mkdir(path.toUtf8().data(), true));
 	emit updated(path);
-	return err;
 }
 
-ox::Error Project::write(QString path, uint8_t *buff, size_t buffLen) const {
-	auto err = m_fs.write(path.toUtf8().data(), buff, buffLen);
-	emit updated(path);
-	return err;
+ox::FileStat Project::stat(QString path) const {
+	auto [s, e] = m_fs.stat(path.toUtf8().data());
+	oxThrowError(e);
+	return s;
 }
 
-ox::ValErr<ox::FileStat> Project::stat(QString path) const {
-	return m_fs.stat(path.toUtf8().data());
+bool Project::exists(QString path) const {
+	return m_fs.stat(path.toUtf8().data()).error == 0;
+}
+
+void Project::writeBuff(QString path, uint8_t *buff, size_t buffLen) const {
+	oxThrowError(m_fs.write(path.toUtf8().data(), buff, buffLen));
+	emit updated(path);
+}
+
+std::vector<uint8_t> Project::loadBuff(QString path) const {
+	std::vector<uint8_t> buff(stat(path).size);
+	const auto csPath = path.toUtf8();
+	oxThrowError(m_fs.read(csPath.data(), buff.data(), buff.size()));
+	return buff;
 }
 
 }

@@ -1,13 +1,14 @@
 
 #setup libraries
 
-if(NOSTALGIA_BUILD_STUDIO)
-	find_package(Qt5Widgets)
-	set(CMAKE_AUTOMOC ON)
-endif()
-
 if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
 	find_package(SDL2 REQUIRED)
+	if(NOSTALGIA_BUILD_STUDIO)
+		find_package(Qt5Widgets REQUIRED)
+		find_package(Qt5QuickWidgets REQUIRED)
+		set(CMAKE_AUTOMOC ON)
+		set(CMAKE_AUTORCC ON)
+	endif()
 endif()
 
 #project packages
@@ -19,8 +20,7 @@ add_subdirectory(world)
 
 if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
 	add_subdirectory(tools)
-endif()
-
-if(NOSTALGIA_BUILD_STUDIO)
-	add_subdirectory(studio)
+	if(NOSTALGIA_BUILD_STUDIO)
+		add_subdirectory(studio)
+	endif()
 endif()

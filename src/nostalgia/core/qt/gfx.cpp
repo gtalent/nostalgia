@@ -18,11 +18,12 @@ ox::Error initConsole(Context*) {
 	return OxError(1);
 }
 
-ox::Error loadTileSheet(Context*, InodeId_t) {
+ox::Error loadTileSheet(Context*,
+                        TileSheetSpace,
+                        int,
+                        ox::FileAddress,
+                        ox::FileAddress) {
 	return OxError(1);
-}
-
-void puts(Context*, int, const char*) {
 }
 
 void setTile(Context*, int, int, int, uint8_t) {

@@ -26,7 +26,7 @@ namespace {
 }
 
 [[nodiscard]] int pointToIdx(int w, int x, int y) {
-	const auto colLength = 64;
+	constexpr auto colLength = 64;
 	const auto rowLength = (w / 8) * colLength;
 	const auto colStart = colLength * (x / 8);
 	const auto rowStart = rowLength * (y / 8);
@@ -87,7 +87,7 @@ namespace {
 	for (int x = 0; x < src.width(); x++) {
 		for (int y = 0; y < src.height(); y++) {
 			auto destI = pointToIdx(src.width(), x, y);
-			if (destI <= argTiles * 64) {
+			if (destI < argTiles * 64) {
 				const auto c = src.pixel(x, y);
 				// assign color a color id for the palette
 				if (!colors.contains(c)) {

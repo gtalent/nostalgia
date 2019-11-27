@@ -74,14 +74,12 @@ int ImportTilesheetWizardPalettePage::accept() {
 		const auto outPath = PaletteDir + paletteName + FileExt_npal;
 		core::NostalgiaPalette pal;
 		pal = std::move(ng->pal);
-		auto [buff, err] = toBuffer(&pal);
-		oxReturnError(err);
-		oxReturnError(m_ctx->project->write(outPath, buff.data(), buff.size()));
+		m_ctx->project->writeObj(outPath, &pal);
+		auto defaultPalette = outPath.toUtf8();
+		ng->defaultPalette = defaultPalette.data();
 	}
-	auto [buff, err] = toBuffer(ng.get());
-	oxReturnError(err);
-	oxReturnError(m_ctx->project->write(outPath, buff.data(), buff.size()));
-	return m_ctx->project->saveRomFs();
+	m_ctx->project->writeObj(outPath, ng.get());
+	return 0;
 }
 
 }

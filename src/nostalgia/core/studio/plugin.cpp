@@ -8,15 +8,13 @@
 
 #include "new_tilesheet_wizard.hpp"
 #include "import_tilesheet_wizard.hpp"
+#include "tilesheeteditor.hpp"
 
 #include "plugin.hpp"
 
 using namespace nostalgia::studio;
 
 namespace nostalgia::core {
-
-Plugin::Plugin() {
-}
 
 QVector<studio::WizardMaker> Plugin::newWizards(const Context *ctx) {
 	return {
@@ -40,6 +38,17 @@ QVector<studio::WizardMaker> Plugin::importWizards(const studio::Context *ctx) {
 				pgs.push_back(new ImportTilesheetWizardMainPage(ctx));
 				pgs.push_back(new ImportTilesheetWizardPalettePage(ctx));
 				return pgs;
+			}
+		}
+	};
+}
+
+QVector<studio::EditorMaker> Plugin::editors(const studio::Context *ctx) {
+	return {
+		{
+			{"ng"},
+			[ctx](QString path) {
+				return new TileSheetEditor(path, ctx, ctx->tabParent);
 			}
 		}
 	};

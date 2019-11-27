@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/qml">
+        <file>Pixel.qml</file>
+        <file>Tile.qml</file>
+        <file>TileSheetEditor.qml</file>
+    </qresource>
+</RCC>

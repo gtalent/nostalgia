@@ -11,7 +11,7 @@
 
 #ifndef OX_USE_STDLIB
 
-#define ox_inhibit_loop_to_libcall __attribute__((__optimize__ ("-fno-tree-loop-distribute-patterns")))
+#define ox_inhibit_loop_to_libcall __attribute__((__optimize__("-fno-tree-loop-distribute-patterns")))
 
 extern "C" {
 

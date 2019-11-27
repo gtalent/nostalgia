@@ -19,7 +19,8 @@
 #endif
 
 #define oxIgnoreError(x)
-#define oxReturnError(x) if (const auto _err = ox::error::toError(x)) return _err
+#define oxReturnError(x) if (const auto _ox_error = ox::error::toError(x)) return _ox_error
+#define oxThrowError(x) if (const auto _ox_error = ox::error::toError(x)) throw _ox_error
 
 namespace ox {
 

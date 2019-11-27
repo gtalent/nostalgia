@@ -1,5 +1,14 @@
 # Developer Handbook
 
+## About
+
+The purpose of the Developer Handbook is similar to that of the README. The
+README should be viewed as a prerequisite to the Developer Handbook. The README
+should provide information needed to build the project, which might be used by
+an advanced user or a person trying to build and package the project. The
+Developer Handbook should focus on information needed by a developer working on
+the project.
+
 ## Project Structure
 
 ### Overview
@@ -92,6 +101,25 @@ resorting to output parameters.
 	}
 	return OxError(1); // implicitly calls ox::ValErr<T>::ValErr(ox::Error)
 }
+
+int caller1() {
+	auto v = foo(argc);
+	if (v.error) {
+		return 1;
+	}
+	std::cout << v.value << '\n';
+	return 0;
+}
+
+int caller2() {
+	// it is also possible to capture the value and error in their own variables
+	auto [val, err] = foo(argc);
+	if (err) {
+		return 1;
+	}
+	std::cout << val << '\n';
+	return 0;
+}
 ```
 
 Lastly, there are two macros available to help in passing ```ox::Error```s
@@ -107,13 +135,13 @@ useful at the boundry between engine libraries and Nostalgia Studio.
 void studioCode() {
 	auto [val, err] = foo(1);
 	oxThrowError(err);
-	// do stuff with val
+	doStuff(val);
 }
 
 [[nodiscard]] ox::Error engineCode() {
 	auto [val, err] = foo(1);
 	oxReturnError(err);
-	// do stuff with val
+	doStuff(val);
 	return OxError(0);
 }
 ```
@@ -124,15 +152,14 @@ Both macros will also take the ```ox::ValErr``` directly:
 void studioCode() {
 	auto valerr = foo(1);
 	oxThrowError(valerr);
-	// do stuff with valerr
+	doStuff(valerr.value);
 }
 
 [[nodiscard]] ox::Error engineCode() {
 	auto valerr = foo(1);
 	oxReturnError(valerr);
-	// do stuff with valerr
+	doStuff(valerr.value);
 	return OxError(0);
 }
 ```
-
 

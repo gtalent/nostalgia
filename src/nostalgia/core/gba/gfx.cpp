@@ -130,7 +130,7 @@ ox::Error loadTileSheet(Context *ctx,
 	auto [ts, tserr] = ctx->rom->read(tilesheetAddr);
 	oxReturnError(tserr);
 	GbaTileMapTarget target;
-	target.pal.palette = &MEM_PALLETE_BG[section];
+	target.pal.palette = &MEM_PALETTE_BG[section];
 	target.bgCtl = &bgCtl(section);
 	target.tileMap = &TILE_ADDR[section * 512];
 	oxReturnError(ox::readMC(ts, tsStat.size, &target));

@@ -39,8 +39,8 @@
 /////////////////////////////////////////////////////////////////
 // Memory Addresses
 
-#define MEM_PALLETE_BG     ((uint16_t*) 0x05000000)
-#define MEM_PALLETE_SPRITE ((uint16_t*) 0x05000200)
+#define MEM_PALETTE_BG     ((uint16_t*) 0x05000000)
+#define MEM_PALETTE_SPRITE ((uint16_t*) 0x05000200)
 
 typedef uint16_t BgMapTile[1024];
 #define MEM_BG_MAP ((BgMapTile*) 0x06000000)

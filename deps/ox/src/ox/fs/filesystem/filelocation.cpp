@@ -28,7 +28,9 @@ FileAddress::FileAddress(uint64_t inode) {
 }
 
 FileAddress::FileAddress(char *path) {
-	m_data.path = path;
+	auto pathSize = ox_strlen(path) + 1;
+	m_data.path = new char[pathSize];
+	memcpy(m_data.path, path, pathSize);
 	m_type = FileAddressType::Path;
 }
 

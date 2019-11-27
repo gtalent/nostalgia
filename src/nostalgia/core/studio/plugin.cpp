@@ -16,7 +16,7 @@ using namespace nostalgia::studio;
 
 namespace nostalgia::core {
 
-QVector<studio::WizardMaker> Plugin::newWizards(const Context *ctx) {
+QVector<studio::WizardMaker> Plugin::newWizards(const studio::Context *ctx) {
 	return {
 		{
 			tr("Tile Sheet"),

@@ -20,11 +20,17 @@ enum class TileSheetSpace {
 	Sprite
 };
 
-using Color = uint16_t;
+using Color16 = uint16_t;
+
+/**
+ * Nostalgia Core logically uses 16 bit colors, but must translate that to 32
+ * bit colors in some implementations.
+ */
+using Color32 = uint32_t;
 
 struct NostalgiaPalette {
 	static constexpr auto Fields = 1;
-	ox::Vector<Color> colors;
+	ox::Vector<Color16> colors;
 };
 
 struct NostalgiaGraphic {
@@ -63,7 +69,7 @@ ox::Error model(T *io, NostalgiaGraphic *ng) {
  */
 [[nodiscard]] ox::Error loadTileSheet(Context *ctx, TileSheetSpace tss, int section, ox::FileAddress tilesheet, ox::FileAddress palette = nullptr);
 
-ox::Error loadTileSheet(Context *ctx, ox::FileAddress file);
+[[nodiscard]] Color32 toColor32(Color16 nc);
 
 void puts(Context *ctx, int column, int row, const char *str);
 

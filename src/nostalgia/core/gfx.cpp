@@ -11,7 +11,7 @@
 namespace nostalgia::core {
 
 // map ASCII values to the nostalgia charset
-char charMap[128] = {
+static char charMap[128] = {
 	0,
 	0,
 	0,
@@ -140,6 +140,14 @@ char charMap[128] = {
 	48, // }
 	0,  // ~
 };
+
+Color32 toColor32(Color16 nc) {
+	auto r = ((nc & 0b0000000000011111) >> 0) * 8;
+	auto g = ((nc & 0b0000001111100000) >> 5) * 8;
+	auto b = ((nc & 0b0111110000000000) >> 10) * 8;
+	auto a = 255;
+	return a | (b << 8) | (g << 16) | (r << 24);
+}
 
 void puts(Context *ctx, int column, int row, const char *str) {
 	for (int i = 0; str[i]; i++) {

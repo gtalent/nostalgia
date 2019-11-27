@@ -40,7 +40,7 @@ struct GbaTileMapTarget {
 template<typename T>
 ox::Error modelRead(T *io, GbaPaletteTarget *t) {
 	io->setTypeInfo("nostalgia::core::NostalgiaPalette", NostalgiaPalette::Fields);
-	oxReturnError(io->template field<Color>("colors", [t](auto i, Color *c) {
+	oxReturnError(io->template field<Color16>("colors", [t](auto i, Color16 *c) {
 		t->palette[i] = *c;
 		return OxError(0);
 	}));

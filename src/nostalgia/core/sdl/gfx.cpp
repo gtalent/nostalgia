@@ -62,7 +62,7 @@ ox::Error initConsole(Context *ctx) {
 	return loadTileSheet(ctx, TileSheetSpace::Background, 0, TilesheetAddr, PaletteAddr);
 }
 
-SDL_Color createSDL_Color(Color nc) {
+SDL_Color createSDL_Color(Color16 nc) {
 	SDL_Color c;
 	// extract the color chanels and scale them up for a 24 bit color
 	c.r = ((nc & 0b0000000000011111) >> 0) * 8;

@@ -13,6 +13,7 @@
 #include <QTableWidget>
 #include <QWidget>
 
+#include <nostalgia/core/gfx.hpp>
 #include <nostalgia/studio/studio.hpp>
 
 namespace nostalgia::core {
@@ -21,7 +22,7 @@ class SheetData: public QObject {
 	Q_OBJECT
 
 	private:
-		QVector<uint32_t> m_pixels;
+		QVector<Color32> m_pixels;
 
 	public:
 		Q_INVOKABLE QString pixel(int index);

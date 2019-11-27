@@ -12,29 +12,19 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 
-#include <nostalgia/core/gfx.hpp>
-
 #include "consts.hpp"
 #include "tilesheeteditor.hpp"
 
 namespace nostalgia::core {
 
-uint32_t toColor32(Color nc) {
-	auto r = ((nc & 0b0000000000011111) >> 0) * 8;
-	auto g = ((nc & 0b0000001111100000) >> 5) * 8;
-	auto b = ((nc & 0b0111110000000000) >> 10) * 8;
-	auto a = 255;
-	return a | (b << 8) | (g << 16) | (r << 24);
-}
-
 [[nodiscard]]
-QVector<uint32_t> toPixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal) {
+QVector<Color32> toPixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal) {
 	if (!npal) {
 		npal = &ng->pal;
 	}
 
-	QVector<uint32_t> out;
-	out.reserve(ng->tiles.size() * sizeof(Color));
+	QVector<Color32> out;
+	out.reserve(ng->tiles.size() * sizeof(Color16));
 
 	if (ng->bpp == 8) {
 		for (std::size_t i = 0; i < ng->tiles.size(); i++) {
@@ -59,7 +49,7 @@ QVector<uint32_t> toPixels(const NostalgiaGraphic *ng, const NostalgiaPalette *n
 }
 
 [[nodiscard]]
-QVector<uint32_t> toPixels(const studio::Context *ctx, QString ngPath, QString palPath = "") {
+QVector<Color32> toPixels(const studio::Context *ctx, QString ngPath, QString palPath = "") {
 	auto ng = ctx->project->loadObj<NostalgiaGraphic>(ngPath);
 	std::unique_ptr<NostalgiaPalette> npal;
 	if (palPath == "" && ng->defaultPalette.type() == ox::FileAddressType::Path) {
@@ -124,7 +114,7 @@ void TileSheetEditor::saveState() {
 void TileSheetEditor::restoreState() {
 	QSettings settings(m_ctx->orgName, PluginName);
 	settings.beginGroup("TileSheetEditor/state");
-	m_splitter->restoreState(settings.value("m_splitter/state").toByteArray());
+	m_splitter->restoreState(settings.value("m_splitter/state", m_splitter->saveState()).toByteArray());
 	settings.endGroup();
 }
 

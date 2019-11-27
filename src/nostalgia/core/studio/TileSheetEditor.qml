@@ -14,7 +14,7 @@ Rectangle {
 		anchors.horizontalCenter: tileSheetEditor.horizontalCenter
 		anchors.verticalCenter: tileSheetEditor.verticalCenter
 		rows: 2
-		columns: 3
+		columns: 2
 		Repeater {
 			model: tileGrid.rows * tileGrid.columns
 			Tile {

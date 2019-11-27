@@ -18,7 +18,7 @@ Rectangle {
 		Repeater {
 			model: 64
 			Pixel {
-				pixelNumber: index
+				pixelNumber: index + 64 * tile.tileNumber
 			}
 		}
 	}

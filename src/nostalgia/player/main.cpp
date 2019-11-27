@@ -43,7 +43,7 @@ int main() {
 #else
 
 #include <vector>
-#include <stdio.h>
+#include <cstdio>
 
 std::vector<uint8_t> loadFileBuff(const char *path) {
 	auto file = fopen(path, "r");
@@ -64,7 +64,7 @@ int main(int argc, const char **argv) {
 	if (argc > 1) {
 		std::unique_ptr<ox::FileSystem> fs;
 		std::vector<uint8_t> rom;
-		std::string path = argv[1];
+		const std::string path = argv[1];
 		const auto lastDot = path.find_last_of('.');
 		const std::string fsExt = lastDot != std::string::npos ? path.substr(lastDot) : "";
 		if (fsExt == ".oxfs") {

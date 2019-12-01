@@ -17,6 +17,7 @@ elseif(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
 	add_subdirectory(userland)
 endif()
 if(NOSTALGIA_BUILD_STUDIO)
+	add_subdirectory(qt)
 	add_subdirectory(studio)
 endif()
 

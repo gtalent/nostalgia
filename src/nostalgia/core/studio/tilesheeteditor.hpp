@@ -12,6 +12,7 @@
 #include <QStringList>
 #include <QStringView>
 #include <QTableWidget>
+#include <QVariant>
 #include <QWidget>
 
 #include <nostalgia/core/gfx.hpp>
@@ -21,20 +22,42 @@ namespace nostalgia::core {
 
 class SheetData: public QObject {
 	Q_OBJECT
+	Q_PROPERTY(int columns READ columns WRITE setColumns NOTIFY columnsChanged)
+	Q_PROPERTY(int rows READ rows WRITE setRows NOTIFY rowsChanged)
 
 	private:
 		QStringList m_palette;
 		QVector<uint8_t> m_pixels;
+		int m_columns = 2;
+		int m_rows = 2;
+		int m_selectedColor = 0;
 
 	public:
 		Q_INVOKABLE QString pixel(int index);
 
-		void updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal);
+		Q_INVOKABLE void updatePixels(QVariantList pixels);
+
+		int columns();
+
+		void setColumns(int columns);
+
+		int rows();
+
+		void setRows(int rows);
+
+		QStringList palette();
 
 		void updatePixels(const studio::Context *ctx, QString ngPath, QString palPath = "");
 
+		void setSelectedColor(int index);
+
+	private:
+		void updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal);
+
 	signals:
-		void refreshTileSheet();
+		void columnsChanged();
+
+		void rowsChanged();
 
 };
 
@@ -59,9 +82,14 @@ class TileSheetEditor: public QWidget {
 	private:
 		QWidget *setupColorPicker(QWidget *widget);
 
+		void setColorTable(QStringList hexColors);
+
 		void saveState();
 
 		void restoreState();
+
+	public slots:
+		void colorSelected();
 
 };
 

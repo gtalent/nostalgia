@@ -26,4 +26,10 @@ Rectangle {
 		anchors.horizontalCenter: pixel.horizontalCenter
 		anchors.bottom: pixel.bottom
 	}
+
+	MouseArea {
+		anchors.fill: parent
+		onClicked: sheetData.updatePixels([pixel])
+	}
+
 }

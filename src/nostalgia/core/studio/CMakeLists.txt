@@ -14,6 +14,7 @@ target_link_libraries(
 		Qt5::Widgets
 		Qt5::QuickWidgets
 		NostalgiaStudio
+		NostalgiaCore-Qt
 		NostalgiaCore
 		OxFS
 		OxStd

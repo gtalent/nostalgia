@@ -71,6 +71,19 @@ ox::Error model(T *io, NostalgiaGraphic *ng) {
 
 [[nodiscard]] Color32 toColor32(Color16 nc);
 
+[[nodiscard]] uint8_t red32(Color16 c);
+
+[[nodiscard]] uint8_t green32(Color16 c);
+
+[[nodiscard]] uint8_t blue32(Color16 c);
+
+
+[[nodiscard]] uint8_t red32(Color32 c);
+
+[[nodiscard]] uint8_t green32(Color32 c);
+
+[[nodiscard]] uint8_t blue32(Color32 c);
+
 void puts(Context *ctx, int column, int row, const char *str);
 
 void setTile(Context *ctx, int layer, int column, int row, uint8_t tile);

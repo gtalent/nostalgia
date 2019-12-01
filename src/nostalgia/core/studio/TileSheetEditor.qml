@@ -16,12 +16,12 @@ Rectangle {
 	Grid {
 		id: tileGrid
 		property int baseTileSize: Math.min(parent.width / tileGrid.columns, parent.height / tileGrid.rows)
-		width: tileGrid.columns * tileGrid.baseTileSize * 0.85
-		height: tileGrid.rows * tileGrid.baseTileSize * 0.85
+		width: tileGrid.columns * tileGrid.baseTileSize * 0.90
+		height: tileGrid.rows * tileGrid.baseTileSize * 0.90
 		anchors.horizontalCenter: tileSheetEditor.horizontalCenter
 		anchors.verticalCenter: tileSheetEditor.verticalCenter
-		rows: 2
-		columns: 2
+		rows: sheetData.rows
+		columns: sheetData.columns
 		Repeater {
 			model: tileGrid.rows * tileGrid.columns
 			Tile {

@@ -64,7 +64,7 @@ ox::Error initConsole(Context *ctx) {
 
 SDL_Color createSDL_Color(Color16 nc) {
 	SDL_Color c;
-	// extract the color chanels and scale them up for a 24 bit color
+	// extract the color channels and scale them up for a 24 bit color
 	c.r = ((nc & 0b0000000000011111) >> 0) * 8;
 	c.g = ((nc & 0b0000001111100000) >> 5) * 8;
 	c.b = ((nc & 0b0111110000000000) >> 10) * 8;

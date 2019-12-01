@@ -149,6 +149,32 @@ Color32 toColor32(Color16 nc) {
 	return a | (b << 8) | (g << 16) | (r << 24);
 }
 
+
+uint8_t red32(Color32 c) {
+	return (c & 0x000000ff) >> 0;
+}
+
+uint8_t green32(Color32 c) {
+	return (c & 0x0000ff00) >> 8;
+}
+
+uint8_t blue32(Color32 c) {
+	return (c & 0x00ff0000) >> 16;
+}
+
+
+uint8_t red32(Color16 c) {
+	return ((c & 0b0000000000011111) >> 0) * 8;
+}
+
+uint8_t green32(Color16 c) {
+	return ((c & 0b0000001111100000) >> 5) * 8;
+}
+
+uint8_t blue32(Color16 c) {
+	return ((c & 0b0111110000000000) >> 10) * 8;
+}
+
 void puts(Context *ctx, int column, int row, const char *str) {
 	for (int i = 0; str[i]; i++) {
 		setTile(ctx, 0, column + i, row, charMap[static_cast<int>(str[i])]);

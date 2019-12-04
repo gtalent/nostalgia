@@ -12,4 +12,9 @@ namespace nostalgia::core {
 
 constexpr auto PluginName = "NostalgiaCore";
 
+// Command IDs to use with QUndoCommand::id()
+enum class CommandId {
+	UpdatePixel = 1,
+};
+
 }

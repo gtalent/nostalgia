@@ -12,6 +12,7 @@
 #include <QStringList>
 #include <QStringView>
 #include <QTableWidget>
+#include <QUndoStack>
 #include <QVariant>
 #include <QWidget>
 
@@ -26,6 +27,8 @@ class SheetData: public QObject {
 	Q_PROPERTY(int rows READ rows WRITE setRows NOTIFY rowsChanged)
 
 	private:
+		uint64_t m_cmdIdx = 0;
+		QUndoStack m_cmdStack;
 		QStringList m_palette;
 		QVector<uint8_t> m_pixels;
 		int m_columns = 2;

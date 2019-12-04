@@ -7,11 +7,13 @@
  */
 
 #include <QHeaderView>
+#include <QPointer>
 #include <QQmlContext>
 #include <QQuickItem>
 #include <QQuickWidget>
 #include <QSettings>
 #include <QSplitter>
+#include <QUndoCommand>
 #include <QVBoxLayout>
 
 #include "consts.hpp"
@@ -28,16 +30,83 @@ QColor toQColor(Color16 nc) {
 }
 
 
+class UpdatePixelsCommand: public QUndoCommand {
+	private:
+		struct PixelUpdate {
+			QPointer<QQuickItem> item;
+			int oldColorId = 0;
+
+			bool operator==(const PixelUpdate &o) const {
+				return item == o.item;
+			}
+
+			bool operator<(const PixelUpdate &o) const {
+				return item < o.item;
+			}
+		};
+
+		uint64_t cmdIdx = 0;
+		int m_newColorId = 0;
+		const QStringList &m_palette;
+		QVector<uint8_t> &m_pixels;
+		QVector<PixelUpdate> m_pixelUpdates;
+
+	public:
+		UpdatePixelsCommand(QVector<uint8_t> &pixels, const QStringList &palette, const QVariantList &pixelItems, int newColorId, uint64_t cmdIdx): m_palette(palette), m_pixels(pixels) {
+			m_newColorId = newColorId;
+			cmdIdx = cmdIdx;
+			for (auto &pi : pixelItems) {
+				PixelUpdate pu;
+				auto p = qobject_cast<QQuickItem*>(pi.value<QObject*>());
+				pu.item = p;
+				pu.oldColorId = m_palette.indexOf(p->property("color").toString());
+				m_pixelUpdates.push_back(std::move(pu));
+			}
+		}
+
+		virtual ~UpdatePixelsCommand() = default;
+
+		int id() const override {
+			return static_cast<int>(CommandId::UpdatePixel);
+		}
+
+		bool mergeWith(const QUndoCommand *cmd) override {
+			auto other = static_cast<const UpdatePixelsCommand*>(cmd);
+			if (cmdIdx == other->cmdIdx) {
+				m_pixelUpdates.append(other->m_pixelUpdates);
+				// inefficient, but probably not worth optimizing, but something to
+				// look at if this operation becomes a performace problem
+				std::sort(m_pixelUpdates.begin(), m_pixelUpdates.end());
+				m_pixelUpdates.erase(std::unique(m_pixelUpdates.begin(), m_pixelUpdates.end()), m_pixelUpdates.end());
+				return true;
+			}
+			return false;
+		}
+
+		void redo() override {
+			for (int i = 0; i < m_pixelUpdates.size(); i++) {
+				const auto &pu = m_pixelUpdates[i];
+				pu.item->setProperty("color", m_palette[m_newColorId]);
+				m_pixels[i] = m_newColorId;
+			}
+		}
+
+		void undo() override {
+			for (int i = 0; i < m_pixelUpdates.size(); i++) {
+				const auto &pu = m_pixelUpdates[i];
+				pu.item->setProperty("color", pu.oldColorId);
+				m_pixels[i] = pu.oldColorId;
+			}
+		}
+};
+
+
 QString SheetData::pixel(int index) {
 	return m_palette[m_pixels[index]];
 }
 
-void SheetData::updatePixels(QVariantList pixels) {
-	for (auto pi : pixels) {
-		// TODO: replace with push to QUndoStack
-		auto p = qobject_cast<QQuickItem*>(pi.value<QObject*>());
-		p->setProperty("color", m_palette[m_selectedColor]);
-	}
+void SheetData::updatePixels(QVariantList pixelItems) {
+	m_cmdStack.push(new UpdatePixelsCommand(m_pixels, m_palette, pixelItems, m_selectedColor, m_cmdIdx++));
 }
 
 int SheetData::columns() {

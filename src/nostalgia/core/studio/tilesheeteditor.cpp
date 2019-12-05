@@ -11,6 +11,7 @@
 #include <QQmlContext>
 #include <QQuickItem>
 #include <QQuickWidget>
+#include <QSet>
 #include <QSettings>
 #include <QSplitter>
 #include <QUndoCommand>
@@ -43,13 +44,17 @@ class UpdatePixelsCommand: public QUndoCommand {
 			bool operator<(const PixelUpdate &o) const {
 				return item < o.item;
 			}
+
+			operator auto() const {
+				return reinterpret_cast<quint64>(item.data());
+			}
 		};
 
 		uint64_t cmdIdx = 0;
 		int m_newColorId = 0;
 		const QStringList &m_palette;
 		QVector<uint8_t> &m_pixels;
-		QVector<PixelUpdate> m_pixelUpdates;
+		QSet<PixelUpdate> m_pixelUpdates;
 
 	public:
 		UpdatePixelsCommand(QVector<uint8_t> &pixels, const QStringList &palette, const QVariantList &pixelItems, int newColorId, uint64_t cmdIdx): m_palette(palette), m_pixels(pixels) {
@@ -60,7 +65,7 @@ class UpdatePixelsCommand: public QUndoCommand {
 				auto p = qobject_cast<QQuickItem*>(pi.value<QObject*>());
 				pu.item = p;
 				pu.oldColorId = m_palette.indexOf(p->property("color").toString());
-				m_pixelUpdates.push_back(std::move(pu));
+				m_pixelUpdates.insert(pu);
 			}
 		}
 
@@ -73,11 +78,7 @@ class UpdatePixelsCommand: public QUndoCommand {
 		bool mergeWith(const QUndoCommand *cmd) override {
 			auto other = static_cast<const UpdatePixelsCommand*>(cmd);
 			if (cmdIdx == other->cmdIdx) {
-				m_pixelUpdates.append(other->m_pixelUpdates);
-				// inefficient, but probably not worth optimizing, but something to
-				// look at if this operation becomes a performace problem
-				std::sort(m_pixelUpdates.begin(), m_pixelUpdates.end());
-				m_pixelUpdates.erase(std::unique(m_pixelUpdates.begin(), m_pixelUpdates.end()), m_pixelUpdates.end());
+				m_pixelUpdates.unite(other->m_pixelUpdates);
 				return true;
 			}
 			return false;

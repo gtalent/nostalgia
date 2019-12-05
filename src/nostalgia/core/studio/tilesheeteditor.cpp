@@ -84,18 +84,16 @@ class UpdatePixelsCommand: public QUndoCommand {
 		}
 
 		void redo() override {
-			for (int i = 0; i < m_pixelUpdates.size(); i++) {
-				const auto &pu = m_pixelUpdates[i];
+			for (const auto &pu : m_pixelUpdates) {
 				pu.item->setProperty("color", m_palette[m_newColorId]);
-				m_pixels[i] = m_newColorId;
+				m_pixels[pu.item->property("pixelNumber").toInt()] = m_newColorId;
 			}
 		}
 
 		void undo() override {
-			for (int i = 0; i < m_pixelUpdates.size(); i++) {
-				const auto &pu = m_pixelUpdates[i];
+			for (const auto &pu : m_pixelUpdates) {
 				pu.item->setProperty("color", pu.oldColorId);
-				m_pixels[i] = pu.oldColorId;
+				m_pixels[pu.item->property("pixelNumber").toInt()] = pu.oldColorId;
 			}
 		}
 };

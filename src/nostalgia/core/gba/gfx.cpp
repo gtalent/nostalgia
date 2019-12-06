@@ -54,9 +54,12 @@ ox::Error modelRead(T *io, GbaTileMapTarget *t) {
 	uint8_t bpp;
 	oxReturnError(io->field("bpp", &bpp));
 	constexpr auto Bpp8 = 1 << 7;
-	*t->bgCtl = (*t->bgCtl | Bpp8) ^ Bpp8; // set to use 4 bits per pixel
-	*t->bgCtl |= Bpp8; // set to use 8 bits per pixel
 	*t->bgCtl = (28 << 8) | 1;
+	if (bpp == 4) {
+		*t->bgCtl |= (*t->bgCtl | Bpp8) ^ Bpp8; // set to use 4 bits per pixel
+	} else {
+		*t->bgCtl |= Bpp8; // set to use 8 bits per pixel
+	}
 
 	oxReturnError(io->field("defaultPalette", &t->defaultPalette));
 	oxReturnError(io->field("pal", &t->pal));

@@ -27,6 +27,9 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+if(NOT OX_BARE_METAL)
+	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_definitions(-DDEBUG)
@@ -35,6 +38,10 @@ else()
 endif()
 
 if(NOT MSVC)
+	# forces colored output when using ninja
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color")
+
+	# enable warnings
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-align")
@@ -71,8 +78,6 @@ if(NOT MSVC)
 	endif()
 
 	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-		# forces colored output when using ninja
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 	endif()
 endif()

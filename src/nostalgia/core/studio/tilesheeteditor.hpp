@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <QQuickItem>
 #include <QSplitter>
 #include <QStringList>
 #include <QStringView>
@@ -27,6 +28,7 @@ class SheetData: public QObject {
 	Q_PROPERTY(int rows READ rows WRITE setRows NOTIFY rowsChanged)
 
 	private:
+		QQuickItem *m_prevPixelUpdated = nullptr;
 		uint64_t m_cmdIdx = 0;
 		QUndoStack m_cmdStack;
 		QStringList m_palette;
@@ -38,7 +40,11 @@ class SheetData: public QObject {
 	public:
 		Q_INVOKABLE QString pixel(int index);
 
-		Q_INVOKABLE void updatePixels(QVariantList pixels);
+		Q_INVOKABLE void updatePixel(QVariant pixel);
+
+		Q_INVOKABLE void beginCmd();
+
+		Q_INVOKABLE void endCmd();
 
 		int columns();
 

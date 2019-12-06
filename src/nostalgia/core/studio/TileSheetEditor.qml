@@ -17,21 +17,18 @@ Rectangle {
 		id: mouseArea
 		anchors.fill: parent
 		acceptedButtons: Qt.LeftButton
-		onPositionChanged: {
-			var gridX = mouseX - tileGrid.x;
-			var gridY = mouseY - tileGrid.y;
-			var tile = tileGrid.childAt(gridX, gridY);
-			if (tile === null) {
-				return;
+
+		onPressed: {
+			var pixel = pixelAt(mouseX, mouseY);
+			if (pixel) {
+				sheetData.beginCmd()
+				sheetData.updatePixel(pixel)
 			}
-			var tileX = gridX - tile.x;
-			var tileY = gridY - tile.y;
-			var pixel = tile.pixelAt(tileX, tileY);
-			if (pixel === null) {
-				return;
-			}
-			sheetData.updatePixels([pixel]);
 		}
+
+		onPositionChanged: sheetData.updatePixel(pixelAt(mouseX, mouseY))
+		onReleased: sheetData.endCmd();
+		onCanceled: sheetData.endCmd();
 
 		Grid {
 			id: tileGrid
@@ -51,6 +48,20 @@ Rectangle {
 				}
 			}
 		}
+
+		function pixelAt(x, y) {
+			var gridX = x - tileGrid.x;
+			var gridY = y - tileGrid.y;
+			var tile = tileGrid.childAt(gridX, gridY);
+			if (tile === null) {
+				return null;
+			}
+			var tileX = gridX - tile.x;
+			var tileY = gridY - tile.y;
+			var pixel = tile.pixelAt(tileX, tileY);
+			return pixel;
+		}
+
 	}
 
 }

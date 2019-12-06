@@ -9,7 +9,6 @@
 #include <QHeaderView>
 #include <QPointer>
 #include <QQmlContext>
-#include <QQuickItem>
 #include <QQuickWidget>
 #include <QSet>
 #include <QSettings>
@@ -50,25 +49,20 @@ class UpdatePixelsCommand: public QUndoCommand {
 			}
 		};
 
-		uint64_t cmdIdx = 0;
+		uint64_t m_cmdIdx = 0;
 		int m_newColorId = 0;
 		const QStringList &m_palette;
 		QVector<uint8_t> &m_pixels;
 		QSet<PixelUpdate> m_pixelUpdates;
 
 	public:
-		UpdatePixelsCommand(QVector<uint8_t> &pixels, const QStringList &palette, const QVariantList &pixelItems, int newColorId, uint64_t cmdIdx): m_palette(palette), m_pixels(pixels) {
+		UpdatePixelsCommand(QVector<uint8_t> &pixels, const QStringList &palette, QQuickItem *pixelItem, int newColorId, uint64_t cmdIdx): m_palette(palette), m_pixels(pixels) {
 			m_newColorId = newColorId;
-			cmdIdx = cmdIdx;
-			for (auto &pi : pixelItems) {
-				auto p = qobject_cast<QQuickItem*>(pi.value<QObject*>());
-				if (p) {
-					PixelUpdate pu;
-					pu.item = p;
-					pu.oldColorId = m_palette.indexOf(p->property("color").toString());
-					m_pixelUpdates.insert(pu);
-				}
-			}
+			m_cmdIdx = cmdIdx;
+			PixelUpdate pu;
+			pu.item = pixelItem;
+			pu.oldColorId = m_palette.indexOf(pixelItem->property("color").toString());
+			m_pixelUpdates.insert(pu);
 		}
 
 		virtual ~UpdatePixelsCommand() = default;
@@ -79,7 +73,7 @@ class UpdatePixelsCommand: public QUndoCommand {
 
 		bool mergeWith(const QUndoCommand *cmd) override {
 			auto other = static_cast<const UpdatePixelsCommand*>(cmd);
-			if (cmdIdx == other->cmdIdx) {
+			if (m_cmdIdx == other->m_cmdIdx) {
 				m_pixelUpdates.unite(other->m_pixelUpdates);
 				return true;
 			}
@@ -106,8 +100,12 @@ QString SheetData::pixel(int index) {
 	return m_palette[m_pixels[index]];
 }
 
-void SheetData::updatePixels(QVariantList pixelItems) {
-	m_cmdStack.push(new UpdatePixelsCommand(m_pixels, m_palette, pixelItems, m_selectedColor, m_cmdIdx++));
+void SheetData::updatePixel(QVariant pixelItem) {
+	auto p = qobject_cast<QQuickItem*>(pixelItem.value<QObject*>());
+	if (p && p != m_prevPixelUpdated) {
+		m_cmdStack.push(new UpdatePixelsCommand(m_pixels, m_palette, p, m_selectedColor, m_cmdIdx));
+		m_prevPixelUpdated = p;
+	}
 }
 
 int SheetData::columns() {
@@ -178,6 +176,14 @@ void SheetData::updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette 
 			m_pixels.push_back(p);
 		}
 	}
+}
+
+void SheetData::beginCmd() {
+	++m_cmdIdx;
+}
+
+void SheetData::endCmd() {
+	m_prevPixelUpdated = nullptr;
 }
 
 

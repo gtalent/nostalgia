@@ -14,5 +14,5 @@ install(
 	TARGETS
 		NostalgiaCore-Qt
 	LIBRARY DESTINATION
-		${NOSTALGIA_DIST_PLUGIN}
+		${NOSTALGIA_DIST_LIB}/nostalgia
 )

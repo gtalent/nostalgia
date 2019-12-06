@@ -61,11 +61,13 @@ class UpdatePixelsCommand: public QUndoCommand {
 			m_newColorId = newColorId;
 			cmdIdx = cmdIdx;
 			for (auto &pi : pixelItems) {
-				PixelUpdate pu;
 				auto p = qobject_cast<QQuickItem*>(pi.value<QObject*>());
-				pu.item = p;
-				pu.oldColorId = m_palette.indexOf(p->property("color").toString());
-				m_pixelUpdates.insert(pu);
+				if (p) {
+					PixelUpdate pu;
+					pu.item = p;
+					pu.oldColorId = m_palette.indexOf(p->property("color").toString());
+					m_pixelUpdates.insert(pu);
+				}
 			}
 		}
 

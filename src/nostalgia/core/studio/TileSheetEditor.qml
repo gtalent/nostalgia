@@ -13,21 +13,42 @@ Rectangle {
 	id: tileSheetEditor
 	color: '#717d7e'
 
-	Grid {
-		id: tileGrid
-		property int baseTileSize: Math.min(parent.width / tileGrid.columns, parent.height / tileGrid.rows)
-		width: tileGrid.columns * tileGrid.baseTileSize * 0.90
-		height: tileGrid.rows * tileGrid.baseTileSize * 0.90
-		anchors.horizontalCenter: tileSheetEditor.horizontalCenter
-		anchors.verticalCenter: tileSheetEditor.verticalCenter
-		rows: sheetData.rows
-		columns: sheetData.columns
-		Repeater {
-			model: tileGrid.rows * tileGrid.columns
-			Tile {
-				tileNumber: index
-				width: tileGrid.width / tileGrid.columns
-				height: tileGrid.height / tileGrid.rows
+	MouseArea {
+		id: mouseArea
+		anchors.fill: parent
+		acceptedButtons: Qt.LeftButton
+		onPositionChanged: {
+			var gridX = mouseX - tileGrid.x;
+			var gridY = mouseY - tileGrid.y;
+			var tile = tileGrid.childAt(gridX, gridY);
+			if (tile === null) {
+				return;
+			}
+			var tileX = gridX - tile.x;
+			var tileY = gridY - tile.y;
+			var pixel = tile.pixelAt(tileX, tileY);
+			if (pixel === null) {
+				return;
+			}
+			sheetData.updatePixels([pixel]);
+		}
+
+		Grid {
+			id: tileGrid
+			property int baseTileSize: Math.min(parent.width / tileGrid.columns, parent.height / tileGrid.rows)
+			width: tileGrid.columns * tileGrid.baseTileSize * 0.90
+			height: tileGrid.rows * tileGrid.baseTileSize * 0.90
+			anchors.horizontalCenter: parent.horizontalCenter
+			anchors.verticalCenter: parent.verticalCenter
+			rows: sheetData.rows
+			columns: sheetData.columns
+			Repeater {
+				model: tileGrid.rows * tileGrid.columns
+				Tile {
+					tileNumber: index
+					width: tileGrid.width / tileGrid.columns
+					height: tileGrid.height / tileGrid.rows
+				}
 			}
 		}
 	}

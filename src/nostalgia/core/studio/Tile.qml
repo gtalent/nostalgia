@@ -17,7 +17,12 @@ Rectangle {
 	y: parent.height / 2 - tile.height / 2
 	color: '#000000'
 
+	function pixelAt(x, y) {
+		return tileGrid.childAt(x, y);
+	}
+
 	Grid {
+		id: tileGrid
 		width: tile.width
 		height: tile.height
 		rows: 8

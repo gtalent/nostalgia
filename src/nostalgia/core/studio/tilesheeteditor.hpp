@@ -60,6 +60,8 @@ class SheetData: public QObject {
 
 		void setSelectedColor(int index);
 
+		QUndoStack *undoStack();
+
 	private:
 		void updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal);
 
@@ -71,10 +73,11 @@ class SheetData: public QObject {
 };
 
 
-class TileSheetEditor: public QWidget {
+class TileSheetEditor: public studio::Editor {
 	Q_OBJECT
 
 	private:
+		QString m_itemName;
 		const studio::Context *m_ctx = nullptr;
 		SheetData m_sheetData;
 		QSplitter *m_splitter = nullptr;
@@ -87,6 +90,12 @@ class TileSheetEditor: public QWidget {
 		TileSheetEditor(QString path, const studio::Context *ctx, QWidget *parent);
 
 		virtual ~TileSheetEditor();
+
+		QString itemName() override;
+
+		void save() override;
+
+		QUndoStack *undoStack() override;
 
 	private:
 		QWidget *setupColorPicker(QWidget *widget);

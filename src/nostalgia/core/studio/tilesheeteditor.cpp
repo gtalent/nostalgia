@@ -149,6 +149,10 @@ void SheetData::setSelectedColor(int index) {
 	m_selectedColor = index;
 }
 
+QUndoStack *SheetData::undoStack() {
+	return &m_cmdStack;
+}
+
 void SheetData::updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal) {
 	if (!npal) {
 		npal = &ng->pal;
@@ -187,8 +191,9 @@ void SheetData::endCmd() {
 }
 
 
-TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidget *parent): QWidget(parent) {
+TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidget *parent): studio::Editor(parent) {
 	m_ctx = ctx;
+	m_itemName = path.mid(path.lastIndexOf('/'));
 	auto lyt = new QVBoxLayout(this);
 	m_splitter = new QSplitter(this);
 	auto canvas = new QQuickWidget(m_splitter);
@@ -206,6 +211,17 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 
 TileSheetEditor::~TileSheetEditor() {
 	saveState();
+}
+
+QString TileSheetEditor::itemName() {
+	return m_itemName;
+}
+
+void TileSheetEditor::save() {
+}
+
+QUndoStack *TileSheetEditor::undoStack() {
+	return m_sheetData.undoStack();
 }
 
 QWidget *TileSheetEditor::setupColorPicker(QWidget *parent) {

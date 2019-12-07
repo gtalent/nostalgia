@@ -61,7 +61,7 @@ class UpdatePixelsCommand: public QUndoCommand {
 			m_cmdIdx = cmdIdx;
 			PixelUpdate pu;
 			pu.item = pixelItem;
-			pu.oldColorId = m_palette.indexOf(pixelItem->property("color").toString());
+			pu.oldColorId = m_palette.indexOf(pixelItem->property("color").value<QColor>().name(QColor::HexArgb));
 			m_pixelUpdates.insert(pu);
 		}
 
@@ -89,7 +89,7 @@ class UpdatePixelsCommand: public QUndoCommand {
 
 		void undo() override {
 			for (const auto &pu : m_pixelUpdates) {
-				pu.item->setProperty("color", pu.oldColorId);
+				pu.item->setProperty("color", m_palette[pu.oldColorId]);
 				m_pixels[pu.item->property("pixelNumber").toInt()] = pu.oldColorId;
 			}
 		}

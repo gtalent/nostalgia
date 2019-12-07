@@ -7,27 +7,24 @@
  */
 
 #include <QApplication>
-#include <QFile>
-#include <QTextStream>
 #include <ox/clargs/clargs.hpp>
-#include "lib/json.hpp"
 #include "mainwindow.hpp"
 
 using namespace nostalgia::studio;
-using namespace ox;
 
 int main(int argc, char **args) {
-	ClArgs clargs(argc, const_cast<const char**>(args));
+	ox::ClArgs clargs(argc, const_cast<const char**>(args));
 	QString argProfilePath = clargs.getString("profile").c_str();
 
 	NostalgiaStudioProfile config;
 
 	QApplication app(argc, args);
+	app.setAttribute(Qt::AA_UseHighDpiPixmaps);
 
 	MainWindow w(argProfilePath);
 	app.setApplicationName(w.windowTitle());
 	w.show();
-	QObject::connect(&app, SIGNAL(aboutToQuit()), &w, SLOT(onExit()));
+	QObject::connect(&app, &QApplication::aboutToQuit, &w, &MainWindow::onExit);
 
 	return app.exec();
 }

@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "lib/editor.hpp"
 #include "lib/json.hpp"
 #include "lib/plugin.hpp"
 #include "lib/project.hpp"

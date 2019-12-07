@@ -16,7 +16,7 @@
 using namespace nostalgia::studio;
 using namespace ox;
 
-int run(int argc, char **args) {
+int main(int argc, char **args) {
 	ClArgs clargs(argc, const_cast<const char**>(args));
 	QString argProfilePath = clargs.getString("profile").c_str();
 
@@ -30,8 +30,4 @@ int run(int argc, char **args) {
 	QObject::connect(&app, SIGNAL(aboutToQuit()), &w, SLOT(onExit()));
 
 	return app.exec();
-}
-
-int main(int argc, char **args) {
-	return run(argc, args);
 }

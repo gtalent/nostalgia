@@ -3,6 +3,7 @@ set(CMAKE_AUTOMOC ON)
 
 add_library(
 	NostalgiaStudio SHARED
+		editor.cpp
 		json_read.cpp
 		json_write.cpp
 		wizard.cpp
@@ -23,6 +24,7 @@ target_link_libraries(
 
 install(
 	FILES
+		editor.hpp
 		json.hpp
 		json_err.hpp
 		json_read.hpp

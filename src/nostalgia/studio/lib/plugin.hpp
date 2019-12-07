@@ -13,6 +13,7 @@
 #include <QVector>
 #include <QWizardPage>
 
+#include "editor.hpp"
 #include "project.hpp"
 #include "wizard.hpp"
 
@@ -27,7 +28,7 @@ struct Context {
 
 struct EditorMaker {
 	QStringList fileTypes;
-	std::function<QWidget*(QString)> make;
+	std::function<Editor*(QString)> make;
 };
 
 class Plugin {

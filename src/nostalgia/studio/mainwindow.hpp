@@ -19,6 +19,7 @@
 #include <QString>
 #include <QTabWidget>
 #include <QTreeView>
+#include <QUndoGroup>
 #include <QVector>
 
 #include <ox/std/types.hpp>
@@ -94,6 +95,7 @@ class MainWindow: public QMainWindow {
 		QHash<QString, EditorMaker> m_editorMakers;
 		QPointer<OxFSModel> m_oxfsView = nullptr;
 		QTabWidget *m_tabs = nullptr;
+		QUndoGroup m_undoGroup;
 
 	public:
 		MainWindow(QString profilePath);
@@ -157,6 +159,8 @@ class MainWindow: public QMainWindow {
 		void closeTab(int idx);
 
 		void moveTab(int from, int to);
+
+		void changeTab(int idx);
 
 		void showNewWizard();
 

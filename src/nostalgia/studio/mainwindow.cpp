@@ -22,6 +22,7 @@
 #include <QTextStream>
 #include <QVector>
 
+#include "lib/editor.hpp"
 #include "lib/json.hpp"
 #include "lib/oxfstreeview.hpp"
 #include "lib/project.hpp"
@@ -61,6 +62,7 @@ MainWindow::MainWindow(QString profilePath) {
 	m_tabs->setTabsClosable(true);
 	connect(m_tabs, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
 	connect(tabBar, &QTabBar::tabMoved, this, &MainWindow::moveTab);
+	connect(tabBar, &QTabBar::currentChanged, this, &MainWindow::changeTab);
 	tabBar->setMovable(true);
 
 	setupMenu();
@@ -116,6 +118,7 @@ void MainWindow::loadPlugin(QString pluginPath) {
 void MainWindow::setupMenu() {
 	auto menu = menuBar();
 	auto fileMenu = menu->addMenu(tr("&File"));
+	auto editMenu = menu->addMenu(tr("&Edit"));
 	m_viewMenu = menu->addMenu(tr("&View"));
 
 	// New...
@@ -156,6 +159,16 @@ void MainWindow::setupMenu() {
 		QKeySequence::Quit,
 		QApplication::quit
 	);
+
+	// Undo
+	auto undoAction = m_undoGroup.createUndoAction(this, tr("&Undo"));
+	editMenu->addAction(undoAction);
+	undoAction->setShortcuts(QKeySequence::Undo);
+
+	// Redo
+	auto redoAction = m_undoGroup.createRedoAction(this, tr("&Redo"));
+	editMenu->addAction(redoAction);
+	redoAction->setShortcuts(QKeySequence::Redo);
 }
 
 void MainWindow::setupProjectExplorer() {
@@ -287,9 +300,10 @@ void MainWindow::openProject(QString projectPath) {
 void MainWindow::closeProject() {
 	// delete tabs
 	while (m_tabs->count()) {
-		auto t = m_tabs->widget(0);
+		auto tab = static_cast<studio::Editor*>(m_tabs->widget(0));
+		m_undoGroup.removeStack(tab->undoStack());
 		m_tabs->removeTab(0);
-		delete t;
+		delete tab;
 	}
 	
 	if (m_ctx.project) {
@@ -325,6 +339,7 @@ void MainWindow::openFile(QString path, bool force) {
 	if (m_editorMakers.contains(ext)) {
 		auto tab = m_editorMakers[ext].make(path);
 		m_tabs->addTab(tab, tabName);
+		m_undoGroup.addStack(tab->undoStack());
 		// save new tab to application state
 		auto openTabs = readTabs();
 		if (!openTabs.contains(path)) {
@@ -352,24 +367,6 @@ void MainWindow::openProject() {
 void MainWindow::openFileSlot(QModelIndex file) {
 	auto path = static_cast<OxFSFile*>(file.internalPointer())->path();
 	return openFile(path);
-}
-
-void MainWindow::closeTab(int idx) {
-	auto tab = m_tabs->widget(idx);
-	m_tabs->removeTab(idx);
-	delete tab;
-
-	// remove from open tabs list
-	auto tabs = readTabs();
-	tabs.removeAt(idx);
-	writeTabs(tabs);
-}
-
-void MainWindow::moveTab(int from, int to) {
-	// move tab in open tabs list
-	auto tabs = readTabs();
-	tabs.move(from, to);
-	writeTabs(tabs);
 }
 
 void MainWindow::showNewWizard() {
@@ -436,6 +433,33 @@ void MainWindow::showNewWizard() {
 
 	wizard.show();
 	wizard.exec();
+}
+
+void MainWindow::closeTab(int idx) {
+	auto tab = static_cast<studio::Editor*>(m_tabs->widget(idx));
+	m_undoGroup.removeStack(tab->undoStack());
+	m_tabs->removeTab(idx);
+	delete tab;
+
+	// remove from open tabs list
+	auto tabs = readTabs();
+	tabs.removeAt(idx);
+	writeTabs(tabs);
+}
+
+void MainWindow::moveTab(int from, int to) {
+	// move tab in open tabs list
+	auto tabs = readTabs();
+	tabs.move(from, to);
+	writeTabs(tabs);
+}
+
+void MainWindow::changeTab(int idx) {
+	auto tab = dynamic_cast<studio::Editor*>(m_tabs->widget(idx));
+	if (!tab) {
+		return;
+	}
+	m_undoGroup.setActiveStack(tab->undoStack());
 }
 
 void MainWindow::showImportWizard() {

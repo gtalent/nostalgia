@@ -52,11 +52,11 @@ class UpdatePixelsCommand: public QUndoCommand {
 		uint64_t m_cmdIdx = 0;
 		int m_newColorId = 0;
 		const QStringList &m_palette;
-		QVector<uint8_t> &m_pixels;
+		QVector<int> &m_pixels;
 		QSet<PixelUpdate> m_pixelUpdates;
 
 	public:
-		UpdatePixelsCommand(QVector<uint8_t> &pixels, const QStringList &palette, QQuickItem *pixelItem, int newColorId, uint64_t cmdIdx): m_palette(palette), m_pixels(pixels) {
+		UpdatePixelsCommand(QVector<int> &pixels, const QStringList &palette, QQuickItem *pixelItem, int newColorId, uint64_t cmdIdx): m_palette(palette), m_pixels(pixels) {
 			m_newColorId = newColorId;
 			m_cmdIdx = cmdIdx;
 			PixelUpdate pu;
@@ -96,10 +96,6 @@ class UpdatePixelsCommand: public QUndoCommand {
 };
 
 
-QString SheetData::pixel(int index) {
-	return m_palette[m_pixels[index]];
-}
-
 void SheetData::updatePixel(QVariant pixelItem) {
 	auto p = qobject_cast<QQuickItem*>(pixelItem.value<QObject*>());
 	if (p && p != m_prevPixelUpdated) {
@@ -124,6 +120,10 @@ int SheetData::rows() {
 void SheetData::setRows(int rows) {
 	m_rows = rows;
 	emit rowsChanged();
+}
+
+const QVector<int> &SheetData::pixels() {
+	return m_pixels;
 }
 
 QStringList SheetData::palette() {
@@ -180,6 +180,8 @@ void SheetData::updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette 
 			m_pixels.push_back(p);
 		}
 	}
+	emit pixelsChanged();
+	emit paletteChanged();
 }
 
 void SheetData::beginCmd() {

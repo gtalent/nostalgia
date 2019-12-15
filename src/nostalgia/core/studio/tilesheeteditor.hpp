@@ -26,20 +26,20 @@ class SheetData: public QObject {
 	Q_OBJECT
 	Q_PROPERTY(int columns READ columns WRITE setColumns NOTIFY columnsChanged)
 	Q_PROPERTY(int rows READ rows WRITE setRows NOTIFY rowsChanged)
+	Q_PROPERTY(QVector<int> pixels READ pixels NOTIFY pixelsChanged)
+	Q_PROPERTY(QStringList palette READ palette NOTIFY paletteChanged)
 
 	private:
 		QQuickItem *m_prevPixelUpdated = nullptr;
 		uint64_t m_cmdIdx = 0;
 		QUndoStack m_cmdStack;
 		QStringList m_palette;
-		QVector<uint8_t> m_pixels;
+		QVector<int> m_pixels;
 		int m_columns = 2;
 		int m_rows = 2;
 		int m_selectedColor = 0;
 
 	public:
-		Q_INVOKABLE QString pixel(int index);
-
 		Q_INVOKABLE void updatePixel(QVariant pixel);
 
 		Q_INVOKABLE void beginCmd();
@@ -53,6 +53,8 @@ class SheetData: public QObject {
 		int rows();
 
 		void setRows(int rows);
+
+		const QVector<int> &pixels();
 
 		QStringList palette();
 
@@ -69,6 +71,10 @@ class SheetData: public QObject {
 		void columnsChanged();
 
 		void rowsChanged();
+
+		void pixelsChanged();
+
+		void paletteChanged();
 
 };
 

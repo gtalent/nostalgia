@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#if defined(OX_USE_STDLIB)
+#if defined(OX_USE_STDLIB) && __has_include(<unistd.h>)
 #include <array>
 #include <execinfo.h>
 #include <iostream>
@@ -18,7 +18,7 @@
 namespace ox {
 
 void printStackTrace([[maybe_unused]]int shave) {
-#if defined(OX_USE_STDLIB)
+#if defined(OX_USE_STDLIB) && __has_include(<unistd.h>)
 	std::array<void*, 100> frames;
 	auto size = static_cast<int>(backtrace(frames.data(), frames.size()));
 	if (size > shave) {

@@ -15,8 +15,6 @@
 
 #include "trace.hpp"
 
-int counter = 0;
-
 extern "C"
 void oxTraceHook([[maybe_unused]] const char *file, [[maybe_unused]] int line,
                  [[maybe_unused]] const char *ch, [[maybe_unused]] const char *msg) {

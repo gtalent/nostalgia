@@ -16,10 +16,10 @@
 namespace ox {
 
 template<typename InodeId_t>
-struct __attribute__((packed)) DirectoryEntry {
+struct OX_PACKED DirectoryEntry {
 
 	public:
-		struct __attribute__((packed)) DirectoryEntryData {
+		struct OX_PACKED DirectoryEntryData {
 			// DirectoryEntry fields
 			LittleEndian<InodeId_t> inode = 0;
 			char name[MaxFileNameLength];

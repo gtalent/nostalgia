@@ -23,7 +23,7 @@ struct StatInfo {
 };
 
 template<typename size_t>
-struct __attribute__((packed)) FileStoreItem: public ptrarith::Item<size_t> {
+struct OX_PACKED FileStoreItem: public ptrarith::Item<size_t> {
 	ox::LittleEndian<size_t> id = 0;
 	ox::LittleEndian<uint8_t> fileType = 0;
 	ox::LittleEndian<size_t> links = 0;
@@ -64,7 +64,7 @@ class FileStoreTemplate {
 		static constexpr InodeId_t ReservedInodeEnd = 100;
 		static constexpr auto MaxInode = MaxValue<size_t> / 2;
 
-		struct __attribute__((packed)) FileStoreData {
+		struct OX_PACKED FileStoreData {
 			ox::LittleEndian<size_t> rootNode = 0;
 			ox::Random random;
 		};

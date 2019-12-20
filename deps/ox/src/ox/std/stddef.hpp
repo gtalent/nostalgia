@@ -13,3 +13,9 @@
 #else
 #define offsetof(type, member) __builtin_offsetof(type, member)
 #endif
+
+#ifdef _MSC_VER
+#define OX_PACKED
+#else
+#define OX_PACKED __attribute__((packed))
+#endif

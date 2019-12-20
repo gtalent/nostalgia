@@ -89,7 +89,7 @@ class FileSystemTemplate: public FileSystem {
 	private:
 		static constexpr auto InodeFsData = 2;
 
-		struct __attribute__((packed)) FileSystemData {
+		struct OX_PACKED FileSystemData {
 			LittleEndian<typename FileStore::InodeId_t> rootDirInode;
 		};
 

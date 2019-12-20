@@ -9,6 +9,7 @@
 #pragma once
 
 #include "defines.hpp"
+#include "stddef.hpp"
 #include "types.hpp"
 #include "typetraits.hpp"
 
@@ -58,7 +59,7 @@ template<typename T, bool byteSwap>
 }
 
 template<typename T, bool byteSwap>
-class __attribute__((packed)) ByteSwapInteger {
+class OX_PACKED ByteSwapInteger {
 	private:
 		T m_value;
 

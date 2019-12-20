@@ -26,7 +26,7 @@ using namespace std;
 using namespace ox;
 
 template<typename T>
-struct __attribute__((packed)) NodeType: public ox::ptrarith::Item<T> {
+struct OX_PACKED NodeType: public ox::ptrarith::Item<T> {
 	public:
 		size_t fullSize() const {
 			return this->size() + sizeof(*this);

@@ -8,13 +8,14 @@
 
 #pragma once
 
+#include "stddef.hpp"
 #include "types.hpp"
 
 namespace ox {
 
 using RandomSeed = uint64_t[2];
 
-class __attribute__((packed)) Random {
+class OX_PACKED Random {
 	private:
 		RandomSeed m_seed;
 

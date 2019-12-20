@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <ox/std/stddef.hpp>
 #include <ox/std/trace.hpp>
 
 #include "ptr.hpp"
@@ -15,10 +16,10 @@
 namespace ox::ptrarith {
 
 template<typename size_t, typename Item>
-class __attribute__((packed)) NodeBuffer {
+class OX_PACKED NodeBuffer {
 
 	public:
-		struct __attribute__((packed)) Header {
+		struct OX_PACKED Header {
 			ox::LittleEndian<size_t> size = sizeof(Header); // capacity
 			ox::LittleEndian<size_t> bytesUsed = sizeof(Header);
 			ox::LittleEndian<size_t> firstItem = 0;
@@ -433,7 +434,7 @@ uint8_t *NodeBuffer<size_t, Item>::data() {
 
 
 template<typename size_t>
-struct __attribute__((packed)) Item {
+struct OX_PACKED Item {
 	public:
 		ox::LittleEndian<size_t> prev = 0;
 		ox::LittleEndian<size_t> next = 0;

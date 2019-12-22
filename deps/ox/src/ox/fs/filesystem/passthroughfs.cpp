@@ -11,6 +11,7 @@
 #if defined(OX_PASSTHROUGHFS_HAS_DEPENDENCIES)
 
 #include <stdio.h>
+#include <fstream>
 
 namespace ox {
 
@@ -43,19 +44,21 @@ Error PassThroughFS::move(const char *src, const char *dest) {
 }
 
 Error PassThroughFS::read(const char *path, void *buffer, std::size_t buffSize) {
-	auto file = fopen((m_path / stripSlash(path)).c_str(), "r");
-	if (file) {
-		fseek(file, 0, SEEK_END);
-		const std::size_t size = ftell(file);
-		if (size <= buffSize) {
-			rewind(file);
-			auto itemsRead = fread(buffer, buffSize, 1, file);
-			fclose(file);
-			return OxError(itemsRead == 1 ? 0 : 1);
-		}
+	std::ifstream file((m_path / stripSlash(path)), std::ios::binary | std::ios::ate);
+	const std::size_t size = file.tellg();
+	file.seekg(0, std::ios::beg);
+
+	if (!file.good()) {
+		oxTrace("ox::fs::PassThroughFS::read::error") << "Read failed:" << path;
+		return OxError(1);
 	}
-	oxTrace("ox::fs::PassThroughFS::read::error") << "Read failed: " << path;
-	return OxError(1);
+	if (size > buffSize) {
+		oxTrace("ox::fs::PassThroughFS::read::error") << "Read failed: Buffer too small:" << path;
+		return OxError(1);
+	}
+	file.read(static_cast<char*>(buffer), buffSize);
+
+	return OxError(0);
 }
 
 ValErr<uint8_t*> PassThroughFS::read(const char*) {
@@ -91,13 +94,13 @@ ox::Error PassThroughFS::resize(uint64_t, void*) {
 
 Error PassThroughFS::write(const char *path, void *buffer, uint64_t size, uint8_t) {
 	auto p = (m_path / stripSlash(path));
-	auto f = fopen(p.c_str(), "w");
-	if (!f) {
+	std::ofstream f(p, std::ios::binary);
+	if (!f.good()) {
 		return OxError(1);
 	}
-	auto err = OxError(fwrite(buffer, size, 1, f) == 1 ? 0 : 1);
-	fclose(f);
-	return err;
+	f.write(static_cast<char*>(buffer), size);
+	f.close();
+	return OxError(0);
 }
 
 Error PassThroughFS::write(uint64_t, void*, uint64_t, uint8_t) {

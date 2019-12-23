@@ -63,6 +63,7 @@ class UpdatePixelsCommand: public QUndoCommand {
 			pu.item = pixelItem;
 			pu.oldColorId = m_palette.indexOf(pixelItem->property("color").value<QColor>().name(QColor::HexArgb));
 			m_pixelUpdates.insert(pu);
+			setObsolete(pu.oldColorId == newColorId);
 		}
 
 		virtual ~UpdatePixelsCommand() = default;

@@ -89,9 +89,7 @@ class PassThroughFS: public FileSystem {
 template<typename F>
 ox::Error PassThroughFS::ls(const char *dir, F cb) {
 	for (auto &p : std::filesystem::directory_iterator(m_path / stripSlash(dir))) {
-		if (auto err = cb(p.path().filename().c_str(), 0); err) {
-			return err;
-		}
+		oxReturnError(cb(p.path().filename().u8string(), 0));
 	}
 	return OxError(0);
 }

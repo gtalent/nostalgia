@@ -16,8 +16,8 @@ namespace ox {
 class FieldPresenceIndicator {
 	private:
 		uint8_t *m_mask = nullptr;
-		int m_maskLen = 0;
-		int m_fields = 0;
+		std::size_t m_maskLen = 0;
+		std::size_t m_fields = 0;
 
 	public:
 		FieldPresenceIndicator(uint8_t *mask, std::size_t maxLen);

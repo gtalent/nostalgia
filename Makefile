@@ -69,6 +69,9 @@ devenv-destroy:
 devenv-shell:
 	${ENV_RUN} bash
 
+conan:
+	@mkdir -p conanbuild && cd conanbuild && conan install ../
+
 configure-release:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-release
 	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} release

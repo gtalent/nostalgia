@@ -141,37 +141,37 @@ static char charMap[128] = {
 	0,  // ~
 };
 
-Color32 toColor32(Color16 nc) {
-	auto r = ((nc & 0b0000000000011111) >> 0) * 8;
-	auto g = ((nc & 0b0000001111100000) >> 5) * 8;
-	auto b = ((nc & 0b0111110000000000) >> 10) * 8;
-	auto a = 255;
+Color32 toColor32(Color16 nc) noexcept {
+	Color32 r = ((nc & 0b0000000000011111) >> 0) * 8;
+	Color32 g = ((nc & 0b0000001111100000) >> 5) * 8;
+	Color32 b = ((nc & 0b0111110000000000) >> 10) * 8;
+	Color32 a = 255;
 	return a | (b << 8) | (g << 16) | (r << 24);
 }
 
 
-uint8_t red32(Color32 c) {
+uint8_t red32(Color32 c) noexcept {
 	return (c & 0x000000ff) >> 0;
 }
 
-uint8_t green32(Color32 c) {
+uint8_t green32(Color32 c) noexcept {
 	return (c & 0x0000ff00) >> 8;
 }
 
-uint8_t blue32(Color32 c) {
+uint8_t blue32(Color32 c) noexcept {
 	return (c & 0x00ff0000) >> 16;
 }
 
 
-uint8_t red32(Color16 c) {
+uint8_t red32(Color16 c) noexcept {
 	return ((c & 0b0000000000011111) >> 0) * 8;
 }
 
-uint8_t green32(Color16 c) {
+uint8_t green32(Color16 c) noexcept {
 	return ((c & 0b0000001111100000) >> 5) * 8;
 }
 
-uint8_t blue32(Color16 c) {
+uint8_t blue32(Color16 c) noexcept {
 	return ((c & 0b0111110000000000) >> 10) * 8;
 }
 

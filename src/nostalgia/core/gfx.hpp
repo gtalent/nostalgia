@@ -69,20 +69,20 @@ ox::Error model(T *io, NostalgiaGraphic *ng) {
  */
 [[nodiscard]] ox::Error loadTileSheet(Context *ctx, TileSheetSpace tss, int section, ox::FileAddress tilesheet, ox::FileAddress palette = nullptr);
 
-[[nodiscard]] Color32 toColor32(Color16 nc);
+[[nodiscard]] Color32 toColor32(Color16 nc) noexcept;
 
-[[nodiscard]] uint8_t red32(Color16 c);
+[[nodiscard]] uint8_t red32(Color16 c) noexcept;
 
-[[nodiscard]] uint8_t green32(Color16 c);
+[[nodiscard]] uint8_t green32(Color16 c) noexcept;
 
-[[nodiscard]] uint8_t blue32(Color16 c);
+[[nodiscard]] uint8_t blue32(Color16 c) noexcept;
 
 
-[[nodiscard]] uint8_t red32(Color32 c);
+[[nodiscard]] uint8_t red32(Color32 c) noexcept;
 
-[[nodiscard]] uint8_t green32(Color32 c);
+[[nodiscard]] uint8_t green32(Color32 c) noexcept;
 
-[[nodiscard]] uint8_t blue32(Color32 c);
+[[nodiscard]] uint8_t blue32(Color32 c) noexcept;
 
 void puts(Context *ctx, int column, int row, const char *str);
 

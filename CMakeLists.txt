@@ -13,16 +13,16 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 	set(OX_USE_STDLIB OFF)
 else()
 	set(NOSTALGIA_BUILD_STUDIO ON)
-	set(CMAKE_PREFIX_PATH ${NOSTALGIA_QT_PATH})
+	#set(CMAKE_PREFIX_PATH ${NOSTALGIA_QT_PATH})
 endif()
 
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 include(address_sanitizer)
 
-if(NOT NOSTALGIA_BUILD_TYPE STREQUAL "GBA" AND EXISTS ${CMAKE_SOURCE_DIR}/conanbuildinfo.cmake)
-	include(conanbuildinfo.cmake)
-	conan_basic_setup()
+set(NOSTALGIA_CONAN_PATHS ${CMAKE_SOURCE_DIR}/conanbuild/conan_paths.cmake)
+if(NOT NOSTALGIA_BUILD_TYPE STREQUAL "GBA" AND EXISTS ${NOSTALGIA_CONAN_PATHS})
+	include(${NOSTALGIA_CONAN_PATHS})
 endif()
 
 set(CMAKE_CXX_STANDARD 17)

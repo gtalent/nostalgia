@@ -10,7 +10,6 @@
 
 #if defined(OX_PASSTHROUGHFS_HAS_DEPENDENCIES)
 
-#include <stdio.h>
 #include <fstream>
 
 namespace ox {

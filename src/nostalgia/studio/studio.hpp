@@ -12,5 +12,4 @@
 #include "lib/json.hpp"
 #include "lib/plugin.hpp"
 #include "lib/project.hpp"
-#include "lib/oxfstreeview.hpp"
 #include "lib/wizard.hpp"

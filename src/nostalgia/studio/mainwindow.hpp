@@ -24,9 +24,10 @@
 
 #include <ox/std/types.hpp>
 
-#include "lib/oxfstreeview.hpp"
 #include "lib/plugin.hpp"
 #include "lib/project.hpp"
+
+#include "oxfstreeview.hpp"
 
 namespace nostalgia::studio {
 

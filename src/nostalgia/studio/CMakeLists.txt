@@ -4,6 +4,7 @@ add_executable(
 	nostalgia-studio MACOSX_BUNDLE
 		main.cpp
 		mainwindow.cpp
+		oxfstreeview.cpp
 )
 
 target_link_libraries(

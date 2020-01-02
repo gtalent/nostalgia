@@ -24,7 +24,6 @@
 
 #include "lib/editor.hpp"
 #include "lib/json.hpp"
-#include "lib/oxfstreeview.hpp"
 #include "lib/project.hpp"
 #include "lib/wizard.hpp"
 

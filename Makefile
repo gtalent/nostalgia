@@ -23,35 +23,49 @@ else
 	MGBA=mgba-qt
 endif
 
-all:
+.PHONY: build
+build:
 	${ENV_RUN} ./scripts/run-make build
+.PHONY: pkg-gba
 pkg-gba:
 	${ENV_RUN} ./scripts/run-make build install
 	${ENV_RUN} ./scripts/gba-pkg
+.PHONY: preinstall
 preinstall:
 	${ENV_RUN} ./scripts/run-make build preinstall
+.PHONY: install
 install:
 	${ENV_RUN} ./scripts/run-make build install
+.PHONY: clean
 clean:
 	${ENV_RUN} ./scripts/run-make build clean
+.PHONY: purge
 purge:
 	${ENV_RUN} rm -rf build
+.PHONY: test
 test:
 	${ENV_RUN} ./scripts/run-make build test
 
+.PHONY: run
 run: install
 	${ENV_RUN} ./dist/current/bin/nostalgia sample_project
+.PHONY: run-studio
 run-studio: install
 	${ENV_RUN} ${NOSTALGIA_STUDIO} -profile ${NOSTALGIA_STUDIO_PROFILE}
+.PHONY: gba-run
 gba-run: pkg-gba
 	${MGBA} nostalgia.gba
+.PHONY: gdb
 gdb: install
 	${ENV_RUN} gdb --args ./dist/current/bin/nostalgia sample_project
+.PHONY: gdb-studio
 gdb-studio: install
 	${ENV_RUN} gdb --args ${NOSTALGIA_STUDIO} -profile ${NOSTALGIA_STUDIO_PROFILE}
 
+.PHONY: devenv-image
 devenv-image:
 	docker build . -t ${DEVENV_IMAGE}
+.PHONY: devenv-create
 devenv-create:
 	docker run -d \
 		-e LOCAL_USER_ID=$(shell id -u ${USER}) \
@@ -64,38 +78,38 @@ devenv-create:
 		--restart=always \
 		--name ${DEVENV} \
 		-t ${DEVENV_IMAGE} bash
+.PHONY: devenv-destroy
 devenv-destroy:
 	docker rm -f ${DEVENV}
+.PHONY: devenv-shell
 devenv-shell:
 	${ENV_RUN} bash
 
+.PHONY: conan
 conan:
 	@mkdir -p conanbuild && cd conanbuild && conan install ../
 
+.PHONY: configure-release
 configure-release:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-release
 	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} release
 
+.PHONY: configure-debug
 configure-debug:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-debug
 	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} debug
 
+.PHONY: configure-asan
 configure-asan:
 	${ENV_RUN} rm -rf build/${HOST_ENV}-asan
 	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} asan
 
-configure-windows:
-	${ENV_RUN} rm -rf build/windows
-	${ENV_RUN} ./scripts/setup-build windows
-
-configure-windows-debug:
-	${ENV_RUN} rm -rf build/windows
-	${ENV_RUN} ./scripts/setup-build windows debug
-
+.PHONY: configure-gba
 configure-gba:
 	${ENV_RUN} rm -rf build/gba-release
 	${ENV_RUN} ./scripts/setup-build gba release
 
+.PHONY: configure-gba-debug
 configure-gba-debug:
 	${ENV_RUN} rm -rf build/gba-debug
 	${ENV_RUN} ./scripts/setup-build gba debug

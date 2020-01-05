@@ -6,14 +6,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QPointer>
 #include <QQmlContext>
 #include <QQuickWidget>
 #include <QSet>
 #include <QSettings>
+#include <QSpinBox>
 #include <QSplitter>
 #include <QUndoCommand>
+#include <QToolBar>
 #include <QVBoxLayout>
 
 #include "consts.hpp"
@@ -28,6 +31,26 @@ QColor toQColor(Color16 nc) {
 	const auto a = 255;
 	return QColor(r, g, b, a);
 }
+
+
+struct LabeledSpinner: public QWidget {
+
+	QSpinBox *const spinBox = new QSpinBox(this);
+
+	LabeledSpinner(QString name, int minimum, int value) {
+		auto lyt = new QHBoxLayout;
+		setLayout(lyt);
+		auto lbl = new QLabel(name, this);
+		lbl->setBuddy(spinBox);
+		lyt->addWidget(lbl);
+		lyt->addWidget(spinBox);
+		spinBox->setMinimum(minimum);
+		spinBox->setValue(value);
+	}
+
+	virtual ~LabeledSpinner() = default;
+
+};
 
 
 class UpdatePixelsCommand: public QUndoCommand {
@@ -109,18 +132,8 @@ int SheetData::columns() {
 	return m_columns;
 }
 
-void SheetData::setColumns(int columns) {
-	m_columns = columns;
-	emit columnsChanged();
-}
-
 int SheetData::rows() {
 	return m_rows;
-}
-
-void SheetData::setRows(int rows) {
-	m_rows = rows;
-	emit rowsChanged();
 }
 
 const QVector<int> &SheetData::pixels() {
@@ -152,6 +165,16 @@ void SheetData::setSelectedColor(int index) {
 
 QUndoStack *SheetData::undoStack() {
 	return &m_cmdStack;
+}
+
+void SheetData::setColumns(int columns) {
+	m_columns = columns;
+	emit columnsChanged(columns);
+}
+
+void SheetData::setRows(int rows) {
+	m_rows = rows;
+	emit rowsChanged(rows);
 }
 
 void SheetData::updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal) {
@@ -199,9 +222,13 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 	m_itemName = path.mid(path.lastIndexOf('/'));
 	auto lyt = new QVBoxLayout(this);
 	m_splitter = new QSplitter(this);
-	auto canvas = new QQuickWidget(m_splitter);
+	auto canvasParent = new QWidget(m_splitter);
+	auto canvasLyt = new QVBoxLayout(canvasParent);
+	auto canvas = new QQuickWidget(canvasParent);
+	canvasLyt->addWidget(canvas);
+	canvasLyt->setMenuBar(setupToolBar());
 	lyt->addWidget(m_splitter);
-	m_splitter->addWidget(canvas);
+	m_splitter->addWidget(canvasParent);
 	m_splitter->addWidget(setupColorPicker(m_splitter));
 	m_splitter->setStretchFactor(0, 1);
 	m_sheetData.updatePixels(m_ctx, path);
@@ -225,6 +252,19 @@ void TileSheetEditor::save() {
 
 QUndoStack *TileSheetEditor::undoStack() {
 	return m_sheetData.undoStack();
+}
+
+QWidget *TileSheetEditor::setupToolBar() {
+	auto tb = new QToolBar(tr("Tile Sheet Options"));
+	m_tilesX = new LabeledSpinner(tr("Tiles &X:"), 1, m_sheetData.columns());
+	m_tilesY = new LabeledSpinner(tr("Tiles &Y:"), 1, m_sheetData.rows());
+	tb->addWidget(m_tilesX);
+	tb->addWidget(m_tilesY);
+	connect(&m_sheetData, &SheetData::columnsChanged, m_tilesX->spinBox, &QSpinBox::setValue);
+	connect(&m_sheetData, &SheetData::rowsChanged, m_tilesY->spinBox, &QSpinBox::setValue);
+	connect(m_tilesX->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::setColumns);
+	connect(m_tilesY->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::setRows);
+	return tb;
 }
 
 QWidget *TileSheetEditor::setupColorPicker(QWidget *parent) {
@@ -260,15 +300,19 @@ void TileSheetEditor::setColorTable(QStringList hexColors) {
 
 void TileSheetEditor::saveState() {
 	QSettings settings(m_ctx->orgName, PluginName);
-	settings.beginGroup("TileSheetEditor");
+	settings.beginGroup("TileSheetEditor/" + m_itemName);
 	settings.setValue("m_splitter/state", m_splitter->saveState());
+	settings.setValue("m_sheetData/tileRows", m_sheetData.rows());
+	settings.setValue("m_sheetData/tileColumns", m_sheetData.columns());
 	settings.endGroup();
 }
 
 void TileSheetEditor::restoreState() {
 	QSettings settings(m_ctx->orgName, PluginName);
-	settings.beginGroup("TileSheetEditor");
+	settings.beginGroup("TileSheetEditor/" + m_itemName);
 	m_splitter->restoreState(settings.value("m_splitter/state", m_splitter->saveState()).toByteArray());
+	m_sheetData.setRows(settings.value("m_sheetData/tileRows", 1).toInt());
+	m_sheetData.setColumns(settings.value("m_sheetData/tileColumns", 1).toInt());
 	settings.endGroup();
 }
 

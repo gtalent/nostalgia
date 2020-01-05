@@ -35,8 +35,8 @@ class SheetData: public QObject {
 		QUndoStack m_cmdStack;
 		QStringList m_palette;
 		QVector<int> m_pixels;
-		int m_columns = 2;
-		int m_rows = 2;
+		int m_columns = 1;
+		int m_rows = 1;
 		int m_selectedColor = 0;
 
 	public:
@@ -48,11 +48,7 @@ class SheetData: public QObject {
 
 		int columns();
 
-		void setColumns(int columns);
-
 		int rows();
-
-		void setRows(int rows);
 
 		const QVector<int> &pixels();
 
@@ -64,13 +60,18 @@ class SheetData: public QObject {
 
 		QUndoStack *undoStack();
 
+	public slots:
+		void setColumns(int columns);
+
+		void setRows(int rows);
+
 	private:
 		void updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal);
 
 	signals:
-		void columnsChanged();
+		void columnsChanged(int);
 
-		void rowsChanged();
+		void rowsChanged(int);
 
 		void pixelsChanged();
 
@@ -87,6 +88,8 @@ class TileSheetEditor: public studio::Editor {
 		const studio::Context *m_ctx = nullptr;
 		SheetData m_sheetData;
 		QSplitter *m_splitter = nullptr;
+		class LabeledSpinner *m_tilesX = nullptr;
+		class LabeledSpinner *m_tilesY = nullptr;
 		struct {
 			QComboBox *palette = nullptr;
 			QTableWidget *colorTable = nullptr;
@@ -104,6 +107,8 @@ class TileSheetEditor: public studio::Editor {
 		QUndoStack *undoStack() override;
 
 	private:
+		QWidget *setupToolBar();
+
 		QWidget *setupColorPicker(QWidget *widget);
 
 		void setColorTable(QStringList hexColors);

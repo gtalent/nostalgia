@@ -2,6 +2,7 @@ OS=$(shell uname | tr [:upper:] [:lower:])
 HOST_ENV=${OS}-$(shell uname -m)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=nostalgia-devenv
+CURRENT_BUILD=$(file < .current_build)
 ifneq ($(shell which gmake 2> /dev/null),)
 	MAKE=gmake -s
 else
@@ -14,41 +15,38 @@ ifneq ($(shell which docker 2> /dev/null),)
 endif
 
 ifeq ($(OS),darwin)
-	NOSTALGIA_STUDIO=./dist/current/nostalgia-studio.app/Contents/MacOS/nostalgia-studio
-	NOSTALGIA_STUDIO_PROFILE=dist/current/nostalgia-studio.app/Contents/Resources/nostalgia-studio.json
+	NOSTALGIA_STUDIO=./dist/${CURRENT_BUILD}/nostalgia-studio.app/Contents/MacOS/nostalgia-studio
+	NOSTALGIA_STUDIO_PROFILE=dist/${CURRENT_BUILD}/nostalgia-studio.app/Contents/Resources/nostalgia-studio.json
 	MGBA=/Applications/mGBA.app/Contents/MacOS/mGBA
 else
-	NOSTALGIA_STUDIO=./dist/current/bin/nostalgia-studio
-	NOSTALGIA_STUDIO_PROFILE=dist/current/share/nostalgia-studio.json
+	NOSTALGIA_STUDIO=./dist/${CURRENT_BUILD}/bin/nostalgia-studio
+	NOSTALGIA_STUDIO_PROFILE=dist/${CURRENT_BUILD}/share/nostalgia-studio.json
 	MGBA=mgba-qt
 endif
 
 .PHONY: build
 build:
-	${ENV_RUN} ./scripts/run-make build
+	$(foreach file, $(wildcard build/*), cmake --build $(file) --target;)
 .PHONY: pkg-gba
 pkg-gba:
-	${ENV_RUN} ./scripts/run-make build install
+	$(foreach file, $(wildcard build/*), cmake --build $(file) --target install;)
 	${ENV_RUN} ./scripts/gba-pkg
-.PHONY: preinstall
-preinstall:
-	${ENV_RUN} ./scripts/run-make build preinstall
 .PHONY: install
 install:
-	${ENV_RUN} ./scripts/run-make build install
+	$(foreach file, $(wildcard build/*), cmake --build $(file) --target install;)
 .PHONY: clean
 clean:
-	${ENV_RUN} ./scripts/run-make build clean
+	$(foreach file, $(wildcard build/*), cmake --build $(file) --target clean;)
 .PHONY: purge
 purge:
-	${ENV_RUN} rm -rf build
+	${ENV_RUN} rm -rf build .current_build
 .PHONY: test
 test:
-	${ENV_RUN} ./scripts/run-make build test
+	$(foreach file, $(wildcard build/*), cmake --build $(file) --target test;)
 
 .PHONY: run
 run: install
-	${ENV_RUN} ./dist/current/bin/nostalgia sample_project
+	${ENV_RUN} ./dist/${CURRENT_BUILD}/bin/nostalgia sample_project
 .PHONY: run-studio
 run-studio: install
 	${ENV_RUN} ${NOSTALGIA_STUDIO} -profile ${NOSTALGIA_STUDIO_PROFILE}
@@ -57,7 +55,7 @@ gba-run: pkg-gba
 	${MGBA} nostalgia.gba
 .PHONY: gdb
 gdb: install
-	${ENV_RUN} gdb --args ./dist/current/bin/nostalgia sample_project
+	${ENV_RUN} gdb --args ./dist/${CURRENT_BUILD}/bin/nostalgia sample_project
 .PHONY: gdb-studio
 gdb-studio: install
 	${ENV_RUN} gdb --args ${NOSTALGIA_STUDIO} -profile ${NOSTALGIA_STUDIO_PROFILE}

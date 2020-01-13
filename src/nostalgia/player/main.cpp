@@ -41,9 +41,11 @@ int main(int argc, const char **argv) {
 				return 1;
 			}
 			fs = new (ox_alloca(sizeof(ox::FileStore32))) ox::FileSystem32(ox::FileStore32(rom, 32 * ox::units::MB));
-#ifdef OX_HAS_PASSTHROUGHFS
 		} else {
+#ifdef OX_HAS_PASSTHROUGHFS
 			fs = new (ox_alloca(sizeof(ox::PassThroughFS))) ox::PassThroughFS(path);
+#else
+			return 2;
 #endif
 		}
 		auto err = run(fs);
@@ -51,5 +53,5 @@ int main(int argc, const char **argv) {
 		unloadRom(rom);
 		return err;
 	}
-	return 2;
+	return 3;
 }

@@ -33,8 +33,8 @@ buildDir="${project}/build/${TARGET}-${BUILD_TYPE}"
 distDir="${project}/dist/${TARGET}-${BUILD_TYPE}"
 
 mkdir -p $buildDir
-pushd $buildDir
-cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+cmake -S $project -B $buildDir \
+      -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
       -DCMAKE_INSTALL_PREFIX="$distDir" \
       -DCMAKE_INSTALL_RPATH="$project/dist/${TARGET}-${BUILD_TYPE}/lib/nostalgia" \
       -DNOSTALGIA_IDE_BUILD=OFF \
@@ -42,11 +42,9 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
       $nostalgiaBuildType \
       $oxUseStdLib \
       $BUILD_TYPEArgs \
-		$sanitizerArgs \
+      $sanitizerArgs \
       $qtPath \
-      $toolchain \
-      $project
-popd
+      $toolchain
 
 rm -f build/current dist/current
 mkdir -p dist

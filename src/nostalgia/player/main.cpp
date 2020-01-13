@@ -10,21 +10,19 @@
 #include <ox/std/units.hpp>
 #include <nostalgia/world/world.hpp>
 
-using namespace nostalgia::common;
-using namespace nostalgia::core;
-using namespace nostalgia::world;
+using namespace nostalgia;
 
 ox::Error run(ox::FileSystem *fs) {
-	Context ctx;
+	core::Context ctx;
 	ctx.rom = fs;
-	oxReturnError(init(&ctx));
+	oxReturnError(core::init(&ctx));
 	//Zone zone;
 	//oxReturnError(zone.init(&ctx, Bounds{0, 0, 40, 40}, "/TileSheets/Charset.ng", "/Palettes/Charset.npal"));
 	//zone.draw(&ctx);
-	oxReturnError(initConsole(&ctx));
-	puts(&ctx, 10, 9, "DOPENESS!!!");
-	oxReturnError(run());
-	oxReturnError(shutdownGfx());
+	oxReturnError(core::initConsole(&ctx));
+	core::puts(&ctx, 10, 9, "DOPENESS!!!");
+	oxReturnError(core::run());
+	oxReturnError(core::shutdownGfx());
 	return OxError(0);
 }
 
@@ -36,7 +34,7 @@ int main(int argc, const char **argv) {
 		const auto lastDot = ox_lastIndexOf(path, '.');
 		const auto fsExt = lastDot != -1 ? path + lastDot : "";
 		if (ox_strcmp(fsExt, ".oxfs") == 0) {
-			rom = loadRom(path);
+			rom = core::loadRom(path);
 			if (!rom) {
 				return 1;
 			}
@@ -50,7 +48,8 @@ int main(int argc, const char **argv) {
 		}
 		auto err = run(fs);
 		oxAssert(err, "Something went wrong...");
-		unloadRom(rom);
+		fs->~FileSystem();
+		core::unloadRom(rom);
 		return err;
 	}
 	return 3;

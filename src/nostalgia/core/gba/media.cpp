@@ -32,4 +32,7 @@ uint8_t *loadRom(const char*) {
 	return nullptr;
 }
 
+void unloadRom(uint8_t*) {
+}
+
 }

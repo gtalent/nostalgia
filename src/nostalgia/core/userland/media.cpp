@@ -6,15 +6,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <ox/fs/fs.hpp>
-#include <ox/std/std.hpp>
+#include <cstdio>
 
 #include "../media.hpp"
 
 namespace nostalgia::core {
 
-uint8_t *loadRom(const char*) {
-	return nullptr;
+uint8_t *loadRom(const char *path) {
+	auto file = fopen(path, "r");
+	if (file) {
+		fseek(file, 0, SEEK_END);
+		const auto size = ftell(file);
+		rewind(file);
+		auto buff = new uint8_t[size];
+		fread(buff, size, 1, file);
+		fclose(file);
+		return buff;
+	} else {
+		return nullptr;
+	}
+}
+
+void unloadRom(uint8_t *rom) {
+	delete rom;
 }
 
 }

@@ -1,10 +1,15 @@
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 extern void (*__preinit_array_start[]) (void);
 extern void (*__preinit_array_end[]) (void);
 extern void (*__init_array_start[]) (void);
 extern void (*__init_array_end[]) (void);
 
-extern "C" void __libc_init_array() {
+extern "C" {
+
+void __libc_init_array() {
 	auto preInits = __preinit_array_end - __preinit_array_start;
 	for (decltype(preInits) i = 0; i < preInits; i++) {
 		__preinit_array_start[i]();
@@ -14,3 +19,14 @@ extern "C" void __libc_init_array() {
 		__preinit_array_start[i]();
 	}
 }
+
+int main(int argc, const char **argv);
+
+void c_start() {
+	const char *args[2] = {"", "rom.oxfs"};
+	main(2, args);
+}
+
+}
+
+#pragma GCC diagnostic pop

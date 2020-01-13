@@ -13,11 +13,11 @@
 #include <filesystem>
 #include <string>
 
-#define OX_PASSTHROUGHFS_HAS_DEPENDENCIES
+#define OX_HAS_PASSTHROUGHFS
 
 #endif
 
-#ifdef OX_PASSTHROUGHFS_HAS_DEPENDENCIES
+#ifdef OX_HAS_PASSTHROUGHFS
 
 #include "filesystem.hpp"
 

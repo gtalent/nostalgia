@@ -8,7 +8,7 @@
 
 #include "passthroughfs.hpp"
 
-#if defined(OX_PASSTHROUGHFS_HAS_DEPENDENCIES)
+#if defined(OX_HAS_PASSTHROUGHFS)
 
 #include <fstream>
 

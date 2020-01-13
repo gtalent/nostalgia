@@ -22,9 +22,9 @@ void __libc_init_array() {
 
 int main(int argc, const char **argv);
 
-void c_start() {
+int c_start() {
 	const char *args[2] = {"", "rom.oxfs"};
-	main(2, args);
+	return main(2, args);
 }
 
 }

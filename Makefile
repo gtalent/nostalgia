@@ -3,15 +3,16 @@ HOST_ENV=${OS}-$(shell uname -m)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=nostalgia-devenv
 CURRENT_BUILD=$(file < .current_build)
-ifneq ($(shell which gmake 2> /dev/null),)
-	MAKE=gmake -s
-else
-	MAKE=make -s
-endif
 ifneq ($(shell which docker 2> /dev/null),)
 	ifeq ($(shell docker inspect --format="{{.State.Status}}" ${DEVENV} 2>&1),running)
 		ENV_RUN=docker exec -i -t --user $(shell id -u ${USER}) ${DEVENV}
 	endif
+endif
+
+ifeq ($(OS),windows)
+	RM_RF=Remove-Item -ErrorAction Ignore -Path -Recurse
+else
+	RM_RF=rm -rf
 endif
 
 ifeq ($(OS),darwin)
@@ -39,7 +40,7 @@ clean:
 	$(foreach file, $(wildcard build/*), cmake --build $(file) --target clean;)
 .PHONY: purge
 purge:
-	${ENV_RUN} rm -rf build .current_build
+	${ENV_RUN} ${RM_RF} build .current_build
 .PHONY: test
 test:
 	$(foreach file, $(wildcard build/*), cmake --build $(file) --target test;)
@@ -89,25 +90,25 @@ conan:
 
 .PHONY: configure-release
 configure-release:
-	${ENV_RUN} rm -rf build/${HOST_ENV}-release
+	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-release
 	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} release
 
 .PHONY: configure-debug
 configure-debug:
-	${ENV_RUN} rm -rf build/${HOST_ENV}-debug
+	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-debug
 	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} debug
 
 .PHONY: configure-asan
 configure-asan:
-	${ENV_RUN} rm -rf build/${HOST_ENV}-asan
+	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-asan
 	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} asan
 
 .PHONY: configure-gba
 configure-gba:
-	${ENV_RUN} rm -rf build/gba-release
+	${ENV_RUN} ${RM_RF} build/gba-release
 	${ENV_RUN} ./scripts/setup-build gba release
 
 .PHONY: configure-gba-debug
 configure-gba-debug:
-	${ENV_RUN} rm -rf build/gba-debug
+	${ENV_RUN} ${RM_RF} build/gba-debug
 	${ENV_RUN} ./scripts/setup-build gba debug

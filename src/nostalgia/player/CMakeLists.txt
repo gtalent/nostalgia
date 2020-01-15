@@ -26,8 +26,6 @@ target_link_libraries(
 		${NOSTALGIA_PLAYER_DEPS}
 )
 
-add_custom_target("nostalgia.bin")
-
 install(
 	TARGETS
 		nostalgia

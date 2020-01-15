@@ -21,7 +21,7 @@ struct HeapSegment {
 	HeapSegment *next;
 
 	uint8_t *end() {
-		return ((uint8_t*) this) + this->size;
+		return reinterpret_cast<uint8_t*>(this) + this->size;
 	}
 };
 
@@ -61,7 +61,7 @@ void *malloc(std::size_t allocSize) {
 	// update size for the heap segment now that it is to be considered
 	// allocated
 	seg->size = fullSize;
-	seg->next = (HeapSegment*) (((uint8_t*) seg) + fullSize);
+	seg->next = reinterpret_cast<HeapSegment*>(reinterpret_cast<uint8_t*>(seg) + fullSize);
 	seg->inUse = true;
 	auto out = seg + 1;
 
@@ -79,7 +79,7 @@ void *malloc(std::size_t allocSize) {
 
 void free(void *ptrIn) {
 	// get ptr back down to the meta data
-	auto *ptr = ((HeapSegment*) ptrIn) - 1;
+	auto *ptr = reinterpret_cast<HeapSegment*>(ptrIn) - 1;
 	HeapSegment *prev = nullptr;
 	auto current = _heapIdx;
 	while (current && current != ptr) {

@@ -12,40 +12,40 @@
 /////////////////////////////////////////////////////////////////
 // I/O Registers
 
-#define REG_DISPCNT *((volatile uint32_t*) 0x04000000)
+#define REG_DISPCNT *reinterpret_cast<volatile uint32_t*>(0x04000000)
 
 /////////////////////////////////////////////////////////////////
 // background registers
 
 // background control registers
-#define REG_BG0CNT *((volatile uint32_t*) 0x04000008)
-#define REG_BG1CNT *((volatile uint32_t*) 0x0400000a)
-#define REG_BG2CNT *((volatile uint32_t*) 0x0400000c)
-#define REG_BG3CNT *((volatile uint32_t*) 0x0400000e)
+#define REG_BG0CNT *reinterpret_cast<volatile uint32_t*>(0x04000008)
+#define REG_BG1CNT *reinterpret_cast<volatile uint32_t*>(0x0400000a)
+#define REG_BG2CNT *reinterpret_cast<volatile uint32_t*>(0x0400000c)
+#define REG_BG3CNT *reinterpret_cast<volatile uint32_t*>(0x0400000e)
 
 // background horizontal scrolling registers
-#define REG_BG0HOFS *((volatile uint32_t*) 0x04000010)
-#define REG_BG1HOFS *((volatile uint32_t*) 0x04000014)
-#define REG_BG2HOFS *((volatile uint32_t*) 0x04000018)
-#define REG_BG3HOFS *((volatile uint32_t*) 0x0400001c)
+#define REG_BG0HOFS *reinterpret_cast<volatile uint32_t*>(0x04000010)
+#define REG_BG1HOFS *reinterpret_cast<volatile uint32_t*>(0x04000014)
+#define REG_BG2HOFS *reinterpret_cast<volatile uint32_t*>(0x04000018)
+#define REG_BG3HOFS *reinterpret_cast<volatile uint32_t*>(0x0400001c)
 
 // background vertical scrolling registers
-#define REG_BG0VOFS *((volatile uint32_t*) 0x04000012)
-#define REG_BG1VOFS *((volatile uint32_t*) 0x04000016)
-#define REG_BG2VOFS *((volatile uint32_t*) 0x0400001a)
-#define REG_BG3VOFS *((volatile uint32_t*) 0x0400001e)
+#define REG_BG0VOFS *reinterpret_cast<volatile uint32_t*>(0x04000012)
+#define REG_BG1VOFS *reinterpret_cast<volatile uint32_t*>(0x04000016)
+#define REG_BG2VOFS *reinterpret_cast<volatile uint32_t*>(0x0400001a)
+#define REG_BG3VOFS *reinterpret_cast<volatile uint32_t*>(0x0400001e)
 
 
 /////////////////////////////////////////////////////////////////
 // Memory Addresses
 
-#define MEM_PALETTE_BG     ((uint16_t*) 0x05000000)
-#define MEM_PALETTE_SPRITE ((uint16_t*) 0x05000200)
+#define MEM_PALETTE_BG     reinterpret_cast<uint16_t*>(0x05000000)
+#define MEM_PALETTE_SPRITE reinterpret_cast<uint16_t*>(0x05000200)
 
 typedef uint16_t BgMapTile[1024];
-#define MEM_BG_MAP ((BgMapTile*) 0x06000000)
+#define MEM_BG_MAP reinterpret_cast<BgMapTile*>(0x06000000)
 
-#define MEM_ROM *((uint8_t*) 0x08000000)
+#define MEM_ROM *reinterpret_cast<uint8_t*>(0x08000000)
 
-#define MEM_WRAM_BEGIN ((uint8_t*) 0x02000000)
-#define MEM_WRAM_END   ((uint8_t*) 0x0203FFFF)
+#define MEM_WRAM_BEGIN reinterpret_cast<uint8_t*>(0x02000000)
+#define MEM_WRAM_END   reinterpret_cast<uint8_t*>(0x0203FFFF)

@@ -10,8 +10,6 @@ if [[ $TARGET == gba ]]; then
 	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/modules/GBA.cmake"
 	nostalgiaBuildType="-DNOSTALGIA_BUILD_TYPE=GBA"
 	oxUseStdLib="-DOX_USE_STDLIB=OFF"
-else
-	buildTool="-GNinja"
 fi
 
 if [[ $BUILD_TYPE == asan ]]; then
@@ -38,7 +36,7 @@ cmake -S $project -B $buildDir \
       -DCMAKE_INSTALL_PREFIX="$distDir" \
       -DCMAKE_INSTALL_RPATH="$project/dist/${TARGET}-${BUILD_TYPE}/lib/nostalgia" \
       -DNOSTALGIA_IDE_BUILD=OFF \
-      $buildTool \
+      -GNinja \
       $nostalgiaBuildType \
       $oxUseStdLib \
       $BUILD_TYPEArgs \

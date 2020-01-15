@@ -20,7 +20,7 @@ target_link_libraries(
 		OxStd
 )
 
-target_compile_definitions(NostalgiaCore-Studio PRIVATE QT_QML_DEBUG)
+#target_compile_definitions(NostalgiaCore-Studio PRIVATE QT_QML_DEBUG)
 
 install(
 	TARGETS

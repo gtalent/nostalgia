@@ -10,7 +10,6 @@
 
 #include <functional>
 
-#include <QToolBar>
 #include <QVector>
 #include <QWizardPage>
 
@@ -20,20 +19,11 @@
 
 namespace nostalgia::studio {
 
-struct Context: public QObject {
-	Q_OBJECT
-
-	public:
-		QString appName;
-		QString orgName;
-		QWidget *tabParent = nullptr;
-		const Project *project = nullptr;
-
-	signals:
-		void addToolBar(QToolBar *tb);
-
-		void removeToolBar(QToolBar *tb);
-
+struct Context {
+	QString appName;
+	QString orgName;
+	QWidget *tabParent = nullptr;
+	const Project *project = nullptr;
 };
 
 struct EditorMaker {

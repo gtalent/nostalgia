@@ -7,11 +7,20 @@
  */
 
 import QtQuick 2.0
+import QtQuick.Controls 2.14
 import 'qrc:/qml/'
 
-Rectangle {
+ScrollView {
 	id: tileSheetEditor
-	color: '#717d7e'
+	ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+	ScrollBar.vertical.policy: ScrollBar.AsNeeded
+	contentWidth: tileGrid.width
+	contentHeight: tileGrid.height
+	clip: true
+
+	background: Rectangle {
+		color: '#717d7e'
+	}
 
 	MouseArea {
 		id: mouseArea
@@ -26,28 +35,23 @@ Rectangle {
 			}
 		}
 
-		onPositionChanged: sheetData.updatePixel(pixelAt(mouseX, mouseY))
-		onReleased: sheetData.endCmd();
-		onCanceled: sheetData.endCmd();
-
-		Grid {
-			id: tileGrid
-			property int baseTileSize: Math.min(parent.width / tileGrid.columns, parent.height / tileGrid.rows)
-			width: tileGrid.columns * tileGrid.baseTileSize * 0.90
-			height: tileGrid.rows * tileGrid.baseTileSize * 0.90
-			anchors.horizontalCenter: parent.horizontalCenter
-			anchors.verticalCenter: parent.verticalCenter
-			rows: sheetData.rows
-			columns: sheetData.columns
-			Repeater {
-				model: tileGrid.rows * tileGrid.columns
-				Tile {
-					tileNumber: index
-					width: tileGrid.width / tileGrid.columns
-					height: tileGrid.height / tileGrid.rows
+		onWheel: {
+			if (wheel.modifiers & Qt.ControlModifier) {
+				const mod = tileGrid.scaleFactor / 10;
+				if (wheel.angleDelta.y > 0 && tileGrid.scaleFactor < 7) {
+					tileGrid.scaleFactor += mod;
+				} else if (tileGrid.scaleFactor > 0.9) {
+					tileGrid.scaleFactor -= mod;
 				}
+				wheel.accepted = true;
+			} else {
+				wheel.accepted = false;
 			}
 		}
+
+		onPositionChanged: sheetData.updatePixel(pixelAt(mouseX, mouseY))
+		onReleased: sheetData.endCmd()
+		onCanceled: sheetData.endCmd()
 
 		function pixelAt(x, y) {
 			var gridX = x - tileGrid.x;
@@ -62,6 +66,26 @@ Rectangle {
 			return pixel;
 		}
 
+	}
+
+	Grid {
+		id: tileGrid
+		property double scaleFactor: 0.9
+		property int baseTileSize: Math.min(2000 / tileGrid.columns, 1000 / tileGrid.rows)
+		width: tileGrid.columns * tileGrid.baseTileSize * tileGrid.scaleFactor
+		height: tileGrid.rows * tileGrid.baseTileSize * tileGrid.scaleFactor
+		//anchors.horizontalCenter: parent.horizontalCenter
+		//anchors.verticalCenter: parent.verticalCenter
+		rows: sheetData.rows
+		columns: sheetData.columns
+		Repeater {
+			model: tileGrid.rows * tileGrid.columns
+			Tile {
+				tileNumber: index
+				width: tileGrid.width / tileGrid.columns
+				height: tileGrid.height / tileGrid.rows
+			}
+		}
 	}
 
 }

@@ -10,7 +10,6 @@
 
 #include <iostream>
 #include <vector>
-#include <nostalgia/common/point.hpp>
 #include <ox/clargs/clargs.hpp>
 #include <ox/fs/fs.hpp>
 #include <ox/std/units.hpp>
@@ -19,25 +18,6 @@
 
 using namespace std;
 using namespace ox;
-using namespace nostalgia::common;
-
-[[nodiscard]] ox::ValErr<std::vector<uint8_t>> loadFileBuff(std::string path, ::size_t *sizeOut = nullptr) {
-	auto file = fopen(path.c_str(), "rb");
-	if (file) {
-		fseek(file, 0, SEEK_END);
-		const auto size = ftell(file);
-		rewind(file);
-		std::vector<uint8_t> buff(size);
-		auto itemsRead = fread(buff.data(), buff.size(), 1, file);
-		fclose(file);
-		if (sizeOut) {
-			*sizeOut = itemsRead ? size : 0;
-		}
-		return buff;
-	} else {
-		return {{}, OxError(1)};
-	}
-}
 
 [[nodiscard]] static ox::Error writeFileBuff(const std::string &path, const std::vector<uint8_t> &buff) {
 	auto file = fopen(path.c_str(), "wb");

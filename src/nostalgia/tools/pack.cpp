@@ -54,7 +54,7 @@ int main(int argc, const char **args) {
 	try {
 		run(ox::ClArgs(argc, args));
 	} catch (const ox::Error &err) {
-		oxAssert(err, "pack failed");
+		oxPanic(err, "pack failed");
 		std::cerr << "pack failed...\n";
 		return static_cast<int>(err);
 	}

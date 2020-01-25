@@ -43,20 +43,19 @@ Error PassThroughFS::move(const char *src, const char *dest) {
 }
 
 Error PassThroughFS::read(const char *path, void *buffer, std::size_t buffSize) {
-	std::ifstream file((m_path / stripSlash(path)), std::ios::binary | std::ios::ate);
-	const std::size_t size = file.tellg();
-	file.seekg(0, std::ios::beg);
-
-	if (!file.good()) {
+	try {
+		std::ifstream file((m_path / stripSlash(path)), std::ios::binary | std::ios::ate);
+		const std::size_t size = file.tellg();
+		file.seekg(0, std::ios::beg);
+		if (size > buffSize) {
+			oxTrace("ox::fs::PassThroughFS::read::error") << "Read failed: Buffer too small:" << path;
+			return OxError(1);
+		}
+		file.read(static_cast<char*>(buffer), buffSize);
+	} catch (const std::fstream::failure&) {
 		oxTrace("ox::fs::PassThroughFS::read::error") << "Read failed:" << path;
-		return OxError(1);
+		throw OxError(2);
 	}
-	if (size > buffSize) {
-		oxTrace("ox::fs::PassThroughFS::read::error") << "Read failed: Buffer too small:" << path;
-		return OxError(1);
-	}
-	file.read(static_cast<char*>(buffer), buffSize);
-
 	return OxError(0);
 }
 
@@ -93,11 +92,13 @@ ox::Error PassThroughFS::resize(uint64_t, void*) {
 
 Error PassThroughFS::write(const char *path, void *buffer, uint64_t size, uint8_t) {
 	auto p = (m_path / stripSlash(path));
-	std::ofstream f(p, std::ios::binary);
-	if (!f.good()) {
-		return OxError(1);
+	try {
+		std::ofstream f(p, std::ios::binary);
+		f.write(static_cast<char*>(buffer), size);
+	} catch (const std::fstream::failure&) {
+		oxTrace("ox::fs::PassThroughFS::write::error") << "Write failed:" << path;
+		throw OxError(1);
 	}
-	f.write(static_cast<char*>(buffer), size);
 	return OxError(0);
 }
 

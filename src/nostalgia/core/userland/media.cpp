@@ -14,7 +14,7 @@
 
 namespace nostalgia::core {
 
-uint8_t *loadRom(const char *path) {
+char *loadRom(const char *path) {
 	std::ifstream file(path, std::ios::binary | std::ios::ate);
 	if (!file.good()) {
 		oxTrace("nostalgia::core::userland::loadRom") << "Read failed:" << path;
@@ -23,12 +23,12 @@ uint8_t *loadRom(const char *path) {
 
 	const std::size_t size = file.tellg();
 	file.seekg(0, std::ios::beg);
-	auto buff = new uint8_t[size];
-	file.read(reinterpret_cast<char*>(buff), size);
+	auto buff = new char[size];
+	file.read(buff, size);
 	return buff;
 }
 
-void unloadRom(uint8_t *rom) {
+void unloadRom(char *rom) {
 	delete rom;
 }
 

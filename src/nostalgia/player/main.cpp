@@ -29,7 +29,7 @@ ox::Error run(ox::FileSystem *fs) {
 int main(int argc, const char **argv) {
 	if (argc > 1) {
 		ox::FileSystem *fs = nullptr;
-		uint8_t *rom = nullptr;
+		char *rom = nullptr;
 		auto path = argv[1];
 		const auto lastDot = ox_lastIndexOf(path, '.');
 		const auto fsExt = lastDot != -1 ? path + lastDot : "";

@@ -12,8 +12,8 @@
 
 namespace nostalgia::core {
 
-uint8_t *loadRom(const char *path = "");
+char *loadRom(const char *path = "");
 
-void unloadRom(uint8_t*);
+void unloadRom(char*);
 
 }

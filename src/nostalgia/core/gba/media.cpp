@@ -14,7 +14,7 @@
 
 namespace nostalgia::core {
 
-uint8_t *loadRom(const char*) {
+char *loadRom(const char*) {
 	// put the header in the wrong order to prevent mistaking this code for the
 	// media section
 	constexpr auto headerP2 = "_HEADER_________";
@@ -23,7 +23,7 @@ uint8_t *loadRom(const char*) {
 	constexpr auto headerP2Len = 16;
 	constexpr auto headerLen = headerP1Len + headerP2Len + 1;
 
-	for (auto current = &MEM_ROM; current < reinterpret_cast<uint8_t*>(0x0a000000); current += headerLen) {
+	for (auto current = &MEM_ROM; current < reinterpret_cast<char*>(0x0a000000); current += headerLen) {
 		if (ox_memcmp(current, headerP1, headerP1Len) == 0 &&
 		    ox_memcmp(current + headerP1Len, headerP2, headerP2Len) == 0) {
 			return current + headerLen;
@@ -32,7 +32,7 @@ uint8_t *loadRom(const char*) {
 	return nullptr;
 }
 
-void unloadRom(uint8_t*) {
+void unloadRom(char*) {
 }
 
 }

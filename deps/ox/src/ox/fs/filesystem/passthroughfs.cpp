@@ -98,7 +98,6 @@ Error PassThroughFS::write(const char *path, void *buffer, uint64_t size, uint8_
 		return OxError(1);
 	}
 	f.write(static_cast<char*>(buffer), size);
-	f.close();
 	return OxError(0);
 }
 

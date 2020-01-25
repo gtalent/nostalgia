@@ -61,12 +61,6 @@ optimizing the passing in of parameters and for returning from accessor
 operators (e.g. ```T &Vector::operator[](size_t)```). As parameters, references
 should always be const.
 
-### Casting
-
-Do not use C-style casts. C++ casts are more readable, and more explicit about
-the type of cast being used. Do not use ```dynamic_cast``` in code building for the
-GBA, as RTTI is disabled in GBA builds.
-
 ### Error Handling
 
 Exceptions are clean and nice and gleefully encouraged in userland code running
@@ -163,3 +157,68 @@ void studioCode() {
 }
 ```
 
+### Write C++, Not C
+
+On the surface, it seems like C++ changes the way we do things from C for no
+reason, but there are reasons for many of these duplications of functionality.
+The C++ language designers aren't stupid, trust them or question them, but
+don't ignore them.
+
+#### Casting
+
+Do not use C-style casts. C++ casts are more readable, and more explicit about
+the type of cast being used. Do not use ```dynamic_cast``` in code building for the
+GBA, as RTTI is disabled in GBA builds.
+
+#### Library Usage
+
+C++ libraries should generally be preferred to C libraries. C libraries are
+allowed, but pay extra attention.
+
+This example from nostalgia::core demonstrates the type of problems that can
+arise from idiomatically mixed code.
+
+```cpp
+uint8_t *loadRom(const char *path) {
+	auto file = fopen(path, "r");
+	if (file) {
+		fseek(file, 0, SEEK_END);
+		const auto size = ftell(file);
+		rewind(file);
+		// new can technically throw, though this project considers out-of-memory to be unrecoverable
+		auto buff = new uint8_t[size];
+		fread(buff, size, 1, file);
+		fclose(file);
+		return buff;
+	} else {
+		return nullptr;
+	}
+}
+```
+
+In practice, that particular example is not something we really care about
+here, but it does demonstrate that problems can arise when mixing what might be
+perceived as cool old-school C-style code with lame seemingly over-complicated
+C++-style code.
+
+Here is another more concrete example observed in another project:
+```cpp
+int main() {
+	// using malloc does not call the constructor
+	std::vector<int> *list = (std::vector<int>*) malloc(sizeof(std::vector<int>));
+	doStuff(list);
+	// free does not call the destructor, which causes memory leak for array inside list
+	free(list);
+	return 0;
+}
+```
+
+The code base where this was observed actually got away with this for the most
+part, as the std::vector implementation used evidentally waited until the
+internal array was needed before initializing and the memory was zeroed out
+because the allocation occurred early in the program's execution. While the
+std::vector implementation in queston worked with this code and the memory leak
+is not noticable because the std::vector was meant to exist for the entire life
+of the process, other classes likely will not get away with it due to more
+substantial constructors and more frequent instatiations of the classes in
+question.

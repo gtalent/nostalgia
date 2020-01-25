@@ -6,25 +6,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <cstdio>
+#include <fstream>
+
+#include <ox/std/trace.hpp>
 
 #include "../media.hpp"
 
 namespace nostalgia::core {
 
 uint8_t *loadRom(const char *path) {
-	auto file = fopen(path, "r");
-	if (file) {
-		fseek(file, 0, SEEK_END);
-		const auto size = ftell(file);
-		rewind(file);
-		auto buff = new uint8_t[size];
-		fread(buff, size, 1, file);
-		fclose(file);
-		return buff;
-	} else {
+	std::ifstream file(path, std::ios::binary | std::ios::ate);
+	if (!file.good()) {
+		oxTrace("nostalgia::core::userland::loadRom") << "Read failed:" << path;
 		return nullptr;
 	}
+
+	const std::size_t size = file.tellg();
+	file.seekg(0, std::ios::beg);
+	auto buff = new uint8_t[size];
+	file.read(reinterpret_cast<char*>(buff), size);
+	return buff;
 }
 
 void unloadRom(uint8_t *rom) {

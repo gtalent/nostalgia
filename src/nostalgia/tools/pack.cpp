@@ -17,10 +17,10 @@
 
 #include "pack/pack.hpp"
 
-static void writeFileBuff(const std::string &path, std::vector<uint8_t> &buff) {
+static void writeFileBuff(const std::string &path, std::vector<char> &buff) {
 	try {
 		std::ofstream f(path, std::ios::binary);
-		f.write(reinterpret_cast<char*>(buff.data()), buff.size());
+		f.write(buff.data(), buff.size());
 	} catch (const std::fstream::failure&) {
 		throw OxError(2);
 	}
@@ -37,7 +37,7 @@ void run(ox::ClArgs args) {
 		std::cerr << "error: must specify a destination ROM file\n";
 		throw OxError(1);
 	}
-	std::vector<uint8_t> buff(32 * ox::units::MB);
+	std::vector<char> buff(32 * ox::units::MB);
 	oxThrowError(ox::FileSystem32::format(buff.data(), buff.size()));
 	ox::PassThroughFS src(argSrc.c_str());
 	ox::FileSystem32 dst(ox::FileStore32(buff.data(), buff.size()));

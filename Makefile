@@ -86,7 +86,7 @@ devenv-shell:
 
 .PHONY: conan
 conan:
-	@mkdir -p conanbuild && cd conanbuild && conan install ../
+	@mkdir -p conanbuild && cd conanbuild && conan install --build missing ../
 
 .PHONY: configure-release
 configure-release:

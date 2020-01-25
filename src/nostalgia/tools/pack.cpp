@@ -17,9 +17,6 @@
 
 #include "pack/pack.hpp"
 
-using namespace std;
-using namespace ox;
-
 static void writeFileBuff(const std::string &path, std::vector<uint8_t> &buff) {
 	try {
 		std::ofstream f(path, std::ios::binary);
@@ -29,7 +26,7 @@ static void writeFileBuff(const std::string &path, std::vector<uint8_t> &buff) {
 	}
 }
 
-void run(ClArgs args) {
+void run(ox::ClArgs args) {
 	std::string argSrc = args.getString("src").c_str();
 	std::string argDst = args.getString("dst").c_str();
 	if (argSrc == "") {
@@ -55,7 +52,7 @@ void run(ClArgs args) {
 
 int main(int argc, const char **args) {
 	try {
-		run(ClArgs(argc, args));
+		run(ox::ClArgs(argc, args));
 	} catch (const ox::Error &err) {
 		oxAssert(err, "pack failed");
 		std::cerr << "pack failed...\n";

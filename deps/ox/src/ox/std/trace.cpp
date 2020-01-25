@@ -61,11 +61,10 @@ StdOutStream::~StdOutStream() {
 
 void logError(const char *file, int line, Error err) {
 	if (err) {
-		ErrorInfo ei(err);
 		TraceStream trc(file, line, "ox::error");
-		trc <<  "Error:" << ei.errCode;
-		if (ei.file != nullptr) {
-			trc << "(" << reinterpret_cast<const char*>(ei.file) << ":" << ei.line << ")";
+		trc <<  "Error:" << err;
+		if (err.file != nullptr) {
+			trc << "(" << reinterpret_cast<const char*>(err.file) << ":" << err.line << ")";
 		}
 	}
 }

@@ -32,18 +32,22 @@ void assertFunc<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line
 }
 
 template<>
-void assertFunc<Error>([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]Error err, [[maybe_unused]]const char *msg) {
-#if defined(OX_USE_STDLIB)
+void assertFunc<Error>(const char *file, int line, Error err, const char *msg) {
 	if (err) {
-		auto ei = ErrorInfo(err);
-		std::cerr << "\033[31;1;1mASSERT FAILURE:\033[0m (" << file << ':' << line << "): " << msg << '\n';
-		std::cerr <<  "\tError Code:\t" << ei.errCode << '\n';
-		if (ei.file != nullptr) {
-			std::cerr << "\tError Location:\t" << reinterpret_cast<const char*>(ei.file) << ':' << ei.line << '\n';
-		}
-		printStackTrace(2);
-		std::abort();
+		panic(file, line, err, msg);
 	}
+}
+
+void panic([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]Error err, [[maybe_unused]]const char *msg) {
+#if defined(OX_USE_STDLIB)
+	std::cerr << "\033[31;1;1mPANIC:\033[0m (" << file << ':' << line << "): " << msg << '\n';
+	std::cerr <<  "\tError Code:\t" << err << '\n';
+	if (err.file != nullptr) {
+		std::cerr << "\tError Location:\t" << reinterpret_cast<const char*>(err.file) << ':' << err.line << '\n';
+	}
+	printStackTrace(2);
+	oxTrace("assert").del("") << "Failed assert: " << msg << " (" << file << ":" << line << ")";
+	std::abort();
 #endif
 }
 

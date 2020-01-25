@@ -39,20 +39,6 @@ struct BaseError {
 
 using Error = Integer<uint64_t, BaseError>;
 
-struct ErrorInfo {
-	const char *file = nullptr;
-	int line = -1;
-	Error errCode = Error(0);
-
-	ErrorInfo() = default;
-
-	ErrorInfo(Error err) {
-		this->file = err.file;
-		this->line = err.line;
-		this->errCode = err;
-	}
-};
-
 static constexpr Error _error(const char *file, uint32_t line, Error errCode) {
 	Error err = errCode;
 	err.file = file;

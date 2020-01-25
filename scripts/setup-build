@@ -1,51 +1,47 @@
 #! /usr/bin/env bash
 
-TARGET=$1
-BUILD_TYPE=$2
+target=$1
+buildType=$2
 
 project=$(pwd)/
-buildTool=""
 
-if [[ $TARGET == gba ]]; then
+if [[ $target == gba ]]; then
 	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/modules/GBA.cmake"
-	nostalgiaBuildType="-DNOSTALGIA_BUILD_TYPE=GBA"
-	oxUseStdLib="-DOX_USE_STDLIB=OFF"
+	nostalgiaBuildType="GBA"
+else
+	nostalgiaBuildType="Native"
 fi
 
-if [[ $BUILD_TYPE == asan ]]; then
-	BUILD_TYPEArgs="-DCMAKE_BUILD_TYPE=Debug"
-	sanitizerArgs="-DUSE_ASAN=ON"
-elif [[ $BUILD_TYPE == debug ]]; then
-	BUILD_TYPEArgs="-DCMAKE_BUILD_TYPE=Debug"
-	sanitizerArgs=""
-elif [[ $BUILD_TYPE == release ]]; then
-	BUILD_TYPEArgs="-DCMAKE_BUILD_TYPE=Release"
-	sanitizerArgs=""
+if [[ $buildType == asan ]]; then
+	buildTypeArg="Debug"
+	sanitizerStatus="ON"
+elif [[ $buildType == debug ]]; then
+	buildTypeArg="Debug"
+	sanitizerStatus="OFF"
+elif [[ $buildType == release ]]; then
+	buildTypeArg="Release"
+	sanitizerStatus="OFF"
 fi
+
+buildConfig=${target}-${buildType}
 
 if [[ $NOSTALGIA_QT_PATH != "" ]]; then
 	qtPath="-DNOSTALGIA_QT_PATH=${NOSTALGIA_QT_PATH}"
 fi
 
-buildDir="${project}/build/${TARGET}-${BUILD_TYPE}"
-distDir="${project}/dist/${TARGET}-${BUILD_TYPE}"
-
+buildDir="${project}/build/${buildConfig}"
 mkdir -p $buildDir
-cmake -S $project -B $buildDir \
+cmake -S $project -B $buildDir -GNinja \
       -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-      -DCMAKE_INSTALL_PREFIX="$distDir" \
-      -DCMAKE_INSTALL_RPATH="$project/dist/${TARGET}-${BUILD_TYPE}/lib/nostalgia" \
+      -DCMAKE_BUILD_TYPE=${buildTypeArg} \
+      -DUSE_ASAN=${sanitizerStatus} \
       -DNOSTALGIA_IDE_BUILD=OFF \
-      -GNinja \
-      $nostalgiaBuildType \
-      $oxUseStdLib \
-      $BUILD_TYPEArgs \
-      $sanitizerArgs \
+      -DNOSTALGIA_BUILD_CONFIG=${buildConfig} \
+      -DNOSTALGIA_BUILD_TYPE=${nostalgiaBuildType} \
       $qtPath \
       $toolchain
 
-rm -f build/current dist/current
 mkdir -p dist
-echo ${TARGET}-${BUILD_TYPE} > .current_build
+echo ${buildConfig} > .current_build
 rm -f compile_commands.json
-ln -s build/${TARGET}-${BUILD_TYPE}/compile_commands.json
+ln -s build/${buildConfig}/compile_commands.json

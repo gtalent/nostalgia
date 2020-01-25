@@ -1,6 +1,7 @@
 .current_build
 compile_commands.json
 build
+conanbuild
 dist
 tags
 nostalgia.gba
@@ -11,7 +12,4 @@ studio_state.json
 CMakeLists.txt.user
 Session.vim
 ROM.oxfs
-conanbuildinfo.cmake
-conanbuildinfo.txt
-conaninfo.txt
 graph_info.json

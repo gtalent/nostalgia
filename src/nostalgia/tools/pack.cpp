@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 
+#include <fstream>
 #include <iostream>
 #include <vector>
 #include <ox/clargs/clargs.hpp>
@@ -19,46 +20,46 @@
 using namespace std;
 using namespace ox;
 
-[[nodiscard]] static ox::Error writeFileBuff(const std::string &path, const std::vector<uint8_t> &buff) {
-	auto file = fopen(path.c_str(), "wb");
-	if (!file) {
-		return OxError(1);
+static void writeFileBuff(const std::string &path, std::vector<uint8_t> &buff) {
+	try {
+		std::ofstream f(path, std::ios::binary);
+		f.write(reinterpret_cast<char*>(buff.data()), buff.size());
+	} catch (const std::fstream::failure&) {
+		throw OxError(2);
 	}
-	oxReturnError(OxError(fwrite(buff.data(), buff.size(), 1, file) != 1));
-	oxReturnError(OxError(fclose(file)));
-	return OxError(0);
 }
 
-[[nodiscard]] ox::Error run(ClArgs args) {
+void run(ClArgs args) {
 	std::string argSrc = args.getString("src").c_str();
 	std::string argDst = args.getString("dst").c_str();
 	if (argSrc == "") {
 		std::cerr << "error: must specify a source directory\n";
-		return OxError(1);
+		throw OxError(1);
 	}
 	if (argDst == "") {
 		std::cerr << "error: must specify a destination ROM file\n";
-		return OxError(1);
+		throw OxError(1);
 	}
 	std::vector<uint8_t> buff(32 * ox::units::MB);
-	oxReturnError(ox::FileSystem32::format(buff.data(), buff.size()));
+	oxThrowError(ox::FileSystem32::format(buff.data(), buff.size()));
 	ox::PassThroughFS src(argSrc.c_str());
 	ox::FileSystem32 dst(ox::FileStore32(buff.data(), buff.size()));
-	oxReturnError(nostalgia::pack(&src, &dst));
+	oxThrowError(nostalgia::pack(&src, &dst));
 
-	oxReturnError(dst.resize());
+	oxThrowError(dst.resize());
 	std::cout << "new size: " << dst.size() << '\n';
 	buff.resize(dst.size());
 
-	oxReturnError(writeFileBuff(argDst, buff));
-	return OxError(0);
+	writeFileBuff(argDst, buff);
 }
 
 int main(int argc, const char **args) {
-	auto err = run(ClArgs(argc, args));
-	oxAssert(err, "pack failed");
-	if (err) {
+	try {
+		run(ClArgs(argc, args));
+	} catch (const ox::Error &err) {
+		oxAssert(err, "pack failed");
 		std::cerr << "pack failed...\n";
+		return static_cast<int>(err);
 	}
-	return static_cast<int>(err);
+	return 0;
 }

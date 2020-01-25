@@ -45,7 +45,7 @@
 typedef uint16_t BgMapTile[1024];
 #define MEM_BG_MAP reinterpret_cast<BgMapTile*>(0x06000000)
 
-#define MEM_ROM *reinterpret_cast<uint8_t*>(0x08000000)
+#define MEM_ROM *reinterpret_cast<char*>(0x08000000)
 
 #define MEM_WRAM_BEGIN reinterpret_cast<uint8_t*>(0x02000000)
 #define MEM_WRAM_END   reinterpret_cast<uint8_t*>(0x0203FFFF)

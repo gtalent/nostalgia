@@ -7,138 +7,138 @@
  */
 
 #include "addresses.hpp"
+#include "ox/std/bit.hpp"
+#include "ox/std/types.hpp"
 #include "panic.hpp"
 
 #include <ox/std/std.hpp>
 
+// this warning is too dumb to realize that it can actually confirm the hard
+// coded address aligns with the requirement of HeapSegment, so it must be
+// suppressed
 #pragma GCC diagnostic ignored "-Wcast-align"
 
+#define HEAP_BEGIN reinterpret_cast<HeapSegment*>(MEM_WRAM_BEGIN)
+// set size to half of WRAM
+#define HEAP_SIZE ((MEM_WRAM_END - MEM_WRAM_BEGIN) / 2)
+#define HEAP_END reinterpret_cast<HeapSegment*>(MEM_WRAM_BEGIN + HEAP_SIZE)
+
 namespace nostalgia::core {
+
+static constexpr std::size_t alignedSize(std::size_t sz) {
+	return sz + (sz & 7);
+}
+
+template<typename T>
+static constexpr std::size_t alignedSize(T = {}) {
+	return alignedSize(sizeof(T));
+}
 
 struct HeapSegment {
 	std::size_t size;
 	uint8_t inUse;
-	HeapSegment *next;
 
-	uint8_t *end() {
-		return reinterpret_cast<uint8_t*>(this) + this->size;
+	void init(std::size_t maxSize = ox::bit_cast<std::size_t>(HEAP_END)) {
+		this->size = maxSize - reinterpret_cast<std::size_t>(this);
+		this->inUse = false;
 	}
+
+	template<typename T>
+	T *data() {
+		return reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(this) + alignedSize(this));
+	}
+
+	template<typename T = uint8_t>
+	T *end() {
+		const auto size = alignedSize(this) + alignedSize(this->size);
+		auto e = reinterpret_cast<uintptr_t>(reinterpret_cast<uint8_t*>(this) + size);
+		return reinterpret_cast<T*>(e);
+	}
+
 };
 
-static HeapSegment *volatile _heapIdx = nullptr;
+static HeapSegment *volatile heapIdx = nullptr;
 
 void initHeap() {
-	_heapIdx = reinterpret_cast<HeapSegment*>(MEM_WRAM_END) - 1;
-	// set size to half of WRAM
-	_heapIdx->size = (MEM_WRAM_END - MEM_WRAM_BEGIN) / 2;
-	_heapIdx->next = nullptr;
-	_heapIdx->inUse = false;
+	heapIdx = HEAP_BEGIN;
+	heapIdx->init();
 }
 
+static HeapSegment *findSegmentFor(std::size_t sz) {
+	for (auto s = HEAP_BEGIN; s + sz < HEAP_END; s = s->end<HeapSegment>()) {
+		if (s->size >= sz && !s->inUse) {
+			return s;
+		}
+	}
+	return nullptr;
 }
 
-using namespace nostalgia::core;
+struct SegmentPair {
+	HeapSegment *anteSegment = nullptr;
+	HeapSegment *segment = nullptr;
+};
 
-void *malloc(std::size_t allocSize) {
-	// add space for heap segment header data
-	const auto fullSize = allocSize + sizeof(HeapSegment);
-	auto seg = _heapIdx;
+static SegmentPair findSegmentOf(void *ptr) {
 	HeapSegment *prev = nullptr;
-	while (seg && (seg->inUse || seg->size < fullSize)) {
+	for (auto seg = HEAP_BEGIN; seg < HEAP_END;) {
+		if (seg->data<void>() == ptr) {
+			return {prev, seg};
+		}
 		prev = seg;
-		seg = seg->next;
+		seg = seg->end<HeapSegment>();
 	}
+	return {};
+}
 
-	// panic if the allocation failed
+[[nodiscard]] void *malloc(std::size_t allocSize) {
+	const auto targetSize = alignedSize(sizeof(HeapSegment)) + alignedSize(allocSize);
+	auto seg = findSegmentFor(targetSize);
 	if (seg == nullptr) {
-		panic("Heap allocation failed");
+		return nullptr;
 	}
-
-	seg = reinterpret_cast<HeapSegment*>(reinterpret_cast<uint8_t*>(seg) - allocSize);
-	if (prev) {
-		prev->next = seg;
-	}
-	// update size for the heap segment now that it is to be considered
-	// allocated
-	seg->size = fullSize;
-	seg->next = reinterpret_cast<HeapSegment*>(reinterpret_cast<uint8_t*>(seg) + fullSize);
+	const auto bytesRemaining = seg->size - targetSize;
+	seg->size = targetSize;
 	seg->inUse = true;
-	auto out = seg + 1;
-
-	auto hs = *_heapIdx;
-	hs.size -= fullSize;
-	if (hs.size == 0) {
-		_heapIdx = hs.next;
-	} else {
-		_heapIdx = reinterpret_cast<HeapSegment*>((reinterpret_cast<uint8_t*>(_heapIdx)) - fullSize);
-		*_heapIdx = hs;
-	}
-
+	auto out = seg->data<void>();
+	seg->end<HeapSegment>()->init(bytesRemaining);
 	return out;
 }
 
-void free(void *ptrIn) {
-	// get ptr back down to the meta data
-	auto *ptr = reinterpret_cast<HeapSegment*>(ptrIn) - 1;
-	HeapSegment *prev = nullptr;
-	auto current = _heapIdx;
-	while (current && current != ptr) {
-		prev = current;
-		current = current->next;
-	}
-
-	// ptr was found as a valid memory allocation, deallocate it
-	if (current) {
-		// move header back to end of segment
-		auto newCurrent = reinterpret_cast<HeapSegment*>(current->end() - sizeof(HeapSegment));
-		*newCurrent = *current;
-		current = newCurrent;
-		prev->next = current;
-
-		// mark as not in use
-		current->inUse = false;
-
-		// join with next if next is also unused
-		if (current->next && !current->next->inUse) {
-			current->size += current->next->size;
-			current->next = current->next->next;
-		}
-
-		// join with prev if prev is also unused
-		if (prev && !prev->inUse) {
-			prev->size += current->size;
-			prev->next = current->next;
-			current = prev;
-		}
-
-		// if current is closer heap start than _heapIdx, _heapIdx becomes
-		// current
-		if (current > _heapIdx) {
-			_heapIdx = current;
-		}
+void free(void *ptr) {
+	auto p = findSegmentOf(ptr);
+	if (p.anteSegment) {
+		p.anteSegment->size += p.segment->size;
+	} else if (p.segment) {
+		p.segment->inUse = false;
+	} else {
+		panic("Bad heap free");
 	}
 }
 
+}
+
+using namespace nostalgia;
+
 void *operator new(std::size_t allocSize) {
-	return malloc(allocSize);
+	return core::malloc(allocSize);
 }
 
 void *operator new[](std::size_t allocSize) {
-	return malloc(allocSize);
+	return core::malloc(allocSize);
 }
 
 void operator delete(void *ptr) {
-	free(ptr);
+	core::free(ptr);
 }
 
 void operator delete[](void *ptr) {
-	free(ptr);
+	core::free(ptr);
 }
 
 void operator delete(void *ptr, unsigned) {
-	free(ptr);
+	core::free(ptr);
 }
 
 void operator delete[](void *ptr, unsigned) {
-	free(ptr);
+	core::free(ptr);
 }

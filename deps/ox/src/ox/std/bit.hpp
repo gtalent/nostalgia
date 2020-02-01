@@ -15,8 +15,8 @@
 namespace ox {
 
 template<typename To, typename From>
-constexpr typename enable_if<sizeof(To) == sizeof(From), To>::type bit_cast(From src) noexcept {
-	To dst;
+typename enable_if<sizeof(To) == sizeof(From), To>::type bit_cast(From src) noexcept {
+	To dst = {};
 	memcpy(&dst, &src, sizeof(src));
 	return dst;
 }

@@ -94,9 +94,12 @@ class FileSystemTemplate: public FileSystem {
 		};
 
 		FileStore m_fs;
+		void(*m_freeBuffer)(uint8_t*) = nullptr;
 
 	public:
 		FileSystemTemplate() = default;
+
+		FileSystemTemplate(void *buffer, uint64_t bufferSize, void(*freeBuffer)(uint8_t*) = [] (uint8_t *buff) { delete buff; });
 
 		FileSystemTemplate(FileStore fs);
 
@@ -168,7 +171,16 @@ FileSystemTemplate<FileStore, Directory>::FileSystemTemplate(FileStore fs) {
 }
 
 template<typename FileStore, typename Directory>
+FileSystemTemplate<FileStore, Directory>::FileSystemTemplate(void *buffer, uint64_t bufferSize, void(*freeBuffer)(uint8_t*)):
+	m_fs(buffer, bufferSize),
+	m_freeBuffer(freeBuffer) {
+}
+
+template<typename FileStore, typename Directory>
 FileSystemTemplate<FileStore, Directory>::~FileSystemTemplate() {
+	if (m_freeBuffer && m_fs.buff()) {
+		m_freeBuffer(m_fs.buff());
+	}
 }
 
 template<typename FileStore, typename Directory>

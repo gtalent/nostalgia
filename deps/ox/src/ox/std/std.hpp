@@ -9,7 +9,7 @@
 #pragma once
 
 #include "assert.hpp"
-#include "bitops.hpp"
+#include "bit.hpp"
 #include "byteswap.hpp"
 #include "error.hpp"
 #include "hardware.hpp"

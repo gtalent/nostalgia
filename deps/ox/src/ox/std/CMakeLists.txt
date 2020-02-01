@@ -36,7 +36,7 @@ target_link_libraries(
 install(
 	FILES
 		assert.hpp
-		bitops.hpp
+		bit.hpp
 		buildinfo.hpp
 		byteswap.hpp
 		defines.hpp

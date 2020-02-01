@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "bitops.hpp"
+#include "bit.hpp"
 #include "random.hpp"
 
 namespace ox {
@@ -28,8 +28,8 @@ uint64_t Random::gen() {
 	auto retval = s0 + s1;
 
 	s1 ^= s0;
-	m_seed[0] = ox::rotateLeft(s0, 55) ^ s1 ^ (s1 << 14);
-	m_seed[1] = ox::rotateLeft(s1, 36);
+	m_seed[0] = ox::rotl(s0, 55) ^ s1 ^ (s1 << 14);
+	m_seed[1] = ox::rotl(s1, 36);
 
 	return retval;
 }

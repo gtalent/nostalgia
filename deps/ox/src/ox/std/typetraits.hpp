@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "bitops.hpp"
+#include "bit.hpp"
 
 #if __has_include(<type_traits>)
 

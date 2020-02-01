@@ -10,7 +10,7 @@
 
 #include <ox/model/optype.hpp>
 #include <ox/model/types.hpp>
-#include <ox/std/bitops.hpp>
+#include <ox/std/bit.hpp>
 #include <ox/std/byteswap.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/types.hpp>

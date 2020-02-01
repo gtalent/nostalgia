@@ -9,6 +9,7 @@
 #pragma once
 
 #include <ox/std/assert.hpp>
+#include <ox/std/bit.hpp>
 #include <ox/std/byteswap.hpp>
 #include <ox/std/memops.hpp>
 

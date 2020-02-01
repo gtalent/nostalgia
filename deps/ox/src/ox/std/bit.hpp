@@ -8,9 +8,18 @@
 
 #pragma once
 
+#include "memops.hpp"
 #include "types.hpp"
+#include "typetraits.hpp"
 
 namespace ox {
+
+template<typename To, typename From>
+constexpr typename enable_if<sizeof(To) == sizeof(From), To>::type bit_cast(From src) noexcept {
+	To dst;
+	memcpy(&dst, &src, sizeof(src));
+	return dst;
+}
 
 template<typename T>
 [[nodiscard]] constexpr T rotl(T i, int shift) noexcept {
@@ -26,6 +35,9 @@ template<typename T>
 	}
 	return out;
 }
+
+template<typename T>
+constexpr auto MaxValue = onMask<T>();
 
 static_assert(onMask<int>(1) == 1);
 static_assert(onMask<int>(2) == 3);

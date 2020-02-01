@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "bit.hpp"
+#include "types.hpp"
 
 #if __has_include(<type_traits>)
 
@@ -26,9 +26,6 @@ constexpr bool is_union_v = __is_union(T);
 #endif
 
 namespace ox {
-
-template<typename T>
-constexpr auto MaxValue = onMask<T>();
 
 template<class T, T v>
 struct integral_constant {

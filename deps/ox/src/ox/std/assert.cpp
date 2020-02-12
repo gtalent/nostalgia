@@ -34,12 +34,12 @@ void assertFunc<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line
 template<>
 void assertFunc<Error>(const char *file, int line, Error err, const char *msg) {
 	if (err) {
-		panic(file, line, err, msg);
+		panic(file, line, msg, err);
 	}
 }
 
-void panic([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]Error err, [[maybe_unused]]const char *msg) {
 #if defined(OX_USE_STDLIB)
+void panic(const char *file, int line, const char *msg, Error err) {
 	std::cerr << "\033[31;1;1mPANIC:\033[0m (" << file << ':' << line << "): " << msg << '\n';
 	std::cerr <<  "\tError Code:\t" << err << '\n';
 	if (err.file != nullptr) {
@@ -48,7 +48,7 @@ void panic([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_u
 	printStackTrace(2);
 	oxTrace("assert").del("") << "Failed assert: " << msg << " (" << file << ":" << line << ")";
 	std::abort();
-#endif
 }
+#endif
 
 }

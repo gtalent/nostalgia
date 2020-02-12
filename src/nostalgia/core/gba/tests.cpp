@@ -13,10 +13,6 @@ namespace nostalgia::core {
 
 void free(void *ptr);
 
-void panic(const char *msg) {
-    oxPanic(msg, OxError(1));
-}
-
 void initHeap(char *heapBegin, char *heapEnd);
 
 }

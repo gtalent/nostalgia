@@ -6,8 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <stdio.h>
-
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -54,7 +52,7 @@ int main(int argc, const char **args) {
 	try {
 		run(ox::ClArgs(argc, args));
 	} catch (const ox::Error &err) {
-		oxPanic(err, "pack failed");
+		oxPanic("pack failed", err);
 		std::cerr << "pack failed...\n";
 		return static_cast<int>(err);
 	}

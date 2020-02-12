@@ -72,7 +72,7 @@ class PassThroughFS: public FileSystem {
 
 		uint64_t size() const override;
 
-		uint8_t *buff() override;
+		char *buff() override;
 
 		ox::Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) override;
 

@@ -140,7 +140,7 @@ uint64_t PassThroughFS::size() const {
 	return s.capacity;
 }
 
-uint8_t *PassThroughFS::buff() {
+char *PassThroughFS::buff() {
 	return nullptr;
 }
 

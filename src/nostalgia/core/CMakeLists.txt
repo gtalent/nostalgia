@@ -2,6 +2,7 @@ add_library(
 	NostalgiaCore
 		core.cpp
 		gfx.cpp
+		media.cpp
 )
 
 target_link_libraries(
@@ -9,9 +10,8 @@ target_link_libraries(
 		OxFS
 )
 
-if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
-	add_subdirectory(gba)
-elseif(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
+add_subdirectory(gba)
+if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
 	add_subdirectory(sdl)
 	add_subdirectory(userland)
 endif()

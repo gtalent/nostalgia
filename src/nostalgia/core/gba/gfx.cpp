@@ -14,7 +14,6 @@
 #include <nostalgia/core/gfx.hpp>
 
 #include "addresses.hpp"
-#include "panic.hpp"
 
 namespace nostalgia::core {
 
@@ -102,7 +101,7 @@ ox::Error shutdownGfx() {
 		case 3:
 			return REG_BG3CNT;
 		default:
-			panic("Looking up non-existent register");
+			oxPanic("Looking up non-existent register", OxError(1));
 			return REG_BG0CNT;
 	}
 }

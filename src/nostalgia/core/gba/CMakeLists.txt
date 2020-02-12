@@ -1,7 +1,6 @@
 if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 	add_library(
 		NostalgiaCore-GBA
-			cstartup.cpp
 			core.cpp
 			gfx.cpp
 			media.cpp

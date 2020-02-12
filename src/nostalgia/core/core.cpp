@@ -12,10 +12,7 @@
 namespace nostalgia::core {
 
 ox::Error init(Context *ctx) {
-	auto err = OxError(0);
-	err = initGfx(ctx);
-	initHeap(); // this does nothing in userland builds
-	return err;
+	return initGfx(ctx);
 }
 
 }

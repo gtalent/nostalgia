@@ -6,18 +6,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <ox/fs/fs.hpp>
-
 #include "media.hpp"
-#include "ox/std/bit.hpp"
 
 namespace nostalgia::core {
 
 ox::FileSystem *loadRomFs(const char *path) {
-	auto rom = loadRom(path);
-	return new ox::FileSystem32(rom, 32 * ox::units::MB, [](uint8_t *buff) {
-		unloadRom(ox::bit_cast<char*>(buff));
-	});
+	const auto lastDot = ox_lastIndexOf(path, '.');
+	const auto fsExt = lastDot != -1 ? path + lastDot : "";
+	if (ox_strcmp(fsExt, ".oxfs") == 0) {
+		auto rom = core::loadRom(path);
+		if (!rom) {
+			return nullptr;
+		}
+		return new ox::FileSystem32(rom, 32 * ox::units::MB, unloadRom);
+	} else {
+#ifdef OX_HAS_PASSTHROUGHFS
+		return new ox::PassThroughFS(path);
+#else
+		return nullptr;
+#endif
+	}
 }
 
 }

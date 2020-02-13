@@ -22,8 +22,7 @@
 
 #else
 
-//TODO: fix warnning
-//#warn "Undefined hardware"
+#error "Undefined hardware"
 
 #endif
 

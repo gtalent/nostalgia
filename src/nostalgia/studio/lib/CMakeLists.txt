@@ -34,7 +34,7 @@ install(
 		wizard.hpp
 		plugin.hpp
 		project.hpp
-		${PROJECT_BINARY_DIR}/nostalgiastudio_export.h
+		${CMAKE_CURRENT_BINARY_DIR}/nostalgiastudio_export.h
 	DESTINATION
 		include/nostalgia/studio/lib
 )

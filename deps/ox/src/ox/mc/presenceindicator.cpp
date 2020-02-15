@@ -17,7 +17,7 @@ FieldPresenceIndicator::FieldPresenceIndicator(uint8_t *mask, std::size_t maxLen
 	m_maskLen = maxLen;
 }
 
-ValErr<bool> FieldPresenceIndicator::get(int i) const {
+ValErr<bool> FieldPresenceIndicator::get(std::size_t i) const {
 	if (i / 8 < m_maskLen) {
 		return (m_mask[i / 8] >> (i % 8)) & 1;
 	} else {
@@ -25,7 +25,7 @@ ValErr<bool> FieldPresenceIndicator::get(int i) const {
 	}
 }
 
-Error FieldPresenceIndicator::set(int i, bool on) {
+Error FieldPresenceIndicator::set(std::size_t i, bool on) {
 	if (i / 8 < m_maskLen) {
 		if (on) {
 			m_mask[i / 8] |= 1 << (i % 8);

@@ -22,7 +22,7 @@
 
 #else
 
-#warn "Undefined hardware"
+#error "Undefined hardware"
 
 #endif
 

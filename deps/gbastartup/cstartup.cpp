@@ -1,3 +1,10 @@
+/*
+ * Copyright 2016 - 2020 gtalent2@gmail.com
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
@@ -6,6 +13,13 @@ extern void (*__preinit_array_start[]) (void);
 extern void (*__preinit_array_end[]) (void);
 extern void (*__init_array_start[]) (void);
 extern void (*__init_array_end[]) (void);
+
+namespace nostalgia::core {
+
+void initHeap();
+
+}
+
 
 extern "C" {
 
@@ -24,6 +38,7 @@ int main(int argc, const char **argv);
 
 int c_start() {
 	const char *args[2] = {"", "rom.oxfs"};
+	nostalgia::core::initHeap();
 	return main(2, args);
 }
 

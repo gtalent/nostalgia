@@ -7,11 +7,9 @@
  */
 
 #include "addresses.hpp"
-#include "ox/std/bit.hpp"
-#include "ox/std/types.hpp"
-#include "panic.hpp"
 
-#include <ox/std/std.hpp>
+#include <ox/std/assert.hpp>
+#include <ox/std/bit.hpp>
 
 // this warning is too dumb to realize that it can actually confirm the hard
 // coded address aligns with the requirement of HeapSegment, so it must be
@@ -24,6 +22,10 @@
 #define HEAP_END reinterpret_cast<HeapSegment*>(MEM_WRAM_BEGIN + HEAP_SIZE)
 
 namespace nostalgia::core {
+
+static class HeapSegment *volatile g_heapBegin = nullptr;
+static class HeapSegment *volatile g_heapEnd = nullptr;
+static class HeapSegment *volatile heapIdx = nullptr;
 
 static constexpr std::size_t alignedSize(std::size_t sz) {
 	return sz + (sz & 7);
@@ -38,39 +40,35 @@ struct HeapSegment {
 	std::size_t size;
 	uint8_t inUse;
 
-	void init(std::size_t maxSize = ox::bit_cast<std::size_t>(HEAP_END)) {
-		this->size = maxSize - reinterpret_cast<std::size_t>(this);
+	void init(std::size_t maxSize = ox::bit_cast<std::size_t>(g_heapEnd)) {
+		this->size = maxSize - ox::bit_cast<std::size_t>(this);
 		this->inUse = false;
 	}
 
 	template<typename T>
 	T *data() {
-		return reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(this) + alignedSize(this));
+		return ox::bit_cast<T*>(ox::bit_cast<uint8_t*>(this) + alignedSize(this));
 	}
 
 	template<typename T = uint8_t>
 	T *end() {
 		const auto size = alignedSize(this) + alignedSize(this->size);
-		auto e = reinterpret_cast<uintptr_t>(reinterpret_cast<uint8_t*>(this) + size);
-		return reinterpret_cast<T*>(e);
+		auto e = ox::bit_cast<uintptr_t>(ox::bit_cast<uint8_t*>(this) + size);
+		return ox::bit_cast<T*>(e);
 	}
 
 };
 
-static HeapSegment *volatile heapIdx = nullptr;
-
-void initHeap() {
-	heapIdx = HEAP_BEGIN;
-	heapIdx->init();
+void initHeap(char *heapBegin, char *heapEnd) {
+	g_heapBegin = ox::bit_cast<HeapSegment*>(heapBegin);
+	g_heapEnd = ox::bit_cast<HeapSegment*>(heapEnd);
+	heapIdx = g_heapBegin;
+	heapIdx->size = ox::bit_cast<std::size_t>(heapEnd) - ox::bit_cast<std::size_t>(heapIdx);
+	heapIdx->inUse = false;
 }
 
-static HeapSegment *findSegmentFor(std::size_t sz) {
-	for (auto s = HEAP_BEGIN; s + sz < HEAP_END; s = s->end<HeapSegment>()) {
-		if (s->size >= sz && !s->inUse) {
-			return s;
-		}
-	}
-	return nullptr;
+void initHeap() {
+	initHeap(ox::bit_cast<char*>(HEAP_BEGIN), ox::bit_cast<char*>(HEAP_END));
 }
 
 struct SegmentPair {
@@ -90,6 +88,16 @@ static SegmentPair findSegmentOf(void *ptr) {
 	return {};
 }
 
+static HeapSegment *findSegmentFor(std::size_t sz) {
+	for (auto s = g_heapBegin; s <= g_heapEnd; s = s->end<HeapSegment>()) {
+		if (s->size >= sz && !s->inUse) {
+			return s;
+		}
+	}
+	oxPanic("malloc: could not find segment", OxError(1));
+	return nullptr;
+}
+
 [[nodiscard]] void *malloc(std::size_t allocSize) {
 	const auto targetSize = alignedSize(sizeof(HeapSegment)) + alignedSize(allocSize);
 	auto seg = findSegmentFor(targetSize);
@@ -99,9 +107,8 @@ static SegmentPair findSegmentOf(void *ptr) {
 	const auto bytesRemaining = seg->size - targetSize;
 	seg->size = targetSize;
 	seg->inUse = true;
-	auto out = seg->data<void>();
 	seg->end<HeapSegment>()->init(bytesRemaining);
-	return out;
+	return seg->data<void>();
 }
 
 void free(void *ptr) {
@@ -111,11 +118,13 @@ void free(void *ptr) {
 	} else if (p.segment) {
 		p.segment->inUse = false;
 	} else {
-		panic("Bad heap free");
+		oxPanic("Bad heap free", OxError(1));
 	}
 }
 
 }
+
+#ifndef OX_USE_STDLIB
 
 using namespace nostalgia;
 
@@ -142,3 +151,13 @@ void operator delete(void *ptr, unsigned) {
 void operator delete[](void *ptr, unsigned) {
 	core::free(ptr);
 }
+
+void operator delete(void *ptr, unsigned long int) {
+	core::free(ptr);
+}
+
+void operator delete[](void *ptr, unsigned long int) {
+	core::free(ptr);
+}
+
+#endif

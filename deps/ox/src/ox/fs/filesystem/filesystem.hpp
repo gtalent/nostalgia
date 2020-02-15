@@ -70,7 +70,7 @@ class FileSystem {
 
 		[[nodiscard]] virtual uint64_t size() const = 0;
 
-		[[nodiscard]] virtual uint8_t *buff() = 0;
+		[[nodiscard]] virtual char *buff() = 0;
 
 		[[nodiscard]] virtual ox::Error walk(ox::Error(*cb)(uint8_t, uint64_t, uint64_t)) = 0;
 
@@ -94,12 +94,12 @@ class FileSystemTemplate: public FileSystem {
 		};
 
 		FileStore m_fs;
-		void(*m_freeBuffer)(uint8_t*) = nullptr;
+		void(*m_freeBuffer)(char*) = nullptr;
 
 	public:
 		FileSystemTemplate() = default;
 
-		FileSystemTemplate(void *buffer, uint64_t bufferSize, void(*freeBuffer)(uint8_t*) = [] (uint8_t *buff) { delete buff; });
+		FileSystemTemplate(void *buffer, uint64_t bufferSize, void(*freeBuffer)(char*) = [] (char *buff) { delete buff; });
 
 		FileSystemTemplate(FileStore fs);
 
@@ -147,7 +147,7 @@ class FileSystemTemplate: public FileSystem {
 
 		uint64_t size() const override;
 
-		uint8_t *buff() override;
+		char *buff() override;
 
 		[[nodiscard]] ox::Error walk(ox::Error(*cb)(uint8_t, uint64_t, uint64_t)) override;
 
@@ -171,7 +171,7 @@ FileSystemTemplate<FileStore, Directory>::FileSystemTemplate(FileStore fs) {
 }
 
 template<typename FileStore, typename Directory>
-FileSystemTemplate<FileStore, Directory>::FileSystemTemplate(void *buffer, uint64_t bufferSize, void(*freeBuffer)(uint8_t*)):
+FileSystemTemplate<FileStore, Directory>::FileSystemTemplate(void *buffer, uint64_t bufferSize, void(*freeBuffer)(char*)):
 	m_fs(buffer, bufferSize),
 	m_freeBuffer(freeBuffer) {
 }
@@ -363,7 +363,7 @@ uint64_t FileSystemTemplate<FileStore, Directory>::size() const {
 }
 
 template<typename FileStore, typename Directory>
-uint8_t *FileSystemTemplate<FileStore, Directory>::buff() {
+char *FileSystemTemplate<FileStore, Directory>::buff() {
 	return m_fs.buff();
 }
 

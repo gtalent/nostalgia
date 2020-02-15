@@ -28,7 +28,8 @@ std::string PassThroughFS::basePath() {
 Error PassThroughFS::mkdir(const char *path, bool recursive) {
 	bool success = false;
 	const auto p = m_path / stripSlash(path);
-	oxTrace("ox::fs::PassThroughFS::mkdir") << p.c_str();
+	const auto u8p = p.u8string();
+	oxTrace("ox::fs::PassThroughFS::mkdir") << u8p.c_str();
 	if (recursive) {
 		success = std::filesystem::create_directories(p);
 	} else {
@@ -140,7 +141,7 @@ uint64_t PassThroughFS::size() const {
 	return s.capacity;
 }
 
-uint8_t *PassThroughFS::buff() {
+char *PassThroughFS::buff() {
 	return nullptr;
 }
 

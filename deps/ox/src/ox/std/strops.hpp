@@ -96,7 +96,7 @@ template<typename T1, typename T2>
 	int retval = -1;
 	for (std::size_t i = 0; i < maxLen && str[i]; i++) {
 		if (str[i] == character) {
-			retval = i;
+			retval = static_cast<int>(i);
 		}
 	}
 	return retval;
@@ -106,7 +106,7 @@ template<typename T1, typename T2>
 	int retval = -1;
 	for (std::size_t i = 0; i < maxLen && str[i]; i++) {
 		if (str[i] == character) {
-			retval = i;
+			retval = static_cast<int>(i);
 		}
 	}
 	return retval;

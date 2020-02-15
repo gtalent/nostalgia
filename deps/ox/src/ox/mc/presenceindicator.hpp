@@ -16,15 +16,15 @@ namespace ox {
 class FieldPresenceIndicator {
 	private:
 		uint8_t *m_mask = nullptr;
-		int m_maskLen = 0;
-		int m_fields = 0;
+		std::size_t m_maskLen = 0;
+		std::size_t m_fields = 0;
 
 	public:
 		FieldPresenceIndicator(uint8_t *mask, std::size_t maxLen);
 
-		ValErr<bool> get(int i) const;
+		ValErr<bool> get(std::size_t i) const;
 
-		Error set(int i, bool on);
+		Error set(std::size_t i, bool on);
 
 		void setFields(int) noexcept;
 

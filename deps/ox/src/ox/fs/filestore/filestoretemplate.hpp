@@ -122,7 +122,7 @@ class FileStoreTemplate {
 
 		[[nodiscard]] InodeId_t available();
 
-		[[nodiscard]] uint8_t *buff();
+		[[nodiscard]] char *buff();
 
 		[[nodiscard]] Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t));
 
@@ -464,8 +464,8 @@ typename FileStoreTemplate<size_t>::InodeId_t FileStoreTemplate<size_t>::availab
 }
 
 template<typename size_t>
-uint8_t *FileStoreTemplate<size_t>::buff() {
-	return reinterpret_cast<uint8_t*>(m_buffer);
+char *FileStoreTemplate<size_t>::buff() {
+	return reinterpret_cast<char*>(m_buffer);
 }
 
 template<typename size_t>

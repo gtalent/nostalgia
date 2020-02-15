@@ -2,6 +2,7 @@
 #setup libraries
 
 if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
+	find_package(SDL2 CONFIG REQUIRED)
 	if(NOSTALGIA_BUILD_STUDIO)
 		find_package(Qt5Widgets REQUIRED)
 		find_package(Qt5QuickWidgets REQUIRED)

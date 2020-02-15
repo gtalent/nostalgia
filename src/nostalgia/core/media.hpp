@@ -8,9 +8,11 @@
 
 #pragma once
 
-#include <ox/std/types.hpp>
+#include <ox/fs/fs.hpp>
 
 namespace nostalgia::core {
+
+ox::FileSystem *loadRomFs(const char *path);
 
 char *loadRom(const char *path = "");
 

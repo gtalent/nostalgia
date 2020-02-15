@@ -78,7 +78,7 @@ struct VerificationPair {
 	std::cout << "copying directory: " << path << '\n';
 	std::vector<VerificationPair> verficationPairs;
 	// copy
-	oxReturnError(src->ls(path.c_str(), [&verficationPairs, src, dest, path](const char *name, ox::InodeId_t) {
+	oxReturnError(src->ls(path.c_str(), [&verficationPairs, src, dest, path](std::string name, ox::InodeId_t) {
 		std::cout << "reading " << name << '\n';
 		auto currentFile = path + name;
 		auto [stat, err] = src->stat((currentFile).c_str());

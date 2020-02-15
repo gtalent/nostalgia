@@ -23,14 +23,14 @@ void assertFunc<bool>(const char *file, int line, bool pass, const char *msg);
 template<>
 void assertFunc<Error>(const char *file, int line, Error err, const char*);
 
-void panic([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]Error err, [[maybe_unused]]const char *msg);
+void panic([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]const char *msg, [[maybe_unused]]Error err = OxError(0));
 
 }
 
+#define oxPanic(pass, msg) ox::panic(__FILE__, __LINE__, pass, msg)
 #ifndef NDEBUG
 #define oxAssert(pass, msg) ox::assertFunc<decltype(pass)>(__FILE__, __LINE__, pass, msg)
-#define oxPanic(pass, msg) ox::panic(__FILE__, __LINE__, pass, msg)
 #else
-#define oxAssert(pass, msg)
-#define oxPanic(pass, msg)
+inline void oxAssert(bool, const char*) {}
+inline void oxAssert(ox::Error, const char*) {}
 #endif

@@ -72,7 +72,7 @@ class PassThroughFS: public FileSystem {
 
 		uint64_t size() const override;
 
-		uint8_t *buff() override;
+		char *buff() override;
 
 		ox::Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) override;
 
@@ -89,9 +89,8 @@ class PassThroughFS: public FileSystem {
 template<typename F>
 ox::Error PassThroughFS::ls(const char *dir, F cb) {
 	for (auto &p : std::filesystem::directory_iterator(m_path / stripSlash(dir))) {
-		if (auto err = cb(p.path().filename().c_str(), 0); err) {
-			return err;
-		}
+		auto u8p = p.path().filename().u8string();
+		oxReturnError(cb(u8p.c_str(), 0));
 	}
 	return OxError(0);
 }

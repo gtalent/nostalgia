@@ -8,7 +8,17 @@
 
 #pragma once
 
-#if defined(__arm__)
+#if defined(__x86_64__) || defined(_M_AMD64)
+#define OX_ARCH_x86_64
+#elif defined(__i386__ || defined(_M_IX86)
+#define OX_ARCH_x86_32
+#elif defined(_M_AMD64)
+#define OX_ARCH_ARM64
+#elif defined(__arm__)
+#define OX_ARCH_ARM
+#endif
+
+#if defined(OX_ARCH_ARM)
 
 #if defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__)
 #define OX_HW_DIV 1
@@ -16,7 +26,7 @@
 #define OX_HW_DIV 0
 #endif
 
-#elif defined(__i386__) || defined(__x86_64__) || defined(__aarch64__)
+#elif defined(OX_ARCH_x86_32) || defined(OX_ARCH_x86_64) || defined(OX_ARCH_ARM64)
 
 #define OX_HW_DIV 1
 

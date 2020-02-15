@@ -21,15 +21,17 @@
 #include <QVector>
 #include <QWizard>
 
+#include "nostalgiastudio_export.h"
+
 namespace nostalgia::studio {
 
-struct WizardMaker {
+struct NOSTALGIASTUDIO_EXPORT WizardMaker {
 	QString name;
 	std::function<QVector<QWizardPage*>()> make;
 	std::function<int(QWizard*)> onAccept = [](QWizard*) { return 0; };
 };
 
-class WizardSelect: public QWizardPage {
+class NOSTALGIASTUDIO_EXPORT WizardSelect: public QWizardPage {
 	Q_OBJECT
 
 	private:
@@ -56,7 +58,7 @@ class WizardSelect: public QWizardPage {
 };
 
 
-class WizardFormPage: public QWizardPage {
+class NOSTALGIASTUDIO_EXPORT WizardFormPage: public QWizardPage {
 	Q_OBJECT
 
 	private:
@@ -103,7 +105,7 @@ class WizardFormPage: public QWizardPage {
 };
 
 
-class WizardConclusionPage: public QWizardPage {
+class NOSTALGIASTUDIO_EXPORT WizardConclusionPage: public QWizardPage {
 	Q_OBJECT
 	private:
 		QString m_baseMsg = "";
@@ -119,7 +121,7 @@ class WizardConclusionPage: public QWizardPage {
 };
 
 
-class Wizard: public QWizard {
+class NOSTALGIASTUDIO_EXPORT Wizard: public QWizard {
 	Q_OBJECT
 	private:
 		std::function<int(QWizard*)> m_acceptFunc;

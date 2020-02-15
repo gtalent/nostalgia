@@ -18,6 +18,7 @@ endif()
 
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+include(GenerateExportHeader)
 include(address_sanitizer)
 
 set(NOSTALGIA_CONAN_PATHS ${CMAKE_SOURCE_DIR}/conanbuild/conan_paths.cmake)

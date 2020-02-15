@@ -15,9 +15,11 @@
 #include <ox/fs/fs.hpp>
 #include <ox/mc/mc.hpp>
 
+#include "nostalgiastudio_export.h"
+
 namespace nostalgia::studio {
 
-class Project: public QObject {
+class NOSTALGIASTUDIO_EXPORT Project: public QObject {
 	Q_OBJECT
 
 	private:

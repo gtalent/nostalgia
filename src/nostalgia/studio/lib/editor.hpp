@@ -11,9 +11,11 @@
 #include <QUndoStack>
 #include <QWidget>
 
+#include "nostalgiastudio_export.h"
+
 namespace nostalgia::studio {
 
-class Editor: public QWidget {
+class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 	Q_OBJECT
 
 	public:

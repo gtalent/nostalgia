@@ -67,7 +67,7 @@ class UpdatePixelsCommand: public QUndoCommand {
 				return item < o.item;
 			}
 
-			operator auto() const {
+			operator quint64() const {
 				return reinterpret_cast<quint64>(item.data());
 			}
 		};

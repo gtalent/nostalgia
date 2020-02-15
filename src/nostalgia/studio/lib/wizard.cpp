@@ -55,7 +55,7 @@ bool WizardSelect::isComplete() const {
 
 void WizardSelect::itemSelected(int row) {
 	auto w = dynamic_cast<Wizard*>(wizard());
-	if (w and row > -1) {
+	if (w && row > -1) {
 		// remove other pages
 		while (nextId() > -1) {
 			w->removePage(nextId());

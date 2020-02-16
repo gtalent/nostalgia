@@ -93,8 +93,8 @@ template<typename T>
 ox::Error readJson(QString json, T *dest) {
 	QJsonParseError err;
 	auto obj = QJsonDocument::fromJson(json.toUtf8(), &err).object();
-	qDebug() << "JSON parsing error:" << err.errorString();
 	if (err.error) {
+		qDebug() << "JSON parsing error:" << err.errorString();
 		return OxError(1);
 	}
 	JsonReader rdr(obj);

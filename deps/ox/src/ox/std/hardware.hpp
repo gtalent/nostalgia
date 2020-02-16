@@ -10,7 +10,7 @@
 
 #if defined(__x86_64__) || defined(_M_AMD64)
 #define OX_ARCH_x86_64
-#elif defined(__i386__ || defined(_M_IX86)
+#elif defined(__i386__) || defined(_M_IX86)
 #define OX_ARCH_x86_32
 #elif defined(_M_AMD64)
 #define OX_ARCH_ARM64

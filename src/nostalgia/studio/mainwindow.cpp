@@ -40,7 +40,8 @@ MainWindow::MainWindow(QString profilePath) {
 	if (file.exists()) {
 		file.open(QIODevice::ReadOnly);
 		QTextStream in(&file);
-		readJson(in.readAll(), &m_profile);
+		oxThrowError(readJson(in.readAll(), &m_profile));
+		qDebug() << m_profile.appName;
 	}
 
 	auto screenSize = QApplication::screens().first()->geometry();

@@ -7,6 +7,7 @@
  */
 
 #include <QApplication>
+#include <QDebug>
 #include <ox/clargs/clargs.hpp>
 #include "mainwindow.hpp"
 
@@ -16,15 +17,19 @@ int main(int argc, char **args) {
 	ox::ClArgs clargs(argc, const_cast<const char**>(args));
 	QString argProfilePath = clargs.getString("profile").c_str();
 
-	NostalgiaStudioProfile config;
-
+	for (int i = 0; i < argc; i++) {
+		qDebug() << args[i];
+	}
 	QApplication app(argc, args);
 	app.setAttribute(Qt::AA_UseHighDpiPixmaps);
 
-	MainWindow w(argProfilePath);
-	app.setApplicationName(w.windowTitle());
-	w.show();
-	QObject::connect(&app, &QApplication::aboutToQuit, &w, &MainWindow::onExit);
-
-	return app.exec();
+	try {
+		MainWindow w(argProfilePath);
+		app.setApplicationName(w.windowTitle());
+		w.show();
+		QObject::connect(&app, &QApplication::aboutToQuit, &w, &MainWindow::onExit);
+		return app.exec();
+	} catch (ox::Error err) {
+		oxPanic(err, "Unhandled ox::Error");
+	}
 }

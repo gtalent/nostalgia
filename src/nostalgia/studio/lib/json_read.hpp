@@ -91,7 +91,12 @@ ox::Error JsonReader::field(QJsonValueRef src, T *dest) {
 
 template<typename T>
 ox::Error readJson(QString json, T *dest) {
-	auto obj = QJsonDocument::fromJson(json.toUtf8()).object();
+	QJsonParseError err;
+	auto obj = QJsonDocument::fromJson(json.toUtf8(), &err).object();
+	qDebug() << "JSON parsing error:" << err.errorString();
+	if (err.error) {
+		return OxError(1);
+	}
 	JsonReader rdr(obj);
 	return model(&rdr, dest);
 }

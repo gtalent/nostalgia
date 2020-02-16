@@ -1,10 +1,10 @@
 {
 	"app_name": "Nostalgia Studio",
 	"org_name": "Drinking Tea",
-	"plugins": [
-		{
-			"dir": "./",
-			"lib_name": "NostalgiaCore-Studio"
-		}
+	"plugins_path": [
+		"../lib/nostalgia/plugins",
+		"../Plugins",
+		"../../../out/build/x64-Debug",
+		"../../../out/build/x64-Release"
 	]
 }

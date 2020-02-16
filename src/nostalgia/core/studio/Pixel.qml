@@ -11,7 +11,7 @@ import QtQuick 2.0
 Rectangle {
 	id: pixel;
 	property int pixelNumber: index
-	color: sheetData.palette[pixelNumber < sheetData.pixels.length ? sheetData.pixels[pixelNumber] : 0]
+	color: sheetData ? sheetData.palette[pixelNumber < sheetData.pixels.length ? sheetData.pixels[pixelNumber] : 0] : 'black'
 	width: parent.width / 8
 	height: parent.height / 8
 	border.color: '#717d7e'

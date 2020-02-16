@@ -101,7 +101,7 @@ ox::Error shutdownGfx() {
 		case 3:
 			return REG_BG3CNT;
 		default:
-			oxPanic("Looking up non-existent register", OxError(1));
+			oxPanic(OxError(1), "Looking up non-existent register");
 			return REG_BG0CNT;
 	}
 }

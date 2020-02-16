@@ -17,6 +17,7 @@ ScrollView {
 	contentWidth: tileGrid.width
 	contentHeight: tileGrid.height
 	clip: true
+	focusPolicy: Qt.WheelFocus
 
 	background: Rectangle {
 		color: '#717d7e'
@@ -24,7 +25,8 @@ ScrollView {
 
 	MouseArea {
 		id: mouseArea
-		anchors.fill: parent
+		width: tileSheetEditor.width
+		height: tileSheetEditor.height
 		acceptedButtons: Qt.LeftButton
 
 		onPressed: {
@@ -76,8 +78,8 @@ ScrollView {
 		height: tileGrid.rows * tileGrid.baseTileSize * tileGrid.scaleFactor
 		//anchors.horizontalCenter: parent.horizontalCenter
 		//anchors.verticalCenter: parent.verticalCenter
-		rows: sheetData.rows
-		columns: sheetData.columns
+		rows: sheetData ? sheetData.rows : 1
+		columns: sheetData ? sheetData.columns : 1
 		Repeater {
 			model: tileGrid.rows * tileGrid.columns
 			Tile {

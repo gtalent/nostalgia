@@ -52,7 +52,7 @@ int main(int argc, const char **args) {
 	try {
 		run(ox::ClArgs(argc, args));
 	} catch (const ox::Error &err) {
-		oxPanic("pack failed", err);
+		oxPanic(err, "pack failed");
 		std::cerr << "pack failed...\n";
 		return static_cast<int>(err);
 	}

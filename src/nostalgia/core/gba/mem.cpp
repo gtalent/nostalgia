@@ -94,7 +94,7 @@ static HeapSegment *findSegmentFor(std::size_t sz) {
 			return s;
 		}
 	}
-	oxPanic("malloc: could not find segment", OxError(1));
+	oxPanic(OxError(1), "malloc: could not find segment");
 	return nullptr;
 }
 
@@ -118,7 +118,7 @@ void free(void *ptr) {
 	} else if (p.segment) {
 		p.segment->inUse = false;
 	} else {
-		oxPanic("Bad heap free", OxError(1));
+		oxPanic(OxError(1), "Bad heap free");
 	}
 }
 

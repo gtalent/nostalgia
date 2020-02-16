@@ -1,0 +1,44 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "nostalgia.exe (Install)",
+      "name": "nostalgia.exe (Install)",
+      "args": [
+        "${projectDir}/sample_project"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "nostalgia.exe",
+      "name": "nostalgia.exe",
+      "args": [
+        "${projectDir}/sample_project"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "nostalgia-studio.exe (Install)",
+      "name": "nostalgia-studio.exe (Install)",
+      "args": [
+        "-profile",
+        "${projectDir}/src/nostalgia/studio/nostalgia-studio-dev.json"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "nostalgia-studio.exe",
+      "name": "nostalgia-studio.exe",
+      "args": [
+        "-profile",
+        "${projectDir}/src/nostalgia/studio/nostalgia-studio-dev.json"
+      ]
+    }
+  ]
+}

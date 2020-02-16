@@ -17,9 +17,6 @@ int main(int argc, char **args) {
 	ox::ClArgs clargs(argc, const_cast<const char**>(args));
 	QString argProfilePath = clargs.getString("profile").c_str();
 
-	for (int i = 0; i < argc; i++) {
-		qDebug() << args[i];
-	}
 	QApplication app(argc, args);
 	app.setAttribute(Qt::AA_UseHighDpiPixmaps);
 

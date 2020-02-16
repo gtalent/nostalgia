@@ -28,10 +28,3 @@ install(
 	LIBRARY DESTINATION
 		${NOSTALGIA_DIST_PLUGIN}
 )
-
-install(
-	FILES
-		charset.png
-	DESTINATION
-		share/core
-)

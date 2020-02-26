@@ -23,9 +23,9 @@
 
 namespace nostalgia::core {
 
-static class HeapSegment *volatile g_heapBegin = nullptr;
-static class HeapSegment *volatile g_heapEnd = nullptr;
-static class HeapSegment *volatile heapIdx = nullptr;
+static struct HeapSegment *volatile g_heapBegin = nullptr;
+static struct HeapSegment *volatile g_heapEnd = nullptr;
+static struct HeapSegment *volatile heapIdx = nullptr;
 
 static constexpr std::size_t alignedSize(std::size_t sz) {
 	return sz + (sz & 7);

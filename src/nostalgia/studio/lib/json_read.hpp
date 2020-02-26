@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <QDebug>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>

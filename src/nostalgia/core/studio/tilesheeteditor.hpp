@@ -88,8 +88,9 @@ class TileSheetEditor: public studio::Editor {
 		const studio::Context *m_ctx = nullptr;
 		SheetData m_sheetData;
 		QSplitter *m_splitter = nullptr;
-		class LabeledSpinner *m_tilesX = nullptr;
-		class LabeledSpinner *m_tilesY = nullptr;
+		struct LabeledSpinner *m_tilesX = nullptr;
+		struct LabeledSpinner *m_tilesY = nullptr;
+		class QQuickWidget* m_canvas = nullptr;
 		struct {
 			QComboBox *palette = nullptr;
 			QTableWidget *colorTable = nullptr;

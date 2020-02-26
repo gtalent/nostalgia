@@ -224,17 +224,17 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 	m_splitter = new QSplitter(this);
 	auto canvasParent = new QWidget(m_splitter);
 	auto canvasLyt = new QVBoxLayout(canvasParent);
-	auto canvas = new QQuickWidget(canvasParent);
-	canvasLyt->addWidget(canvas);
+	m_canvas = new QQuickWidget(canvasParent);
+	canvasLyt->addWidget(m_canvas);
 	canvasLyt->setMenuBar(setupToolBar());
 	lyt->addWidget(m_splitter);
 	m_splitter->addWidget(canvasParent);
 	m_splitter->addWidget(setupColorPicker(m_splitter));
 	m_splitter->setStretchFactor(0, 1);
 	m_sheetData.updatePixels(m_ctx, path);
-	canvas->rootContext()->setContextProperty("sheetData", &m_sheetData);
-	canvas->setSource(QUrl::fromLocalFile(":/qml/TileSheetEditor.qml"));
-	canvas->setResizeMode(QQuickWidget::SizeRootObjectToView);
+	m_canvas->rootContext()->setContextProperty("sheetData", &m_sheetData);
+	m_canvas->setSource(QUrl::fromLocalFile(":/qml/TileSheetEditor.qml"));
+	m_canvas->setResizeMode(QQuickWidget::SizeRootObjectToView);
 	setColorTable(m_sheetData.palette());
 	restoreState();
 }
@@ -304,6 +304,7 @@ void TileSheetEditor::saveState() {
 	settings.setValue("m_splitter/state", m_splitter->saveState());
 	settings.setValue("m_sheetData/tileRows", m_sheetData.rows());
 	settings.setValue("m_sheetData/tileColumns", m_sheetData.columns());
+	settings.setValue("m_colorPicker.colorTable/geometry", m_colorPicker.colorTable->horizontalHeader()->saveState());
 	settings.endGroup();
 }
 
@@ -313,6 +314,7 @@ void TileSheetEditor::restoreState() {
 	m_splitter->restoreState(settings.value("m_splitter/state", m_splitter->saveState()).toByteArray());
 	m_sheetData.setRows(settings.value("m_sheetData/tileRows", 1).toInt());
 	m_sheetData.setColumns(settings.value("m_sheetData/tileColumns", 1).toInt());
+	m_colorPicker.colorTable->horizontalHeader()->restoreState(settings.value("m_colorPicker.colorTable/geometry", m_colorPicker.colorTable->horizontalHeader()->saveState()).toByteArray());
 	settings.endGroup();
 }
 

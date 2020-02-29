@@ -125,6 +125,7 @@ void SheetData::updatePixel(QVariant pixelItem) {
 	if (p && p != m_prevPixelUpdated) {
 		m_cmdStack.push(new UpdatePixelsCommand(m_pixels, m_palette, p, m_selectedColor, m_cmdIdx));
 		m_prevPixelUpdated = p;
+		emit changeOccurred();
 	}
 }
 
@@ -237,6 +238,7 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 	m_canvas->setResizeMode(QQuickWidget::SizeRootObjectToView);
 	setColorTable(m_sheetData.palette());
 	restoreState();
+	connect(&m_sheetData, &SheetData::changeOccurred, [this] { setUnsavedChanges(true); });
 }
 
 TileSheetEditor::~TileSheetEditor() {
@@ -247,7 +249,7 @@ QString TileSheetEditor::itemName() {
 	return m_itemName;
 }
 
-void TileSheetEditor::save() {
+void TileSheetEditor::saveItem() {
 }
 
 QUndoStack *TileSheetEditor::undoStack() {

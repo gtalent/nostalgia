@@ -69,6 +69,8 @@ class SheetData: public QObject {
 		void updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal);
 
 	signals:
+		void changeOccurred();
+
 		void columnsChanged(int);
 
 		void rowsChanged(int);
@@ -103,7 +105,7 @@ class TileSheetEditor: public studio::Editor {
 
 		QString itemName() override;
 
-		void save() override;
+		void saveItem() override;
 
 		QUndoStack *undoStack() override;
 

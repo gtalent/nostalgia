@@ -2,6 +2,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_executable(
 	nostalgia-studio MACOSX_BUNDLE
+		json_read.cpp
+		json_write.cpp
 		main.cpp
 		mainwindow.cpp
 		oxfstreeview.cpp
@@ -31,5 +33,20 @@ install(
 		${NOSTALGIA_DIST_BIN}
 	BUNDLE DESTINATION .
 )
+
+add_executable(
+	NostalgiaStudioJsonTest
+		json_read.cpp
+		json_write.cpp
+		json_test.cpp
+)
+
+target_link_libraries(
+	NostalgiaStudioJsonTest
+		OxStd
+		Qt5::Widgets
+)
+
+add_test("Test\\ NostalgiaStudioJson" NostalgiaStudioJsonTest)
 
 add_subdirectory(lib)

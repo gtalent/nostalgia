@@ -13,22 +13,13 @@
 #include <QVector>
 #include <QWizardPage>
 
-#include "editor.hpp"
-#include "project.hpp"
 #include "wizard.hpp"
 
 namespace nostalgia::studio {
 
-struct Context {
-	QString appName;
-	QString orgName;
-	QWidget *tabParent = nullptr;
-	const Project *project = nullptr;
-};
-
 struct EditorMaker {
 	QStringList fileTypes;
-	std::function<Editor*(QString)> make;
+	std::function<class Editor*(QString)> make;
 };
 
 class Plugin {
@@ -36,13 +27,13 @@ class Plugin {
 	public:
 		virtual ~Plugin() = default;
 
-		virtual QVector<WizardMaker> newWizards(const Context *ctx);
+		virtual QVector<WizardMaker> newWizards(const class Context *ctx);
 
 		virtual QVector<WizardMaker> importWizards(const Context *ctx);
 
-		virtual QWidget *makeEditor(QString path, const Context *ctx);
+		virtual QWidget *makeEditor(QString path, const class Context *ctx);
 
-		virtual QVector<EditorMaker> editors(const Context *ctx);
+		virtual QVector<EditorMaker> editors(const class Context *ctx);
 
 };
 

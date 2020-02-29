@@ -23,10 +23,10 @@
 #include <QVector>
 
 #include "lib/editor.hpp"
-#include "lib/json.hpp"
 #include "lib/project.hpp"
 #include "lib/wizard.hpp"
 
+#include "json.hpp"
 #include "mainwindow.hpp"
 
 namespace nostalgia::studio {
@@ -150,6 +150,17 @@ void MainWindow::setupMenu() {
 		this,
 		SLOT(openProject())
 	);
+
+	// Save Project
+	m_saveAction = addAction(
+		fileMenu,
+		tr("&Save File"),
+		tr(""),
+		QKeySequence::Save,
+		this,
+		SLOT(saveFile())
+	);
+	m_saveAction->setEnabled(false);
 
 	// Exit
 	addAction(
@@ -435,6 +446,10 @@ void MainWindow::showNewWizard() {
 	wizard.exec();
 }
 
+void MainWindow::saveFile() {
+	m_currentEditor->save();
+}
+
 void MainWindow::closeTab(int idx) {
 	auto tab = static_cast<studio::Editor*>(m_tabs->widget(idx));
 	m_undoGroup.removeStack(tab->undoStack());
@@ -456,7 +471,11 @@ void MainWindow::moveTab(int from, int to) {
 
 void MainWindow::changeTab(int idx) {
 	auto tab = dynamic_cast<studio::Editor*>(m_tabs->widget(idx));
+	disconnect(m_currentEditor, &Editor::unsavedChangesUpdate, m_saveAction, &QAction::setEnabled);
+	m_currentEditor = tab;
+	connect(m_currentEditor, &Editor::unsavedChangesUpdate, m_saveAction, &QAction::setEnabled);
 	if (!tab) {
+		m_undoGroup.setActiveStack(nullptr);
 		return;
 	}
 	m_undoGroup.setActiveStack(tab->undoStack());

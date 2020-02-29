@@ -24,6 +24,7 @@
 
 #include <ox/std/types.hpp>
 
+#include "lib/context.hpp"
 #include "lib/plugin.hpp"
 #include "lib/project.hpp"
 
@@ -42,22 +43,6 @@ ox::Error model(T *io, NostalgiaStudioState *obj) {
 	oxReturnError(io->field("project_path", &obj->projectPath));
 	return err;
 }
-
-
-struct NostalgiaStudioPluginDef {
-	QString dir;
-	QString libName;
-};
-
-template<typename T>
-ox::Error model(T *io, NostalgiaStudioPluginDef *obj) {
-	auto err = OxError(0);
-	oxReturnError(io->setTypeInfo("NostalgiaStudioPluginDef", 2));
-	oxReturnError(io->field("dir", &obj->dir));
-	oxReturnError(io->field("lib_name", &obj->libName));
-	return err;
-}
-
 
 struct NostalgiaStudioProfile {
 	QString appName;
@@ -88,6 +73,7 @@ class MainWindow: public QMainWindow {
 		NostalgiaStudioProfile m_profile;
 		NostalgiaStudioState m_state;
 		QAction *m_importAction = nullptr;
+		QAction *m_saveAction = nullptr;
 		Context m_ctx;
 		QPointer<QMenu> m_viewMenu;
 		QVector<QPointer<QDockWidget>> m_dockWidgets;
@@ -97,6 +83,7 @@ class MainWindow: public QMainWindow {
 		QPointer<OxFSModel> m_oxfsView = nullptr;
 		QTabWidget *m_tabs = nullptr;
 		QUndoGroup m_undoGroup;
+		Editor* m_currentEditor = nullptr;
 
 	public:
 		MainWindow(QString profilePath);
@@ -109,8 +96,6 @@ class MainWindow: public QMainWindow {
 		void loadPluginDir(QString path);
 
 		void loadPlugin(QString path);
-
-		void setupDockWidgets();
 
 		void setupMenu();
 
@@ -156,6 +141,8 @@ class MainWindow: public QMainWindow {
 		void openProject();
 
 		void openFileSlot(QModelIndex);
+
+		void saveFile();
 
 		void closeTab(int idx);
 

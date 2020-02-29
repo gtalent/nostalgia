@@ -8,8 +8,16 @@
 
 #pragma once
 
-#include "lib/context.hpp"
-#include "lib/editor.hpp"
-#include "lib/plugin.hpp"
-#include "lib/project.hpp"
-#include "lib/wizard.hpp"
+#include <QString>
+#include <QWidget>
+
+namespace nostalgia::studio {
+
+struct Context {
+	QString appName;
+	QString orgName;
+	QWidget* tabParent = nullptr;
+	const class Project* project = nullptr;
+};
+
+}

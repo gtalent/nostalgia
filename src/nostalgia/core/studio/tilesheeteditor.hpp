@@ -8,14 +8,9 @@
 
 #pragma once
 
-#include <QQuickItem>
-#include <QSplitter>
 #include <QStringList>
-#include <QStringView>
-#include <QTableWidget>
 #include <QUndoStack>
 #include <QVariant>
-#include <QWidget>
 
 #include <nostalgia/core/gfx.hpp>
 #include <nostalgia/studio/studio.hpp>
@@ -30,7 +25,9 @@ class SheetData: public QObject {
 	Q_PROPERTY(QStringList palette READ palette NOTIFY paletteChanged)
 
 	private:
-		QQuickItem *m_prevPixelUpdated = nullptr;
+		class QQuickItem *m_prevPixelUpdated = nullptr;
+		QString m_tilesheetPath;
+		QString m_currentPalettePath;
 		uint64_t m_cmdIdx = 0;
 		QUndoStack m_cmdStack;
 		QStringList m_palette;
@@ -54,7 +51,13 @@ class SheetData: public QObject {
 
 		QStringList palette();
 
-		void updatePixels(const studio::Context *ctx, QString ngPath, QString palPath = "");
+		void load(const studio::Context *ctx, QString ngPath, QString palPath = "");
+
+		void save(const studio::Context *ctx, QString ngPath);
+
+		void setPalette(const NostalgiaPalette *pal);
+
+		void setPalette(const studio::Context *ctx, QString palPath);
 
 		void setSelectedColor(int index);
 
@@ -65,8 +68,20 @@ class SheetData: public QObject {
 
 		void setRows(int rows);
 
+		/**
+		 * Sets columns through a QUndoCommand.
+		 */
+		void updateColumns(int columns);
+
+		/**
+		 * Sets rows through a QUndoCommand.
+		 */
+		void updateRows(int rows);
+
 	private:
-		void updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal);
+		void updatePixels(const NostalgiaGraphic *ng);
+
+		[[nodiscard]] std::unique_ptr<NostalgiaGraphic> toNostalgiaGraphic();
 
 	signals:
 		void changeOccurred();
@@ -86,16 +101,17 @@ class TileSheetEditor: public studio::Editor {
 	Q_OBJECT
 
 	private:
+		QString m_itemPath;
 		QString m_itemName;
 		const studio::Context *m_ctx = nullptr;
 		SheetData m_sheetData;
-		QSplitter *m_splitter = nullptr;
+		class QSplitter *m_splitter = nullptr;
 		struct LabeledSpinner *m_tilesX = nullptr;
 		struct LabeledSpinner *m_tilesY = nullptr;
 		class QQuickWidget* m_canvas = nullptr;
 		struct {
 			QComboBox *palette = nullptr;
-			QTableWidget *colorTable = nullptr;
+			class QTableWidget *colorTable = nullptr;
 		} m_colorPicker;
 
 	public:
@@ -105,13 +121,12 @@ class TileSheetEditor: public studio::Editor {
 
 		QString itemName() override;
 
-		void saveItem() override;
-
 		QUndoStack *undoStack() override;
 
-	private:
-		QWidget *setupToolBar();
+	protected:
+		void saveItem() override;
 
+	private:
 		QWidget *setupColorPicker(QWidget *widget);
 
 		void setColorTable(QStringList hexColors);

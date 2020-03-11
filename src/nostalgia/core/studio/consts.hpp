@@ -15,6 +15,7 @@ constexpr auto PluginName = "NostalgiaCore";
 // Command IDs to use with QUndoCommand::id()
 enum class CommandId {
 	UpdatePixel = 1,
+	UpdateDimension = 2,
 };
 
 }

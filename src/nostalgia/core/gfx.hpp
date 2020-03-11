@@ -34,8 +34,11 @@ struct NostalgiaPalette {
 };
 
 struct NostalgiaGraphic {
-	static constexpr auto Fields = 4;
-	uint8_t bpp = 0;
+	static constexpr auto Fields = 6;
+	int8_t bpp = 0;
+	// rows and columns are really only used by TileSheetEditor
+	int rows = 1;
+	int columns = 1;
 	ox::FileAddress defaultPalette;
 	NostalgiaPalette pal;
 	ox::Vector<uint8_t> tiles;
@@ -52,6 +55,8 @@ template<typename T>
 ox::Error model(T *io, NostalgiaGraphic *ng) {
 	io->setTypeInfo("nostalgia::core::NostalgiaGraphic", NostalgiaGraphic::Fields);
 	oxReturnError(io->field("bpp", &ng->bpp));
+	oxReturnError(io->field("rows", &ng->rows));
+	oxReturnError(io->field("columns", &ng->columns));
 	oxReturnError(io->field("defaultPalette", &ng->defaultPalette));
 	oxReturnError(io->field("pal", &ng->pal));
 	oxReturnError(io->field("tiles", &ng->tiles));

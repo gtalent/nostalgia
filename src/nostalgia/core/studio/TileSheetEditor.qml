@@ -104,6 +104,10 @@ Rectangle {
 		height: tileGrid.rows * tileGrid.baseTileSize * tileGrid.scaleFactor
 		rows: sheetData ? sheetData.rows : 1
 		columns: sheetData ? sheetData.columns : 1
+		states: State {
+			name: "widthChanged"
+			PropertyChanges { target: tileGrid.width; width: tileGrid.columns * tileGrid.baseTileSize * tileGrid.scaleFactor }
+		}
 		Repeater {
 			model: tileGrid.rows * tileGrid.columns
 			Tile {

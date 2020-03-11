@@ -10,14 +10,17 @@
 #include <QHeaderView>
 #include <QPointer>
 #include <QQmlContext>
+#include <QQuickItem>
 #include <QQuickWidget>
 #include <QSet>
 #include <QSettings>
 #include <QSpinBox>
 #include <QSplitter>
 #include <QUndoCommand>
+#include <QTableWidget>
 #include <QToolBar>
 #include <QVBoxLayout>
+#include <memory>
 
 #include "consts.hpp"
 #include "tilesheeteditor.hpp"
@@ -49,6 +52,59 @@ struct LabeledSpinner: public QWidget {
 	}
 
 	virtual ~LabeledSpinner() = default;
+
+};
+
+
+class UpdateDimensionsCommand: public QUndoCommand {
+	public:
+		enum class Dimension {
+			Rows,
+			Columns,
+		};
+
+	private:
+		Dimension m_dimension = Dimension::Rows;
+		int m_oldVal = 0;
+		int m_newVal = 0;
+		SheetData *m_sheetData = nullptr;
+
+	public:
+		UpdateDimensionsCommand(SheetData *sheetData, Dimension dim, int oldVal, int newVal) {
+			m_sheetData = sheetData;
+			m_dimension = dim;
+			m_newVal = newVal;
+			m_oldVal = oldVal;
+			setObsolete(newVal == oldVal);
+		}
+
+		virtual ~UpdateDimensionsCommand() = default;
+
+		int id() const override {
+			return static_cast<int>(CommandId::UpdateDimension);
+		}
+
+		void redo() override {
+			switch (m_dimension) {
+				case Dimension::Rows:
+					m_sheetData->setRows(m_newVal);
+					break;
+				case Dimension::Columns:
+					m_sheetData->setColumns(m_newVal);
+					break;
+			}
+		}
+
+		void undo() override {
+			switch (m_dimension) {
+				case Dimension::Rows:
+					m_sheetData->setRows(m_oldVal);
+					break;
+				case Dimension::Columns:
+					m_sheetData->setColumns(m_oldVal);
+					break;
+			}
+		}
 
 };
 
@@ -96,8 +152,8 @@ class UpdatePixelsCommand: public QUndoCommand {
 		}
 
 		bool mergeWith(const QUndoCommand *cmd) override {
-			auto other = static_cast<const UpdatePixelsCommand*>(cmd);
-			if (m_cmdIdx == other->m_cmdIdx) {
+			auto other = dynamic_cast<const UpdatePixelsCommand*>(cmd);
+			if (other && m_cmdIdx == other->m_cmdIdx) {
 				m_pixelUpdates.unite(other->m_pixelUpdates);
 				return true;
 			}
@@ -107,7 +163,14 @@ class UpdatePixelsCommand: public QUndoCommand {
 		void redo() override {
 			for (const auto &pu : m_pixelUpdates) {
 				pu.item->setProperty("color", m_palette[m_newColorId]);
-				m_pixels[pu.item->property("pixelNumber").toInt()] = m_newColorId;
+				const auto index = pu.item->property("pixelNumber").toInt();
+				// resize to appropriate number of tiles if pixel beyond current
+				// range
+				if (m_pixels.size() < index) {
+					auto sz = (index / 64 + 1) * 64;
+					m_pixels.resize(sz);
+				}
+				m_pixels[index] = m_newColorId;
 			}
 		}
 
@@ -117,6 +180,7 @@ class UpdatePixelsCommand: public QUndoCommand {
 				m_pixels[pu.item->property("pixelNumber").toInt()] = pu.oldColorId;
 			}
 		}
+
 };
 
 
@@ -145,19 +209,49 @@ QStringList SheetData::palette() {
 	return m_palette;
 }
 
-void SheetData::updatePixels(const studio::Context *ctx, QString ngPath, QString palPath) {
+void SheetData::load(const studio::Context *ctx, QString ngPath, QString palPath) {
 	auto ng = ctx->project->loadObj<NostalgiaGraphic>(ngPath);
-	std::unique_ptr<NostalgiaPalette> npal;
 	if (palPath == "" && ng->defaultPalette.type() == ox::FileAddressType::Path) {
 		palPath = ng->defaultPalette.getPath().value;
 	}
+	m_tilesheetPath = ngPath;
+	m_currentPalettePath = palPath;
+	setRows(ng->rows);
+	setColumns(ng->columns);
+	if (palPath != "") {
+		setPalette(ctx, palPath);
+	} else {
+		setPalette(&ng->pal);
+	}
+	updatePixels(ng.get());
+}
+
+void SheetData::save(const studio::Context *ctx, QString ngPath) {
+	auto ng = toNostalgiaGraphic();
+	ctx->project->writeObj(ngPath, ng.get());
+}
+
+void SheetData::setPalette(const NostalgiaPalette *npal) {
+	// load palette
+	m_palette.clear();
+	for (std::size_t i = 0; i < npal->colors.size(); i++) {
+		const auto c = toQColor(npal->colors[i]);
+		const auto color = c.name(QColor::HexArgb);
+		m_palette.append(color);
+	}
+}
+
+void SheetData::setPalette(const studio::Context *ctx, QString palPath) {
+	std::unique_ptr<NostalgiaPalette> npal;
 	try {
 		npal = ctx->project->loadObj<NostalgiaPalette>(palPath);
 		qInfo() << "Opened palette" << palPath;
 	} catch (ox::Error) {
 		qWarning() << "Could not open palette" << palPath;
 	}
-	updatePixels(ng.get(), npal.get());
+	if (npal) {
+		setPalette(npal.get());
+	}
 }
 
 void SheetData::setSelectedColor(int index) {
@@ -171,25 +265,24 @@ QUndoStack *SheetData::undoStack() {
 void SheetData::setColumns(int columns) {
 	m_columns = columns;
 	emit columnsChanged(columns);
+	emit changeOccurred();
 }
 
 void SheetData::setRows(int rows) {
 	m_rows = rows;
 	emit rowsChanged(rows);
+	emit changeOccurred();
 }
 
-void SheetData::updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette *npal) {
-	if (!npal) {
-		npal = &ng->pal;
-	}
+void SheetData::updateColumns(int columns) {
+	m_cmdStack.push(new UpdateDimensionsCommand(this, UpdateDimensionsCommand::Dimension::Columns, m_columns, columns));
+}
 
-	// load palette
-	for (std::size_t i = 0; i < npal->colors.size(); i++) {
-		const auto c = toQColor(npal->colors[i]);
-		const auto color = c.name(QColor::HexArgb);
-		m_palette.append(color);
-	}
+void SheetData::updateRows(int rows) {
+	m_cmdStack.push(new UpdateDimensionsCommand(this, UpdateDimensionsCommand::Dimension::Rows, m_rows, rows));
+}
 
+void SheetData::updatePixels(const NostalgiaGraphic *ng) {
 	if (ng->bpp == 8) {
 		for (std::size_t i = 0; i < ng->tiles.size(); i++) {
 			m_pixels.push_back(ng->tiles[i]);
@@ -209,6 +302,31 @@ void SheetData::updatePixels(const NostalgiaGraphic *ng, const NostalgiaPalette 
 	emit paletteChanged();
 }
 
+std::unique_ptr<NostalgiaGraphic> SheetData::toNostalgiaGraphic() {
+	auto ng = std::make_unique<NostalgiaGraphic>();
+	const auto highestColorIdx = static_cast<uint8_t>(*std::max_element(m_pixels.begin(), m_pixels.end()));
+	ng->defaultPalette = m_currentPalettePath.toUtf8().data();
+	ng->bpp = highestColorIdx > 15 ? 8 : 4;
+	ng->columns = m_columns;
+	ng->rows = m_rows;
+	if (ng->bpp == 4) {
+		ng->tiles.resize(m_pixels.size() / 2);
+		for (int i = 0; i < m_pixels.size(); ++i) {
+			if (i & 1) {
+				ng->tiles[i / 2] |= static_cast<uint8_t>(m_pixels[i]) << 4;
+			} else {
+				ng->tiles[i / 2] = static_cast<uint8_t>(m_pixels[i]);
+			}
+		}
+	} else {
+		ng->tiles.resize(m_pixels.size());
+		for (int i = 0; i < m_pixels.size(); ++i) {
+			ng->tiles[i] = static_cast<uint8_t>(m_pixels[i]);
+		}
+	}
+	return ng;
+}
+
 void SheetData::beginCmd() {
 	++m_cmdIdx;
 }
@@ -220,6 +338,7 @@ void SheetData::endCmd() {
 
 TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidget *parent): studio::Editor(parent) {
 	m_ctx = ctx;
+	m_itemPath = path;
 	m_itemName = path.mid(path.lastIndexOf('/'));
 	auto lyt = new QVBoxLayout(this);
 	m_splitter = new QSplitter(this);
@@ -227,12 +346,29 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 	auto canvasLyt = new QVBoxLayout(canvasParent);
 	m_canvas = new QQuickWidget(canvasParent);
 	canvasLyt->addWidget(m_canvas);
-	canvasLyt->setMenuBar(setupToolBar());
+	auto tb = new QToolBar(tr("Tile Sheet Options"));
+	m_tilesX = new LabeledSpinner(tr("Tiles &X:"), 1, m_sheetData.columns());
+	m_tilesY = new LabeledSpinner(tr("Tiles &Y:"), 1, m_sheetData.rows());
+	tb->addWidget(m_tilesX);
+	tb->addWidget(m_tilesY);
+	canvasLyt->setMenuBar(tb);
 	lyt->addWidget(m_splitter);
 	m_splitter->addWidget(canvasParent);
 	m_splitter->addWidget(setupColorPicker(m_splitter));
 	m_splitter->setStretchFactor(0, 1);
-	m_sheetData.updatePixels(m_ctx, path);
+	connect(&m_sheetData, &SheetData::columnsChanged, [this](int val) {
+		disconnect(m_tilesX->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::updateColumns);
+		m_tilesX->spinBox->setValue(val);
+		connect(m_tilesX->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::updateColumns);
+	});
+	connect(&m_sheetData, &SheetData::rowsChanged, [this](int val) {
+		disconnect(m_tilesY->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::updateRows);
+		m_tilesY->spinBox->setValue(val);
+		connect(m_tilesY->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::updateRows);
+	});
+	m_sheetData.load(m_ctx, m_itemPath);
+	connect(m_tilesX->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::updateColumns);
+	connect(m_tilesY->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::updateRows);
 	m_canvas->rootContext()->setContextProperty("sheetData", &m_sheetData);
 	m_canvas->setSource(QUrl::fromLocalFile(":/qml/TileSheetEditor.qml"));
 	m_canvas->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -249,24 +385,12 @@ QString TileSheetEditor::itemName() {
 	return m_itemName;
 }
 
-void TileSheetEditor::saveItem() {
-}
-
 QUndoStack *TileSheetEditor::undoStack() {
 	return m_sheetData.undoStack();
 }
 
-QWidget *TileSheetEditor::setupToolBar() {
-	auto tb = new QToolBar(tr("Tile Sheet Options"));
-	m_tilesX = new LabeledSpinner(tr("Tiles &X:"), 1, m_sheetData.columns());
-	m_tilesY = new LabeledSpinner(tr("Tiles &Y:"), 1, m_sheetData.rows());
-	tb->addWidget(m_tilesX);
-	tb->addWidget(m_tilesY);
-	connect(&m_sheetData, &SheetData::columnsChanged, m_tilesX->spinBox, &QSpinBox::setValue);
-	connect(&m_sheetData, &SheetData::rowsChanged, m_tilesY->spinBox, &QSpinBox::setValue);
-	connect(m_tilesX->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::setColumns);
-	connect(m_tilesY->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::setRows);
-	return tb;
+void TileSheetEditor::saveItem() {
+	m_sheetData.save(m_ctx, m_itemPath);
 }
 
 QWidget *TileSheetEditor::setupColorPicker(QWidget *parent) {
@@ -314,8 +438,6 @@ void TileSheetEditor::restoreState() {
 	QSettings settings(m_ctx->orgName, PluginName);
 	settings.beginGroup("TileSheetEditor/" + m_itemName);
 	m_splitter->restoreState(settings.value("m_splitter/state", m_splitter->saveState()).toByteArray());
-	m_sheetData.setRows(settings.value("m_sheetData/tileRows", 1).toInt());
-	m_sheetData.setColumns(settings.value("m_sheetData/tileColumns", 1).toInt());
 	m_colorPicker.colorTable->horizontalHeader()->restoreState(settings.value("m_colorPicker.colorTable/geometry", m_colorPicker.colorTable->horizontalHeader()->saveState()).toByteArray());
 	settings.endGroup();
 }

@@ -37,6 +37,11 @@ if(NOT OX_BARE_METAL)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+endif()
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_definitions(-DDEBUG)
 else()

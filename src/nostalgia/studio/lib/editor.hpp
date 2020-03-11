@@ -18,7 +18,7 @@ namespace nostalgia::studio {
 class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 	Q_OBJECT
 
-	private:	
+	private:
 		bool m_unsavedChanges = false;
 
 	public:
@@ -30,11 +30,6 @@ class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 		 * Returns the name of item being edited.
 		 */
 		virtual QString itemName() = 0;
-
-		/**
-		 * Save changes to item being edited.
-		 */
-		virtual void saveItem();
 
 		/**
 		 * Returns the undo stack holding changes to the item being edited.
@@ -51,6 +46,12 @@ class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 		 * unsavedChangesUpdate signal.
 		 */
 		void setUnsavedChanges(bool);
+
+	protected:
+		/**
+		 * Save changes to item being edited.
+		 */
+		virtual void saveItem();
 
 	signals:
 		void unsavedChangesUpdate(bool);

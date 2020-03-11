@@ -150,6 +150,8 @@ class MainWindow: public QMainWindow {
 
 		void changeTab(int idx);
 
+		void markUnsavedChanges(bool);
+
 		void showNewWizard();
 
 		void showImportWizard();

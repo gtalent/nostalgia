@@ -303,7 +303,11 @@ void MainWindow::openProject(QString projectPath) {
 	// reopen tabs
 	auto openTabs = readTabs();
 	for (auto t : openTabs) {
-		openFile(t, true);
+		try {
+			openFile(t, true);
+		} catch (ox::Error err) {
+			oxTrace("nostalgia::studio::MainWindow::openProject") << "Error opening tab:" << err;
+		}
 	}
 	qInfo() << "Open project:" << projectPath;
 }
@@ -316,7 +320,7 @@ void MainWindow::closeProject() {
 		m_tabs->removeTab(0);
 		delete tab;
 	}
-	
+
 	if (m_ctx.project) {
 		disconnect(m_ctx.project, SIGNAL(updated(QString)), m_oxfsView, SLOT(updateFile(QString)));
 
@@ -471,14 +475,32 @@ void MainWindow::moveTab(int from, int to) {
 
 void MainWindow::changeTab(int idx) {
 	auto tab = dynamic_cast<studio::Editor*>(m_tabs->widget(idx));
-	disconnect(m_currentEditor, &Editor::unsavedChangesUpdate, m_saveAction, &QAction::setEnabled);
-	m_currentEditor = tab;
-	connect(m_currentEditor, &Editor::unsavedChangesUpdate, m_saveAction, &QAction::setEnabled);
-	if (!tab) {
-		m_undoGroup.setActiveStack(nullptr);
-		return;
+	if (m_currentEditor) {
+		disconnect(m_currentEditor, &Editor::unsavedChangesUpdate, m_saveAction, &QAction::setEnabled);
+		disconnect(m_currentEditor, &Editor::unsavedChangesUpdate, this, &MainWindow::markUnsavedChanges);
 	}
-	m_undoGroup.setActiveStack(tab->undoStack());
+	m_currentEditor = tab;
+	if (m_currentEditor) {
+		connect(m_currentEditor, &Editor::unsavedChangesUpdate, m_saveAction, &QAction::setEnabled);
+		connect(m_currentEditor, &Editor::unsavedChangesUpdate, this, &MainWindow::markUnsavedChanges);
+		m_undoGroup.setActiveStack(tab->undoStack());
+	} else {
+		m_undoGroup.setActiveStack(nullptr);
+	}
+}
+
+void MainWindow::markUnsavedChanges(bool unsavedChanges) {
+	auto idx = m_tabs->indexOf(m_currentEditor);
+	if (idx > -1) {
+		const auto path = m_currentEditor->itemName();
+		const auto lastSlash = path.lastIndexOf('/') + 1;
+		const auto tabName = path.mid(lastSlash);
+		if (unsavedChanges) {
+			m_tabs->setTabText(idx, tabName + "*");
+		} else {
+			m_tabs->setTabText(idx, tabName);
+		}
+	}
 }
 
 void MainWindow::showImportWizard() {

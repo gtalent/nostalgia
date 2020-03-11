@@ -1,7 +1,6 @@
 add_library(
 	NostalgiaCore-Userspace
 		media.cpp
-		mem.cpp
 )
 
 target_link_libraries(

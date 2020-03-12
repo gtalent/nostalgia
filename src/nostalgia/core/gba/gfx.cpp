@@ -51,7 +51,10 @@ ox::Error modelRead(T *io, GbaTileMapTarget *t) {
 	io->setTypeInfo("nostalgia::core::NostalgiaGraphic", NostalgiaGraphic::Fields);
 
 	uint8_t bpp;
+	int dummy;
 	oxReturnError(io->field("bpp", &bpp));
+	oxReturnError(io->field("rows", &dummy));
+	oxReturnError(io->field("columns", &dummy));
 	constexpr auto Bpp8 = 1 << 7;
 	*t->bgCtl = (28 << 8) | 1;
 	if (bpp == 4) {

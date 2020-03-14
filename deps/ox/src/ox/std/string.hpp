@@ -8,190 +8,58 @@
 
 #pragma once
 
+#include "bstring.hpp"
 #include "memops.hpp"
 #include "strops.hpp"
 #include "typetraits.hpp"
+#include "vector.hpp"
 
 namespace ox {
 
 // Bounded String
-template<std::size_t buffLen>
-class BString {
+class String {
 	private:
-		char m_buff[buffLen + 1];
+		Vector<char> m_buff;
 
 	public:
-		constexpr BString() noexcept;
+		String() noexcept;
 
-		constexpr BString(const char *str) noexcept;
+		String(const char *str) noexcept;
 
-		constexpr const BString &operator=(const char *str) noexcept;
+		const String &operator=(const char *str) noexcept;
 
-		constexpr const BString &operator=(char *str) noexcept;
+		const String &operator=(char *str) noexcept;
 
-		constexpr const BString &operator=(int64_t i) noexcept;
+		const String &operator=(int64_t i) noexcept;
 
-		constexpr const BString &operator+=(const char *str) noexcept;
+		const String &operator+=(const char *str) noexcept;
 
-		constexpr const BString &operator+=(char *str) noexcept;
+		const String &operator+=(char *str) noexcept;
 
-		constexpr const BString &operator+=(int64_t i) noexcept;
+		const String &operator+=(int64_t i) noexcept;
 
-		constexpr bool operator==(const BString &other) noexcept;
+		bool operator==(const String &other) noexcept;
 
-		constexpr bool operator!=(const BString &other) noexcept;
+		bool operator!=(const String &other) noexcept;
 
-		constexpr char operator[](std::size_t i) const noexcept;
+		char operator[](std::size_t i) const noexcept;
 
-		constexpr char &operator[](std::size_t i) noexcept;
+		char &operator[](std::size_t i) noexcept;
 
-		constexpr char *data() noexcept;
+		char *data() noexcept;
 
-		constexpr const char *c_str() const noexcept;
+		const char *c_str() const noexcept;
 
 		/**
 		 * Returns the number of characters in this string.
 		 */
-		constexpr std::size_t len() const noexcept;
+		std::size_t len() const noexcept;
 
 		/**
 		 * Returns the number of bytes used for this string.
 		 */
-		constexpr std::size_t bytes() const noexcept;
+		std::size_t bytes() const noexcept;
 
-		/**
-		 * Returns the capacity of bytes for this string.
-		 */
-		constexpr std::size_t cap() const noexcept;
 };
-
-template<std::size_t size>
-constexpr BString<size>::BString() noexcept {
-	m_buff[0] = 0;
-}
-
-template<std::size_t size>
-constexpr BString<size>::BString(const char *str) noexcept {
-	*this = str;
-}
-
-template<std::size_t size>
-constexpr const BString<size> &BString<size>::operator=(int64_t i) noexcept {
-	char str[65] = {};
-	ox_itoa(i, str);
-	return this->operator=(str);
-}
-
-template<std::size_t size>
-constexpr const BString<size> &BString<size>::operator=(const char *str) noexcept {
-	std::size_t strLen = ox_strlen(str) + 1;
-	if (cap() < strLen) {
-		strLen = cap();
-	}
-	ox_memcpy(m_buff, str, strLen);
-	// make sure last element is a null terminator
-	m_buff[cap() - 1] = 0;
-	return *this;
-}
-
-template<std::size_t size>
-constexpr const BString<size> &BString<size>::operator=(char *str) noexcept {
-	return *this = static_cast<const char*>(str);
-}
-
-template<std::size_t size>
-constexpr const BString<size> &BString<size>::operator+=(const char *str) noexcept {
-	std::size_t strLen = ox_strlen(str) + 1;
-	auto currentLen = len();
-	if (cap() < currentLen + strLen) {
-		strLen = cap() - currentLen;
-	}
-	ox_memcpy(m_buff + currentLen, str, strLen);
-	// make sure last element is a null terminator
-	m_buff[currentLen + strLen] = 0;
-	return *this;
-}
-
-template<std::size_t size>
-constexpr const BString<size> &BString<size>::operator+=(char *str) noexcept {
-	return *this += static_cast<const char*>(str);
-}
-
-template<std::size_t size>
-constexpr const BString<size> &BString<size>::operator+=(int64_t i) noexcept {
-	char str[65] = {};
-	ox_itoa(i, str);
-	return this->operator+=(str);
-}
-
-template<std::size_t buffLen>
-constexpr bool BString<buffLen>::operator==(const BString<buffLen> &other) noexcept {
-	bool retval = true;
-	std::size_t i = 0;
-	while (i < buffLen && (m_buff[i] || other.m_buff[i])) {
-		if (m_buff[i] != other.m_buff[i]) {
-			retval = false;
-			break;
-		}
-		i++;
-	}
-	return retval;
-}
-
-template<std::size_t buffLen>
-constexpr bool BString<buffLen>::operator!=(const BString<buffLen> &other) noexcept {
-	return !operator==(other);
-}
-
-template<std::size_t buffLen>
-constexpr char BString<buffLen>::operator[](std::size_t i) const noexcept {
-	return m_buff[i];
-}
-
-template<std::size_t buffLen>
-constexpr char &BString<buffLen>::operator[](std::size_t i) noexcept {
-	return m_buff[i];
-}
-
-template<std::size_t buffLen>
-constexpr char *BString<buffLen>::data() noexcept {
-	return static_cast<char*>(m_buff);
-}
-
-template<std::size_t buffLen>
-constexpr const char *BString<buffLen>::c_str() const noexcept {
-	return static_cast<const char*>(m_buff);
-}
-
-
-template<std::size_t buffLen>
-constexpr std::size_t BString<buffLen>::len() const noexcept {
-	std::size_t length = 0;
-	for (std::size_t i = 0; i < buffLen; i++) {
-		uint8_t b = static_cast<uint8_t>(m_buff[i]);
-		if (b) {
-			if ((b & 128) == 0) { // normal ASCII character
-				length++;
-			} else if ((b & (256 << 6)) == (256 << 6)) { // start of UTF-8 character
-				length++;
-			}
-		} else {
-			break;
-		}
-	}
-	return length;
-}
-
-template<std::size_t buffLen>
-constexpr std::size_t BString<buffLen>::bytes() const noexcept {
-	std::size_t i = 0;
-	for (i = 0; i < buffLen && m_buff[i]; i++);
-	return i + 1; // add one for null terminator
-}
-
-template<std::size_t buffLen>
-constexpr std::size_t BString<buffLen>::cap() const noexcept {
-	return buffLen;
-}
 
 }

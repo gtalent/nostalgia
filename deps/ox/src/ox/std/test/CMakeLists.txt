@@ -12,5 +12,6 @@ add_test("Test\\ ox_memcmp\\ HIJKLMN\\ !=\\ ABCDEFG" StdTest "HIJKLMN != ABCDEFG
 add_test("Test\\ ox_memcmp\\ ABCDEFG\\ ==\\ ABCDEFG" StdTest "ABCDEFG == ABCDEFG")
 add_test("Test\\ ox_memcmp\\ ABCDEFGHI\\ ==\\ ABCDEFG" StdTest "ABCDEFGHI == ABCDEFG")
 add_test("Test\\ BString" StdTest "BString")
+add_test("Test\\ String" StdTest "String")
 add_test("Test\\ Vector" StdTest "Vector")
 add_test("Test\\ HashMap" StdTest "HashMap")

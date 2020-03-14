@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "new.hpp"
 #include "types.hpp"
 #include "utility.hpp"
 
@@ -53,6 +54,8 @@ class Vector {
 		void resize(std::size_t size) noexcept;
 
 		T *data();
+
+		const T *data() const;
 
 		bool contains(T) const noexcept;
 
@@ -194,6 +197,11 @@ void Vector<T>::resize(std::size_t size) noexcept {
 
 template<typename T>
 T *Vector<T>::data() {
+	return m_items;
+}
+
+template<typename T>
+const T *Vector<T>::data() const {
 	return m_items;
 }
 

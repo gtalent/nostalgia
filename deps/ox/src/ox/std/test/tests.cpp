@@ -40,12 +40,30 @@ map<string, function<int()>> tests = {
 	{
 		"BString",
 		[]() {
-			ox::BString<100> s;
+			ox::BString<5> s;
 			s += "A";
 			s += "B";
 			s += 9;
 			s += "C";
 			oxAssert(s == "AB9C", "BString append broken");
+			s = "asdf";
+			oxAssert(s == "asdf", "String assign broken");
+			return OxError(0);
+		}
+	},
+	{
+		"String",
+		[]() {
+			ox::String s;
+			s += "A";
+			s += "B";
+			s += 9;
+			s += "C";
+			oxAssert(s == "AB9C", "String append broken");
+			s = "asdf";
+			oxAssert(s == "asdf", "String assign broken");
+			s += "aoeu";
+			oxAssert(s == "asdfaoeu", "String append broken");
 			return OxError(0);
 		}
 	},

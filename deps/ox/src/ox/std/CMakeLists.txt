@@ -8,6 +8,7 @@ add_library(
 		random.cpp
 		substitutes.cpp
 		stacktrace.cpp
+		string.cpp
 		strops.cpp
 		trace.cpp
 )

@@ -15,9 +15,9 @@
 
 namespace ox {
 
-using String = BString<100>;
-using FieldName = String;
-using TypeName = String;
+using ModelString = BString<100>;
+using FieldName = ModelString;
+using TypeName = ModelString;
 
 enum class PrimitiveType: uint8_t {
 	UnsignedInteger = 0,
@@ -170,6 +170,6 @@ Error modelRead(T *io, DescriptorField *field) {
 	return err;
 }
 
-using TypeStore = ox::HashMap<String, DescriptorType*>;
+using TypeStore = ox::HashMap<ModelString, DescriptorType*>;
 
 }

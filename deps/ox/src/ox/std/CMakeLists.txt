@@ -38,6 +38,7 @@ install(
 	FILES
 		assert.hpp
 		bit.hpp
+		bstring.hpp
 		buildinfo.hpp
 		byteswap.hpp
 		defines.hpp

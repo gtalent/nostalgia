@@ -24,6 +24,8 @@ class String {
 	public:
 		String() noexcept;
 
+		String(std::size_t cap) noexcept;
+
 		String(const char *str) noexcept;
 
 		const String &operator=(const char *str) noexcept;
@@ -37,6 +39,16 @@ class String {
 		const String &operator+=(char *str) noexcept;
 
 		const String &operator+=(int64_t i) noexcept;
+
+		const String &operator+=(const String &src) noexcept;
+
+		const String operator+(const char *str) const noexcept;
+
+		const String operator+(char *str) const noexcept;
+
+		const String operator+(int64_t i) const noexcept;
+
+		const String operator+(const String &src) const noexcept;
 
 		bool operator==(const String &other) noexcept;
 

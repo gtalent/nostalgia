@@ -7,11 +7,16 @@
  */
 
 #include "string.hpp"
+#include "types.hpp"
 
 namespace ox {
 
 String::String() noexcept {
 	m_buff.push_back(0);
+}
+
+String::String(std::size_t cap) noexcept {
+	m_buff.resize(cap + 1);
 }
 
 String::String(const char *str) noexcept {
@@ -56,6 +61,36 @@ const String &String::operator+=(int64_t i) noexcept {
 	char str[65] = {};
 	ox_itoa(i, str);
 	return this->operator+=(str);
+}
+
+const String &String::operator+=(const String &src) noexcept {
+	return *this += src.c_str();
+}
+
+const String String::operator+(const char *str) const noexcept {
+	std::size_t strLen = ox_strlen(str);
+	auto currentLen = len();
+	String cpy(currentLen + strLen);
+	cpy.m_buff.resize(m_buff.size() + strLen);
+	memcpy(&cpy.m_buff[0], m_buff.data(), currentLen);
+	memcpy(&cpy.m_buff[currentLen], str, strLen);
+	// make sure last element is a null terminator
+	cpy.m_buff[currentLen + strLen] = 0;
+	return cpy;
+}
+
+const String String::operator+(char *str) const noexcept {
+	return *this + static_cast<const char*>(str);
+}
+
+const String String::operator+(int64_t i) const noexcept {
+	char str[65] = {};
+	ox_itoa(i, str);
+	return *this + str;
+}
+
+const String String::operator+(const String &src) const noexcept {
+	return *this + src.c_str();
 }
 
 bool String::operator==(const String &other) noexcept {

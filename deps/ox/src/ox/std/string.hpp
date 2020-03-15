@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "bstring.hpp"
 #include "memops.hpp"
 #include "strops.hpp"
 #include "typetraits.hpp"

@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "string.hpp"
+#include "strops.hpp"
 #include "vector.hpp"
 
 namespace ox {

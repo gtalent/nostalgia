@@ -10,6 +10,7 @@
 
 #include "assert.hpp"
 #include "bit.hpp"
+#include "bstring.hpp"
 #include "byteswap.hpp"
 #include "error.hpp"
 #include "hardware.hpp"

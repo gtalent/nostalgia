@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <ox/std/string.hpp>
+#include <ox/std/bstring.hpp>
 #include <ox/std/strops.hpp>
 #include <ox/std/types.hpp>
 

@@ -10,7 +10,7 @@
 
 #include <ox/std/error.hpp>
 #include <ox/std/hashmap.hpp>
-#include <ox/std/string.hpp>
+#include <ox/std/bstring.hpp>
 #include <ox/std/vector.hpp>
 
 namespace ox {

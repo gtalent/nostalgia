@@ -10,7 +10,7 @@
 
 #include <ox/std/byteswap.hpp>
 #include <ox/std/hashmap.hpp>
-#include <ox/std/string.hpp>
+#include <ox/std/bstring.hpp>
 #include <ox/std/trace.hpp>
 #include <ox/std/types.hpp>
 #include <ox/std/vector.hpp>

@@ -24,12 +24,6 @@ String::String(const char *str) noexcept {
 	*this = str;
 }
 
-const String &String::operator=(int64_t i) noexcept {
-	char str[65] = {};
-	ox_itoa(i, str);
-	return this->operator=(str);
-}
-
 const String &String::operator=(const char *str) noexcept {
 	std::size_t strLen = ox_strlen(str) + 1;
 	m_buff.resize(strLen + 1);
@@ -41,6 +35,16 @@ const String &String::operator=(const char *str) noexcept {
 
 const String &String::operator=(char *str) noexcept {
 	return *this = static_cast<const char*>(str);
+}
+
+const String &String::operator=(int64_t i) noexcept {
+	char str[65] = {};
+	ox_itoa(i, str);
+	return this->operator=(str);
+}
+
+const String &String::operator=(const String &src) noexcept {
+	return *this = src.c_str();
 }
 
 const String &String::operator+=(const char *str) noexcept {

@@ -33,6 +33,8 @@ class String {
 
 		const String &operator=(int64_t i) noexcept;
 
+		const String &operator=(const String &src) noexcept;
+
 		const String &operator+=(const char *str) noexcept;
 
 		const String &operator+=(char *str) noexcept;

@@ -24,6 +24,10 @@ String::String(const char *str) noexcept {
 	*this = str;
 }
 
+String::String(String &other) noexcept {
+	m_buff = other.m_buff;
+}
+
 const String &String::operator=(const char *str) noexcept {
 	std::size_t strLen = ox_strlen(str) + 1;
 	m_buff.resize(strLen + 1);

@@ -8,6 +8,9 @@
 
 #include <array>
 #include <vector>
+#ifdef NOST_FPS_PRINT
+#include <iostream>
+#endif
 
 #include <SDL.h>
 
@@ -150,7 +153,23 @@ void drawBackground(const TileMap &tm, SDL_Texture *tex) {
 	}
 }
 
+#ifdef NOST_FPS_PRINT
+static uint64_t prevFpsCheckTime = 0;
+static uint64_t draws = 0;
+#endif
+
 void draw() {
+#ifdef NOST_FPS_PRINT
+	++draws;
+	if (draws >= 5000) {
+		using namespace std::chrono;
+		auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+		auto duration = static_cast<double>(now - prevFpsCheckTime) / 1000.0;
+		std::cout << "FPS: " << static_cast<int>(static_cast<double>(draws) / duration) << '\n';
+		prevFpsCheckTime = now;
+		draws = 0;
+	}
+#endif
 	SDL_RenderClear(renderer);
 	for (std::size_t i = 0; i < bgTileMaps.size(); i++) {
 		auto tex = bgTextures[i];

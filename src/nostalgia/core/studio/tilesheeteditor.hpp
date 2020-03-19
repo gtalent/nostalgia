@@ -43,17 +43,19 @@ class SheetData: public QObject {
 
 		Q_INVOKABLE void endCmd();
 
-		int columns();
+		[[nodiscard]] int columns() const;
 
-		int rows();
+		[[nodiscard]] int rows() const;
 
-		const QVector<int> &pixels();
+		const QVector<int> &pixels() const;
 
-		QStringList palette();
+		[[nodiscard]] QStringList palette() const;
+
+		[[nodiscard]] QString palettePath() const;
 
 		void load(const studio::Context *ctx, QString ngPath, QString palPath = "");
 
-		void save(const studio::Context *ctx, QString ngPath);
+		void save(const studio::Context *ctx, QString ngPath) const;
 
 		void setPalette(const NostalgiaPalette *pal);
 
@@ -81,7 +83,7 @@ class SheetData: public QObject {
 	private:
 		void updatePixels(const NostalgiaGraphic *ng);
 
-		[[nodiscard]] std::unique_ptr<NostalgiaGraphic> toNostalgiaGraphic();
+		[[nodiscard]] std::unique_ptr<NostalgiaGraphic> toNostalgiaGraphic() const;
 
 	signals:
 		void changeOccurred();
@@ -129,14 +131,20 @@ class TileSheetEditor: public studio::Editor {
 	private:
 		QWidget *setupColorPicker(QWidget *widget);
 
-		void setColorTable(QStringList hexColors);
+		void setPalette();
 
 		void saveState();
 
 		void restoreState();
 
+		[[nodiscard]] QString paletteName(QString palettePath) const;
+
+		[[nodiscard]] QString palettePath(QString palettePath) const;
+
 	public slots:
 		void colorSelected();
+
+		void setColorTable();
 
 };
 

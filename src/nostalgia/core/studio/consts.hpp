@@ -11,6 +11,8 @@
 namespace nostalgia::core {
 
 constexpr auto PluginName = "NostalgiaCore";
+constexpr auto TileSheetDir = "/TileSheets/";
+constexpr auto PaletteDir = "/Palettes/";
 
 // Command IDs to use with QUndoCommand::id()
 enum class CommandId {

@@ -22,6 +22,8 @@
 #include <QVBoxLayout>
 #include <memory>
 
+#include <nostalgia/core/consts.hpp>
+
 #include "consts.hpp"
 #include "tilesheeteditor.hpp"
 
@@ -193,20 +195,24 @@ void SheetData::updatePixel(QVariant pixelItem) {
 	}
 }
 
-int SheetData::columns() {
+int SheetData::columns() const {
 	return m_columns;
 }
 
-int SheetData::rows() {
+int SheetData::rows() const {
 	return m_rows;
 }
 
-const QVector<int> &SheetData::pixels() {
+const QVector<int> &SheetData::pixels() const {
 	return m_pixels;
 }
 
-QStringList SheetData::palette() {
+QStringList SheetData::palette() const {
 	return m_palette;
+}
+
+QString SheetData::palettePath() const {
+	return m_currentPalettePath;
 }
 
 void SheetData::load(const studio::Context *ctx, QString ngPath, QString palPath) {
@@ -226,7 +232,7 @@ void SheetData::load(const studio::Context *ctx, QString ngPath, QString palPath
 	updatePixels(ng.get());
 }
 
-void SheetData::save(const studio::Context *ctx, QString ngPath) {
+void SheetData::save(const studio::Context *ctx, QString ngPath) const {
 	auto ng = toNostalgiaGraphic();
 	ctx->project->writeObj(ngPath, ng.get());
 }
@@ -239,13 +245,13 @@ void SheetData::setPalette(const NostalgiaPalette *npal) {
 		const auto color = c.name(QColor::HexArgb);
 		m_palette.append(color);
 	}
+	emit paletteChanged();
 }
 
 void SheetData::setPalette(const studio::Context *ctx, QString palPath) {
 	std::unique_ptr<NostalgiaPalette> npal;
 	try {
 		npal = ctx->project->loadObj<NostalgiaPalette>(palPath);
-		qInfo() << "Opened palette" << palPath;
 	} catch (ox::Error) {
 		qWarning() << "Could not open palette" << palPath;
 	}
@@ -299,10 +305,9 @@ void SheetData::updatePixels(const NostalgiaGraphic *ng) {
 		}
 	}
 	emit pixelsChanged();
-	emit paletteChanged();
 }
 
-std::unique_ptr<NostalgiaGraphic> SheetData::toNostalgiaGraphic() {
+std::unique_ptr<NostalgiaGraphic> SheetData::toNostalgiaGraphic() const {
 	auto ng = std::make_unique<NostalgiaGraphic>();
 	const auto highestColorIdx = static_cast<uint8_t>(*std::max_element(m_pixels.begin(), m_pixels.end()));
 	ng->defaultPalette = m_currentPalettePath.toUtf8().data();
@@ -372,9 +377,11 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 	m_canvas->rootContext()->setContextProperty("sheetData", &m_sheetData);
 	m_canvas->setSource(QUrl::fromLocalFile(":/qml/TileSheetEditor.qml"));
 	m_canvas->setResizeMode(QQuickWidget::SizeRootObjectToView);
-	setColorTable(m_sheetData.palette());
+	setPalette();
+	setColorTable();
 	restoreState();
 	connect(&m_sheetData, &SheetData::changeOccurred, [this] { setUnsavedChanges(true); });
+	connect(&m_sheetData, &SheetData::paletteChanged, this, &TileSheetEditor::setColorTable);
 }
 
 TileSheetEditor::~TileSheetEditor() {
@@ -405,23 +412,30 @@ QWidget *TileSheetEditor::setupColorPicker(QWidget *parent) {
 	m_colorPicker.colorTable->horizontalHeader()->setStretchLastSection(true);
 	m_colorPicker.colorTable->verticalHeader()->hide();
 	connect(m_colorPicker.colorTable, &QTableWidget::itemSelectionChanged, this, &TileSheetEditor::colorSelected);
+	connect(m_colorPicker.palette, &QComboBox::currentTextChanged, this, [this](QString name) {
+		m_sheetData.setPalette(m_ctx, palettePath(name));
+	});
 	lyt->addWidget(m_colorPicker.palette);
 	lyt->addWidget(m_colorPicker.colorTable);
+	m_ctx->project->subscribe(studio::ProjectEvent::FileRecognized, m_colorPicker.palette, [this](QString path) {
+		if (path.startsWith(PaletteDir) && path.endsWith(FileExt_npal)) {
+			auto name = paletteName(path);
+			m_colorPicker.palette->addItem(name);
+		}
+	});
+	m_ctx->project->subscribe(studio::ProjectEvent::FileDeleted, m_colorPicker.palette, [this](QString path) {
+		if (path.startsWith(PaletteDir) && path.endsWith(FileExt_npal)) {
+			auto name = paletteName(path);
+			auto idx = m_colorPicker.palette->findText(name);
+			m_colorPicker.palette->removeItem(idx);
+		}
+	});
 	return colorPicker;
 }
 
-void TileSheetEditor::setColorTable(QStringList hexColors) {
-	auto tbl = m_colorPicker.colorTable;
-	tbl->setRowCount(hexColors.size());
-	for (int i = 0; i < hexColors.size(); i++) {
-		auto hexCode = new QTableWidgetItem;
-		hexCode->setText(hexColors[i]);
-		hexCode->setFont(QFont("monospace"));
-		tbl->setItem(i, 0, hexCode);
-		auto color = new QTableWidgetItem;
-		color->setBackground(QColor(hexColors[i]));
-		tbl->setItem(i, 1, color);
-	}
+void TileSheetEditor::setPalette() {
+	auto name = paletteName(m_sheetData.palettePath());
+	m_colorPicker.palette->setCurrentText(name);
 }
 
 void TileSheetEditor::saveState() {
@@ -442,8 +456,33 @@ void TileSheetEditor::restoreState() {
 	settings.endGroup();
 }
 
+QString TileSheetEditor::paletteName(QString palettePath) const {
+	const auto begin = ox_strlen(PaletteDir);
+	const auto end = palettePath.size() - (ox_strlen(FileExt_npal) + ox_strlen(PaletteDir));
+	return palettePath.mid(begin, end);
+}
+
+QString TileSheetEditor::palettePath(QString paletteName) const {
+	return PaletteDir + paletteName + FileExt_npal;
+}
+
 void TileSheetEditor::colorSelected() {
 	m_sheetData.setSelectedColor(m_colorPicker.colorTable->currentRow());
+}
+
+void TileSheetEditor::setColorTable() {
+	auto hexColors = m_sheetData.palette();
+	auto tbl = m_colorPicker.colorTable;
+	tbl->setRowCount(hexColors.size());
+	for (int i = 0; i < hexColors.size(); i++) {
+		auto hexCode = new QTableWidgetItem;
+		hexCode->setText(hexColors[i]);
+		hexCode->setFont(QFont("monospace"));
+		tbl->setItem(i, 0, hexCode);
+		auto color = new QTableWidgetItem;
+		color->setBackground(QColor(hexColors[i]));
+		tbl->setItem(i, 1, color);
+	}
 }
 
 }

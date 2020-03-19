@@ -10,10 +10,10 @@
 
 #include <nostalgia/studio/studio.hpp>
 
+#include "consts.hpp"
+
 namespace nostalgia::core {
 
-constexpr auto TileSheetDir = "/TileSheets/";
-constexpr auto PaletteDir = "/Palettes/";
 constexpr auto TileSheetName = "tilesheetName";
 constexpr auto ImportPath = "importPath";
 constexpr auto Palette = "palette";

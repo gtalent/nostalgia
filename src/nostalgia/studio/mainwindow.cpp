@@ -297,7 +297,7 @@ void MainWindow::openProject(QString projectPath) {
 	m_ctx.project = project;
 	m_oxfsView = new OxFSModel(project->romFs());
 	m_projectExplorer->setModel(m_oxfsView);
-	connect(m_ctx.project, &Project::updated, m_oxfsView, &OxFSModel::updateFile);
+	connect(m_ctx.project, &Project::fileUpdated, m_oxfsView, &OxFSModel::updateFile);
 	m_importAction->setEnabled(true);
 	m_state.projectPath = projectPath;
 	// reopen tabs
@@ -306,7 +306,11 @@ void MainWindow::openProject(QString projectPath) {
 		try {
 			openFile(t, true);
 		} catch (ox::Error err) {
-			oxTrace("nostalgia::studio::MainWindow::openProject") << "Error opening tab:" << err;
+			qInfo() << "Error opening tab:" << static_cast<int>(err);
+			oxTrace("nostalgia::studio::MainWindow::openProject") << "Error opening tab:" << static_cast<int>(err);
+		} catch (...) {
+			qInfo() << "Error opening tab";
+			oxTrace("nostalgia::studio::MainWindow::openProject") << "Error opening tab";
 		}
 	}
 	qInfo() << "Open project:" << projectPath;
@@ -322,7 +326,7 @@ void MainWindow::closeProject() {
 	}
 
 	if (m_ctx.project) {
-		disconnect(m_ctx.project, SIGNAL(updated(QString)), m_oxfsView, SLOT(updateFile(QString)));
+		disconnect(m_ctx.project, &Project::fileUpdated, m_oxfsView, &OxFSModel::updateFile);
 
 		delete m_ctx.project;
 		m_ctx.project = nullptr;

@@ -14,10 +14,21 @@
 
 #include <ox/fs/fs.hpp>
 #include <ox/mc/mc.hpp>
+#include <qnamespace.h>
 
 #include "nostalgiastudio_export.h"
+#include "ox/fs/filesystem/passthroughfs.hpp"
 
 namespace nostalgia::studio {
+
+enum class ProjectEvent {
+	FileAdded,
+	// FileRecognized is triggered for all matching files upon a new
+	// subscription to a section of the project and upon the addition of a file.
+	FileRecognized,
+	FileDeleted,
+	FileUpdated,
+};
 
 class NOSTALGIASTUDIO_EXPORT Project: public QObject {
 	Q_OBJECT
@@ -50,13 +61,29 @@ class NOSTALGIASTUDIO_EXPORT Project: public QObject {
 
 		bool exists(QString path) const;
 
+		void subscribe(ProjectEvent e, QObject *tgt, const char *slot) const;
+
+		template<typename Functor>
+		void subscribe(ProjectEvent e, QObject *tgt, Functor &&slot) const;
+
 	private:
 		void writeBuff(QString path, uint8_t *buff, size_t buffLen) const;
 
 		std::vector<uint8_t> loadBuff(QString path) const;
 
+		void procDir(QStringList &paths, QString path) const;
+
+		QStringList listFiles(QString path = "") const;
+
 	signals:
-		void updated(QString path) const;
+		void fileEvent(ProjectEvent, QString path) const;
+		void fileAdded(QString) const;
+		// FileRecognized is triggered for all matching files upon a new
+		// subscription to a section of the project and upon the addition of a
+		// file.
+		void fileRecognized(QString) const;
+		void fileDeleted(QString) const;
+		void fileUpdated(QString) const;
 
 };
 
@@ -68,7 +95,7 @@ void Project::writeObj(QString path, T *obj) const {
 	oxThrowError(ox::writeMC(buff.data(), buff.size(), obj, &mcSize));
 	// write to FS
 	writeBuff(path, buff.data(), mcSize);
-	emit updated(path);
+	emit fileUpdated(path);
 }
 
 template<typename T>
@@ -77,6 +104,29 @@ std::unique_ptr<T> Project::loadObj(QString path) const {
 	auto buff = loadBuff(path);
 	oxThrowError(ox::readMC<T>(buff.data(), buff.size(), obj.get()));
 	return obj;
+}
+
+template<typename Functor>
+void Project::subscribe(ProjectEvent e, QObject *tgt, Functor &&slot) const {
+	switch (e) {
+		case ProjectEvent::FileAdded:
+			connect(this, &Project::fileAdded, tgt, (slot));
+			break;
+		case ProjectEvent::FileRecognized:
+		{
+			for (auto f : listFiles()) {
+				slot(f);
+			}
+			connect(this, &Project::fileRecognized, tgt, (slot));
+			break;
+		}
+		case ProjectEvent::FileDeleted:
+			connect(this, &Project::fileDeleted, tgt, (slot));
+			break;
+		case ProjectEvent::FileUpdated:
+			connect(this, &Project::fileUpdated, tgt, (slot));
+			break;
+	}
 }
 
 }

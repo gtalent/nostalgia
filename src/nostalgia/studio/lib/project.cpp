@@ -8,12 +8,11 @@
 
 #include <QDir>
 #include <QDebug>
+#include <qnamespace.h>
 
 #include "project.hpp"
 
 namespace nostalgia::studio {
-
-using namespace ox;
 
 Project::Project(QString path): m_fs(path.toUtf8()) {
 	qDebug() << "Project:" << path;
@@ -27,13 +26,13 @@ void Project::create() {
 	QDir().mkpath(m_path);
 }
 
-PassThroughFS *Project::romFs() {
+ox::PassThroughFS *Project::romFs() {
 	return &m_fs;
 }
 
 void Project::mkdir(QString path) const {
 	oxThrowError(m_fs.mkdir(path.toUtf8().data(), true));
-	emit updated(path);
+	emit fileUpdated(path);
 }
 
 ox::FileStat Project::stat(QString path) const {
@@ -48,7 +47,7 @@ bool Project::exists(QString path) const {
 
 void Project::writeBuff(QString path, uint8_t *buff, size_t buffLen) const {
 	oxThrowError(m_fs.write(path.toUtf8().data(), buff, buffLen));
-	emit updated(path);
+	emit fileUpdated(path);
 }
 
 std::vector<uint8_t> Project::loadBuff(QString path) const {
@@ -56,6 +55,29 @@ std::vector<uint8_t> Project::loadBuff(QString path) const {
 	const auto csPath = path.toUtf8();
 	oxThrowError(m_fs.read(csPath.data(), buff.data(), buff.size()));
 	return buff;
+}
+
+void Project::procDir(QStringList &paths, QString path) const {
+	oxThrowError(m_fs.ls(path.toUtf8(), [&](QString name, ox::InodeId_t) {
+		auto fullPath = path + "/" + name;
+		auto [stat, err] = m_fs.stat(fullPath.toUtf8().data());
+		oxReturnError(err);
+		switch (stat.fileType) {
+			case ox::FileType_NormalFile:
+				paths.push_back(fullPath);
+				break;
+			case ox::FileType_Directory:
+				procDir(paths, fullPath);
+				break;
+		}
+		return OxError(0);
+	}));
+}
+
+QStringList Project::listFiles(QString path) const {
+	QStringList paths;
+	procDir(paths, path);
+	return paths;
 }
 
 }

@@ -13,11 +13,12 @@
 
 namespace nostalgia::studio {
 
-struct Context {
-	QString appName;
-	QString orgName;
-	QWidget* tabParent = nullptr;
-	const class Project* project = nullptr;
+class Context {
+	public:
+		QString appName;
+		QString orgName;
+		QWidget* tabParent = nullptr;
+		const class Project* project = nullptr;
 };
 
 }

@@ -258,6 +258,8 @@ void SheetData::setPalette(const studio::Context *ctx, QString palPath) {
 	if (npal) {
 		setPalette(npal.get());
 	}
+	m_currentPalettePath = palPath;
+	emit changeOccurred();
 }
 
 void SheetData::setSelectedColor(int index) {

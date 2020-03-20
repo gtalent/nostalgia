@@ -8,7 +8,6 @@
 
 #include <QDir>
 #include <QDebug>
-#include <qnamespace.h>
 
 #include "project.hpp"
 

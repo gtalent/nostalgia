@@ -43,6 +43,8 @@ class SheetData: public QObject {
 
 		Q_INVOKABLE void endCmd();
 
+		Q_INVOKABLE void insertTileCmd(int tileIdx);
+
 		[[nodiscard]] int columns() const;
 
 		[[nodiscard]] int rows() const;
@@ -60,6 +62,10 @@ class SheetData: public QObject {
 		void setPalette(const NostalgiaPalette *pal);
 
 		void setPalette(const studio::Context *ctx, QString palPath);
+
+		void insertTile(int tileIdx);
+
+		void deleteTile(int tileIdx);
 
 		void setSelectedColor(int index);
 

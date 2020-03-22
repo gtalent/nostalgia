@@ -186,6 +186,34 @@ class UpdatePixelsCommand: public QUndoCommand {
 };
 
 
+class InsertTileCommand: public QUndoCommand {
+	private:
+		SheetData *m_sheetData = nullptr;
+		int m_idx = 0;
+
+	public:
+		InsertTileCommand(SheetData *sheetData, int idx) {
+			m_sheetData = sheetData;
+			m_idx = idx;
+		}
+
+		virtual ~InsertTileCommand() = default;
+
+		int id() const override {
+			return static_cast<int>(CommandId::InsertTile);
+		}
+
+		void redo() override {
+			m_sheetData->insertTile(m_idx);
+		}
+
+		void undo() override {
+			m_sheetData->deleteTile(m_idx);
+		}
+
+};
+
+
 void SheetData::updatePixel(QVariant pixelItem) {
 	auto p = qobject_cast<QQuickItem*>(pixelItem.value<QObject*>());
 	if (p && p != m_prevPixelUpdated) {
@@ -193,6 +221,18 @@ void SheetData::updatePixel(QVariant pixelItem) {
 		m_prevPixelUpdated = p;
 		emit changeOccurred();
 	}
+}
+
+void SheetData::beginCmd() {
+	++m_cmdIdx;
+}
+
+void SheetData::endCmd() {
+	m_prevPixelUpdated = nullptr;
+}
+
+void SheetData::insertTileCmd(int tileIdx) {
+	m_cmdStack.push(new InsertTileCommand(this, tileIdx));
 }
 
 int SheetData::columns() const {
@@ -260,6 +300,17 @@ void SheetData::setPalette(const studio::Context *ctx, QString palPath) {
 	}
 	m_currentPalettePath = palPath;
 	emit changeOccurred();
+}
+
+void SheetData::insertTile(int tileIdx) {
+	m_pixels.insert(tileIdx * PixelsPerTile, PixelsPerTile, 0);
+	emit pixelsChanged();
+	emit changeOccurred();
+}
+
+void SheetData::deleteTile(int tileIdx) {
+	m_pixels.remove(tileIdx * PixelsPerTile, PixelsPerTile);
+	emit pixelsChanged();
 }
 
 void SheetData::setSelectedColor(int index) {
@@ -333,15 +384,6 @@ std::unique_ptr<NostalgiaGraphic> SheetData::toNostalgiaGraphic() const {
 	}
 	return ng;
 }
-
-void SheetData::beginCmd() {
-	++m_cmdIdx;
-}
-
-void SheetData::endCmd() {
-	m_prevPixelUpdated = nullptr;
-}
-
 
 TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidget *parent): studio::Editor(parent) {
 	m_ctx = ctx;

@@ -18,6 +18,7 @@ constexpr auto PaletteDir = "/Palettes/";
 enum class CommandId {
 	UpdatePixel = 1,
 	UpdateDimension = 2,
+	InsertTile = 3,
 };
 
 }

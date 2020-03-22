@@ -19,13 +19,23 @@ Rectangle {
 		id: mouseArea
 		width: tileSheetEditor.width
 		height: tileSheetEditor.height
-		acceptedButtons: Qt.LeftButton
+		acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+		onClicked: {
+			if (mouse.button === Qt.RightButton) {
+				contextMenu.popup();
+			} else {
+				contextMenu.dismiss();
+			}
+		}
 
 		onPressed: {
-			var pixel = pixelAt(mouseX, mouseY);
-			if (pixel) {
-				sheetData.beginCmd()
-				sheetData.updatePixel(pixel)
+			if (mouse.button === Qt.LeftButton && !contextMenu.visible) {
+				var pixel = pixelAt(mouseX, mouseY);
+				if (pixel) {
+					sheetData.beginCmd();
+					sheetData.updatePixel(pixel);
+				}
 			}
 		}
 
@@ -75,9 +85,27 @@ Rectangle {
 			wheel.accepted = true;
 		}
 
+		Menu {
+			id: contextMenu
+
+			MenuItem {
+				text: "Insert Tile"
+				onTriggered: {
+					var tile = mouseArea.tileAt(contextMenu.x, contextMenu.y);
+					sheetData.insertTileCmd(tile.tileNumber);
+				}
+			}
+		}
+
 		onPositionChanged: sheetData.updatePixel(pixelAt(mouseX, mouseY))
 		onReleased: sheetData.endCmd()
 		onCanceled: sheetData.endCmd()
+
+		function tileAt(x, y) {
+			var gridX = x - tileGrid.x;
+			var gridY = y - tileGrid.y;
+			return tileGrid.childAt(gridX, gridY);
+		}
 
 		function pixelAt(x, y) {
 			var gridX = x - tileGrid.x;

@@ -45,6 +45,8 @@ class SheetData: public QObject {
 
 		Q_INVOKABLE void insertTileCmd(int tileIdx);
 
+		Q_INVOKABLE void deleteTileCmd(int tileIdx);
+
 		[[nodiscard]] int columns() const;
 
 		[[nodiscard]] int rows() const;

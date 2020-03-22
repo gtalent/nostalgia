@@ -95,6 +95,14 @@ Rectangle {
 					sheetData.insertTileCmd(tile.tileNumber);
 				}
 			}
+
+			MenuItem {
+				text: "Delete Tile"
+				onTriggered: {
+					var tile = mouseArea.tileAt(contextMenu.x, contextMenu.y);
+					sheetData.deleteTileCmd(tile.tileNumber);
+				}
+			}
 		}
 
 		onPositionChanged: sheetData.updatePixel(pixelAt(mouseX, mouseY))

@@ -190,11 +190,13 @@ class InsertTileCommand: public QUndoCommand {
 	private:
 		SheetData *m_sheetData = nullptr;
 		int m_idx = 0;
+		bool m_delete = false;
 
 	public:
-		InsertTileCommand(SheetData *sheetData, int idx) {
+		InsertTileCommand(SheetData *sheetData, int idx, bool del = false) {
 			m_sheetData = sheetData;
 			m_idx = idx;
+			m_delete = del;
 		}
 
 		virtual ~InsertTileCommand() = default;
@@ -204,11 +206,19 @@ class InsertTileCommand: public QUndoCommand {
 		}
 
 		void redo() override {
-			m_sheetData->insertTile(m_idx);
+			if (m_delete) {
+				m_sheetData->deleteTile(m_idx);
+			} else {
+				m_sheetData->insertTile(m_idx);
+			}
 		}
 
 		void undo() override {
-			m_sheetData->deleteTile(m_idx);
+			if (m_delete) {
+				m_sheetData->insertTile(m_idx);
+			} else {
+				m_sheetData->deleteTile(m_idx);
+			}
 		}
 
 };
@@ -233,6 +243,10 @@ void SheetData::endCmd() {
 
 void SheetData::insertTileCmd(int tileIdx) {
 	m_cmdStack.push(new InsertTileCommand(this, tileIdx));
+}
+
+void SheetData::deleteTileCmd(int tileIdx) {
+	m_cmdStack.push(new InsertTileCommand(this, tileIdx, true));
 }
 
 int SheetData::columns() const {
@@ -311,6 +325,7 @@ void SheetData::insertTile(int tileIdx) {
 void SheetData::deleteTile(int tileIdx) {
 	m_pixels.remove(tileIdx * PixelsPerTile, PixelsPerTile);
 	emit pixelsChanged();
+	emit changeOccurred();
 }
 
 void SheetData::setSelectedColor(int index) {

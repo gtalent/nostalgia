@@ -75,8 +75,7 @@ ox::Error shutdownGfx(Context *ctx) {
 
 ox::Error initConsole(Context *ctx) {
 	constexpr auto TilesheetAddr = "/TileSheets/Charset.ng";
-	constexpr auto PaletteAddr = "/Palettes/Charset.npal";
-	return loadTileSheet(ctx, TileSheetSpace::Background, 0, TilesheetAddr, PaletteAddr);
+	return loadTileSheet(ctx, TileSheetSpace::Background, 0, TilesheetAddr);
 }
 
 SDL_Color createSDL_Color(Color16 nc) {
@@ -106,11 +105,10 @@ ox::Error loadTileSheet(Context *ctx,
 	auto [tilesheet, tserr] = readMC<NostalgiaGraphic>(ctx, tilesheetPath);
 	oxReturnError(tserr);
 	NostalgiaPalette palette;
-	if (palettePath) {
-		oxReturnError(readMC<NostalgiaPalette>(ctx, palettePath).get(&palette));
-	} else {
-		palette = tilesheet.pal;
+	if (!palettePath) {
+		palettePath = tilesheet.defaultPalette;
 	}
+	oxReturnError(readMC<NostalgiaPalette>(ctx, palettePath).get(&palette));
 
 	const auto bytesPerTile = tilesheet.bpp == 8 ? 64 : 32;
 	const auto tiles = tilesheet.tiles.size() / bytesPerTile;
@@ -125,7 +123,7 @@ ox::Error loadTileSheet(Context *ctx,
 	} else {
 		for (std::size_t i = 0; i < tilesheet.tiles.size(); ++i) {
 			static_cast<uint8_t*>(surface->pixels)[i * 2 + 0] = tilesheet.tiles[i] & 0xF;
-			static_cast<uint8_t*>(surface->pixels)[i * 2 + 1] = tilesheet.tiles[i] >> 4; 
+			static_cast<uint8_t*>(surface->pixels)[i * 2 + 1] = tilesheet.tiles[i] >> 4;
 		}
 	}
 

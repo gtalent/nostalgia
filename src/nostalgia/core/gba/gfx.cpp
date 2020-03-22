@@ -141,13 +141,13 @@ ox::Error loadTileSheet(Context *ctx,
 	oxReturnError(ox::readMC(ts, tsStat.size, &target));
 	// load external palette if available
 	if (paletteAddr) {
-		auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
-		oxReturnError(palStatErr);
-		auto [pal, palErr] = ctx->rom->read(paletteAddr);
-		oxReturnError(palErr);
-		oxReturnError(ox::readMC(pal, palStat.size, &target.pal));
+		paletteAddr = target.defaultPalette;
 	}
-
+	auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
+	oxReturnError(palStatErr);
+	auto [pal, palErr] = ctx->rom->read(paletteAddr);
+	oxReturnError(palErr);
+	oxReturnError(ox::readMC(pal, palStat.size, &target.pal));
 	return OxError(0);
 }
 

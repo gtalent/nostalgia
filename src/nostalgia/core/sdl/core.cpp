@@ -12,9 +12,9 @@
 
 namespace nostalgia::core {
 
-void draw();
+void draw(Context *ctx);
 
-ox::Error run() {
+ox::Error run(Context *ctx) {
 	for (auto running = true; running;) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
@@ -30,7 +30,7 @@ ox::Error run() {
 				}
 			}
 		}
-		draw();
+		draw(ctx);
 	}
 	return OxError(0);
 }

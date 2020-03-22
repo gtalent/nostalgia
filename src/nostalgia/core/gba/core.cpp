@@ -10,7 +10,7 @@
 
 namespace nostalgia::core {
 
-ox::Error run() {
+ox::Error run(Context*) {
 	while (1) {
 	}
 	return OxError(0);

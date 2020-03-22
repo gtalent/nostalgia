@@ -13,8 +13,22 @@
 namespace nostalgia::core {
 
 // User Input Output
-struct Context {
-	ox::FileSystem *rom = nullptr;
+class Context {
+	public:
+		ox::FileSystem *rom = nullptr;
+	private:
+		void *m_implData = nullptr;
+
+	public:
+		constexpr void setImplData(void *implData) noexcept {
+			m_implData = implData;
+		}
+
+		template<typename T>
+		constexpr T *implData() noexcept {
+			return static_cast<T*>(m_implData);
+		}
+
 };
 
 }

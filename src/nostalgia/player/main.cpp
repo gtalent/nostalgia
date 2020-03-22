@@ -22,8 +22,8 @@ ox::Error run(ox::FileSystem *fs) {
 	//zone.draw(&ctx);
 	oxReturnError(core::initConsole(&ctx));
 	core::puts(&ctx, 10, 9, "DOPENESS!!!");
-	oxReturnError(core::run());
-	oxReturnError(core::shutdownGfx());
+	oxReturnError(core::run(&ctx));
+	oxReturnError(core::shutdownGfx(&ctx));
 	return OxError(0);
 }
 

@@ -89,7 +89,7 @@ ox::Error initGfx(Context*) {
 	return OxError(0);
 }
 
-ox::Error shutdownGfx() {
+ox::Error shutdownGfx(Context*) {
 	return OxError(0);
 }
 

@@ -65,7 +65,7 @@ ox::Error model(T *io, NostalgiaGraphic *ng) {
 
 [[nodiscard]] ox::Error initGfx(Context *ctx);
 
-[[nodiscard]] ox::Error shutdownGfx();
+[[nodiscard]] ox::Error shutdownGfx(Context*);
 
 [[nodiscard]] ox::Error initConsole(Context *ctx);
 

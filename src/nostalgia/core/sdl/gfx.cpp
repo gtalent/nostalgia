@@ -6,6 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#define NOST_FPS_PRINT
+
 #include <array>
 #include <vector>
 #ifdef NOST_FPS_PRINT
@@ -20,12 +22,19 @@
 
 namespace nostalgia::core {
 
-static SDL_Window *window = nullptr;
-static SDL_Renderer *renderer = nullptr;
-
-static std::array<SDL_Texture*, 4> bgTextures;
 using TileMap = std::array<std::array<int, 128>, 128>;
-static std::array<TileMap, 4> bgTileMaps;
+
+struct SdlImplData {
+	SDL_Window *window = nullptr;
+	SDL_Renderer *renderer = nullptr;
+	std::array<SDL_Texture*, 4> bgTextures;
+	std::array<TileMap, 4> bgTileMaps;
+#ifdef NOST_FPS_PRINT
+	uint64_t prevFpsCheckTime = 0;
+	uint64_t draws = 0;
+#endif
+
+};
 
 [[nodiscard]] static ox::ValErr<ox::Vector<uint8_t>> readFile(Context *ctx, const ox::FileAddress &file) {
 	auto [stat, err] = ctx->rom->stat(file);
@@ -44,19 +53,23 @@ template<typename T>
 	return t;
 }
 
-ox::Error initGfx(Context*) {
-	window = SDL_CreateWindow("nostalgia", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768,
-	                          SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	return OxError(window == nullptr);
+ox::Error initGfx(Context *ctx) {
+	auto id = new SdlImplData;
+	ctx->setImplData(id);
+	id->window = SDL_CreateWindow("nostalgia", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768,
+	                              SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
+	id->renderer = SDL_CreateRenderer(id->window, -1, SDL_RENDERER_ACCELERATED);
+	return OxError(id->window == nullptr);
 }
 
-ox::Error shutdownGfx() {
-	for (auto tex : bgTextures) {
+ox::Error shutdownGfx(Context *ctx) {
+	auto id = ctx->implData<SdlImplData>();
+	for (auto tex : id->bgTextures) {
 		SDL_DestroyTexture(tex);
 	}
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
+	SDL_DestroyRenderer(id->renderer);
+	SDL_DestroyWindow(id->window);
+	delete id;
 	return OxError(0);
 }
 
@@ -89,6 +102,7 @@ ox::Error loadTileSheet(Context *ctx,
                         int section,
                         ox::FileAddress tilesheetPath,
                         ox::FileAddress palettePath) {
+	auto id = ctx->implData<SdlImplData>();
 	auto [tilesheet, tserr] = readMC<NostalgiaGraphic>(ctx, tilesheetPath);
 	oxReturnError(tserr);
 	NostalgiaPalette palette;
@@ -110,28 +124,29 @@ ox::Error loadTileSheet(Context *ctx,
 		SDL_memcpy(surface->pixels, tilesheet.tiles.data(), bytesPerTile * tiles);
 	} else {
 		for (std::size_t i = 0; i < tilesheet.tiles.size(); ++i) {
-			static_cast<uint8_t*>(surface->pixels)[i * 2 + 0] = tilesheet.tiles[i] & 0xF; 
+			static_cast<uint8_t*>(surface->pixels)[i * 2 + 0] = tilesheet.tiles[i] & 0xF;
 			static_cast<uint8_t*>(surface->pixels)[i * 2 + 1] = tilesheet.tiles[i] >> 4; 
 		}
 	}
 
-	auto texture = SDL_CreateTextureFromSurface(renderer, surface);
+	auto texture = SDL_CreateTextureFromSurface(id->renderer, surface);
 	SDL_FreeSurface(surface);
 	SDL_FreePalette(sdlPalette);
 
 	if (tss == TileSheetSpace::Background) {
-		if (bgTextures[section]) {
-			SDL_DestroyTexture(bgTextures[section]);
+		if (id->bgTextures[section]) {
+			SDL_DestroyTexture(id->bgTextures[section]);
 		}
-		bgTextures[section] = texture;
+		id->bgTextures[section] = texture;
 	}
 
 	return OxError(0);
 }
 
-void drawBackground(const TileMap &tm, SDL_Texture *tex) {
+void drawBackground(Context *ctx, const TileMap &tm, SDL_Texture *tex) {
 	if (tex) {
 		constexpr auto DstSize = 32;
+		auto id = ctx->implData<SdlImplData>();
 		//oxTrace("nostalgia::core::drawBackground") << "Drawing background";
 		SDL_Rect src = {}, dst = {};
 		src.x = 0;
@@ -144,7 +159,7 @@ void drawBackground(const TileMap &tm, SDL_Texture *tex) {
 		for (auto &m : tm) {
 			for (auto t : m) {
 				src.y = t * 8;
-				SDL_RenderCopy(renderer, tex, &src, &dst);
+				SDL_RenderCopy(id->renderer, tex, &src, &dst);
 				dst.x += DstSize;
 			}
 			dst.x = 0;
@@ -153,34 +168,31 @@ void drawBackground(const TileMap &tm, SDL_Texture *tex) {
 	}
 }
 
+void draw(Context *ctx) {
+	auto id = ctx->implData<SdlImplData>();
 #ifdef NOST_FPS_PRINT
-static uint64_t prevFpsCheckTime = 0;
-static uint64_t draws = 0;
-#endif
-
-void draw() {
-#ifdef NOST_FPS_PRINT
-	++draws;
-	if (draws >= 5000) {
+	++id->draws;
+	if (id->draws >= 5000) {
 		using namespace std::chrono;
 		auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-		auto duration = static_cast<double>(now - prevFpsCheckTime) / 1000.0;
-		std::cout << "FPS: " << static_cast<int>(static_cast<double>(draws) / duration) << '\n';
-		prevFpsCheckTime = now;
-		draws = 0;
+		auto duration = static_cast<double>(now - id->prevFpsCheckTime) / 1000.0;
+		std::cout << "FPS: " << static_cast<int>(static_cast<double>(id->draws) / duration) << '\n';
+		id->prevFpsCheckTime = now;
+		id->draws = 0;
 	}
 #endif
-	SDL_RenderClear(renderer);
-	for (std::size_t i = 0; i < bgTileMaps.size(); i++) {
-		auto tex = bgTextures[i];
-		auto &tm = bgTileMaps[i];
-		drawBackground(tm, tex);
+	SDL_RenderClear(id->renderer);
+	for (std::size_t i = 0; i < id->bgTileMaps.size(); i++) {
+		auto tex = id->bgTextures[i];
+		auto &tm = id->bgTileMaps[i];
+		drawBackground(ctx, tm, tex);
 	}
-	SDL_RenderPresent(renderer);
+	SDL_RenderPresent(id->renderer);
 }
 
-void setTile(Context*, int layer, int column, int row, uint8_t tile) {
-	bgTileMaps[layer][row][column] = tile;
+void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
+	auto id = ctx->implData<SdlImplData>();
+	id->bgTileMaps[layer][row][column] = tile;
 }
 
 }

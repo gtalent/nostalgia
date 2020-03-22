@@ -14,6 +14,9 @@ ox::Error initGfx(Context*) {
 	return OxError(1);
 }
 
+ox::Error shutdownGfx(Context*) {
+}
+
 ox::Error initConsole(Context*) {
 	return OxError(1);
 }

@@ -6,6 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <array>
+
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QPointer>
@@ -191,6 +193,7 @@ class InsertTileCommand: public QUndoCommand {
 		SheetData *m_sheetData = nullptr;
 		int m_idx = 0;
 		bool m_delete = false;
+		QVector<int> m_tileRestore;
 
 	public:
 		InsertTileCommand(SheetData *sheetData, int idx, bool del = false) {
@@ -207,17 +210,17 @@ class InsertTileCommand: public QUndoCommand {
 
 		void redo() override {
 			if (m_delete) {
-				m_sheetData->deleteTile(m_idx);
+				m_tileRestore = m_sheetData->deleteTile(m_idx);
 			} else {
-				m_sheetData->insertTile(m_idx);
+				m_sheetData->insertTile(m_idx, m_tileRestore);
 			}
 		}
 
 		void undo() override {
 			if (m_delete) {
-				m_sheetData->insertTile(m_idx);
+				m_sheetData->insertTile(m_idx, m_tileRestore);
 			} else {
-				m_sheetData->deleteTile(m_idx);
+				m_tileRestore = m_sheetData->deleteTile(m_idx);
 			}
 		}
 
@@ -316,16 +319,24 @@ void SheetData::setPalette(const studio::Context *ctx, QString palPath) {
 	emit changeOccurred();
 }
 
-void SheetData::insertTile(int tileIdx) {
-	m_pixels.insert(tileIdx * PixelsPerTile, PixelsPerTile, 0);
+void SheetData::insertTile(int tileIdx, QVector<int> tileData) {
+	auto pxIdx = tileIdx * PixelsPerTile;
+	m_pixels.insert(pxIdx, PixelsPerTile, 0);
+	std::copy(tileData.begin(), tileData.end(), &m_pixels[pxIdx]);
 	emit pixelsChanged();
 	emit changeOccurred();
 }
 
-void SheetData::deleteTile(int tileIdx) {
-	m_pixels.remove(tileIdx * PixelsPerTile, PixelsPerTile);
+QVector<int> SheetData::deleteTile(int tileIdx) {
+	QVector<int> out;
+	auto pxIdx = tileIdx * PixelsPerTile;
+	std::copy(m_pixels.begin() + pxIdx,
+	          m_pixels.begin() + (pxIdx + PixelsPerTile),
+	          std::back_inserter(out));
+	m_pixels.remove(pxIdx, PixelsPerTile);
 	emit pixelsChanged();
 	emit changeOccurred();
+	return out;
 }
 
 void SheetData::setSelectedColor(int index) {

@@ -65,9 +65,9 @@ class SheetData: public QObject {
 
 		void setPalette(const studio::Context *ctx, QString palPath);
 
-		void insertTile(int tileIdx);
+		void insertTile(int tileIdx, QVector<int> tileData = {});
 
-		void deleteTile(int tileIdx);
+		QVector<int> deleteTile(int tileIdx);
 
 		void setSelectedColor(int index);
 

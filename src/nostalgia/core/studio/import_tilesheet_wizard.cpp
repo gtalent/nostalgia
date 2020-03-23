@@ -17,10 +17,6 @@
 
 namespace nostalgia::core {
 
-static const auto PaletteOption_Bundle = QObject::tr("Bundle");
-static const auto PaletteOption_New = QObject::tr("External");
-static const auto PaletteOptions = QStringList{PaletteOption_Bundle, PaletteOption_New};
-
 ImportTilesheetWizardMainPage::ImportTilesheetWizardMainPage(const studio::Context *ctx) {
 	m_ctx = ctx;
 	addLineEdit(tr("&Tile Sheet Name:"), QString(TileSheetName) + "*", "", [this](QString) {
@@ -41,26 +37,13 @@ ImportTilesheetWizardMainPage::ImportTilesheetWizardMainPage(const studio::Conte
 
 ImportTilesheetWizardPalettePage::ImportTilesheetWizardPalettePage(const studio::Context *ctx) {
 	m_ctx = ctx;
-	auto cb = addComboBox(tr("P&alette:"), Palette, PaletteOptions);
-	auto name = addLineEdit(tr("Palette &Name:"), PaletteName);
-	name->setDisabled(true);
-
-	connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), [name](int idx) {
-			if (idx == 1) {
-				name->setDisabled(false);
-			} else {
-				name->setDisabled(true);
-			}
-		}
-	);
-	cb->setCurrentIndex(0);
+	addLineEdit(tr("Palette &Name:"), PaletteName);
 }
 
 int ImportTilesheetWizardPalettePage::accept() {
 	const auto tilesheetName = field(TileSheetName).toString();
 	const auto importPath = field(ImportPath).toString();
 	const auto tileCount = field(TileCount).toInt();
-	const auto palette = field(Palette).toInt();
 	const auto paletteName = field(PaletteName).toString();
 	const auto outPath = TileSheetDir + tilesheetName + FileExt_ng;
 	if (!QFile(importPath).exists()) {
@@ -70,14 +53,12 @@ int ImportTilesheetWizardPalettePage::accept() {
 	if (!ng) {
 		return OxError(1);
 	}
-	if (palette != PaletteOptions.indexOf(PaletteOption_Bundle)) {
-		const auto outPath = PaletteDir + paletteName + FileExt_npal;
-		core::NostalgiaPalette pal;
-		pal = std::move(ng->pal);
-		m_ctx->project->writeObj(outPath, &pal);
-		auto defaultPalette = outPath.toUtf8();
-		ng->defaultPalette = defaultPalette.data();
-	}
+	const auto paletteOutPath = PaletteDir + paletteName + FileExt_npal;
+	core::NostalgiaPalette pal;
+	pal = std::move(ng->pal);
+	m_ctx->project->writeObj(paletteOutPath, &pal);
+	auto defaultPalette = paletteOutPath.toUtf8();
+	ng->defaultPalette = defaultPalette.data();
 	m_ctx->project->writeObj(outPath, ng.get());
 	return 0;
 }

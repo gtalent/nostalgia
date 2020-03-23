@@ -6,8 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#define NOST_FPS_PRINT
-
 #include <array>
 #include <vector>
 #ifdef NOST_FPS_PRINT
@@ -29,11 +27,8 @@ struct SdlImplData {
 	SDL_Renderer *renderer = nullptr;
 	std::array<SDL_Texture*, 4> bgTextures;
 	std::array<TileMap, 4> bgTileMaps;
-#ifdef NOST_FPS_PRINT
 	uint64_t prevFpsCheckTime = 0;
 	uint64_t draws = 0;
-#endif
-
 };
 
 [[nodiscard]] static ox::ValErr<ox::Vector<uint8_t>> readFile(Context *ctx, const ox::FileAddress &file) {
@@ -168,17 +163,19 @@ void drawBackground(Context *ctx, const TileMap &tm, SDL_Texture *tex) {
 
 void draw(Context *ctx) {
 	auto id = ctx->implData<SdlImplData>();
-#ifdef NOST_FPS_PRINT
 	++id->draws;
 	if (id->draws >= 5000) {
 		using namespace std::chrono;
-		auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-		auto duration = static_cast<double>(now - id->prevFpsCheckTime) / 1000.0;
-		std::cout << "FPS: " << static_cast<int>(static_cast<double>(id->draws) / duration) << '\n';
+		const auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+		const auto duration = static_cast<double>(now - id->prevFpsCheckTime) / 1000.0;
+		const auto fps = static_cast<int>(static_cast<double>(id->draws) / duration);
+#ifdef NOST_FPS_PRINT
+		std::cout << "FPS: " << fps << '\n';
+#endif
+		oxTrace("nostalgia::core::gfx::fps") << "FPS:" << fps;
 		id->prevFpsCheckTime = now;
 		id->draws = 0;
 	}
-#endif
 	SDL_RenderClear(id->renderer);
 	for (std::size_t i = 0; i < id->bgTileMaps.size(); i++) {
 		auto tex = id->bgTextures[i];

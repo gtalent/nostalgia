@@ -31,6 +31,7 @@ ox::Error run(Context *ctx) {
 			}
 		}
 		draw(ctx);
+		SDL_Delay(1);
 	}
 	return OxError(0);
 }

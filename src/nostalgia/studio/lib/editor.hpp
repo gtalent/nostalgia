@@ -19,6 +19,7 @@ class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 	Q_OBJECT
 
 	private:
+		QUndoStack m_cmdStack;
 		bool m_unsavedChanges = false;
 
 	public:
@@ -32,11 +33,6 @@ class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 		virtual QString itemName() = 0;
 
 		/**
-		 * Returns the undo stack holding changes to the item being edited.
-		 */
-		virtual QUndoStack *undoStack();
-
-		/**
 		 * Save changes to item being edited.
 		 */
 		void save();
@@ -46,6 +42,11 @@ class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 		 * unsavedChangesUpdate signal.
 		 */
 		void setUnsavedChanges(bool);
+
+		/**
+		 * Returns the undo stack holding changes to the item being edited.
+		 */
+		QUndoStack *undoStack();
 
 	protected:
 		/**

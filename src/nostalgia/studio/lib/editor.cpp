@@ -13,10 +13,6 @@ namespace nostalgia::studio {
 Editor::Editor(QWidget *parent): QWidget(parent) {
 }
 
-QUndoStack *Editor::undoStack() {
-	return nullptr;
-}
-
 void Editor::save() {
     saveItem();
     setUnsavedChanges(false);
@@ -25,6 +21,10 @@ void Editor::save() {
 void Editor::setUnsavedChanges(bool uc) {
     m_unsavedChanges = uc;
     emit unsavedChangesUpdate(uc);
+}
+
+QUndoStack *Editor::undoStack() {
+	return &m_cmdStack;
 }
 
 void Editor::saveItem() {

@@ -29,7 +29,7 @@ class SheetData: public QObject {
 		QString m_tilesheetPath;
 		QString m_currentPalettePath;
 		uint64_t m_cmdIdx = 0;
-		QUndoStack m_cmdStack;
+		QUndoStack *m_cmdStack;
 		QStringList m_palette;
 		QVector<int> m_pixels;
 		int m_columns = 1;
@@ -37,6 +37,8 @@ class SheetData: public QObject {
 		int m_selectedColor = 0;
 
 	public:
+		SheetData(QUndoStack*);
+
 		Q_INVOKABLE void updatePixel(QVariant pixel);
 
 		Q_INVOKABLE void beginCmd();
@@ -130,8 +132,6 @@ class TileSheetEditor: public studio::Editor {
 		virtual ~TileSheetEditor();
 
 		QString itemName() override;
-
-		QUndoStack *undoStack() override;
 
 	protected:
 		void saveItem() override;

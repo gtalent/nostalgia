@@ -227,10 +227,13 @@ class InsertTileCommand: public QUndoCommand {
 };
 
 
+SheetData::SheetData(QUndoStack *undoStack): m_cmdStack(undoStack) {
+}
+
 void SheetData::updatePixel(QVariant pixelItem) {
 	auto p = qobject_cast<QQuickItem*>(pixelItem.value<QObject*>());
 	if (p && p != m_prevPixelUpdated) {
-		m_cmdStack.push(new UpdatePixelsCommand(m_pixels, m_palette, p, m_selectedColor, m_cmdIdx));
+		m_cmdStack->push(new UpdatePixelsCommand(m_pixels, m_palette, p, m_selectedColor, m_cmdIdx));
 		m_prevPixelUpdated = p;
 		emit changeOccurred();
 	}
@@ -245,11 +248,11 @@ void SheetData::endCmd() {
 }
 
 void SheetData::insertTileCmd(int tileIdx) {
-	m_cmdStack.push(new InsertTileCommand(this, tileIdx));
+	m_cmdStack->push(new InsertTileCommand(this, tileIdx));
 }
 
 void SheetData::deleteTileCmd(int tileIdx) {
-	m_cmdStack.push(new InsertTileCommand(this, tileIdx, true));
+	m_cmdStack->push(new InsertTileCommand(this, tileIdx, true));
 }
 
 int SheetData::columns() const {
@@ -343,10 +346,6 @@ void SheetData::setSelectedColor(int index) {
 	m_selectedColor = index;
 }
 
-QUndoStack *SheetData::undoStack() {
-	return &m_cmdStack;
-}
-
 void SheetData::setColumns(int columns) {
 	m_columns = columns;
 	emit columnsChanged(columns);
@@ -360,11 +359,11 @@ void SheetData::setRows(int rows) {
 }
 
 void SheetData::updateColumns(int columns) {
-	m_cmdStack.push(new UpdateDimensionsCommand(this, UpdateDimensionsCommand::Dimension::Columns, m_columns, columns));
+	m_cmdStack->push(new UpdateDimensionsCommand(this, UpdateDimensionsCommand::Dimension::Columns, m_columns, columns));
 }
 
 void SheetData::updateRows(int rows) {
-	m_cmdStack.push(new UpdateDimensionsCommand(this, UpdateDimensionsCommand::Dimension::Rows, m_rows, rows));
+	m_cmdStack->push(new UpdateDimensionsCommand(this, UpdateDimensionsCommand::Dimension::Rows, m_rows, rows));
 }
 
 void SheetData::updatePixels(const NostalgiaGraphic *ng) {
@@ -411,7 +410,7 @@ std::unique_ptr<NostalgiaGraphic> SheetData::toNostalgiaGraphic() const {
 	return ng;
 }
 
-TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidget *parent): studio::Editor(parent) {
+TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidget *parent): studio::Editor(parent), m_sheetData(undoStack()) {
 	m_ctx = ctx;
 	m_itemPath = path;
 	m_itemName = path.mid(path.lastIndexOf('/'));
@@ -460,10 +459,6 @@ TileSheetEditor::~TileSheetEditor() {
 
 QString TileSheetEditor::itemName() {
 	return m_itemName;
-}
-
-QUndoStack *TileSheetEditor::undoStack() {
-	return m_sheetData.undoStack();
 }
 
 void TileSheetEditor::saveItem() {

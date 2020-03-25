@@ -162,6 +162,16 @@ void MainWindow::setupMenu() {
 	);
 	m_saveAction->setEnabled(false);
 
+	// Save Project
+	m_exportAction = addAction(
+		fileMenu,
+		tr("&Export File..."),
+		tr(""),
+		this,
+		SLOT(exportFile())
+	);
+	m_exportAction->setEnabled(false);
+
 	// Exit
 	addAction(
 		fileMenu,
@@ -458,6 +468,10 @@ void MainWindow::saveFile() {
 	m_currentEditor->save();
 }
 
+void MainWindow::exportFile() {
+	m_currentEditor->exportFile();
+}
+
 void MainWindow::closeTab(int idx) {
 	auto tab = static_cast<studio::Editor*>(m_tabs->widget(idx));
 	m_undoGroup.removeStack(tab->undoStack());
@@ -480,13 +494,17 @@ void MainWindow::moveTab(int from, int to) {
 void MainWindow::changeTab(int idx) {
 	auto tab = dynamic_cast<studio::Editor*>(m_tabs->widget(idx));
 	if (m_currentEditor) {
-		disconnect(m_currentEditor, &Editor::unsavedChangesUpdate, m_saveAction, &QAction::setEnabled);
-		disconnect(m_currentEditor, &Editor::unsavedChangesUpdate, this, &MainWindow::markUnsavedChanges);
+		disconnect(m_currentEditor, &Editor::unsavedChangesChanged, m_saveAction, &QAction::setEnabled);
+		disconnect(m_currentEditor, &Editor::unsavedChangesChanged, this, &MainWindow::markUnsavedChanges);
+		disconnect(m_currentEditor, &Editor::exportableChanged, m_exportAction, &QAction::setEnabled);
 	}
 	m_currentEditor = tab;
 	if (m_currentEditor) {
-		connect(m_currentEditor, &Editor::unsavedChangesUpdate, m_saveAction, &QAction::setEnabled);
-		connect(m_currentEditor, &Editor::unsavedChangesUpdate, this, &MainWindow::markUnsavedChanges);
+		m_saveAction->setEnabled(m_currentEditor->unsavedChanges());
+		connect(m_currentEditor, &Editor::unsavedChangesChanged, m_saveAction, &QAction::setEnabled);
+		connect(m_currentEditor, &Editor::unsavedChangesChanged, this, &MainWindow::markUnsavedChanges);
+		m_exportAction->setEnabled(m_currentEditor->exportable());
+		connect(m_currentEditor, &Editor::exportableChanged, m_exportAction, &QAction::setEnabled);
 		m_undoGroup.setActiveStack(tab->undoStack());
 	} else {
 		m_undoGroup.setActiveStack(nullptr);

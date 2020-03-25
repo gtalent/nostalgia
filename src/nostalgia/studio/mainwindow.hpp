@@ -74,6 +74,7 @@ class MainWindow: public QMainWindow {
 		NostalgiaStudioState m_state;
 		QAction *m_importAction = nullptr;
 		QAction *m_saveAction = nullptr;
+		QAction *m_exportAction = nullptr;
 		Context m_ctx;
 		QPointer<QMenu> m_viewMenu;
 		QVector<QPointer<QDockWidget>> m_dockWidgets;
@@ -143,6 +144,8 @@ class MainWindow: public QMainWindow {
 		void openFileSlot(QModelIndex);
 
 		void saveFile();
+
+		void exportFile();
 
 		void closeTab(int idx);
 

@@ -13,6 +13,9 @@ namespace nostalgia::studio {
 Editor::Editor(QWidget *parent): QWidget(parent) {
 }
 
+void Editor::exportFile() {
+}
+
 void Editor::save() {
     saveItem();
     setUnsavedChanges(false);
@@ -20,11 +23,24 @@ void Editor::save() {
 
 void Editor::setUnsavedChanges(bool uc) {
     m_unsavedChanges = uc;
-    emit unsavedChangesUpdate(uc);
+    emit unsavedChangesChanged(uc);
+}
+
+[[nodiscard]] bool Editor::unsavedChanges() noexcept {
+	return m_unsavedChanges;
 }
 
 QUndoStack *Editor::undoStack() {
 	return &m_cmdStack;
+}
+
+void Editor::setExportable(bool exportable) {
+	m_exportable = exportable;
+	emit exportableChanged(exportable);
+}
+
+bool Editor::exportable() {
+	return m_exportable;
 }
 
 void Editor::saveItem() {

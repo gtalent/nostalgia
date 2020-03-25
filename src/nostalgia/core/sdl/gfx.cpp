@@ -113,7 +113,7 @@ ox::Error loadTileSheet(Context *ctx,
 	auto surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 16, format);
 	auto sdlPalette = createSDL_Palette(palette);
 	SDL_SetSurfacePalette(surface, sdlPalette);
-	if (bytesPerTile == 1) {
+	if (bytesPerTile == 64) {
 		SDL_memcpy(surface->pixels, tilesheet.tiles.data(), bytesPerTile * tiles);
 	} else {
 		for (std::size_t i = 0; i < tilesheet.tiles.size(); ++i) {

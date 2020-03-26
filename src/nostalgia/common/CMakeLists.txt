@@ -2,7 +2,6 @@
 add_library(
 	NostalgiaCommon
 		bounds.cpp
-		point.cpp
 )
 
 #install(TARGETS NostalgiaCommon DESTINATION lib)

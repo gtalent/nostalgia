@@ -17,45 +17,162 @@ class Point {
 		int x = 0;
 		int y = 0;
 
-		Point();
+		constexpr Point() = default;
 
-		Point(int x, int y);
+		constexpr Point(int x, int y);
 
-		Point operator+(common::Point p) const;
+		constexpr Point operator+(common::Point p) const;
 
-		Point operator-(common::Point p) const;
+		constexpr Point operator-(common::Point p) const;
 
-		Point operator*(common::Point p) const;
+		constexpr Point operator*(common::Point p) const;
 
-		Point operator/(common::Point p) const;
-
-
-		Point operator+=(common::Point p);
-
-		Point operator-=(common::Point p);
-
-		Point operator*=(common::Point p);
-
-		Point operator/=(common::Point p);
+		constexpr Point operator/(common::Point p) const;
 
 
-		Point operator+(int i) const;
+		constexpr Point operator+=(common::Point p);
 
-		Point operator-(int i) const;
+		constexpr Point operator-=(common::Point p);
 
-		Point operator*(int i) const;
+		constexpr Point operator*=(common::Point p);
 
-		Point operator/(int i) const;
+		constexpr Point operator/=(common::Point p);
 
 
-		Point operator+=(int i);
+		constexpr Point operator+(int i) const;
 
-		Point operator-=(int i);
+		constexpr Point operator-(int i) const;
 
-		Point operator*=(int i);
+		constexpr Point operator*(int i) const;
 
-		Point operator/=(int i);
+		constexpr Point operator/(int i) const;
+
+
+		constexpr Point operator+=(int i);
+
+		constexpr Point operator-=(int i);
+
+		constexpr Point operator*=(int i);
+
+		constexpr Point operator/=(int i);
+
+
+		constexpr bool operator==(const Point&);
+
 };
+
+constexpr Point::Point(int x, int y) {
+	this->x = x;
+	this->y = y;
+}
+
+constexpr Point Point::operator+(common::Point p) const {
+	p.x += x;
+	p.y += y;
+	return p;
+}
+
+constexpr Point Point::operator-(common::Point p) const {
+	auto out = *this;
+	out.x -= p.x;
+	out.y -= p.y;
+	return out;
+}
+
+constexpr Point Point::operator*(common::Point p) const {
+	p.x *= x;
+	p.y *= y;
+	return p;
+}
+
+constexpr Point Point::operator/(common::Point p) const {
+	auto out = *this;
+	out.x /= p.x;
+	out.y /= p.y;
+	return out;
+}
+
+constexpr Point Point::operator+=(common::Point p) {
+	x += p.x;
+	y += p.y;
+	return *this;
+}
+
+constexpr Point Point::operator-=(common::Point p) {
+	x -= p.x;
+	y -= p.y;
+	return *this;
+}
+
+constexpr Point Point::operator*=(common::Point p) {
+	x *= p.x;
+	y *= p.y;
+	return *this;
+}
+
+constexpr Point Point::operator/=(common::Point p) {
+	x /= p.x;
+	y /= p.y;
+	return *this;
+}
+
+
+constexpr Point Point::operator+(int i) const {
+	auto out = *this;
+	out.x += i;
+	out.y += i;
+	return out;
+}
+
+constexpr Point Point::operator-(int i) const {
+	auto out = *this;
+	out.x -= i;
+	out.y -= i;
+	return out;
+}
+
+constexpr Point Point::operator*(int i) const {
+	auto out = *this;
+	out.x *= i;
+	out.y *= i;
+	return out;
+}
+
+constexpr Point Point::operator/(int i) const {
+	auto out = *this;
+	out.x /= i;
+	out.y /= i;
+	return out;
+}
+
+constexpr Point Point::operator+=(int i) {
+	x += i;
+	y += i;
+	return *this;
+}
+
+constexpr Point Point::operator-=(int i) {
+	x -= i;
+	y -= i;
+	return *this;
+}
+
+constexpr Point Point::operator*=(int i) {
+	x *= i;
+	y *= i;
+	return *this;
+}
+
+constexpr Point Point::operator/=(int i) {
+	x /= i;
+	y /= i;
+	return *this;
+}
+
+constexpr bool Point::operator==(const Point &p) {
+	return x == p.x && y == p.y;
+}
+
 
 template<typename T>
 ox::Error model(T *io, Point *obj) {

@@ -553,7 +553,7 @@ QString TileSheetEditor::palettePath(QString paletteName) const {
 	return PaletteDir + paletteName + FileExt_npal;
 }
 
-constexpr common::Point idxToPt(int i, int c, int) noexcept {
+constexpr common::Point idxToPt(int i, int c) noexcept {
 	common::Point p;
 	const auto t = i / PixelsPerTile; // tile number
 	const auto iti = i % PixelsPerTile; // in tile index
@@ -567,14 +567,14 @@ constexpr common::Point idxToPt(int i, int c, int) noexcept {
 	};
 }
 
-static_assert(idxToPt(4, 1, 1) == common::Point{4, 0});
-static_assert(idxToPt(8, 1, 1) == common::Point{0, 1});
-static_assert(idxToPt(8, 2, 2) == common::Point{0, 1});
-static_assert(idxToPt(64, 2, 2) == common::Point{8, 0});
-static_assert(idxToPt(128, 2, 2) == common::Point{0, 8});
-static_assert(idxToPt(129, 2, 2) == common::Point{1, 8});
-static_assert(idxToPt(192, 2, 2) == common::Point{8, 8});
-static_assert(idxToPt(384, 8, 6) == common::Point{48, 0});
+static_assert(idxToPt(4, 1) == common::Point{4, 0});
+static_assert(idxToPt(8, 1) == common::Point{0, 1});
+static_assert(idxToPt(8, 2) == common::Point{0, 1});
+static_assert(idxToPt(64, 2) == common::Point{8, 0});
+static_assert(idxToPt(128, 2) == common::Point{0, 8});
+static_assert(idxToPt(129, 2) == common::Point{1, 8});
+static_assert(idxToPt(192, 2) == common::Point{8, 8});
+static_assert(idxToPt(384, 8) == common::Point{48, 0});
 
 QImage TileSheetEditor::toQImage(NostalgiaGraphic *ng, NostalgiaPalette *npal) const {
 	const auto w = ng->columns * TileWidth;
@@ -582,7 +582,7 @@ QImage TileSheetEditor::toQImage(NostalgiaGraphic *ng, NostalgiaPalette *npal) c
 	QImage dst(w, h, QImage::Format_RGB32);
 	auto setPixel = [&dst, npal, ng](std::size_t i, uint8_t p) {
 		const auto color = toColor32(npal->colors[p]) >> 8;
-		const auto pt = idxToPt(i, ng->columns, ng->rows);
+		const auto pt = idxToPt(i, ng->columns);
 		dst.setPixel(pt.x, pt.y, color);
 	};
 	if (ng->bpp == 4) {

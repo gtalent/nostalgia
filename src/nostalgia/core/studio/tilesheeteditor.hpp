@@ -53,7 +53,7 @@ class SheetData: public QObject {
 
 		[[nodiscard]] int rows() const;
 
-		const QVector<int> &pixels() const;
+		[[nodiscard]] const QVector<int> &pixels() const;
 
 		[[nodiscard]] QStringList palette() const;
 
@@ -73,7 +73,7 @@ class SheetData: public QObject {
 
 		void setSelectedColor(int index);
 
-		QUndoStack *undoStack();
+		[[nodiscard]] std::unique_ptr<NostalgiaGraphic> toNostalgiaGraphic() const;
 
 	public slots:
 		void setColumns(int columns);
@@ -92,8 +92,6 @@ class SheetData: public QObject {
 
 	private:
 		void updatePixels(const NostalgiaGraphic *ng);
-
-		[[nodiscard]] std::unique_ptr<NostalgiaGraphic> toNostalgiaGraphic() const;
 
 	signals:
 		void changeOccurred();
@@ -133,6 +131,8 @@ class TileSheetEditor: public studio::Editor {
 
 		QString itemName() override;
 
+		void exportFile() override;
+
 	protected:
 		void saveItem() override;
 
@@ -148,6 +148,8 @@ class TileSheetEditor: public studio::Editor {
 		[[nodiscard]] QString paletteName(QString palettePath) const;
 
 		[[nodiscard]] QString palettePath(QString palettePath) const;
+
+		[[nodiscard]] QImage toQImage(NostalgiaGraphic *ng, NostalgiaPalette *npal) const;
 
 	public slots:
 		void colorSelected();

@@ -8,6 +8,7 @@
 
 #include <array>
 
+#include <QBuffer>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QPointer>
@@ -25,6 +26,7 @@
 #include <memory>
 
 #include <nostalgia/core/consts.hpp>
+#include <nostalgia/common/point.hpp>
 
 #include "consts.hpp"
 #include "tilesheeteditor.hpp"
@@ -346,6 +348,32 @@ void SheetData::setSelectedColor(int index) {
 	m_selectedColor = index;
 }
 
+std::unique_ptr<NostalgiaGraphic> SheetData::toNostalgiaGraphic() const {
+	auto ng = std::make_unique<NostalgiaGraphic>();
+	const auto highestColorIdx = static_cast<uint8_t>(*std::max_element(m_pixels.begin(), m_pixels.end()));
+	ng->defaultPalette = m_currentPalettePath.toUtf8().data();
+	ng->bpp = highestColorIdx > 15 ? 8 : 4;
+	ng->columns = m_columns;
+	ng->rows = m_rows;
+	auto pixelCount = ng->rows * ng->columns * PixelsPerTile;
+	if (ng->bpp == 4) {
+		ng->tiles.resize(pixelCount / 2);
+		for (int i = 0; i < m_pixels.size(); ++i) {
+			if (i & 1) {
+				ng->tiles[i / 2] |= static_cast<uint8_t>(m_pixels[i]) << 4;
+			} else {
+				ng->tiles[i / 2] = static_cast<uint8_t>(m_pixels[i]);
+			}
+		}
+	} else {
+		ng->tiles.resize(pixelCount);
+		for (std::size_t i = 0; i < ng->tiles.size(); ++i) {
+			ng->tiles[i] = static_cast<uint8_t>(m_pixels[i]);
+		}
+	}
+	return ng;
+}
+
 void SheetData::setColumns(int columns) {
 	m_columns = columns;
 	emit columnsChanged(columns);
@@ -383,31 +411,6 @@ void SheetData::updatePixels(const NostalgiaGraphic *ng) {
 		}
 	}
 	emit pixelsChanged();
-}
-
-std::unique_ptr<NostalgiaGraphic> SheetData::toNostalgiaGraphic() const {
-	auto ng = std::make_unique<NostalgiaGraphic>();
-	const auto highestColorIdx = static_cast<uint8_t>(*std::max_element(m_pixels.begin(), m_pixels.end()));
-	ng->defaultPalette = m_currentPalettePath.toUtf8().data();
-	ng->bpp = highestColorIdx > 15 ? 8 : 4;
-	ng->columns = m_columns;
-	ng->rows = m_rows;
-	if (ng->bpp == 4) {
-		ng->tiles.resize(m_pixels.size() / 2);
-		for (int i = 0; i < m_pixels.size(); ++i) {
-			if (i & 1) {
-				ng->tiles[i / 2] |= static_cast<uint8_t>(m_pixels[i]) << 4;
-			} else {
-				ng->tiles[i / 2] = static_cast<uint8_t>(m_pixels[i]);
-			}
-		}
-	} else {
-		ng->tiles.resize(m_pixels.size());
-		for (int i = 0; i < m_pixels.size(); ++i) {
-			ng->tiles[i] = static_cast<uint8_t>(m_pixels[i]);
-		}
-	}
-	return ng;
 }
 
 TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidget *parent): studio::Editor(parent), m_sheetData(undoStack()) {
@@ -451,6 +454,7 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 	restoreState();
 	connect(&m_sheetData, &SheetData::changeOccurred, [this] { setUnsavedChanges(true); });
 	connect(&m_sheetData, &SheetData::paletteChanged, this, &TileSheetEditor::setColorTable);
+	setExportable(true);
 }
 
 TileSheetEditor::~TileSheetEditor() {
@@ -459,6 +463,24 @@ TileSheetEditor::~TileSheetEditor() {
 
 QString TileSheetEditor::itemName() {
 	return m_itemName;
+}
+
+void TileSheetEditor::exportFile() {
+	auto path = QFileDialog::getSaveFileName(this, tr("Export to Image"), "",
+	                                         tr("PNG (*.png)"));
+	auto ng = m_sheetData.toNostalgiaGraphic();
+	QString palPath;
+	if (palPath == "" && ng->defaultPalette.type() == ox::FileAddressType::Path) {
+		palPath = ng->defaultPalette.getPath().value;
+	}
+	std::unique_ptr<NostalgiaPalette> npal;
+	try {
+		npal = m_ctx->project->loadObj<NostalgiaPalette>(palPath);
+	} catch (ox::Error) {
+		qWarning() << "Could not open palette" << palPath;
+		// TODO: message box to notify of failure
+	}
+	toQImage(ng.get(), npal.get()).save(path, "PNG");
 }
 
 void TileSheetEditor::saveItem() {
@@ -529,6 +551,54 @@ QString TileSheetEditor::paletteName(QString palettePath) const {
 
 QString TileSheetEditor::palettePath(QString paletteName) const {
 	return PaletteDir + paletteName + FileExt_npal;
+}
+
+constexpr common::Point idxToPt(int i, int c, int) noexcept {
+	common::Point p;
+	const auto t = i / PixelsPerTile; // tile number
+	const auto iti = i % PixelsPerTile; // in tile index
+	const auto tc = t % c; // tile column
+	const auto tr = t / c; // tile row
+	const auto itx = iti % TileWidth; // in tile x
+	const auto ity = iti / TileHeight; // in tile y
+	return {
+		itx + tc * TileWidth,
+		ity + tr * TileHeight,
+	};
+}
+
+static_assert(idxToPt(4, 1, 1) == common::Point{4, 0});
+static_assert(idxToPt(8, 1, 1) == common::Point{0, 1});
+static_assert(idxToPt(8, 2, 2) == common::Point{0, 1});
+static_assert(idxToPt(64, 2, 2) == common::Point{8, 0});
+static_assert(idxToPt(128, 2, 2) == common::Point{0, 8});
+static_assert(idxToPt(129, 2, 2) == common::Point{1, 8});
+static_assert(idxToPt(192, 2, 2) == common::Point{8, 8});
+static_assert(idxToPt(384, 8, 6) == common::Point{48, 0});
+
+QImage TileSheetEditor::toQImage(NostalgiaGraphic *ng, NostalgiaPalette *npal) const {
+	const auto w = ng->columns * TileWidth;
+	const auto h = ng->rows * TileHeight;
+	QImage dst(w, h, QImage::Format_RGB32);
+	auto setPixel = [&dst, npal, ng](std::size_t i, uint8_t p) {
+		const auto color = toColor32(npal->colors[p]) >> 8;
+		const auto pt = idxToPt(i, ng->columns, ng->rows);
+		dst.setPixel(pt.x, pt.y, color);
+	};
+	if (ng->bpp == 4) {
+		for (std::size_t i = 0; i < ng->tiles.size(); ++i) {
+			auto p1 = ng->tiles[i] & 0xF;
+			auto p2 = ng->tiles[i] >> 4;
+			setPixel(i * 2 + 0, p1);
+			setPixel(i * 2 + 1, p2);
+		}
+	} else {
+		for (std::size_t i = 0; i < ng->tiles.size(); i++) {
+			const auto p = ng->tiles[i];
+			setPixel(i, p);
+		}
+	}
+	return dst;
 }
 
 void TileSheetEditor::colorSelected() {

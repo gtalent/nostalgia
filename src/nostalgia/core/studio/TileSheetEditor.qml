@@ -105,7 +105,12 @@ Rectangle {
 			}
 		}
 
-		onPositionChanged: sheetData.updatePixel(pixelAt(mouseX, mouseY))
+		onPositionChanged: {
+			if (mouseArea.pressedButtons & Qt.LeftButton && !contextMenu.visible) {
+				sheetData.updatePixel(pixelAt(mouseX, mouseY));
+			}
+		}
+
 		onReleased: sheetData.endCmd()
 		onCanceled: sheetData.endCmd()
 

@@ -614,9 +614,13 @@ void TileSheetEditor::setColorTable() {
 		hexCode->setText(hexColors[i]);
 		hexCode->setFont(QFont("monospace"));
 		tbl->setItem(i, 0, hexCode);
+		auto hi = tbl->item(i, 0);
+		hi->setFlags(hi->flags() & ~Qt::ItemIsEditable);
 		auto color = new QTableWidgetItem;
 		color->setBackground(QColor(hexColors[i]));
 		tbl->setItem(i, 1, color);
+		auto ci = tbl->item(i, 1);
+		ci->setFlags(ci->flags() & ~Qt::ItemIsEditable);
 	}
 }
 

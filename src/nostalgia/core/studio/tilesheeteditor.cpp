@@ -461,26 +461,28 @@ TileSheetEditor::~TileSheetEditor() {
 	saveState();
 }
 
-QString TileSheetEditor::itemName() {
+QString TileSheetEditor::itemName() const {
 	return m_itemName;
 }
 
 void TileSheetEditor::exportFile() {
 	auto path = QFileDialog::getSaveFileName(this, tr("Export to Image"), "",
 	                                         tr("PNG (*.png)"));
-	auto ng = m_sheetData.toNostalgiaGraphic();
-	QString palPath;
-	if (palPath == "" && ng->defaultPalette.type() == ox::FileAddressType::Path) {
-		palPath = ng->defaultPalette.getPath().value;
+	if (path != "") {
+		auto ng = m_sheetData.toNostalgiaGraphic();
+		QString palPath;
+		if (palPath == "" && ng->defaultPalette.type() == ox::FileAddressType::Path) {
+			palPath = ng->defaultPalette.getPath().value;
+		}
+		std::unique_ptr<NostalgiaPalette> npal;
+		try {
+			npal = m_ctx->project->loadObj<NostalgiaPalette>(palPath);
+		} catch (ox::Error) {
+			qWarning() << "Could not open palette" << palPath;
+			// TODO: message box to notify of failure
+		}
+		toQImage(ng.get(), npal.get()).save(path, "PNG");
 	}
-	std::unique_ptr<NostalgiaPalette> npal;
-	try {
-		npal = m_ctx->project->loadObj<NostalgiaPalette>(palPath);
-	} catch (ox::Error) {
-		qWarning() << "Could not open palette" << palPath;
-		// TODO: message box to notify of failure
-	}
-	toQImage(ng.get(), npal.get()).save(path, "PNG");
 }
 
 void TileSheetEditor::saveItem() {

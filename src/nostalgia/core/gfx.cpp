@@ -164,15 +164,15 @@ uint8_t blue32(Color32 c) noexcept {
 
 
 uint8_t red32(Color16 c) noexcept {
-	return ((c & 0b0000000000011111) >> 0) * 8;
+	return red16(c) * 8;
 }
 
 uint8_t green32(Color16 c) noexcept {
-	return ((c & 0b0000001111100000) >> 5) * 8;
+	return green16(c) * 8;
 }
 
 uint8_t blue32(Color16 c) noexcept {
-	return ((c & 0b0111110000000000) >> 10) * 8;
+	return blue16(c) * 8;
 }
 
 void puts(Context *ctx, int column, int row, const char *str) {
@@ -180,5 +180,10 @@ void puts(Context *ctx, int column, int row, const char *str) {
 		setTile(ctx, 0, column + i, row, charMap[static_cast<int>(str[i])]);
 	}
 }
+
+static_assert(color16(0, 31, 0, 0) == 992);
+static_assert(color16(16, 31, 0, 0) == 1008);
+static_assert(color16(16, 31, 8, 0) == 9200);
+static_assert(color16(16, 31, 8, 1) == 41968);
 
 }

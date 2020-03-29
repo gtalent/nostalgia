@@ -59,6 +59,8 @@ class Vector {
 
 		bool contains(T) const noexcept;
 
+		void insert(std::size_t pos, const T &val) noexcept;
+
 		template<typename... Args>
 		void emplace_back(Args&&... args) noexcept;
 
@@ -213,6 +215,18 @@ bool Vector<T>::contains(T v) const noexcept {
 		}
 	}
 	return false;
+}
+
+template<typename T>
+void Vector<T>::insert(std::size_t pos, const T &val) noexcept {
+	if (m_size == m_cap) {
+		expandCap(m_cap ? m_cap * 2 : 100);
+	}
+	for (auto i = m_size; i > pos; i--) {
+		m_items[i] = m_items[i - 1];
+	}
+	m_items[pos] = val;
+	++m_size;
 }
 
 template<typename T>

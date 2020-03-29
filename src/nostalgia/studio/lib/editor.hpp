@@ -31,7 +31,7 @@ class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 		/**
 		 * Returns the name of item being edited.
 		 */
-		virtual QString itemName() = 0;
+		virtual QString itemName() const = 0;
 
 		virtual void exportFile();
 
@@ -55,7 +55,7 @@ class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 
 		void setExportable(bool);
 
-		bool exportable();
+		bool exportable() const;
 
 	protected:
 		/**

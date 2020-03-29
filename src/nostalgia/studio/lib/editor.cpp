@@ -39,7 +39,7 @@ void Editor::setExportable(bool exportable) {
 	emit exportableChanged(exportable);
 }
 
-bool Editor::exportable() {
+bool Editor::exportable() const {
 	return m_exportable;
 }
 

@@ -11,6 +11,7 @@
 #include <QBuffer>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QPainter>
 #include <QPointer>
 #include <QQmlContext>
 #include <QQuickItem>
@@ -19,6 +20,7 @@
 #include <QSettings>
 #include <QSpinBox>
 #include <QSplitter>
+#include <QStyledItemDelegate>
 #include <QUndoCommand>
 #include <QTableWidget>
 #include <QToolBar>
@@ -50,6 +52,19 @@ struct LabeledSpinner: public QWidget {
 	}
 
 	virtual ~LabeledSpinner() = default;
+
+};
+
+struct TileSheetEditorColorTableDelegate: public QStyledItemDelegate {
+
+	void paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &idx) const {
+		if (idx.column() != 1) {
+			QStyledItemDelegate::paint(painter, opt, idx);
+		} else {
+			auto color = idx.model()->data(idx, Qt::DisplayRole).toString();
+			painter->fillRect(opt.rect, QColor(color));
+		}
+	}
 
 };
 
@@ -491,6 +506,7 @@ QWidget *TileSheetEditor::setupColorPicker(QWidget *parent) {
 	auto lyt = new QVBoxLayout(colorPicker);
 	m_colorPicker.palette = new QComboBox(colorPicker);
 	m_colorPicker.colorTable = new QTableWidget(colorPicker);
+	m_colorPicker.colorTable->setItemDelegate(new TileSheetEditorColorTableDelegate);
 	m_colorPicker.colorTable->setColumnCount(2);
 	m_colorPicker.colorTable->setSelectionBehavior(QAbstractItemView::SelectRows);
 	m_colorPicker.colorTable->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -621,7 +637,7 @@ void TileSheetEditor::setColorTable() {
 		auto hi = tbl->item(i, 0);
 		hi->setFlags(hi->flags() & ~Qt::ItemIsEditable);
 		auto color = new QTableWidgetItem;
-		color->setBackground(QColor(hexColors[i]));
+		color->setText(hexColors[i]);
 		tbl->setItem(i, 1, color);
 		auto ci = tbl->item(i, 1);
 		ci->setFlags(ci->flags() & ~Qt::ItemIsEditable);

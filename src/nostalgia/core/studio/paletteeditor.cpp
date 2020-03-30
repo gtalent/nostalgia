@@ -27,27 +27,25 @@ enum class PaletteEditorCommandId {
 	UpdateColor,
 };
 
-class ColorTableDelegate: public QStyledItemDelegate {
-	public:
-		QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem&, const QModelIndex &idx) const {
-			const auto max = idx.column() != 3 ? 31 : 1;
-			auto le = new QLineEdit(parent);
-			auto validator = new QIntValidator(0, max, le);
-			le->setValidator(validator);
-			return le;
-		}
+struct PaletteEditorColorTableDelegate: public QStyledItemDelegate {
 
-		void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
-			if (index.column() != 4) {
-				if (option.state & QStyle::State_Selected) {
-					painter->fillRect(option.rect, option.palette.highlight());
-				}
-				QStyledItemDelegate::paint(painter, option, index);
-			} else {
-				auto color = index.model()->data(index, Qt::DisplayRole).toString();
-				painter->fillRect(option.rect, QColor(color));
-			}
+	QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem&, const QModelIndex &idx) const {
+		const auto max = idx.column() != 3 ? 31 : 1;
+		auto le = new QLineEdit(parent);
+		auto validator = new QIntValidator(0, max, le);
+		le->setValidator(validator);
+		return le;
+	}
+
+	void paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &idx) const {
+		if (idx.column() != 4) {
+			QStyledItemDelegate::paint(painter, opt, idx);
+		} else {
+			auto color = idx.model()->data(idx, Qt::DisplayRole).toString();
+			painter->fillRect(opt.rect, QColor(color));
 		}
+	}
+
 };
 
 class AddColorCommand: public QUndoCommand {
@@ -172,7 +170,7 @@ PaletteEditor::PaletteEditor(QString path, const studio::Context *ctx, QWidget *
 	canvasLyt->setMenuBar(tb);
 
 	m_table = new QTableWidget(this);
-	m_table->setItemDelegate(new ColorTableDelegate);
+	m_table->setItemDelegate(new PaletteEditorColorTableDelegate);
 	m_table->setColumnCount(5);
 	m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
 	m_table->setSelectionMode(QAbstractItemView::SingleSelection);

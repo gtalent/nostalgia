@@ -3,8 +3,10 @@ add_library(
 		imgconv.cpp
 		import_tilesheet_wizard.cpp
 		new_tilesheet_wizard.cpp
+		paletteeditor.cpp
 		plugin.cpp
 		tilesheeteditor.cpp
+		util.cpp
 		rsrc.qrc
 )
 

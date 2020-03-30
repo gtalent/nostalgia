@@ -8,6 +8,7 @@
 
 #include "new_tilesheet_wizard.hpp"
 #include "import_tilesheet_wizard.hpp"
+#include "paletteeditor.hpp"
 #include "tilesheeteditor.hpp"
 
 #include "plugin.hpp"
@@ -49,6 +50,12 @@ QVector<studio::EditorMaker> Plugin::editors(const studio::Context *ctx) {
 			{"ng"},
 			[ctx](QString path) {
 				return new TileSheetEditor(path, ctx, ctx->tabParent);
+			}
+		},
+		{
+			{"npal"},
+			[ctx](QString path) {
+				return new PaletteEditor(path, ctx, ctx->tabParent);
 			}
 		}
 	};

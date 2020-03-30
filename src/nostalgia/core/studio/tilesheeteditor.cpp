@@ -29,18 +29,10 @@
 #include <nostalgia/common/point.hpp>
 
 #include "consts.hpp"
+#include "util.hpp"
 #include "tilesheeteditor.hpp"
 
 namespace nostalgia::core {
-
-QColor toQColor(Color16 nc) {
-	const auto r = red32(nc);
-	const auto g = green32(nc);
-	const auto b = blue32(nc);
-	const auto a = 255;
-	return QColor(r, g, b, a);
-}
-
 
 struct LabeledSpinner: public QWidget {
 

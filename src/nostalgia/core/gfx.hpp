@@ -82,6 +82,10 @@ ox::Error model(T *io, NostalgiaGraphic *ng) {
 
 [[nodiscard]] uint8_t blue32(Color16 c) noexcept;
 
+[[nodiscard]] constexpr uint8_t alpha32(Color16 c) noexcept {
+	return (c >> 15) * 255;
+}
+
 
 [[nodiscard]] constexpr Color16 color16(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 	return r | (g << 5) | (b << 10) | (a << 15);

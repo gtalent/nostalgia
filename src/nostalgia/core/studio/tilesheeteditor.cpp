@@ -354,7 +354,7 @@ std::unique_ptr<NostalgiaGraphic> SheetData::toNostalgiaGraphic() const {
 	auto pixelCount = ng->rows * ng->columns * PixelsPerTile;
 	if (ng->bpp == 4) {
 		ng->tiles.resize(pixelCount / 2);
-		for (int i = 0; i < m_pixels.size(); ++i) {
+		for (int i = 0; i < pixelCount; ++i) {
 			if (i & 1) {
 				ng->tiles[i / 2] |= static_cast<uint8_t>(m_pixels[i]) << 4;
 			} else {
@@ -391,6 +391,7 @@ void SheetData::updateRows(int rows) {
 }
 
 void SheetData::updatePixels(const NostalgiaGraphic *ng) {
+	m_pixels.clear();
 	if (ng->bpp == 8) {
 		for (std::size_t i = 0; i < ng->tiles.size(); i++) {
 			m_pixels.push_back(ng->tiles[i]);

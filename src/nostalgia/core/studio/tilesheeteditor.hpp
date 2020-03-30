@@ -61,6 +61,8 @@ class SheetData: public QObject {
 
 		void load(const studio::Context *ctx, QString ngPath, QString palPath = "");
 
+		void reload(const studio::Context *ctx);
+
 		void save(const studio::Context *ctx, QString ngPath) const;
 
 		void setPalette(const NostalgiaPalette *pal);
@@ -129,7 +131,7 @@ class TileSheetEditor: public studio::Editor {
 
 		virtual ~TileSheetEditor();
 
-		QString itemName() override;
+		QString itemName() const override;
 
 		void exportFile() override;
 

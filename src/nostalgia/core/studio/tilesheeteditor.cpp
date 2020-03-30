@@ -294,6 +294,10 @@ void SheetData::load(const studio::Context *ctx, QString ngPath, QString palPath
 	updatePixels(ng.get());
 }
 
+void SheetData::reload(const studio::Context *ctx) {
+	load(ctx, m_tilesheetPath, m_currentPalettePath);
+}
+
 void SheetData::save(const studio::Context *ctx, QString ngPath) const {
 	auto ng = toNostalgiaGraphic();
 	ctx->project->writeObj(ngPath, ng.get());
@@ -510,6 +514,11 @@ QWidget *TileSheetEditor::setupColorPicker(QWidget *parent) {
 		if (path.startsWith(PaletteDir) && path.endsWith(FileExt_npal)) {
 			auto name = paletteName(path);
 			m_colorPicker.palette->addItem(name);
+		}
+	});
+	m_ctx->project->subscribe(studio::ProjectEvent::FileUpdated, m_colorPicker.palette, [this](QString path) {
+		if (path == m_sheetData.palettePath()) {
+			m_sheetData.reload(m_ctx);
 		}
 	});
 	m_ctx->project->subscribe(studio::ProjectEvent::FileDeleted, m_colorPicker.palette, [this](QString path) {

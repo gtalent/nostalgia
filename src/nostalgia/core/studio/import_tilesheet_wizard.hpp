@@ -18,7 +18,6 @@ constexpr auto TileSheetName = "tilesheetName";
 constexpr auto ImportPath = "importPath";
 constexpr auto Palette = "palette";
 constexpr auto PaletteName = "paletteName";
-constexpr auto TileCount = "tileCount";
 
 class ImportTilesheetWizardMainPage: public studio::WizardFormPage {
 	private:

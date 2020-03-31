@@ -29,6 +29,6 @@ template<typename T>
 	return buff;
 }
 
-[[nodiscard]] std::unique_ptr<core::NostalgiaGraphic> imgToNg(QString argInPath, int argTiles, int argBpp = -1);
+[[nodiscard]] std::unique_ptr<core::NostalgiaGraphic> imgToNg(QString argInPath, int argBpp = -1);
 
 }

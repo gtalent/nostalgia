@@ -32,7 +32,6 @@ ImportTilesheetWizardMainPage::ImportTilesheetWizardMainPage(const studio::Conte
 	auto fileTypes = "(*.png);;(*.bmp);;(*.jpg);;(*.jpeg)";
 	addPathBrowse(tr("Tile Sheet &Path:"), QString(ImportPath) + "*", "",
 	              QFileDialog::ExistingFile, fileTypes);
-	addLineEdit(tr("Til&es:"), QString(TileCount), "");
 }
 
 ImportTilesheetWizardPalettePage::ImportTilesheetWizardPalettePage(const studio::Context *ctx) {
@@ -43,13 +42,12 @@ ImportTilesheetWizardPalettePage::ImportTilesheetWizardPalettePage(const studio:
 int ImportTilesheetWizardPalettePage::accept() {
 	const auto tilesheetName = field(TileSheetName).toString();
 	const auto importPath = field(ImportPath).toString();
-	const auto tileCount = field(TileCount).toInt();
 	const auto paletteName = field(PaletteName).toString();
 	const auto outPath = TileSheetDir + tilesheetName + FileExt_ng;
 	if (!QFile(importPath).exists()) {
 		return OxError(1);
 	}
-	auto ng = imgToNg(importPath, tileCount, 0);
+	auto ng = imgToNg(importPath, 0);
 	if (!ng) {
 		return OxError(1);
 	}

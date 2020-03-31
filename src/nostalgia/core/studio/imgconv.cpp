@@ -56,26 +56,23 @@ namespace {
 	return colors.size();
 }
 
-[[nodiscard]] std::unique_ptr<core::NostalgiaGraphic> imgToNg(QString argSrc, int argTiles, int argBpp) {
-	constexpr auto TilePixels = PixelsPerTile;
+[[nodiscard]] std::unique_ptr<core::NostalgiaGraphic> imgToNg(QString argSrc, int argBpp) {
 	QImage src(argSrc);
 
 	if (src.isNull()) {
 		return {};
 	}
 
-	const auto Pixels = argTiles ? argTiles * TilePixels : src.width() * src.height();
-	if (argTiles == 0) {
-		argTiles = Pixels / PixelsPerTile;
-	}
-	const auto Colors = countColors(src, argTiles);
+	const auto Pixels = src.width() * src.height();
+	const auto Tiles = Pixels / PixelsPerTile;
+	const auto Colors = countColors(src, Tiles);
 	if (argBpp != 4 && argBpp != 8) {
 		argBpp = Colors > 16 ? 8 : 4;
 	}
 
 	QMap<QRgb, int> colors;
 	auto ng = std::make_unique<core::NostalgiaGraphic>();
-	ng->pal.colors.resize(countColors(src, argTiles));
+	ng->pal.colors.resize(countColors(src, Tiles));
 	if (argBpp == 4) {
 		ng->tiles.resize(Pixels / 2);
 	} else {
@@ -90,7 +87,7 @@ namespace {
 	for (int x = 0; x < src.width(); x++) {
 		for (int y = 0; y < src.height(); y++) {
 			auto destI = pointToIdx(src.width(), x, y);
-			if (destI < argTiles * PixelsPerTile) {
+			if (destI < Tiles * PixelsPerTile) {
 				const auto c = src.pixel(x, y);
 				// assign color a color id for the palette
 				if (!colors.contains(c)) {

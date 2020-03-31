@@ -14,7 +14,7 @@
 
 #include "imgconv.hpp"
 
-namespace nostalgia {
+namespace nostalgia::core {
 
 namespace {
 
@@ -22,16 +22,17 @@ namespace {
 	const auto r = static_cast<uint32_t>(c.red()) >> 3;
 	const auto g = static_cast<uint32_t>(c.green()) >> 3;
 	const auto b = static_cast<uint32_t>(c.blue()) >> 3;
-	return (r << 10) | (g << 5) | (b << 0);
+	const auto a = static_cast<uint32_t>(c.alpha()) > 128 ? 1 : 0;
+	return (a << 15) | (r << 10) | (g << 5) | (b << 0);
 }
 
 [[nodiscard]] int pointToIdx(int w, int x, int y) {
-	constexpr auto colLength = 64;
-	const auto rowLength = (w / 8) * colLength;
-	const auto colStart = colLength * (x / 8);
-	const auto rowStart = rowLength * (y / 8);
-	const auto colOffset = x % 8;
-	const auto rowOffset = (y % 8) * 8;
+	constexpr auto colLength = PixelsPerTile;
+	const auto rowLength = (w / TileWidth) * colLength;
+	const auto colStart = colLength * (x / TileWidth);
+	const auto rowStart = rowLength * (y / TileHeight);
+	const auto colOffset = x % TileWidth;
+	const auto rowOffset = (y % TileHeight) * TileHeight;
 	return colStart + colOffset + rowStart + rowOffset;
 }
 
@@ -43,7 +44,7 @@ namespace {
 	for (int x = 0; x < img.width(); x++) {
 		for (int y = 0; y < img.height(); y++) {
 			auto destI = pointToIdx(img.width(), x, y);
-			if (destI <= argTiles * 64) {
+			if (destI <= argTiles * PixelsPerTile) {
 				auto c = img.pixel(x, y);
 				// assign color a color id for the palette
 				if (!colors.contains(c)) {
@@ -56,7 +57,7 @@ namespace {
 }
 
 [[nodiscard]] std::unique_ptr<core::NostalgiaGraphic> imgToNg(QString argSrc, int argTiles, int argBpp) {
-	constexpr auto TilePixels = 64;
+	constexpr auto TilePixels = PixelsPerTile;
 	QImage src(argSrc);
 
 	if (src.isNull()) {
@@ -65,7 +66,7 @@ namespace {
 
 	const auto Pixels = argTiles ? argTiles * TilePixels : src.width() * src.height();
 	if (argTiles == 0) {
-		argTiles = Pixels / 64;
+		argTiles = Pixels / PixelsPerTile;
 	}
 	const auto Colors = countColors(src, argTiles);
 	if (argBpp != 4 && argBpp != 8) {
@@ -81,13 +82,15 @@ namespace {
 		ng->tiles.resize(Pixels);
 	}
 	ng->bpp = argBpp;
+	ng->columns = src.width() / TileWidth;
+	ng->rows = src.height() / TileHeight;
 
 	int colorIdx = 0;
 	// copy pixels as color ids
 	for (int x = 0; x < src.width(); x++) {
 		for (int y = 0; y < src.height(); y++) {
 			auto destI = pointToIdx(src.width(), x, y);
-			if (destI < argTiles * 64) {
+			if (destI < argTiles * PixelsPerTile) {
 				const auto c = src.pixel(x, y);
 				// assign color a color id for the palette
 				if (!colors.contains(c)) {

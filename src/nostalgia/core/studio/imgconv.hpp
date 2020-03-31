@@ -15,7 +15,7 @@
 
 #include <nostalgia/core/gfx.hpp>
 
-namespace nostalgia {
+namespace nostalgia::core {
 
 template<typename T>
 [[nodiscard]] ox::ValErr<std::vector<uint8_t>> toBuffer(T *data, std::size_t buffSize = ox::units::MB) {

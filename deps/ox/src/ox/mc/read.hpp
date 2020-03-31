@@ -199,10 +199,13 @@ Error MetalClawReader::field(const char*, Handler handler) {
 
 template<typename T>
 Error MetalClawReader::field(const char* name, ox::Vector<T> *val) {
-	const auto [len, err] = arrayLength(false);
-	oxReturnError(err);
-	val->resize(len);
-	return field(name, val->data(), val->size());
+	if (m_fieldPresence.get(m_field)) {
+		const auto [len, err] = arrayLength(false);
+		oxReturnError(err);
+		val->resize(len);
+		return field(name, val->data(), val->size());
+	}
+	return OxError(0);
 }
 
 template<typename T>

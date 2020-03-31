@@ -99,11 +99,6 @@ Error MetalClawWriter::field(const char*, T *val) {
 }
 
 template<typename T>
-Error MetalClawWriter::field(const char*, ox::Vector<T> *val) {
-	return field(nullptr, val->data(), val->size());
-}
-
-template<typename T>
 Error MetalClawWriter::field(const char*, T *val, std::size_t len) {
 	auto err = OxError(0);
 	bool fieldSet = false;
@@ -130,9 +125,14 @@ Error MetalClawWriter::field(const char*, T *val, std::size_t len) {
 		fieldSet = true;
 	}
 
-	err |= m_fieldPresence.set(m_field, fieldSet);
+	oxReturnError(m_fieldPresence.set(m_field, fieldSet));
 	m_field++;
 	return err;
+}
+
+template<typename T>
+Error MetalClawWriter::field(const char*, ox::Vector<T> *val) {
+	return field(nullptr, val->data(), val->size());
 }
 
 template<typename I>

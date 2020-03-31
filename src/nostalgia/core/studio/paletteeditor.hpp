@@ -41,7 +41,7 @@ class PaletteEditor: public studio::Editor {
 
 		void updateColor(int idx, Color16);
 
-		void saveItem();
+		void saveItem() override;
 
 	private:
 		void load();

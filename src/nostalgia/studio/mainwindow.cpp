@@ -316,10 +316,11 @@ void MainWindow::openProject(QString projectPath) {
 		try {
 			openFile(t, true);
 		} catch (ox::Error err) {
-			qInfo() << "Error opening tab:" << static_cast<int>(err);
-			oxTrace("nostalgia::studio::MainWindow::openProject") << "Error opening tab:" << static_cast<int>(err);
+			qInfo().nospace() << "Error opening tab: " << t << ", " << static_cast<int>(err) << ", " << err.file << ":" << err.line;
+			oxTrace("nostalgia::studio::MainWindow::openProject") << "Error opening tab:" << static_cast<int>(err)
+			                                                      << ", " << static_cast<int>(err) << ", " << err.file << ":" << err.line;
 		} catch (...) {
-			qInfo() << "Error opening tab";
+			qInfo() << "Error opening tab: " << t;
 			oxTrace("nostalgia::studio::MainWindow::openProject") << "Error opening tab";
 		}
 	}

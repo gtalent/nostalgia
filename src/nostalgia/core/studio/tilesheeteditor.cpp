@@ -574,7 +574,6 @@ QString TileSheetEditor::palettePath(QString paletteName) const {
 }
 
 constexpr common::Point idxToPt(int i, int c) noexcept {
-	common::Point p;
 	const auto t = i / PixelsPerTile; // tile number
 	const auto iti = i % PixelsPerTile; // in tile index
 	const auto tc = t % c; // tile column

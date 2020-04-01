@@ -13,6 +13,13 @@
 
 namespace nostalgia::studio {
 
+QString filePathToName(QString path, QString prefix, QString suffix) {
+	const auto begin = prefix.size();
+	const auto end = path.size() - (suffix.size() + prefix.size());
+	return path.mid(begin, end);
+}
+
+
 Project::Project(QString path): m_fs(path.toUtf8()) {
 	qDebug() << "Project:" << path;
 	m_path = path;

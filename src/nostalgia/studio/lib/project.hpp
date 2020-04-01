@@ -30,6 +30,8 @@ enum class ProjectEvent {
 	FileUpdated,
 };
 
+[[nodiscard]] QString filePathToName(QString path, QString prefix, QString suffix);
+
 class NOSTALGIASTUDIO_EXPORT Project: public QObject {
 	Q_OBJECT
 

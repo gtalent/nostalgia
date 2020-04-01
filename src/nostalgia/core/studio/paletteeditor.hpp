@@ -24,6 +24,7 @@ class PaletteEditor: public studio::Editor {
 		QString m_itemPath;
 		std::unique_ptr<NostalgiaPalette> m_pal;
 		class QTableWidget *m_table = nullptr;
+		class QPushButton *m_addBtn = nullptr;
 		class QPushButton *m_rmBtn = nullptr;
 
 	public:
@@ -58,6 +59,8 @@ class PaletteEditor: public studio::Editor {
 		void colorSelected();
 
 		void cellChanged(int row, int col);
+
+		void addColorClicked();
 
 		void rmColorClicked();
 

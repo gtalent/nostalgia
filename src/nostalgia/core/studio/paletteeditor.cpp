@@ -162,10 +162,10 @@ PaletteEditor::PaletteEditor(QString path, const studio::Context *ctx, QWidget *
 
 	auto canvasLyt = new QVBoxLayout(this);
 	auto tb = new QToolBar(tr("Tile Sheet Options"));
-	auto addBtn = new QPushButton(tr("Add"), tb);
+	m_addBtn = new QPushButton(tr("Add"), tb);
 	m_rmBtn = new QPushButton(tr("Remove"), tb);
 	m_rmBtn->setEnabled(false);
-	tb->addWidget(addBtn);
+	tb->addWidget(m_addBtn);
 	tb->addWidget(m_rmBtn);
 	canvasLyt->setMenuBar(tb);
 
@@ -179,6 +179,7 @@ PaletteEditor::PaletteEditor(QString path, const studio::Context *ctx, QWidget *
 	m_table->verticalHeader()->hide();
 	canvasLyt->addWidget(m_table);
 	connect(m_table, &QTableWidget::itemSelectionChanged, this, &PaletteEditor::colorSelected);
+	connect(m_addBtn, &QPushButton::clicked, this, &PaletteEditor::addColorClicked);
 	connect(m_rmBtn, &QPushButton::clicked, this, &PaletteEditor::rmColorClicked);
 	connect(m_table, &QTableWidget::cellChanged, this, &PaletteEditor::cellChanged);
 	m_pal = m_ctx->project->loadObj<NostalgiaPalette>(m_itemPath);
@@ -190,8 +191,8 @@ QString PaletteEditor::itemName() const {
 }
 
 void PaletteEditor::addColor(int idx, Color16 c) {
-	addTableRow(idx, c);
 	m_pal->colors.insert(idx, c);
+	addTableRow(idx, c);
 	setUnsavedChanges(true);
 }
 
@@ -209,7 +210,6 @@ void PaletteEditor::addTableRow(int i, Color16 c) {
 	m_table->setItem(i, 2, mkCell(blue16(c)));
 	m_table->setItem(i, 3, mkCell(alpha16(c)));
 	m_table->setItem(i, 4, mkCell(toQColor(m_pal->colors[i]).name(QColor::HexArgb), false));
-	m_table->item(i, 4)->setBackground(QColor(red32(c), green32(c), blue32(c), alpha32(c)));
 	connect(m_table, &QTableWidget::cellChanged, this, &PaletteEditor::cellChanged);
 }
 
@@ -269,6 +269,11 @@ void PaletteEditor::cellChanged(int row, int) {
 	auto oldColor = m_pal->colors[row];
 	auto newColor = rowColor(row);
 	undoStack()->push(new UpdateColorCommand(this, row, oldColor, newColor));
+}
+
+void PaletteEditor::addColorClicked() {
+	auto row = m_table->rowCount();
+	undoStack()->push(new AddColorCommand(this, 0, row));
 }
 
 void PaletteEditor::rmColorClicked() {

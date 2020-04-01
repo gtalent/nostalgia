@@ -28,7 +28,6 @@ install(
 		gfx.hpp
 		media.hpp
 		mem.hpp
-		types.hpp
 	DESTINATION
 		include/nostalgia/core
 )

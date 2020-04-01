@@ -219,10 +219,11 @@ bool Vector<T>::contains(T v) const noexcept {
 
 template<typename T>
 void Vector<T>::insert(std::size_t pos, const T &val) noexcept {
+	// TODO: insert should ideally have its own expandCap
 	if (m_size == m_cap) {
 		expandCap(m_cap ? m_cap * 2 : 100);
 	}
-	for (auto i = m_size; i > pos; i--) {
+	for (auto i = m_size; i > pos; --i) {
 		m_items[i] = m_items[i - 1];
 	}
 	m_items[pos] = val;
@@ -280,7 +281,7 @@ void Vector<T>::expandCap(std::size_t cap) noexcept {
 		for (std::size_t i = itRange; i < m_cap; i++) {
 			new (&m_items[i]) T;
 		}
-		delete[] reinterpret_cast<AllocAlias<T>*>(m_items);
+		delete[] reinterpret_cast<AllocAlias<T>*>(oldItems);
 	}
 }
 

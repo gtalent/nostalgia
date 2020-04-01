@@ -79,7 +79,7 @@ Error MetalClawReader::field(const char*, SerStr val) {
 
 		// read the string
 		if (val.cap() > -1 && static_cast<StringLength>(val.cap()) >= size) {
-			if (m_buffIt + size < m_buffLen) {
+			if (m_buffIt + size <= m_buffLen) {
 				ox_memcpy(val.data(), &m_buff[m_buffIt], size);
 				m_buffIt += size;
 			} else {

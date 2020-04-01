@@ -7,6 +7,7 @@
  */
 
 #include "new_tilesheet_wizard.hpp"
+#include "newpalettewizard.hpp"
 #include "import_tilesheet_wizard.hpp"
 #include "paletteeditor.hpp"
 #include "tilesheeteditor.hpp"
@@ -20,13 +21,21 @@ namespace nostalgia::core {
 QVector<studio::WizardMaker> Plugin::newWizards(const studio::Context *ctx) {
 	return {
 		{
+			tr("Palette"),
+			[ctx]() {
+				QVector<QWizardPage*> pgs;
+				pgs.push_back(new NewPaletteWizardPage(ctx));
+				return pgs;
+			}
+		},
+		{
 			tr("Tile Sheet"),
 			[ctx]() {
 				QVector<QWizardPage*> pgs;
 				pgs.push_back(new NewTilesheetWizardPage(ctx));
 				return pgs;
 			}
-		}
+		},
 	};
 }
 

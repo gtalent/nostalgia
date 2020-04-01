@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gtalent2@gmail.com
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12,15 +12,13 @@
 
 namespace nostalgia::core {
 
-class NewTilesheetWizardPage: public studio::WizardFormPage {
+class NewPaletteWizardPage: public studio::WizardFormPage {
 	private:
-		static constexpr auto TileSheetName = "projectName";
-		static constexpr auto Palette = "palette";
-		class QComboBox *m_palettePicker = nullptr;
+		static constexpr auto PaletteName = "paletteName";
 		const studio::Context *m_ctx = nullptr;
 
 	public:
-		NewTilesheetWizardPage(const studio::Context *args);
+		NewPaletteWizardPage(const studio::Context *args);
 
 		int accept();
 

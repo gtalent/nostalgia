@@ -564,9 +564,7 @@ void TileSheetEditor::restoreState() {
 }
 
 QString TileSheetEditor::paletteName(QString palettePath) const {
-	const auto begin = ox_strlen(PaletteDir);
-	const auto end = palettePath.size() - (ox_strlen(FileExt_npal) + ox_strlen(PaletteDir));
-	return palettePath.mid(begin, end);
+	return studio::filePathToName(palettePath, PaletteDir, FileExt_npal);
 }
 
 QString TileSheetEditor::palettePath(QString paletteName) const {

@@ -19,7 +19,7 @@ namespace nostalgia::core {
 
 NewTilesheetWizardPage::NewTilesheetWizardPage(const studio::Context *ctx) {
 	m_ctx = ctx;
-	addLineEdit(tr("&Tile Sheet Name:"), QString(TileSheetName) + "*", "", [this](QString name) {
+	addLineEdit(tr("&Tile Sheet Name:"), QString(TileSheetName) + "*", "", [this](QString) {
 		return 0;
 	});
 	m_palettePicker = addComboBox(tr("&Palette:"), QString(Palette) + "*", {""});
@@ -33,8 +33,7 @@ NewTilesheetWizardPage::NewTilesheetWizardPage(const studio::Context *ctx) {
 int NewTilesheetWizardPage::accept() {
 	const auto tilesheetName = field(TileSheetName).toString();
 	const auto palette = m_palettePicker->itemData(field(Palette).toInt()).toString();
-	const auto outPath = TileSheetDir + tilesheetName + FileExt_ng;
-	auto outPath = QString(TileSheetDir) + name + FileExt_ng;
+	const auto outPath = QString(TileSheetDir) + tilesheetName + FileExt_ng;
 	auto err = m_ctx->project->exists(outPath);
 	if (err) {
 		showValidationError(tr("A tile sheet with this name already exists."));

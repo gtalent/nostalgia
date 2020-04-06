@@ -24,7 +24,7 @@ typename enable_if<sizeof(To) == sizeof(From), To>::type bit_cast(From src) noex
 template<typename T>
 [[nodiscard]] constexpr T rotl(T i, int shift) noexcept {
 	constexpr auto bits = sizeof(i) * 8;
-	return (i << shift) | (i >> (bits - shift));
+	return (i << static_cast<T>(shift)) | (i >> (bits - static_cast<T>(shift)));
 }
 
 template<typename T>

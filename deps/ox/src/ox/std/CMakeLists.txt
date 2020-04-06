@@ -13,6 +13,8 @@ add_library(
 		trace.cpp
 )
 
+target_compile_options(OxStd PRIVATE -Wsign-conversion)
+
 if(NOT OX_BARE_METAL)
 	set_property(
 		TARGET

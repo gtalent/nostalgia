@@ -1,5 +1,6 @@
 if(${OX_USE_STDLIB})
 	add_subdirectory(clargs)
+	add_subdirectory(oc)
 endif()
 add_subdirectory(fs)
 add_subdirectory(mc)

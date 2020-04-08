@@ -5,6 +5,8 @@ add_library(
 		media.cpp
 )
 
+target_compile_options(NostalgiaCore PRIVATE -Wsign-conversion)
+
 target_link_libraries(
 	NostalgiaCore PUBLIC
 		OxFS

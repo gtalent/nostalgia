@@ -27,7 +27,7 @@ struct SdlImplData {
 	SDL_Renderer *renderer = nullptr;
 	std::array<SDL_Texture*, 4> bgTextures;
 	std::array<TileMap, 4> bgTileMaps;
-	uint64_t prevFpsCheckTime = 0;
+	int64_t prevFpsCheckTime = 0;
 	uint64_t draws = 0;
 };
 
@@ -105,7 +105,7 @@ ox::Error loadTileSheet(Context *ctx,
 	}
 	oxReturnError(readMC<NostalgiaPalette>(ctx, palettePath).get(&palette));
 
-	const auto bytesPerTile = tilesheet.bpp == 8 ? 64 : 32;
+	const unsigned bytesPerTile = tilesheet.bpp == 8 ? 64 : 32;
 	const auto tiles = tilesheet.tiles.size() / bytesPerTile;
 	const int width = 8;
 	const int height = 8 * tiles;
@@ -126,11 +126,12 @@ ox::Error loadTileSheet(Context *ctx,
 	SDL_FreeSurface(surface);
 	SDL_FreePalette(sdlPalette);
 
+	auto sectionIdx = static_cast<unsigned>(section);
 	if (tss == TileSheetSpace::Background) {
-		if (id->bgTextures[section]) {
-			SDL_DestroyTexture(id->bgTextures[section]);
+		if (id->bgTextures[sectionIdx]) {
+			SDL_DestroyTexture(id->bgTextures[sectionIdx]);
 		}
-		id->bgTextures[section] = texture;
+		id->bgTextures[sectionIdx] = texture;
 	}
 
 	return OxError(0);

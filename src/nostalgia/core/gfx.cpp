@@ -142,9 +142,9 @@ static char charMap[128] = {
 };
 
 Color32 toColor32(Color16 nc) noexcept {
-	Color32 r = ((nc & 0b0000000000011111) >> 0) * 8;
-	Color32 g = ((nc & 0b0000001111100000) >> 5) * 8;
-	Color32 b = ((nc & 0b0111110000000000) >> 10) * 8;
+	Color32 r = static_cast<Color32>(((nc & 0b0000000000011111) >> 0) * 8);
+	Color32 g = static_cast<Color32>(((nc & 0b0000001111100000) >> 5) * 8);
+	Color32 b = static_cast<Color32>(((nc & 0b0111110000000000) >> 10) * 8);
 	Color32 a = 255;
 	return a | (b << 8) | (g << 16) | (r << 24);
 }
@@ -177,7 +177,7 @@ uint8_t blue32(Color16 c) noexcept {
 
 void puts(Context *ctx, int column, int row, const char *str) {
 	for (int i = 0; str[i]; i++) {
-		setTile(ctx, 0, column + i, row, charMap[static_cast<int>(str[i])]);
+		setTile(ctx, 0, column + i, row, static_cast<uint8_t>(charMap[static_cast<int>(str[i])]));
 	}
 }
 

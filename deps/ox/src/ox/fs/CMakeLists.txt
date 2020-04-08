@@ -10,11 +10,12 @@ add_library(
 )
 
 if(NOT OX_BARE_METAL)
-	target_link_libraries(
-		OxFS PUBLIC
-			$<$<CXX_COMPILER_ID:Clang>:c++fs>
-			$<$<CXX_COMPILER_ID:GNU>:stdc++fs>
-	)
+	if(NOT APPLE)
+		target_link_libraries(
+			OxFS PUBLIC
+				stdc++fs
+		)
+	endif()
 	set_property(
 		TARGET
 			OxFS

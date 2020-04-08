@@ -13,20 +13,22 @@
 #include "utility.hpp"
 
 #ifdef DEBUG
-#define OxError(x) ox::_error(__FILE__, __LINE__, static_cast<ox::Error>(x))
+#define OxError(...) ox::_error(__FILE__, __LINE__, __VA_ARGS__)
 #else
-#define OxError(x) static_cast<ox::Error>(x)
+#define OxError(...) static_cast<ox::Error>(__VA_ARGS__)
 #endif
 
 namespace ox {
 
 struct BaseError {
+	const char *msg = nullptr;
 	const char *file = "";
 	uint16_t line = 0;
 
 	BaseError() = default;
 
 	constexpr BaseError(const BaseError &o) noexcept {
+		msg = o.msg;
 		file = o.file;
 		line = o.line;
 	}
@@ -35,10 +37,11 @@ struct BaseError {
 
 using Error = Integer<uint64_t, BaseError>;
 
-static constexpr Error _error(const char *file, uint32_t line, Error errCode) {
-	Error err = errCode;
+static constexpr Error _error(const char *file, uint32_t line, uint64_t errCode, const char *msg = nullptr) {
+	Error err = static_cast<ox::Error>(errCode);
 	err.file = file;
 	err.line = line;
+	err.msg = msg;
 	return err;
 }
 

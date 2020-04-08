@@ -12,20 +12,33 @@
 namespace ox {
 
 String::String() noexcept {
-	m_buff.push_back(0);
+	if (m_buff.size()) {
+		m_buff[0] = 0;;
+	} else {
+		m_buff.push_back(0);
+	}
 }
 
 String::String(std::size_t cap) noexcept {
 	m_buff.resize(cap + 1);
+	m_buff[0] = 0;;
 }
 
 String::String(const char *str) noexcept {
-	m_buff.push_back(0);
+	if (m_buff.size()) {
+		m_buff[0] = 0;;
+	} else {
+		m_buff.push_back(0);
+	}
 	*this = str;
 }
 
 String::String(String &other) noexcept {
 	m_buff = other.m_buff;
+}
+
+String::String(String &&other) noexcept {
+	m_buff = ox::move(other.m_buff);
 }
 
 const String &String::operator=(const char *str) noexcept {

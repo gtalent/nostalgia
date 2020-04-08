@@ -29,6 +29,8 @@ class String {
 
 		String(String&) noexcept;
 
+		String(String&&) noexcept;
+
 		const String &operator=(const char *str) noexcept;
 
 		const String &operator=(char *str) noexcept;

@@ -191,14 +191,14 @@ QString PaletteEditor::itemName() const {
 }
 
 void PaletteEditor::addColor(int idx, Color16 c) {
-	m_pal->colors.insert(idx, c);
+	m_pal->colors.insert(static_cast<std::size_t>(idx), c);
 	addTableRow(idx, c);
 	setUnsavedChanges(true);
 }
 
 void PaletteEditor::rmColor(int idx) {
 	rmTableRow(idx);
-	m_pal->colors.erase(idx);
+	m_pal->colors.erase(static_cast<std::size_t>(idx));
 	setUnsavedChanges(true);
 }
 
@@ -209,7 +209,7 @@ void PaletteEditor::addTableRow(int i, Color16 c) {
 	m_table->setItem(i, 1, mkCell(green16(c)));
 	m_table->setItem(i, 2, mkCell(blue16(c)));
 	m_table->setItem(i, 3, mkCell(alpha16(c)));
-	m_table->setItem(i, 4, mkCell(toQColor(m_pal->colors[i]).name(QColor::HexArgb), false));
+	m_table->setItem(i, 4, mkCell(toQColor(m_pal->colors[static_cast<std::size_t>(i)]).name(QColor::HexArgb), false));
 	connect(m_table, &QTableWidget::cellChanged, this, &PaletteEditor::cellChanged);
 }
 
@@ -225,12 +225,12 @@ void PaletteEditor::setTableRow(int idx, Color16 c) {
 	m_table->item(idx, 1)->setText(QString::number(green16(c)));
 	m_table->item(idx, 2)->setText(QString::number(blue16(c)));
 	m_table->item(idx, 3)->setText(QString::number(alpha16(c)));
-	m_table->item(idx, 4)->setText(toQColor(m_pal->colors[idx]).name(QColor::HexArgb));
+	m_table->item(idx, 4)->setText(toQColor(m_pal->colors[static_cast<std::size_t>(idx)]).name(QColor::HexArgb));
 	connect(m_table, &QTableWidget::cellChanged, this, &PaletteEditor::cellChanged);
 }
 
 void PaletteEditor::updateColor(int idx, Color16 c) {
-	m_pal->colors[idx] = c;
+	m_pal->colors[static_cast<std::size_t>(idx)] = c;
 	setTableRow(idx, c);
 	setUnsavedChanges(true);
 }
@@ -266,7 +266,7 @@ void PaletteEditor::colorSelected() {
 }
 
 void PaletteEditor::cellChanged(int row, int) {
-	auto oldColor = m_pal->colors[row];
+	auto oldColor = m_pal->colors[static_cast<std::size_t>(row)];
 	auto newColor = rowColor(row);
 	undoStack()->push(new UpdateColorCommand(this, row, oldColor, newColor));
 }
@@ -278,7 +278,7 @@ void PaletteEditor::addColorClicked() {
 
 void PaletteEditor::rmColorClicked() {
 	auto row = m_table->currentRow();
-	undoStack()->push(new RemoveColorCommand(this, m_pal->colors[row], row));
+	undoStack()->push(new RemoveColorCommand(this, m_pal->colors[static_cast<std::size_t>(row)], row));
 }
 
 }

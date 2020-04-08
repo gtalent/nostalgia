@@ -22,7 +22,7 @@ namespace {
 	const auto r = static_cast<uint32_t>(c.red()) >> 3;
 	const auto g = static_cast<uint32_t>(c.green()) >> 3;
 	const auto b = static_cast<uint32_t>(c.blue()) >> 3;
-	const auto a = static_cast<uint32_t>(c.alpha()) > 128 ? 1 : 0;
+	const auto a = static_cast<uint32_t>(c.alpha() > 128 ? 1 : 0);
 	return (a << 15) | (r << 10) | (g << 5) | (b << 0);
 }
 
@@ -72,11 +72,11 @@ namespace {
 
 	QMap<QRgb, int> colors;
 	auto ng = std::make_unique<core::NostalgiaGraphic>();
-	ng->pal.colors.resize(countColors(src, Tiles));
+	ng->pal.colors.resize(static_cast<std::size_t>(countColors(src, Tiles)));
 	if (argBpp == 4) {
-		ng->tiles.resize(Pixels / 2);
+		ng->tiles.resize(static_cast<std::size_t>(Pixels / 2));
 	} else {
-		ng->tiles.resize(Pixels);
+		ng->tiles.resize(static_cast<std::size_t>(Pixels));
 	}
 	ng->bpp = argBpp;
 	ng->columns = src.width() / TileWidth;
@@ -97,12 +97,12 @@ namespace {
 				// set pixel color
 				if (argBpp == 4) {
 					if (destI % 2) { // is odd number pixel
-						ng->tiles[destI / 2] |= colors[c] << 4;
+						ng->tiles[static_cast<std::size_t>(destI / 2)] |= colors[c] << 4;
 					} else {
-						ng->tiles[destI / 2] |= colors[c];
+						ng->tiles[static_cast<std::size_t>(destI / 2)] |= colors[c];
 					}
 				} else {
-					ng->tiles[destI] = colors[c];
+					ng->tiles[static_cast<std::size_t>(destI)] = static_cast<std::size_t>(colors[c]);
 				}
 			}
 		}
@@ -110,7 +110,7 @@ namespace {
 
 	// store colors in palette with the corresponding color id
 	for (auto key : colors.keys()) {
-		auto colorId = colors[key];
+		auto colorId = static_cast<std::size_t>(colors[key]);
 		ng->pal.colors[colorId] = toGbaColor(key);
 	}
 

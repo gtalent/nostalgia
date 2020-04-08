@@ -11,6 +11,8 @@ add_library(
 		rsrc.qrc
 )
 
+target_compile_options(NostalgiaCore-Studio PRIVATE -Wsign-conversion)
+
 target_link_libraries(
 	NostalgiaCore-Studio
 		Qt5::Core

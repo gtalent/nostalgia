@@ -8,14 +8,12 @@
 
 #undef NDEBUG
 
-#include <assert.h>
 #include <iostream>
 #include <map>
-#include <memory>
 #include <string>
-#include <vector>
-#include <ox/oc/oc.hpp>
+
 #include <ox/model/model.hpp>
+#include <ox/oc/oc.hpp>
 #include <ox/std/std.hpp>
 
 struct TestStructNest {
@@ -128,119 +126,115 @@ std::map<std::string, ox::Error(*)()> tests = {
 				return OxError(0);
 			}
 		},
-		//{
-		//	"OrganicClawDef",
-		//	[] {
-		//		auto err = OxError(0);
-		//		//constexpr size_t descBuffLen = 1024;
-		//		//uint8_t descBuff[descBuffLen];
-		//		constexpr size_t dataBuffLen = 1024;
-		//		uint8_t dataBuff[dataBuffLen];
-		//		TestStruct testIn, testOut;
+		{
+			"OrganicClawDef",
+			[] {
+				TestStruct testIn, testOut;
 
-		//		testIn.Bool = true;
-		//		testIn.Int = 42;
-		//		testIn.String = "Test String 1";
-		//		testIn.List[0] = 1;
-		//		testIn.List[1] = 2;
-		//		testIn.List[2] = 3;
-		//		testIn.List[3] = 4;
-		//		testIn.Struct.Bool = false;
-		//		testIn.Struct.Int = 300;
-		//		testIn.Struct.String = "Test String 2";
+				testIn.Bool = true;
+				testIn.Int = 42;
+				testIn.String = "Test String 1";
+				testIn.List[0] = 1;
+				testIn.List[1] = 2;
+				testIn.List[2] = 3;
+				testIn.List[3] = 4;
+				testIn.Struct.Bool = false;
+				testIn.Struct.Int = 300;
+				testIn.Struct.String = "Test String 2";
 
-		//		oxAssert(ox::writeOC(&testIn), "Data generation failed");
-		//		auto type = ox::buildMCDef(&testIn);
-		//		oxAssert(type.error, "Descriptor write failed");
-		//		ox::walkMC<ox::OrganicClawReader<const char*>>(type.value, dataBuff, dataBuffLen,
-		//			[](const ox::Vector<ox::FieldName>&, const ox::Vector<ox::TypeName>&, const ox::DescriptorField &f, ox::OrganicClawReader<const char*> *rdr) -> ox::Error {
-		//				//std::cout << f.fieldName.c_str() << '\n';
-		//				auto fieldName = f.fieldName.c_str();
-		//				switch (f.type->primitiveType) {
-		//					case ox::PrimitiveType::UnsignedInteger:
-		//						std::cout << fieldName << ":\tuint" << f.type->length * 8 << "_t:\t";
-		//						switch (f.type->length) {
-		//							case 1: {
-		//								uint8_t i = {};
-		//								oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-		//								std::cout << i;
-		//								break;
-		//							}
-		//							case 2: {
-		//								uint16_t i = {};
-		//								oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-		//								std::cout << i;
-		//								break;
-		//							}
-		//							case 4: {
-		//								uint32_t i = {};
-		//								oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-		//								std::cout << i;
-		//								break;
-		//							}
-		//							case 8: {
-		//								uint64_t i = {};
-		//								oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-		//								std::cout << i;
-		//								break;
-		//							}
-		//						}
-		//						std::cout << '\n';
-		//						break;
-		//					case ox::PrimitiveType::SignedInteger:
-		//						std::cout << fieldName << ":\tint" << f.type->length * 8 << "_t:\t";
-		//						switch (f.type->length) {
-		//							case 1: {
-		//								int8_t i = {};
-		//								oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-		//								std::cout << i;
-		//								break;
-		//							}
-		//							case 2: {
-		//								int16_t i = {};
-		//								oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-		//								std::cout << i;
-		//								break;
-		//							}
-		//							case 4: {
-		//								int32_t i = {};
-		//								oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-		//								std::cout << i;
-		//								break;
-		//							}
-		//							case 8: {
-		//								int64_t i = {};
-		//								oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-		//								std::cout << i;
-		//								break;
-		//							}
-		//						}
-		//						std::cout << '\n';
-		//						break;
-		//					case ox::PrimitiveType::Bool: {
-		//						bool i = {};
-		//						oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-		//						std::cout << fieldName << ":\t" << "bool:\t" << (i ? "true" : "false") << '\n';
-		//						break;
-		//					}
-		//					case ox::PrimitiveType::String: {
-		//						ox::Vector<char> v(rdr->stringLength());
-		//						//std::cout << rdr->stringLength() << '\n';
-		//						oxAssert(rdr->field(fieldName, ox::SerStr(v.data(), v.size())), "Walking model failed.");
-		//						std::cout << fieldName << ":\t" << "string: " << v.data() << '\n';
-		//						break;
-		//					}
-		//					case ox::PrimitiveType::Struct:
-		//						break;
-		//				}
-		//				return OxError(0);
-		//			}
-		//		);
-		//		delete type.value;
+				auto [oc, ocErr] = ox::writeOC(&testIn);
+				oxAssert(ocErr, "Data generation failed");
+				auto type = ox::buildTypeDef(&testIn);
+				oxAssert(type.error, "Descriptor write failed");
+				ox::walkModel<ox::OrganicClawReader<const char*>>(type.value, ox::bit_cast<uint8_t*>(oc.c_str()), oc.len() + 1,
+					[](const ox::Vector<ox::FieldName>&, const ox::Vector<ox::TypeName>&, const ox::DescriptorField &f, ox::OrganicClawReader<const char*> *rdr) -> ox::Error {
+						//std::cout << f.fieldName.c_str() << '\n';
+						auto fieldName = f.fieldName.c_str();
+						switch (f.type->primitiveType) {
+							case ox::PrimitiveType::UnsignedInteger:
+								std::cout << fieldName << ":\tuint" << f.type->length * 8 << "_t:\t";
+								switch (f.type->length) {
+									case 1: {
+										uint8_t i = {};
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
+										std::cout << i;
+										break;
+									}
+									case 2: {
+										uint16_t i = {};
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
+										std::cout << i;
+										break;
+									}
+									case 4: {
+										uint32_t i = {};
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
+										std::cout << i;
+										break;
+									}
+									case 8: {
+										uint64_t i = {};
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
+										std::cout << i;
+										break;
+									}
+								}
+								std::cout << '\n';
+								break;
+							case ox::PrimitiveType::SignedInteger:
+								std::cout << fieldName << ":\tint" << f.type->length * 8 << "_t:\t";
+								switch (f.type->length) {
+									case 1: {
+										int8_t i = {};
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
+										std::cout << i;
+										break;
+									}
+									case 2: {
+										int16_t i = {};
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
+										std::cout << i;
+										break;
+									}
+									case 4: {
+										int32_t i = {};
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
+										std::cout << i;
+										break;
+									}
+									case 8: {
+										int64_t i = {};
+										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
+										std::cout << i;
+										break;
+									}
+								}
+								std::cout << '\n';
+								break;
+							case ox::PrimitiveType::Bool: {
+								bool i = {};
+								oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
+								std::cout << fieldName << ":\t" << "bool:\t" << (i ? "true" : "false") << '\n';
+								break;
+							}
+							case ox::PrimitiveType::String: {
+								ox::Vector<char> v(rdr->stringLength(fieldName) + 1);
+								//std::cout << rdr->stringLength() << '\n';
+								oxAssert(rdr->field(fieldName, ox::SerStr(v.data(), v.size())), "Walking model failed.");
+								std::cout << fieldName << ":\t" << "string: " << v.data() << '\n';
+								break;
+							}
+							case ox::PrimitiveType::Struct:
+								break;
+						}
+						return OxError(0);
+					}
+				);
+				delete type.value;
 
-		//		return err;
-		//	}
-		//},
+				return OxError(0);
+			}
+		},
 	}
 };
 

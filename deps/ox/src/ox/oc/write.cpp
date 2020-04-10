@@ -16,10 +16,6 @@ OrganicClawWriter<Key>::OrganicClawWriter(Json::Value json) {
 }
 
 template<typename Key>
-OrganicClawWriter<Key>::~OrganicClawWriter() {
-}
-
-template<typename Key>
 Error OrganicClawWriter<Key>::field(Key key, int8_t *val) {
 	if (*val) {
 		m_json[key] = *val;
@@ -109,8 +105,7 @@ Error OrganicClawWriter<Key>::field(Key key, SerStr val) {
 }
 
 template<typename Key>
-void OrganicClawWriter<Key>::setTypeInfo(const char*, int fields) {
-	m_fields = fields;
+void OrganicClawWriter<Key>::setTypeInfo(const char*, int) {
 }
 
 template class OrganicClawWriter<const char*>;

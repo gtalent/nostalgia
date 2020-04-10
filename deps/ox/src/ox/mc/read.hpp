@@ -77,24 +77,24 @@ class MetalClawReader {
 		 * Reads an array length from the current location in the buffer.
 		 * @param pass indicates that the parsing should iterate past the array length
 		 */
-		[[nodiscard]] ValErr<ArrayLength> arrayLength(bool pass = true);
+		[[nodiscard]] ValErr<ArrayLength> arrayLength(const char *name, bool pass = true);
 
 		/**
 		 * Reads an string length from the current location in the buffer.
 		 */
-		[[nodiscard]] StringLength stringLength();
+		[[nodiscard]] StringLength stringLength(const char *name);
 
 		void setTypeInfo(const char *name, int fields);
 
 		/**
 		 * Returns a MetalClawReader to parse a child object.
 		 */
-		[[nodiscard]] MetalClawReader child();
+		[[nodiscard]] MetalClawReader child(const char *name);
 
 		/**
 		 * Indicates whether or not the next field to be read is present.
 		 */
-		bool fieldPresent() const;
+		bool fieldPresent(const char *name) const;
 
 		/**
 		 * Indicates whether or not the given field is present.
@@ -103,7 +103,7 @@ class MetalClawReader {
 
 		void nextField() noexcept;
 
-		static constexpr OpType opType() {
+		static constexpr auto opType() {
 			return OpType::Read;
 		}
 
@@ -116,7 +116,7 @@ class MetalClawReader {
 template<typename T>
 Error MetalClawReader::field(const char*, T *val) {
 	if (val && m_fieldPresence.get(m_field++)) {
-		auto reader = child();
+		auto reader = child("");
 		oxReturnError(model(&reader, val));
 	}
 	return OxError(0);
@@ -160,7 +160,7 @@ Error MetalClawReader::field(const char *name, T *val, std::size_t valLen) {
 
 		// read the list
 		if (valLen >= len.value) {
-			auto reader = child();
+			auto reader = child("");
 			reader.setTypeInfo("List", len.value);
 			for (std::size_t i = 0; i < len.value; i++) {
 				oxReturnError(reader.field("", &val[i]));
@@ -186,7 +186,7 @@ Error MetalClawReader::field(const char*, Handler handler) {
 		oxReturnError(len.error);
 
 		// read the list
-		auto reader = child();
+		auto reader = child("");
 		reader.setTypeInfo("List", len.value);
 		for (std::size_t i = 0; i < len.value; i++) {
 			T val;
@@ -200,7 +200,7 @@ Error MetalClawReader::field(const char*, Handler handler) {
 template<typename T>
 Error MetalClawReader::field(const char* name, ox::Vector<T> *val) {
 	if (m_fieldPresence.get(m_field)) {
-		const auto [len, err] = arrayLength(false);
+		const auto [len, err] = arrayLength(name, false);
 		oxReturnError(err);
 		val->resize(len);
 		return field(name, val->data(), val->size());

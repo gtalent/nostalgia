@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - 2018 gtalent2@gmail.com
+ * Copyright 2015 - 2020 gtalent2@gmail.com
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -23,16 +23,16 @@ class OrganicClawReader {
 
 	private:
 		Json::Value m_json;
-		int m_fields = 0;
-		int m_field = 0;
-		std::size_t m_buffIt = 0;
-		std::size_t m_buffLen = 0;
-		uint8_t *m_buff = nullptr;
+		Json::ArrayIndex m_fieldIt = 0;
 
 	public:
-		OrganicClawReader(Json::Value json = {});
+		OrganicClawReader() = default;
 
-		~OrganicClawReader();
+		OrganicClawReader(const uint8_t *buff, std::size_t buffSize);
+
+		OrganicClawReader(const char *json, std::size_t buffSize);
+
+		OrganicClawReader(const Json::Value &json);
 
 		[[nodiscard]] Error field(Key key, int8_t *val);
 		[[nodiscard]] Error field(Key key, int16_t *val);
@@ -65,7 +65,7 @@ class OrganicClawReader {
 		 * Reads an array length from the current location in the buffer.
 		 * @param pass indicates that the parsing should iterate past the array length
 		 */
-		[[nodiscard]] std::size_t arrayLength(Key key, bool pass = true);
+		[[nodiscard]] ValErr<std::size_t> arrayLength(Key key, bool pass = true);
 
 		/**
 		 * Reads an string length from the current location in the buffer.
@@ -79,9 +79,18 @@ class OrganicClawReader {
 		 */
 		[[nodiscard]] OrganicClawReader child(Key key);
 
-		static constexpr OpType opType() {
+		// compatibility stub
+		constexpr void nextField() noexcept {}
+
+		bool fieldPresent(Key key);
+
+		static constexpr auto opType() {
 			return OpType::Read;
 		}
+
+	private:
+
+		Json::Value &value(Key key);
 
 };
 
@@ -89,8 +98,15 @@ template<typename Key>
 template<typename T>
 Error OrganicClawReader<Key>::field(Key key, T *val) {
 	if (val) {
-		auto reader = child(key);
-		oxReturnError(model(&reader, val));
+		const auto &jv = value(key);
+		++m_fieldIt;
+		if (jv.empty()) {
+			return OxError(0);
+		}
+		if (jv.isObject()) {
+			auto reader = child(key);
+			return model(&reader, val);
+		}
 	}
 	return OxError(0);
 }
@@ -110,9 +126,9 @@ Error OrganicClawReader<Key>::field(Key key, T *val, std::size_t valLen) {
 	if (srcSize > valLen) {
 		return OxError(1);
 	}
-	OrganicClawReader<Json::ArrayIndex> r(srcVal);
+	OrganicClawReader<const char*> r(srcVal);
 	for (decltype(srcSize) i = 0; i < srcSize; ++i) {
-		oxReturnError(r.field(i, &val[i]));
+		oxReturnError(r.field("", &val[i]));
 	}
 	return OxError(0);
 }
@@ -124,16 +140,28 @@ Error OrganicClawReader<Key>::field(Key key, ox::Vector<T> *val) {
 }
 
 template<typename T>
-ValErr<T> readOC(const char *json) {
-	Json::Value doc;
-	Json::CharReaderBuilder parserBuilder;
-	auto parser = std::unique_ptr<Json::CharReader>(parserBuilder.newCharReader());
-	if (!parser->parse(json, json + ox_strlen(json), &doc, nullptr)) {
-		return OxError(1, "Could not parse JSON");
+Error readOC(const char *json, std::size_t jsonSize, T *val) noexcept {
+	// OrganicClawReader constructor can throw, but readOC should return its errors.
+	try {
+		Json::Value doc;
+		Json::CharReaderBuilder parserBuilder;
+		auto parser = std::unique_ptr<Json::CharReader>(parserBuilder.newCharReader());
+		if (!parser->parse(json, json + jsonSize, &doc, nullptr)) {
+			return OxError(1, "Could not parse JSON");
+		}
+		OrganicClawReader<const char*> reader(json, jsonSize);
+		return model(&reader, val);
+	} catch (Error err) {
+		return err;
+	} catch (...) {
+		return OxError(1, "Unkown Error");
 	}
-	OrganicClawReader<const char*> reader(doc);
+}
+
+template<typename T>
+ValErr<T> readOC(const char *json) {
 	T val;
-	oxReturnError(model(&reader, &val));
+	oxReturnError(readOC(json, ox_strlen(json), &val));
 	return {std::move(val), OxError(0)};
 }
 

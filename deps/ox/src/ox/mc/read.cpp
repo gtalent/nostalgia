@@ -81,6 +81,7 @@ Error MetalClawReader::field(const char*, SerStr val) {
 		if (val.cap() > -1 && static_cast<StringLength>(val.cap()) >= size) {
 			if (m_buffIt + size <= m_buffLen) {
 				ox_memcpy(val.data(), &m_buff[m_buffIt], size);
+				val.data()[size] = 0;
 				m_buffIt += size;
 			} else {
 				return OxError(MC_BUFFENDED);
@@ -94,7 +95,7 @@ Error MetalClawReader::field(const char*, SerStr val) {
 	return OxError(0);
 }
 
-[[nodiscard]] ValErr<ArrayLength> MetalClawReader::arrayLength(bool pass) {
+[[nodiscard]] ValErr<ArrayLength> MetalClawReader::arrayLength(const char*, bool pass) {
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
 		if (m_buffIt >= m_buffLen) {
@@ -110,7 +111,7 @@ Error MetalClawReader::field(const char*, SerStr val) {
 	return OxError(1);
 }
 
-[[nodiscard]] StringLength MetalClawReader::stringLength() {
+[[nodiscard]] StringLength MetalClawReader::stringLength(const char*) {
 	if (m_fieldPresence.get(m_field)) {
 		// read the length
 		std::size_t bytesRead = 0;
@@ -127,11 +128,11 @@ void MetalClawReader::setTypeInfo(const char*, int fields) {
 	m_fieldPresence.setMaxLen(m_buffIt);
 }
 
-MetalClawReader MetalClawReader::child() {
+MetalClawReader MetalClawReader::child(const char*) {
 	return MetalClawReader(m_buff + m_buffIt, m_buffLen - m_buffIt, this);
 }
 
-bool MetalClawReader::fieldPresent() const {
+bool MetalClawReader::fieldPresent(const char*) const {
 	return m_fieldPresence.get(m_field).value;
 }
 

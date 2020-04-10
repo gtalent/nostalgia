@@ -78,7 +78,7 @@ class TypeDescWriter {
 			return m_type;
 		}
 
-		static constexpr OpType opType() {
+		static constexpr auto opType() {
 			return OpType::WriteDefinition;
 		}
 
@@ -163,18 +163,18 @@ DescriptorType *TypeDescWriter::type(T *val, bool *alreadyExisted) {
 }
 
 template<typename T>
-[[nodiscard]] ValErr<DescriptorType*> buildMCDef(T *val) {
+[[nodiscard]] ValErr<DescriptorType*> buildTypeDef(T *val) {
 	TypeDescWriter writer;
 	Error err = model(&writer, val);
 	return {writer.definition(), err};
 }
 
 template<typename T>
-Error writeMCDef(uint8_t *buff, std::size_t buffLen, T *val, std::size_t *sizeOut = nullptr) {
-	auto def = buildMCDef(val);
+Error writeTypeDef(uint8_t *buff, std::size_t buffLen, T *val, std::size_t *sizeOut = nullptr) {
+	auto def = buildTypeDef(val);
 	auto err = def.error;
 	if (!err) {
-		err |= writeMC(buff, buffLen, def.value, sizeOut);
+		oxReturnError(writeType(buff, buffLen, def.value, sizeOut));
 	}
 	delete def.value;
 	return err;

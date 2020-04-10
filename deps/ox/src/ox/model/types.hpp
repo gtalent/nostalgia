@@ -45,10 +45,6 @@ class SerStr {
 			return ox_strlen(m_str);
 		}
 
-		constexpr int bytes() noexcept {
-			return ox_strlen(m_str) + 1; // adds 1 for \0
-		}
-
 		constexpr int cap() noexcept {
 			return m_cap;
 		}

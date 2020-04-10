@@ -109,7 +109,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 
 				oxAssert(ox::writeMC(buff, buffLen, &testIn), "writeMC failed");
 				oxAssert(ox::readMC(buff, buffLen, &testOut), "writeMC failed");
-				std::cout << testIn.Int << " " << testOut.Int << '\n';
+				//std::cout << testIn.String.c_str() << "|" << testOut.String.c_str() << "|\n";
 
 				oxAssert(testIn.Bool               == testOut.Bool, "Bool value mismatch");
 				oxAssert(testIn.Int                == testOut.Int, "Int value mismatch");
@@ -260,9 +260,9 @@ std::map<std::string, ox::Error(*)()> tests = {
 				testIn.Struct.String = "Test String 2";
 
 				oxAssert(ox::writeMC(dataBuff, dataBuffLen, &testIn), "Data generation failed");
-				auto type = ox::buildMCDef(&testIn);
+				auto type = ox::buildTypeDef(&testIn);
 				oxAssert(type.error, "Descriptor write failed");
-				ox::walkMC<ox::MetalClawReader>(type.value, dataBuff, dataBuffLen,
+				ox::walkModel<ox::MetalClawReader>(type.value, dataBuff, dataBuffLen,
 					[](const ox::Vector<ox::FieldName>&, const ox::Vector<ox::TypeName>&, const ox::DescriptorField &f, ox::MetalClawReader *rdr) -> ox::Error {
 						//std::cout << f.fieldName.c_str() << '\n';
 						auto fieldName = f.fieldName.c_str();
@@ -334,7 +334,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 								break;
 							}
 							case ox::PrimitiveType::String: {
-								ox::Vector<char> v(rdr->stringLength());
+								ox::Vector<char> v(rdr->stringLength(fieldName) + 1);
 								//std::cout << rdr->stringLength() << '\n';
 								oxAssert(rdr->field(fieldName, ox::SerStr(v.data(), v.size())), "Walking model failed.");
 								std::cout << fieldName << ":\t" << "string: " << v.data() << '\n';

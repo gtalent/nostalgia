@@ -10,3 +10,4 @@ target_link_libraries(
 
 add_test("Test\\ OcTest\\ Writer" OcTest OrganicClawWriter)
 add_test("Test\\ OcTest\\ Reader" OcTest OrganicClawReader)
+add_test("Test\\ OcTest\\ OrganicClawDef" OcTest OrganicClawDef)

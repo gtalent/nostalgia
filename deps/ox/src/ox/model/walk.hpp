@@ -86,14 +86,14 @@ static ox::Error parseField(const DescriptorField &field, Reader *rdr, DataWalke
 	walker->pushNamePath(field.fieldName);
 	if (field.subscriptLevels) {
 		// add array handling
-		const auto [arrayLen, err] = rdr->arrayLength(true);
+		const auto [arrayLen, err] = rdr->arrayLength(field.fieldName.c_str(), true);
 		oxReturnError(err);
-		auto child = rdr->child();
+		auto child = rdr->child(field.fieldName.c_str());
 		child.setTypeInfo(field.fieldName.c_str(), arrayLen);
 		DescriptorField f(field); // create mutable copy
 		--f.subscriptLevels;
 		BString<100> subscript;
-		for (ArrayLength i = 0; i < arrayLen; i++) {
+		for (std::size_t i = 0; i < arrayLen; i++) {
 			subscript = "[";
 			subscript += i;
 			subscript += "]";
@@ -111,8 +111,8 @@ static ox::Error parseField(const DescriptorField &field, Reader *rdr, DataWalke
 				oxReturnError(walker->read(field, rdr));
 				break;
 			case PrimitiveType::Struct:
-				if (rdr->fieldPresent()) {
-					auto child = rdr->child();
+				if (rdr->fieldPresent(field.fieldName.c_str())) {
+					auto child = rdr->child(field.fieldName.c_str());
 					walker->pushType(field.type);
 					oxReturnError(model(&child, walker));
 					walker->popType();
@@ -120,7 +120,7 @@ static ox::Error parseField(const DescriptorField &field, Reader *rdr, DataWalke
 				} else {
 					// skip and discard absent field
 					int discard;
-					oxReturnError(rdr->field("", &discard));
+					oxReturnError(rdr->field(field.fieldName.c_str(), &discard));
 				}
 				break;
 		}
@@ -142,6 +142,13 @@ ox::Error model(Reader *rdr, DataWalker<Reader, FH> *walker) {
 		oxReturnError(parseField(fields[i], rdr, walker));
 	}
 	return OxError(0);
+}
+
+template<typename Reader, typename Handler>
+ox::Error walkModel(DescriptorType *type, uint8_t *data, std::size_t dataLen, Handler handler) {
+	DataWalker<Reader, Handler> walker(type, handler);
+	Reader rdr(data, dataLen);
+	return model(&rdr, &walker);
 }
 
 }

@@ -65,14 +65,14 @@ Error MetalClawWriter::field(const char*, SerStr val) {
 	bool fieldSet = false;
 	if (val.cap()) {
 		// write the length
-		const auto strLen = mc::encodeInteger(val.bytes());
-		if (m_buffIt + strLen.length + val.bytes() < m_buffLen) {
+		const auto strLen = mc::encodeInteger(val.len());
+		if (m_buffIt + strLen.length + val.len() < m_buffLen) {
 			ox_memcpy(&m_buff[m_buffIt], strLen.data, strLen.length);
 			m_buffIt += strLen.length;
 
 			// write the string
-			ox_memcpy(&m_buff[m_buffIt], val.c_str(), val.bytes());
-			m_buffIt += val.bytes();
+			ox_memcpy(&m_buff[m_buffIt], val.c_str(), val.len());
+			m_buffIt += val.len();
 			fieldSet = true;
 		} else {
 			err = OxError(MC_BUFFENDED);

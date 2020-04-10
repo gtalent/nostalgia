@@ -68,13 +68,14 @@ class MetalClawWriter {
 
 		std::size_t size();
 
-		static constexpr OpType opType() {
+		static constexpr auto opType() {
 			return OpType::Write;
 		}
 
 	private:
 		template<typename I>
 		Error appendInteger(I val);
+
 };
 
 template<std::size_t L>

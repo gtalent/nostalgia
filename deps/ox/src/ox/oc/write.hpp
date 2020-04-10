@@ -26,16 +26,11 @@ class OrganicClawWriter {
 
 	protected:
 		Json::Value m_json;
-		int m_fields = 0;
-		int m_field = 0;
-		uint8_t *m_buff = nullptr;
 
 	public:
 		OrganicClawWriter() = default;
 
 		OrganicClawWriter(Json::Value json);
-
-		~OrganicClawWriter();
 
 		Error field(Key, int8_t *val);
 		Error field(Key, int16_t *val);
@@ -67,7 +62,7 @@ class OrganicClawWriter {
 
 		void setTypeInfo(const char *name, int fields);
 
-		static constexpr OpType opType() {
+		static constexpr auto opType() {
 			return OpType::Write;
 		}
 

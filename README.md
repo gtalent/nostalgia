@@ -2,8 +2,18 @@
 
 ## Setup
 
+### Linux
+
+Make sure conan is using the C++11 version of libstdc++.
+
+	conan profile update settings.compiler.libcxx=libstdc++11 default
+
 ### macOS
 
-Run something along the lines of the following to let CMake know where Qt is installed. You may need to adjust this location.
+Install and use gmake instead of the make that comes with the system.
 
-	export NOSTALGIA_QT_PATH=/usr/local/Cellar/qt5/5.8.0_2/
+## Build
+
+Build options: release, debug, gba, gba-debug
+
+	make purge conan configure-{gba,release,debug} install

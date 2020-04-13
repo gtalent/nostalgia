@@ -115,16 +115,6 @@ DescriptorType *TypeDescWriter::type(bool*, bool *alreadyExisted) {
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
-void TypeDescWriter::setTypeInfo(const char *name, int) {
-	auto &t = m_typeStore->at(name);
-	if (!t) {
-		t = new DescriptorType;
-	}
-	m_type = t;
-	m_type->typeName = name;
-	m_type->primitiveType = PrimitiveType::Struct;
-}
-
 DescriptorType *TypeDescWriter::getType(TypeName tn, PrimitiveType pt, int b, bool *alreadyExisted) {
 	if (m_typeStore->contains(tn)) {
 		*alreadyExisted = true;

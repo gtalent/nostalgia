@@ -28,50 +28,54 @@ class MetalClawReader {
 		FieldPresenceIndicator m_fieldPresence;
 		int m_fields = 0;
 		int m_field = 0;
+		int m_unionIdx = -1;
 		std::size_t m_buffIt = 0;
 		std::size_t m_buffLen = 0;
 		uint8_t *m_buff = nullptr;
 		MetalClawReader *m_parent = nullptr;
 
 	public:
-		MetalClawReader(uint8_t *buff, std::size_t buffLen, MetalClawReader *parent = nullptr);
+		MetalClawReader(uint8_t *buff, std::size_t buffLen, int unionIdx = -1, MetalClawReader *parent = nullptr) noexcept;
 
-		~MetalClawReader();
+		~MetalClawReader() noexcept;
 
-		Error field(const char*, int8_t *val);
-		Error field(const char*, int16_t *val);
-		Error field(const char*, int32_t *val);
-		Error field(const char*, int64_t *val);
+		[[nodiscard]] Error field(const char*, int8_t *val);
+		[[nodiscard]] Error field(const char*, int16_t *val);
+		[[nodiscard]] Error field(const char*, int32_t *val);
+		[[nodiscard]] Error field(const char*, int64_t *val);
 
-		Error field(const char*, uint8_t *val);
-		Error field(const char*, uint16_t *val);
-		Error field(const char*, uint32_t *val);
-		Error field(const char*, uint64_t *val);
+		[[nodiscard]] Error field(const char*, uint8_t *val);
+		[[nodiscard]] Error field(const char*, uint16_t *val);
+		[[nodiscard]] Error field(const char*, uint32_t *val);
+		[[nodiscard]] Error field(const char*, uint64_t *val);
 
-		Error field(const char*, bool *val);
+		[[nodiscard]] Error field(const char*, bool *val);
 
 		// array handler
 		template<typename T>
-		Error field(const char*, T *val, std::size_t len);
+		[[nodiscard]] Error field(const char*, T *val, std::size_t len);
 
 		// array handler, with callback to allow handling individual elements
 		template<typename T, typename Handler>
-		Error field(const char*, Handler handler);
+		[[nodiscard]] Error field(const char*, Handler handler);
 
 		// array handler, with callback to allow handling individual elements
 		template<typename T, typename Handler>
-		Error field(const char*, Handler handler, ArrayLength len);
+		[[nodiscard]] Error field(const char*, Handler handler, ArrayLength len);
 
 		template<typename T>
-		Error field(const char*, ox::Vector<T> *val);
+		[[nodiscard]] Error field(const char*, ox::Vector<T> *val);
 
 		template<typename T>
-		Error field(const char*, T *val);
+		[[nodiscard]] Error field(const char*, T *val);
+
+		template<typename U>
+		[[nodiscard]] Error field(const char*, UnionView<U> val);
 
 		template<std::size_t L>
-		Error field(const char*, ox::BString<L> *val);
+		[[nodiscard]] Error field(const char*, ox::BString<L> *val);
 
-		Error field(const char*, SerStr val);
+		[[nodiscard]] Error field(const char*, SerStr val);
 
 		/**
 		 * Reads an array length from the current location in the buffer.
@@ -84,12 +88,13 @@ class MetalClawReader {
 		 */
 		[[nodiscard]] StringLength stringLength(const char *name);
 
-		void setTypeInfo(const char *name, int fields);
+		template<typename T = std::nullptr_t>
+		void setTypeInfo(const char *name = T::TypeName, int fields = T::Fields);
 
 		/**
 		 * Returns a MetalClawReader to parse a child object.
 		 */
-		[[nodiscard]] MetalClawReader child(const char *name);
+		[[nodiscard]] MetalClawReader child(const char *name, int unionIdx = -1);
 
 		/**
 		 * Indicates whether or not the next field to be read is present.
@@ -109,16 +114,27 @@ class MetalClawReader {
 
 	private:
 		template<typename I>
-		Error readInteger(I *val);
+		[[nodiscard]] Error readInteger(I *val);
 
 };
 
 template<typename T>
 Error MetalClawReader::field(const char*, T *val) {
-	if (val && m_fieldPresence.get(m_field++)) {
+	if ((m_unionIdx == -1 || m_unionIdx == m_field) && val && m_fieldPresence.get(m_field)) {
 		auto reader = child("");
 		oxReturnError(model(&reader, val));
 	}
+	++m_field;
+	return OxError(0);
+}
+
+template<typename U>
+Error MetalClawReader::field(const char*, UnionView<U> val) {
+	if ((m_unionIdx == -1 || m_unionIdx == m_field) && val.get() && m_fieldPresence.get(m_field)) {
+		auto reader = child("", val.idx());
+		oxReturnError(model(&reader, val.get()));
+	}
+	++m_field;
 	return OxError(0);
 }
 
@@ -129,7 +145,7 @@ Error MetalClawReader::field(const char *name, ox::BString<L> *val) {
 
 template<typename I>
 Error MetalClawReader::readInteger(I *val) {
-	if (m_fieldPresence.get(m_field++)) {
+	if ((m_unionIdx == -1 || m_unionIdx == m_field) && m_fieldPresence.get(m_field)) {
 		std::size_t bytesRead = 0;
 		if (m_buffIt >= m_buffLen) {
 			oxTrace("ox::MetalClaw::readInteger") << "Buffer ended";
@@ -142,13 +158,14 @@ Error MetalClawReader::readInteger(I *val) {
 	} else {
 		*val = 0;
 	}
+	++m_field;
 	return OxError(0);
 }
 
 // array handler
 template<typename T>
 Error MetalClawReader::field(const char *name, T *val, std::size_t valLen) {
-	if (m_fieldPresence.get(m_field++)) {
+	if ((m_unionIdx == -1 || m_unionIdx == m_field) && m_fieldPresence.get(m_field)) {
 		// read the length
 		if (m_buffIt >= m_buffLen) {
 			return OxError(MC_BUFFENDED);
@@ -170,12 +187,13 @@ Error MetalClawReader::field(const char *name, T *val, std::size_t valLen) {
 			return OxError(MC_OUTBUFFENDED);
 		}
 	}
+	++m_field;
 	return OxError(0);
 }
 
 template<typename T, typename Handler>
 Error MetalClawReader::field(const char*, Handler handler) {
-	if (m_fieldPresence.get(m_field++)) {
+	if ((m_unionIdx == -1 || m_unionIdx == m_field) && m_fieldPresence.get(m_field)) {
 		// read the length
 		if (m_buffIt >= m_buffLen) {
 			return OxError(MC_BUFFENDED);
@@ -194,18 +212,27 @@ Error MetalClawReader::field(const char*, Handler handler) {
 			oxReturnError(handler(i, &val));
 		}
 	}
+	++m_field;
 	return OxError(0);
 }
 
 template<typename T>
 Error MetalClawReader::field(const char* name, ox::Vector<T> *val) {
-	if (m_fieldPresence.get(m_field)) {
+	if ((m_unionIdx == -1 || m_unionIdx == m_field) && m_fieldPresence.get(m_field)) {
 		const auto [len, err] = arrayLength(name, false);
 		oxReturnError(err);
 		val->resize(len);
 		return field(name, val->data(), val->size());
 	}
 	return OxError(0);
+}
+
+template<typename T>
+void MetalClawReader::setTypeInfo(const char*, int fields) {
+	m_fields = fields;
+	m_buffIt = (fields / 8 + 1) - (fields % 8 == 0);
+	m_fieldPresence.setFields(fields);
+	m_fieldPresence.setMaxLen(m_buffIt);
 }
 
 template<typename T>

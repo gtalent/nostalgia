@@ -26,6 +26,7 @@ enum class PrimitiveType: uint8_t {
 	// Float = 3, reserved, but not implemented
 	String = 4,
 	Struct = 5,
+	Union = 6,
 };
 
 struct DescriptorField {

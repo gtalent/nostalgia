@@ -38,17 +38,18 @@ class TypeDescWriter {
 
 			TypeName name;
 
-			constexpr void setTypeInfo(const char *n, int) noexcept {
+			template<typename T = std::nullptr_t>
+			constexpr void setTypeInfo(const char *n = T::TypeName, int = T::Fields) noexcept {
 				this->name = n;
 			}
 
 			template<typename T>
-			constexpr ox::Error field(const char*, T*, std::size_t) noexcept {
+			[[nodiscard]] constexpr ox::Error field(const char*, T*, std::size_t) noexcept {
 				return OxError(0);
 			}
 
 			template<typename T>
-			constexpr ox::Error field(const char*, T*) noexcept {
+			[[nodiscard]] constexpr ox::Error field(const char*, T) noexcept {
 				return OxError(0);
 			}
 
@@ -64,15 +65,16 @@ class TypeDescWriter {
 		~TypeDescWriter();
 
 		template<typename T>
-		ox::Error field(const char *name, T *val, std::size_t valLen);
+		[[nodiscard]] ox::Error field(const char *name, T *val, std::size_t valLen);
 
 		template<typename T>
-		ox::Error field(const char *name, ox::Vector<T> *val);
+		[[nodiscard]] ox::Error field(const char *name, T val);
 
 		template<typename T>
-		ox::Error field(const char *name, T *val);
+		[[nodiscard]] ox::Error field(const char *name, T *val);
 
-		void setTypeInfo(const char *name, int fields);
+		template<typename T = std::nullptr_t>
+		void setTypeInfo(const char *name = T::TypeName, int fields = T::Fields);
 
 		[[nodiscard]] DescriptorType *definition() noexcept {
 			return m_type;
@@ -105,6 +107,9 @@ class TypeDescWriter {
 		template<typename T>
 		DescriptorType *type(T *val, bool *alreadyExisted);
 
+		template<typename U>
+		DescriptorType *type(UnionView<U> val, bool *alreadyExisted);
+
 		DescriptorType *getType(TypeName tn, PrimitiveType t, int b, bool *alreadyExisted);
 };
 
@@ -126,8 +131,15 @@ ox::Error TypeDescWriter::field(const char *name, T *val, std::size_t) {
 }
 
 template<typename T>
-ox::Error TypeDescWriter::field(const char *name, ox::Vector<T> *val) {
-	return field(name, val->data(), val->size());
+ox::Error TypeDescWriter::field(const char *name, T val) {
+	if (m_type) {
+		bool alreadyExisted = false;
+		const auto t = type(val, &alreadyExisted);
+		oxAssert(t != nullptr, "field(const char *name, T val): Type not found or generated");
+		m_type->fieldList.emplace_back(t, name, 0, alreadyExisted ? t->typeName : "", !alreadyExisted);
+		return OxError(0);
+	}
+	return OxError(1);
 }
 
 template<typename T>
@@ -150,7 +162,7 @@ DescriptorType *TypeDescWriter::type(BString<sz> *val, bool *alreadyExisted) {
 template<typename T>
 DescriptorType *TypeDescWriter::type(T *val, bool *alreadyExisted) {
 	NameCatcher nc;
-	model(&nc, val);
+	oxLogError(model(&nc, val));
 	if (m_typeStore->contains(nc.name)) {
 		*alreadyExisted = true;
 		return m_typeStore->at(nc.name);
@@ -159,6 +171,26 @@ DescriptorType *TypeDescWriter::type(T *val, bool *alreadyExisted) {
 		oxLogError(model(&dw, val));
 		*alreadyExisted = false;
 		return dw.m_type;
+	}
+}
+
+template<typename U>
+DescriptorType *TypeDescWriter::type(UnionView<U> val, bool *alreadyExisted) {
+	return type(val.get(), alreadyExisted);
+}
+
+template<typename T>
+void TypeDescWriter::setTypeInfo(const char *name, int) {
+	auto &t = m_typeStore->at(name);
+	if (!t) {
+		t = new DescriptorType;
+	}
+	m_type = t;
+	m_type->typeName = name;
+	if (ox::is_union_v<T>) {
+		m_type->primitiveType = PrimitiveType::Union;
+	} else {
+		m_type->primitiveType = PrimitiveType::Struct;
 	}
 }
 

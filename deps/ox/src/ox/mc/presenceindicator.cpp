@@ -7,6 +7,7 @@
  */
 
 #include <ox/std/byteswap.hpp>
+#include <ox/std/memops.hpp>
 #include "err.hpp"
 #include "presenceindicator.hpp"
 
@@ -40,6 +41,7 @@ Error FieldPresenceIndicator::set(std::size_t i, bool on) {
 
 void FieldPresenceIndicator::setFields(int fields) noexcept {
 	m_fields = fields;
+	m_maskLen = (fields / 8 + 1) - (fields % 8 == 0);
 }
 
 int FieldPresenceIndicator::getFields() const noexcept {

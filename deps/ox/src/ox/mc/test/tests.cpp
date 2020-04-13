@@ -18,13 +18,25 @@
 #include <ox/model/model.hpp>
 #include <ox/std/std.hpp>
 
+union TestUnion {
+	static constexpr auto TypeName = "TestUnion";
+	static constexpr auto Fields = 3;
+	bool Bool;
+	uint32_t Int = 5;
+	char String[32];
+};
+
 struct TestStructNest {
+	static constexpr auto TypeName = "TestStructNest";
+	static constexpr auto Fields = 3;
 	bool Bool = false;
 	uint32_t Int = 0;
 	ox::BString<32> String = "";
 };
 
 struct TestStruct {
+	static constexpr auto TypeName = "TestStruct";
+	static constexpr auto Fields = 15;
 	bool Bool = false;
 	int32_t Int = 0;
 	int32_t Int1 = 0;
@@ -35,41 +47,50 @@ struct TestStruct {
 	int32_t Int6 = 0;
 	int32_t Int7 = 0;
 	int32_t Int8 = 0;
+	TestUnion Union;
 	ox::BString<32> String = "";
-	uint32_t List[4] = {0, 0, 0 , 0};
+	uint32_t List[4] = {0, 0, 0, 0};
 	TestStructNest EmptyStruct;
 	TestStructNest Struct;
 };
 
 template<typename T>
+ox::Error model(T *io, TestUnion *obj) {
+	io->template setTypeInfo<TestUnion>();
+	oxReturnError(io->field("Bool", &obj->Bool));
+	oxReturnError(io->field("Int", &obj->Int));
+	oxReturnError(io->field("String", ox::SerStr(obj->String)));
+	return OxError(0);
+}
+
+template<typename T>
 ox::Error model(T *io, TestStructNest *obj) {
-	auto err = OxError(0);
-	io->setTypeInfo("TestStructNest", 3);
-	err |= io->field("Bool", &obj->Bool);
-	err |= io->field("Int", &obj->Int);
-	err |= io->field("String", &obj->String);
-	return err;
+	io->template setTypeInfo<TestStructNest>();
+	oxReturnError(io->field("Bool", &obj->Bool));
+	oxReturnError(io->field("Int", &obj->Int));
+	oxReturnError(io->field("String", &obj->String));
+	return OxError(0);
 }
 
 template<typename T>
 ox::Error model(T *io, TestStruct *obj) {
-	auto err = OxError(0);
-	io->setTypeInfo("TestStruct", 14);
-	err |= io->field("Bool", &obj->Bool);
-	err |= io->field("Int", &obj->Int);
-	err |= io->field("Int1", &obj->Int1);
-	err |= io->field("Int2", &obj->Int2);
-	err |= io->field("Int3", &obj->Int3);
-	err |= io->field("Int4", &obj->Int4);
-	err |= io->field("Int5", &obj->Int5);
-	err |= io->field("Int6", &obj->Int6);
-	err |= io->field("Int7", &obj->Int7);
-	err |= io->field("Int8", &obj->Int8);
-	err |= io->field("String", &obj->String);
-	err |= io->field("List", obj->List, 4);
-	err |= io->field("EmptyStruct", &obj->EmptyStruct);
-	err |= io->field("Struct", &obj->Struct);
-	return err;
+	io->template setTypeInfo<TestStruct>();
+	oxReturnError(io->field("Bool", &obj->Bool));
+	oxReturnError(io->field("Int", &obj->Int));
+	oxReturnError(io->field("Int1", &obj->Int1));
+	oxReturnError(io->field("Int2", &obj->Int2));
+	oxReturnError(io->field("Int3", &obj->Int3));
+	oxReturnError(io->field("Int4", &obj->Int4));
+	oxReturnError(io->field("Int5", &obj->Int5));
+	oxReturnError(io->field("Int6", &obj->Int6));
+	oxReturnError(io->field("Int7", &obj->Int7));
+	oxReturnError(io->field("Int8", &obj->Int8));
+	oxReturnError(io->field("Union", ox::UnionView{&obj->Union, 1}));
+	oxReturnError(io->field("String", &obj->String));
+	oxReturnError(io->field("List", obj->List, 4));
+	oxReturnError(io->field("EmptyStruct", &obj->EmptyStruct));
+	oxReturnError(io->field("Struct", &obj->Struct));
+	return OxError(0);
 }
 
 std::map<std::string, ox::Error(*)()> tests = {
@@ -81,12 +102,11 @@ std::map<std::string, ox::Error(*)()> tests = {
 				// doesn't segfault
 				constexpr size_t buffLen = 1024;
 				uint8_t buff[buffLen];
-				auto err = ox::Error(0);
 				TestStruct ts;
 
-				err |= ox::writeMC(buff, buffLen, &ts);
+				oxReturnError(ox::writeMC(buff, buffLen, &ts));
 
-				return err;
+				return OxError(0);
 			}
 		},
 		{
@@ -98,6 +118,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 
 				testIn.Bool = true;
 				testIn.Int = 42;
+				testIn.Union.Int = 42;
 				testIn.String = "Test String 1";
 				testIn.List[0] = 1;
 				testIn.List[1] = 2;
@@ -109,7 +130,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 
 				oxAssert(ox::writeMC(buff, buffLen, &testIn), "writeMC failed");
 				oxAssert(ox::readMC(buff, buffLen, &testOut), "writeMC failed");
-				//std::cout << testIn.String.c_str() << "|" << testOut.String.c_str() << "|\n";
+				//std::cout << testIn.Union.Int << "|" << testOut.Union.Int << "|\n";
 
 				oxAssert(testIn.Bool               == testOut.Bool, "Bool value mismatch");
 				oxAssert(testIn.Int                == testOut.Int, "Int value mismatch");
@@ -121,6 +142,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 				oxAssert(testIn.Int6               == testOut.Int6, "Int6 value mismatch");
 				oxAssert(testIn.Int7               == testOut.Int7, "Int7 value mismatch");
 				oxAssert(testIn.Int8               == testOut.Int8, "Int8 value mismatch");
+				oxAssert(testIn.Union.Int          == testOut.Union.Int, "Union.Int value mismatch");
 				oxAssert(testIn.String             == testOut.String, "String value mismatch");
 				oxAssert(testIn.List[0]            == testOut.List[0], "List[0] value mismatch");
 				oxAssert(testIn.List[1]            == testOut.List[1], "List[1] value mismatch");
@@ -241,7 +263,6 @@ std::map<std::string, ox::Error(*)()> tests = {
 		{
 			"MetalClawDef",
 			[] {
-				auto err = OxError(0);
 				//constexpr size_t descBuffLen = 1024;
 				//uint8_t descBuff[descBuffLen];
 				constexpr size_t dataBuffLen = 1024;
@@ -330,25 +351,26 @@ std::map<std::string, ox::Error(*)()> tests = {
 							case ox::PrimitiveType::Bool: {
 								bool i = {};
 								oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-								std::cout << fieldName << ":\t" << "bool:\t" << (i ? "true" : "false") << '\n';
+								std::cout << fieldName << ":\t" << "bool:\t\t" << (i ? "true" : "false") << '\n';
 								break;
 							}
 							case ox::PrimitiveType::String: {
 								ox::Vector<char> v(rdr->stringLength(fieldName) + 1);
 								//std::cout << rdr->stringLength() << '\n';
 								oxAssert(rdr->field(fieldName, ox::SerStr(v.data(), v.size())), "Walking model failed.");
-								std::cout << fieldName << ":\t" << "string: " << v.data() << '\n';
+								std::cout << fieldName << ":\t" << "string:\t\t" << v.data() << '\n';
 								break;
 							}
 							case ox::PrimitiveType::Struct:
+								break;
+							case ox::PrimitiveType::Union:
 								break;
 						}
 						return OxError(0);
 					}
 				);
 				delete type.value;
-
-				return err;
+				return OxError(0);
 			}
 		},
 	}

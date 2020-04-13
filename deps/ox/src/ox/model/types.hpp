@@ -11,6 +11,7 @@
 #include <ox/std/bstring.hpp>
 #include <ox/std/strops.hpp>
 #include <ox/std/types.hpp>
+#include <ox/std/typetraits.hpp>
 
 namespace ox {
 
@@ -32,6 +33,12 @@ class SerStr {
 			m_cap = cap;
 		}
 
+		template<std::size_t cap>
+		constexpr SerStr(char (&str)[cap]) noexcept {
+			m_str = str;
+			m_cap = cap;
+		}
+
 		constexpr const char *c_str() noexcept {
 			return m_str;
 		}
@@ -47,6 +54,27 @@ class SerStr {
 
 		constexpr int cap() noexcept {
 			return m_cap;
+		}
+
+};
+
+template<typename Union>
+class UnionView {
+
+	protected:
+		int m_idx = -1;
+		typename enable_if<is_union_v<Union>, Union>::type *m_union = nullptr;
+
+	public:
+		constexpr UnionView(Union *u, int idx) noexcept: m_idx(idx), m_union(u) {
+		}
+
+		constexpr auto idx() noexcept {
+			return m_idx;
+		}
+
+		constexpr Union *get() noexcept {
+			return m_union;
 		}
 
 };

@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <ox/std/assert.hpp>
 #include <ox/std/error.hpp>
 #include <ox/std/strops.hpp>
 
@@ -22,30 +23,32 @@ namespace OpType {
 // empty default implementations of model functions
 
 template<typename T, typename O>
-ox::Error modelRead(T*, O*) {
-	return OxError(1);
+[[nodiscard]] ox::Error modelRead(T*, O*) {
+	return OxError(1, "Model: modelRead not implemented");
 }
 
 template<typename T, typename O>
-ox::Error modelWrite(T*, O*) {
-	return OxError(1);
+[[nodiscard]] ox::Error modelWrite(T*, O*) {
+	return OxError(1, "Model: modelWrite not implemented");
 }
 
 template<typename T, typename O>
-ox::Error modelWriteDefinition(T*, O*) {
-	return OxError(1);
+[[nodiscard]] ox::Error modelWriteDefinition(T*, O*) {
+	return OxError(1, "Model: modelWriteDefinition not implemented");
 }
 
 template<typename T, typename O>
-ox::Error model(T *io, O *obj) {
+[[nodiscard]] ox::Error model(T *io, O *obj) {
+	ox::Error err;
 	if constexpr(ox_strcmp(T::opType(), ox::OpType::Read) == 0) {
-		return modelRead(io, obj);
+		err = modelRead(io, obj);
 	} else if constexpr(ox_strcmp(T::opType(), ox::OpType::Write) == 0) {
-		return modelWrite(io, obj);
+		err = modelWrite(io, obj);
 	} else if constexpr(ox_strcmp(T::opType(), ox::OpType::WriteDefinition) == 0) {
-		return modelWriteDefinition(io, obj);
+		err = modelWriteDefinition(io, obj);
 	}
-	return OxError(1);
+	oxAssert(err, "Missing model function");
+	return err;
 }
 
 }

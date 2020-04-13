@@ -30,7 +30,7 @@ class DataWalker {
 
 		[[nodiscard]] const DescriptorType *type() const noexcept;
 
-		ox::Error read(const DescriptorField&, Reader *rdr);
+		[[nodiscard]] ox::Error read(const DescriptorField&, Reader *rdr);
 
 	protected:
 		void pushNamePath(FieldName fn);
@@ -111,6 +111,7 @@ static ox::Error parseField(const DescriptorField &field, Reader *rdr, DataWalke
 				oxReturnError(walker->read(field, rdr));
 				break;
 			case PrimitiveType::Struct:
+			case PrimitiveType::Union:
 				if (rdr->fieldPresent(field.fieldName.c_str())) {
 					auto child = rdr->child(field.fieldName.c_str());
 					walker->pushType(field.type);

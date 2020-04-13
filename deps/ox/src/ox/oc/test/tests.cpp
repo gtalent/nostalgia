@@ -226,6 +226,8 @@ std::map<std::string, ox::Error(*)()> tests = {
 							}
 							case ox::PrimitiveType::Struct:
 								break;
+							case ox::PrimitiveType::Union:
+								break;
 						}
 						return OxError(0);
 					}

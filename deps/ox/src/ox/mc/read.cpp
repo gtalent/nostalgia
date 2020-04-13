@@ -14,17 +14,19 @@
 
 namespace ox {
 
-MetalClawReader::MetalClawReader(uint8_t *buff, std::size_t buffLen, MetalClawReader *parent): m_fieldPresence(buff, buffLen) {
-	m_buff = buff;
-	m_buffLen = buffLen;
-	m_parent = parent;
+MetalClawReader::MetalClawReader(uint8_t *buff, std::size_t buffLen, int unionIdx, MetalClawReader *parent) noexcept:
+	m_fieldPresence(buff, buffLen),
+	m_unionIdx(unionIdx),
+	m_buffLen(buffLen),
+	m_buff(buff),
+	m_parent(parent) {
 }
 
-MetalClawReader::~MetalClawReader() {
+MetalClawReader::~MetalClawReader() noexcept {
 	if (m_parent) {
 		m_parent->m_buffIt += m_buffIt;
 	}
-	//oxAssert(m_field == m_fields, "MetalClawReader: incorrect fields number given");
+	oxAssert(m_field == m_fields, "MetalClawReader: incorrect fields number given");
 }
 
 Error MetalClawReader::field(const char*, int8_t *val) {
@@ -61,42 +63,48 @@ Error MetalClawReader::field(const char*, uint64_t *val) {
 }
 
 Error MetalClawReader::field(const char*, bool *val) {
-	auto valErr = m_fieldPresence.get(m_field++);
-	*val = valErr.value;
-	return valErr.error;
+	if (m_unionIdx == -1 || m_unionIdx == m_field) {
+		auto valErr = m_fieldPresence.get(m_field);
+		*val = valErr.value;
+		oxReturnError(valErr.error);
+	}
+	++m_field;
+	return OxError(0);
 }
 
 Error MetalClawReader::field(const char*, SerStr val) {
-	if (m_fieldPresence.get(m_field++)) {
-		// read the length
-		if (m_buffIt >= m_buffLen) {
-			return OxError(MC_BUFFENDED);
-		}
-		std::size_t bytesRead = 0;
-		auto [size, err] = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
-		m_buffIt += bytesRead;
-		oxReturnError(err);
-
-		// read the string
-		if (val.cap() > -1 && static_cast<StringLength>(val.cap()) >= size) {
-			if (m_buffIt + size <= m_buffLen) {
-				ox_memcpy(val.data(), &m_buff[m_buffIt], size);
-				val.data()[size] = 0;
-				m_buffIt += size;
-			} else {
+	if ((m_unionIdx == -1 || m_unionIdx == m_field)) {
+		if (m_fieldPresence.get(m_field)) {
+			// read the length
+			if (m_buffIt >= m_buffLen) {
 				return OxError(MC_BUFFENDED);
 			}
+			std::size_t bytesRead = 0;
+			auto [size, err] = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+			m_buffIt += bytesRead;
+			oxReturnError(err);
+			// read the string
+			if (val.cap() > -1 && static_cast<StringLength>(val.cap()) >= size) {
+				if (m_buffIt + size <= m_buffLen) {
+					ox_memcpy(val.data(), &m_buff[m_buffIt], size);
+					val.data()[size] = 0;
+					m_buffIt += size;
+				} else {
+					return OxError(MC_BUFFENDED);
+				}
+			} else {
+				return OxError(MC_OUTBUFFENDED);
+			}
 		} else {
-			return OxError(MC_OUTBUFFENDED);
+			val.data()[0] = 0;
 		}
-	} else {
-		val.data()[0] = 0;
 	}
+	++m_field;
 	return OxError(0);
 }
 
 [[nodiscard]] ValErr<ArrayLength> MetalClawReader::arrayLength(const char*, bool pass) {
-	if (m_fieldPresence.get(m_field)) {
+	if ((m_unionIdx == -1 || m_unionIdx == m_field) && m_fieldPresence.get(m_field)) {
 		// read the length
 		if (m_buffIt >= m_buffLen) {
 			return OxError(MC_BUFFENDED);
@@ -112,7 +120,7 @@ Error MetalClawReader::field(const char*, SerStr val) {
 }
 
 [[nodiscard]] StringLength MetalClawReader::stringLength(const char*) {
-	if (m_fieldPresence.get(m_field)) {
+	if ((m_unionIdx == -1 || m_unionIdx == m_field) && m_fieldPresence.get(m_field)) {
 		// read the length
 		std::size_t bytesRead = 0;
 		auto len = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
@@ -121,15 +129,8 @@ Error MetalClawReader::field(const char*, SerStr val) {
 	return 0;
 }
 
-void MetalClawReader::setTypeInfo(const char*, int fields) {
-	m_fields = fields;
-	m_buffIt = (fields / 8 + 1) - (fields % 8 == 0);
-	m_fieldPresence.setFields(fields);
-	m_fieldPresence.setMaxLen(m_buffIt);
-}
-
-MetalClawReader MetalClawReader::child(const char*) {
-	return MetalClawReader(m_buff + m_buffIt, m_buffLen - m_buffIt, this);
+MetalClawReader MetalClawReader::child(const char*, int unionIdx) {
+	return MetalClawReader(m_buff + m_buffIt, m_buffLen - m_buffIt, unionIdx, this);
 }
 
 bool MetalClawReader::fieldPresent(const char*) const {

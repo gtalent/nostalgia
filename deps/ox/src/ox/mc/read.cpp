@@ -73,7 +73,7 @@ Error MetalClawReader::field(const char*, bool *val) {
 }
 
 Error MetalClawReader::field(const char*, SerStr val) {
-	if ((m_unionIdx == -1 || m_unionIdx == m_field)) {
+	if (m_unionIdx == -1 || m_unionIdx == m_field) {
 		if (m_fieldPresence.get(m_field)) {
 			// read the length
 			if (m_buffIt >= m_buffLen) {

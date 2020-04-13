@@ -145,18 +145,20 @@ Error MetalClawReader::field(const char *name, ox::BString<L> *val) {
 
 template<typename I>
 Error MetalClawReader::readInteger(I *val) {
-	if ((m_unionIdx == -1 || m_unionIdx == m_field) && m_fieldPresence.get(m_field)) {
-		std::size_t bytesRead = 0;
-		if (m_buffIt >= m_buffLen) {
-			oxTrace("ox::MetalClaw::readInteger") << "Buffer ended";
-			return OxError(MC_BUFFENDED);
+	if (m_unionIdx == -1 || m_unionIdx == m_field) {
+		if (m_fieldPresence.get(m_field)) {
+			std::size_t bytesRead = 0;
+			if (m_buffIt >= m_buffLen) {
+				oxTrace("ox::MetalClaw::readInteger") << "Buffer ended";
+				return OxError(MC_BUFFENDED);
+			}
+			auto valErr = mc::decodeInteger<I>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+			m_buffIt += bytesRead;
+			oxReturnError(valErr.error);
+			*val = valErr.value;
+		} else {
+			*val = 0;
 		}
-		auto valErr = mc::decodeInteger<I>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
-		m_buffIt += bytesRead;
-		oxReturnError(valErr.error);
-		*val = valErr.value;
-	} else {
-		*val = 0;
 	}
 	++m_field;
 	return OxError(0);
@@ -165,26 +167,28 @@ Error MetalClawReader::readInteger(I *val) {
 // array handler
 template<typename T>
 Error MetalClawReader::field(const char *name, T *val, std::size_t valLen) {
-	if ((m_unionIdx == -1 || m_unionIdx == m_field) && m_fieldPresence.get(m_field)) {
-		// read the length
-		if (m_buffIt >= m_buffLen) {
-			return OxError(MC_BUFFENDED);
-		}
-		std::size_t bytesRead = 0;
-		auto len = mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
-		m_buffIt += bytesRead;
-		oxReturnError(len.error);
-
-		// read the list
-		if (valLen >= len.value) {
-			auto reader = child("");
-			reader.setTypeInfo("List", len.value);
-			for (std::size_t i = 0; i < len.value; i++) {
-				oxReturnError(reader.field("", &val[i]));
+	if (m_unionIdx == -1 || m_unionIdx == m_field) {
+		if (m_fieldPresence.get(m_field)) {
+			// read the length
+			if (m_buffIt >= m_buffLen) {
+				return OxError(MC_BUFFENDED);
 			}
-		} else {
-			oxTrace("ox::mc::read::field(T)") << name << ", size:" << valLen;
-			return OxError(MC_OUTBUFFENDED);
+			std::size_t bytesRead = 0;
+			auto len = mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+			m_buffIt += bytesRead;
+			oxReturnError(len.error);
+
+			// read the list
+			if (valLen >= len.value) {
+				auto reader = child("");
+				reader.setTypeInfo("List", len.value);
+				for (std::size_t i = 0; i < len.value; i++) {
+					oxReturnError(reader.field("", &val[i]));
+				}
+			} else {
+				oxTrace("ox::mc::read::field(T)") << name << ", size:" << valLen;
+				return OxError(MC_OUTBUFFENDED);
+			}
 		}
 	}
 	++m_field;
@@ -193,23 +197,25 @@ Error MetalClawReader::field(const char *name, T *val, std::size_t valLen) {
 
 template<typename T, typename Handler>
 Error MetalClawReader::field(const char*, Handler handler) {
-	if ((m_unionIdx == -1 || m_unionIdx == m_field) && m_fieldPresence.get(m_field)) {
-		// read the length
-		if (m_buffIt >= m_buffLen) {
-			return OxError(MC_BUFFENDED);
-		}
-		std::size_t bytesRead = 0;
-		auto len = mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
-		m_buffIt += bytesRead;
-		oxReturnError(len.error);
+	if (m_unionIdx == -1 || m_unionIdx == m_field) {
+		if (m_fieldPresence.get(m_field)) {
+			// read the length
+			if (m_buffIt >= m_buffLen) {
+				return OxError(MC_BUFFENDED);
+			}
+			std::size_t bytesRead = 0;
+			auto len = mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+			m_buffIt += bytesRead;
+			oxReturnError(len.error);
 
-		// read the list
-		auto reader = child("");
-		reader.setTypeInfo("List", len.value);
-		for (std::size_t i = 0; i < len.value; i++) {
-			T val;
-			oxReturnError(reader.field("", &val));
-			oxReturnError(handler(i, &val));
+			// read the list
+			auto reader = child("");
+			reader.setTypeInfo("List", len.value);
+			for (std::size_t i = 0; i < len.value; i++) {
+				T val;
+				oxReturnError(reader.field("", &val));
+				oxReturnError(handler(i, &val));
+			}
 		}
 	}
 	++m_field;
@@ -218,11 +224,13 @@ Error MetalClawReader::field(const char*, Handler handler) {
 
 template<typename T>
 Error MetalClawReader::field(const char* name, ox::Vector<T> *val) {
-	if ((m_unionIdx == -1 || m_unionIdx == m_field) && m_fieldPresence.get(m_field)) {
-		const auto [len, err] = arrayLength(name, false);
-		oxReturnError(err);
-		val->resize(len);
-		return field(name, val->data(), val->size());
+	if (m_unionIdx == -1 || m_unionIdx == m_field) {
+		if (m_fieldPresence.get(m_field)) {
+			const auto [len, err] = arrayLength(name, false);
+			oxReturnError(err);
+			val->resize(len);
+			return field(name, val->data(), val->size());
+		}
 	}
 	return OxError(0);
 }

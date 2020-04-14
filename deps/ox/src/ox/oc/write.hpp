@@ -17,101 +17,125 @@
 
 namespace ox {
 
-template<typename Key>
 class OrganicClawWriter {
-	friend OrganicClawWriter<const char*>;
-	friend OrganicClawWriter<Json::ArrayIndex>;
+
 	template<typename T>
 	friend ValErr<String> writeOC(T *val);
 
 	protected:
 		Json::Value m_json;
+		Json::ArrayIndex m_fieldIt = 0;
+		int m_unionIdx = -1;
 
 	public:
-		OrganicClawWriter() = default;
+		OrganicClawWriter(int unionIdx = -1);
 
-		OrganicClawWriter(Json::Value json);
+		OrganicClawWriter(Json::Value json, int unionIdx = -1);
 
-		Error field(Key, int8_t *val);
-		Error field(Key, int16_t *val);
-		Error field(Key, int32_t *val);
-		Error field(Key, int64_t *val);
+		[[nodiscard]] Error field(const char*, int8_t *val);
+		[[nodiscard]] Error field(const char*, int16_t *val);
+		[[nodiscard]] Error field(const char*, int32_t *val);
+		[[nodiscard]] Error field(const char*, int64_t *val);
 
-		Error field(Key, uint8_t *val);
-		Error field(Key, uint16_t *val);
-		Error field(Key, uint32_t *val);
-		Error field(Key, uint64_t *val);
+		[[nodiscard]] Error field(const char*, uint8_t *val);
+		[[nodiscard]] Error field(const char*, uint16_t *val);
+		[[nodiscard]] Error field(const char*, uint32_t *val);
+		[[nodiscard]] Error field(const char*, uint64_t *val);
 
-		Error field(Key, bool *val);
-
-		template<typename T>
-		Error field(Key, T *val, std::size_t len);
+		[[nodiscard]] Error field(const char*, bool *val);
 
 		template<typename T>
-		Error field(Key, ox::Vector<T> *val);
+		[[nodiscard]] Error field(const char*, T *val, std::size_t len);
+
+		template<typename U>
+		[[nodiscard]] Error field(const char*, UnionView<U> val);
+
+		template<typename T>
+		[[nodiscard]] Error field(const char*, ox::Vector<T> *val);
 
 		template<std::size_t L>
-		Error field(Key, ox::BString<L> *val);
+		[[nodiscard]] Error field(const char*, ox::BString<L> *val);
 
-		Error field(Key, ox::String val);
+		[[nodiscard]] Error field(const char*, ox::String val);
 
-		Error field(Key, SerStr val);
+		[[nodiscard]] Error field(const char*, SerStr val);
 
 		template<typename T>
-		Error field(Key, T *val);
+		[[nodiscard]] Error field(const char*, T *val);
 
-		void setTypeInfo(const char *name, int fields);
+		template<typename T = void>
+		constexpr void setTypeInfo(const char* = T::TypeName, int = T::Fields) {
+		}
 
 		static constexpr auto opType() {
 			return OpType::Write;
 		}
 
+	private:
+		constexpr bool targetValid() noexcept {
+			return static_cast<int>(m_fieldIt) == m_unionIdx || m_unionIdx == -1;
+		}
+
+		Json::Value &value(const char *key);
+
 };
 
-template<typename Key>
 template<typename T>
-Error OrganicClawWriter<Key>::field(Key key, T *val, std::size_t len) {
-	OrganicClawWriter<Json::ArrayIndex> w;
-	for (std::size_t i = 0; i < len; ++i) {
-		oxReturnError(w.field(i, &val[i]));
+Error OrganicClawWriter::field(const char *key, T *val, std::size_t len) {
+	if (targetValid()) {
+		OrganicClawWriter w(Json::Value(Json::arrayValue));
+		for (std::size_t i = 0; i < len; ++i) {
+			oxReturnError(w.field("", &val[i]));
+		}
+		value(key) = w.m_json;
 	}
-	m_json[key] = w.m_json;
+	++m_fieldIt;
 	return OxError(0);
 }
 
-template<typename Key>
 template<std::size_t L>
-Error OrganicClawWriter<Key>::field(Key key, ox::BString<L> *val) {
+Error OrganicClawWriter::field(const char *key, ox::BString<L> *val) {
 	return field(key, SerStr(val->data(), val->cap()));
 }
 
-template<typename Key>
 template<typename T>
-Error OrganicClawWriter<Key>::field(Key key, T *val) {
-	OrganicClawWriter<const char*> w;
-	oxReturnError(model(&w, val));
-	if (!w.m_json.isNull()) {
-		m_json[key] = w.m_json;
+Error OrganicClawWriter::field(const char *key, T *val) {
+	if (targetValid()) {
+		OrganicClawWriter w;
+		oxReturnError(model(&w, val));
+		if (!w.m_json.isNull()) {
+			value(key) = w.m_json;
+		}
 	}
+	++m_fieldIt;
 	return OxError(0);
 }
 
-template<typename Key>
+template<typename U>
+Error OrganicClawWriter::field(const char *key, UnionView<U> val) {
+	if (targetValid()) {
+		OrganicClawWriter w(val.idx());
+		oxReturnError(model(&w, val.get()));
+		if (!w.m_json.isNull()) {
+			value(key) = w.m_json;
+		}
+	}
+	++m_fieldIt;
+	return OxError(0);
+}
+
 template<typename T>
-Error OrganicClawWriter<Key>::field(Key key, ox::Vector<T> *val) {
+Error OrganicClawWriter::field(const char *key, ox::Vector<T> *val) {
 	return field(key, val->data(), val->size());
 }
 
 
 template<typename T>
 ValErr<String> writeOC(T *val) {
-	OrganicClawWriter<const char*> writer;
+	OrganicClawWriter writer;
 	oxReturnError(model(&writer, val));
 	Json::StreamWriterBuilder jsonBuilder;
 	return String(Json::writeString(jsonBuilder, writer.m_json).c_str());
 }
-
-extern template class OrganicClawWriter<const char*>;
-extern template class OrganicClawWriter<Json::ArrayIndex>;
 
 }

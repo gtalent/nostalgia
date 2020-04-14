@@ -18,12 +18,12 @@
 
 namespace ox {
 
-template<typename Key>
 class OrganicClawReader {
 
 	private:
 		Json::Value m_json;
 		Json::ArrayIndex m_fieldIt = 0;
+		int m_unionIdx = -1;
 
 	public:
 		OrganicClawReader() = default;
@@ -32,57 +32,62 @@ class OrganicClawReader {
 
 		OrganicClawReader(const char *json, std::size_t buffSize);
 
-		OrganicClawReader(const Json::Value &json);
+		OrganicClawReader(const Json::Value &json, int unionIdx = -1);
 
-		[[nodiscard]] Error field(Key key, int8_t *val);
-		[[nodiscard]] Error field(Key key, int16_t *val);
-		[[nodiscard]] Error field(Key key, int32_t *val);
-		[[nodiscard]] Error field(Key key, int64_t *val);
+		[[nodiscard]] Error field(const char *key, int8_t *val);
+		[[nodiscard]] Error field(const char *key, int16_t *val);
+		[[nodiscard]] Error field(const char *key, int32_t *val);
+		[[nodiscard]] Error field(const char *key, int64_t *val);
 
-		[[nodiscard]] Error field(Key key, uint8_t *val);
-		[[nodiscard]] Error field(Key key, uint16_t *val);
-		[[nodiscard]] Error field(Key key, uint32_t *val);
-		[[nodiscard]] Error field(Key key, uint64_t *val);
+		[[nodiscard]] Error field(const char *key, uint8_t *val);
+		[[nodiscard]] Error field(const char *key, uint16_t *val);
+		[[nodiscard]] Error field(const char *key, uint32_t *val);
+		[[nodiscard]] Error field(const char *key, uint64_t *val);
 
-		[[nodiscard]] Error field(Key key, bool *val);
+		[[nodiscard]] Error field(const char *key, bool *val);
 
 		// array handler
 		template<typename T>
-		[[nodiscard]] Error field(Key key, T *val, std::size_t len);
+		[[nodiscard]] Error field(const char *key, T *val, std::size_t len);
 
 		template<typename T>
-		[[nodiscard]] Error field(Key key, ox::Vector<T> *val);
+		[[nodiscard]] Error field(const char *key, ox::Vector<T> *val);
 
 		template<typename T>
-		[[nodiscard]] Error field(Key key, T *val);
+		[[nodiscard]] Error field(const char *key, T *val);
+
+		template<typename U>
+		[[nodiscard]] Error field(const char *key, UnionView<U> val);
 
 		template<std::size_t L>
-		[[nodiscard]] Error field(Key key, ox::BString<L> *val);
+		[[nodiscard]] Error field(const char *key, ox::BString<L> *val);
 
-		[[nodiscard]] Error field(Key key, SerStr val);
+		[[nodiscard]] Error field(const char *key, SerStr val);
 
 		/**
 		 * Reads an array length from the current location in the buffer.
 		 * @param pass indicates that the parsing should iterate past the array length
 		 */
-		[[nodiscard]] ValErr<std::size_t> arrayLength(Key key, bool pass = true);
+		[[nodiscard]] ValErr<std::size_t> arrayLength(const char *key, bool pass = true);
 
 		/**
 		 * Reads an string length from the current location in the buffer.
 		 */
-		[[nodiscard]] std::size_t stringLength(Key name);
+		[[nodiscard]] std::size_t stringLength(const char *name);
 
-		void setTypeInfo(const char *name, int fields);
+		template<typename T = void>
+		constexpr void setTypeInfo(const char* = T::TypeName, int = T::Fields) {
+		}
 
 		/**
 		 * Returns a OrganicClawReader to parse a child object.
 		 */
-		[[nodiscard]] OrganicClawReader child(Key key);
+		[[nodiscard]] OrganicClawReader child(const char *key, int unionIdx = -1);
 
 		// compatibility stub
 		constexpr void nextField() noexcept {}
 
-		bool fieldPresent(Key key);
+		bool fieldPresent(const char *key);
 
 		static constexpr auto opType() {
 			return OpType::Read;
@@ -90,52 +95,66 @@ class OrganicClawReader {
 
 	private:
 
-		Json::Value &value(Key key);
+		Json::Value &value(const char *key);
+
+		bool targetValid() noexcept;
 
 };
 
-template<typename Key>
 template<typename T>
-Error OrganicClawReader<Key>::field(Key key, T *val) {
-	if (val) {
+Error OrganicClawReader::field(const char *key, T *val) {
+	auto err = OxError(0);
+	if (targetValid()) {
 		const auto &jv = value(key);
-		++m_fieldIt;
-		if (jv.empty()) {
-			return OxError(0);
-		}
-		if (jv.isObject()) {
+		if (jv.empty() || jv.isObject()) {
 			auto reader = child(key);
 			return model(&reader, val);
+		} else {
+			err = OxError(1, "Type mismatch");
 		}
 	}
-	return OxError(0);
+	++m_fieldIt;
+	return err;
 }
 
-template<typename Key>
+template<typename U>
+Error OrganicClawReader::field(const char *key, UnionView<U> val) {
+	auto err = OxError(0);
+	if (targetValid()) {
+		const auto &jv = value(key);
+		if (jv.empty() || jv.isObject()) {
+			auto reader = child(key, val.idx());
+			return model(&reader, val.get());
+		} else {
+			err = OxError(1, "Type mismatch");
+		}
+	}
+	++m_fieldIt;
+	return err;
+}
+
 template<std::size_t L>
-Error OrganicClawReader<Key>::field(Key name, ox::BString<L> *val) {
+Error OrganicClawReader::field(const char *name, ox::BString<L> *val) {
 	return field(name, SerStr(val->data(), val->cap()));
 }
 
 // array handler
-template<typename Key>
 template<typename T>
-Error OrganicClawReader<Key>::field(Key key, T *val, std::size_t valLen) {
-	const auto &srcVal = m_json[key];
+Error OrganicClawReader::field(const char *key, T *val, std::size_t valLen) {
+	const auto &srcVal = value(key);
 	auto srcSize = srcVal.size();
 	if (srcSize > valLen) {
 		return OxError(1);
 	}
-	OrganicClawReader<const char*> r(srcVal);
+	OrganicClawReader r(srcVal);
 	for (decltype(srcSize) i = 0; i < srcSize; ++i) {
 		oxReturnError(r.field("", &val[i]));
 	}
 	return OxError(0);
 }
 
-template<typename Key>
 template<typename T>
-Error OrganicClawReader<Key>::field(Key key, ox::Vector<T> *val) {
+Error OrganicClawReader::field(const char *key, ox::Vector<T> *val) {
 	return field(nullptr, val->data(), val->size());
 }
 
@@ -149,7 +168,7 @@ Error readOC(const char *json, std::size_t jsonSize, T *val) noexcept {
 		if (!parser->parse(json, json + jsonSize, &doc, nullptr)) {
 			return OxError(1, "Could not parse JSON");
 		}
-		OrganicClawReader<const char*> reader(json, jsonSize);
+		OrganicClawReader reader(json, jsonSize);
 		return model(&reader, val);
 	} catch (Error err) {
 		return err;

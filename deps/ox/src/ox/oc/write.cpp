@@ -10,105 +10,109 @@
 
 namespace ox {
 
-template<typename Key>
-OrganicClawWriter<Key>::OrganicClawWriter(Json::Value json) {
-	m_json = json;
+OrganicClawWriter::OrganicClawWriter(int unionIdx): m_unionIdx(unionIdx) {
 }
 
-template<typename Key>
-Error OrganicClawWriter<Key>::field(Key key, int8_t *val) {
+OrganicClawWriter::OrganicClawWriter(Json::Value json, int unionIdx):
+	m_json(json),
+	m_unionIdx(unionIdx) {
+}
+
+Error OrganicClawWriter::field(const char *key, int8_t *val) {
 	if (*val) {
-		m_json[key] = *val;
+		value(key) = *val;
 	}
+	++m_fieldIt;
 	return OxError(0);
 }
 
-template<typename Key>
-Error OrganicClawWriter<Key>::field(Key key, int16_t *val) {
+Error OrganicClawWriter::field(const char *key, int16_t *val) {
 	if (*val) {
-		m_json[key] = *val;
+		value(key) = *val;
 	}
+	++m_fieldIt;
 	return OxError(0);
 }
 
-template<typename Key>
-Error OrganicClawWriter<Key>::field(Key key, int32_t *val) {
+Error OrganicClawWriter::field(const char *key, int32_t *val) {
 	if (*val) {
-		m_json[key] = *val;
+		value(key) = *val;
 	}
+	++m_fieldIt;
 	return OxError(0);
 }
 
-template<typename Key>
-Error OrganicClawWriter<Key>::field(Key key, int64_t *val) {
+Error OrganicClawWriter::field(const char *key, int64_t *val) {
 	if (*val) {
-		m_json[key] = *val;
+		value(key) = *val;
 	}
+	++m_fieldIt;
 	return OxError(0);
 }
 
 
-template<typename Key>
-Error OrganicClawWriter<Key>::field(Key key, uint8_t *val) {
+Error OrganicClawWriter::field(const char *key, uint8_t *val) {
 	if (*val) {
-		m_json[key] = *val;
+		value(key) = *val;
 	}
+	++m_fieldIt;
 	return OxError(0);
 }
 
-template<typename Key>
-Error OrganicClawWriter<Key>::field(Key key, uint16_t *val) {
-	if (*val) {
-		m_json[key] = *val;
+Error OrganicClawWriter::field(const char *key, uint16_t *val) {
+	if (targetValid() && *val) {
+		value(key) = *val;
 	}
+	++m_fieldIt;
 	return OxError(0);
 }
 
-template<typename Key>
-Error OrganicClawWriter<Key>::field(Key key, uint32_t *val) {
-	if (*val) {
-		m_json[key] = *val;
+Error OrganicClawWriter::field(const char *key, uint32_t *val) {
+	if (targetValid() && *val) {
+		value(key) = *val;
 	}
+	++m_fieldIt;
 	return OxError(0);
 }
 
-template<typename Key>
-Error OrganicClawWriter<Key>::field(Key key, uint64_t *val) {
-	if (*val) {
-		m_json[key] = *val;
+Error OrganicClawWriter::field(const char *key, uint64_t *val) {
+	if (targetValid() && *val) {
+		value(key) = *val;
 	}
+	++m_fieldIt;
 	return OxError(0);
 }
 
-template<typename Key>
-Error OrganicClawWriter<Key>::field(Key key, bool *val) {
-	if (*val) {
-		m_json[key] = *val;
+Error OrganicClawWriter::field(const char *key, bool *val) {
+	if (targetValid() && *val) {
+		value(key) = *val;
 	}
+	++m_fieldIt;
 	return OxError(0);
 }
 
-template<typename Key>
-Error OrganicClawWriter<Key>::field(Key key, ox::String val) {
-	if (val.len()) {
-		m_json[key] = val.c_str();
+Error OrganicClawWriter::field(const char *key, ox::String val) {
+	if (targetValid() && val.len()) {
+		value(key) = val.c_str();
 	}
+	++m_fieldIt;
 	return OxError(0);
 }
 
-template<typename Key>
-Error OrganicClawWriter<Key>::field(Key key, SerStr val) {
-	if (val.len()) {
-		m_json[key] = val.c_str();
+Error OrganicClawWriter::field(const char *key, SerStr val) {
+	if (targetValid() && val.len()) {
+		value(key) = val.c_str();
 	}
+	++m_fieldIt;
 	return OxError(0);
 }
 
-template<typename Key>
-void OrganicClawWriter<Key>::setTypeInfo(const char*, int) {
+Json::Value &OrganicClawWriter::value(const char *key) {
+	if (m_json.isArray()) {
+		return m_json[m_fieldIt];
+	} else {
+		return m_json[key];
+	}
 }
-
-template class OrganicClawWriter<const char*>;
-template class OrganicClawWriter<Json::ArrayIndex>;
 
 }

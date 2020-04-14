@@ -16,6 +16,14 @@
 #include <ox/oc/oc.hpp>
 #include <ox/std/std.hpp>
 
+union TestUnion {
+	static constexpr auto TypeName = "TestUnion";
+	static constexpr auto Fields = 3;
+	bool Bool;
+	uint32_t Int = 5;
+	char String[32];
+};
+
 struct TestStructNest {
 	bool Bool = false;
 	uint32_t Int = 0;
@@ -33,6 +41,7 @@ struct TestStruct {
 	int32_t Int6 = 0;
 	int32_t Int7 = 0;
 	int32_t Int8 = 0;
+	TestUnion Union;
 	ox::BString<32> String = "";
 	uint32_t List[4] = {0, 0, 0 , 0};
 	TestStructNest EmptyStruct;
@@ -40,13 +49,21 @@ struct TestStruct {
 };
 
 template<typename T>
+ox::Error model(T *io, TestUnion *obj) {
+	io->template setTypeInfo<TestUnion>();
+	oxReturnError(io->field("Bool", &obj->Bool));
+	oxReturnError(io->field("Int", &obj->Int));
+	oxReturnError(io->field("String", ox::SerStr(obj->String)));
+	return OxError(0);
+}
+
+template<typename T>
 ox::Error model(T *io, TestStructNest *obj) {
-	auto err = OxError(0);
 	io->setTypeInfo("TestStructNest", 3);
-	err |= io->field("Bool", &obj->Bool);
-	err |= io->field("Int", &obj->Int);
-	err |= io->field("String", &obj->String);
-	return err;
+	oxReturnError(io->field("Bool", &obj->Bool));
+	oxReturnError(io->field("Int", &obj->Int));
+	oxReturnError(io->field("String", &obj->String));
+	return OxError(0);
 }
 
 template<typename T>
@@ -62,6 +79,7 @@ ox::Error model(T *io, TestStruct *obj) {
 	oxReturnError(io->field("Int6", &obj->Int6));
 	oxReturnError(io->field("Int7", &obj->Int7));
 	oxReturnError(io->field("Int8", &obj->Int8));
+	oxReturnError(io->field("Union", ox::UnionView{&obj->Union, 1}));
 	oxReturnError(io->field("String", &obj->String));
 	oxReturnError(io->field("List", obj->List, 4));
 	oxReturnError(io->field("EmptyStruct", &obj->EmptyStruct));
@@ -86,6 +104,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 				TestStruct testIn;
 				testIn.Bool = true;
 				testIn.Int = 42;
+				testIn.Union.Int = 52;
 				testIn.String = "Test String 1";
 				testIn.List[0] = 1;
 				testIn.List[1] = 2;
@@ -111,6 +130,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 				oxAssert(testIn.Int6               == testOut.Int6, "Int6 value mismatch");
 				oxAssert(testIn.Int7               == testOut.Int7, "Int7 value mismatch");
 				oxAssert(testIn.Int8               == testOut.Int8, "Int8 value mismatch");
+				oxAssert(testIn.Union.Int          == testOut.Union.Int, "Union.Int value mismatch");
 				oxAssert(testIn.String             == testOut.String, "String value mismatch");
 				oxAssert(testIn.List[0]            == testOut.List[0], "List[0] value mismatch");
 				oxAssert(testIn.List[1]            == testOut.List[1], "List[1] value mismatch");
@@ -146,8 +166,8 @@ std::map<std::string, ox::Error(*)()> tests = {
 				oxAssert(ocErr, "Data generation failed");
 				auto type = ox::buildTypeDef(&testIn);
 				oxAssert(type.error, "Descriptor write failed");
-				ox::walkModel<ox::OrganicClawReader<const char*>>(type.value, ox::bit_cast<uint8_t*>(oc.c_str()), oc.len() + 1,
-					[](const ox::Vector<ox::FieldName>&, const ox::Vector<ox::TypeName>&, const ox::DescriptorField &f, ox::OrganicClawReader<const char*> *rdr) -> ox::Error {
+				ox::walkModel<ox::OrganicClawReader>(type.value, ox::bit_cast<uint8_t*>(oc.c_str()), oc.len() + 1,
+					[](const ox::Vector<ox::FieldName>&, const ox::Vector<ox::TypeName>&, const ox::DescriptorField &f, ox::OrganicClawReader *rdr) -> ox::Error {
 						//std::cout << f.fieldName.c_str() << '\n';
 						auto fieldName = f.fieldName.c_str();
 						switch (f.type->primitiveType) {

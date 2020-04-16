@@ -29,15 +29,17 @@ class FileAddress {
 	friend ox::Error modelWrite(T*, FileAddress*);
 
 	public:
+		static constexpr auto TypeName = "ox::FileAddress";
 		static constexpr auto Fields = 2;
 
 	protected:
-		FileAddressType m_type = FileAddressType::None;
-		union {
+		union Data {
 			char *path;
 			const char *constPath;
 			uint64_t inode;
-		} m_data;
+		};
+		FileAddressType m_type = FileAddressType::None;
+		Data m_data;
 
 	public:
 		FileAddress();
@@ -94,9 +96,9 @@ class FileAddress {
 
 template<typename T>
 ox::Error modelRead(T *io, FileAddress *fa) {
-	io->setTypeInfo("ox::FileAddress", FileAddress::Fields);
+	io->template setTypeInfo<FileAddress>();
 	decltype(fa->m_data.inode) inode = 0;
-	const auto strSize = io->stringLength() + 1;
+	const auto strSize = io->stringLength("path") + 1;
 	auto path = new char[strSize];
 	oxReturnError(io->field("path", SerStr(path, strSize - 1)));
 	oxReturnError(io->field("inode", &inode));
@@ -113,7 +115,7 @@ ox::Error modelRead(T *io, FileAddress *fa) {
 
 template<typename T>
 ox::Error modelWrite(T *io, FileAddress *fa) {
-	io->setTypeInfo("ox::FileAddress", FileAddress::Fields);
+	io->template setTypeInfo<FileAddress>();
 	switch (fa->m_type) {
 		case FileAddressType::Path:
 		case FileAddressType::ConstPath:
@@ -142,6 +144,23 @@ ox::Error modelWrite(T *io, FileAddress *fa) {
 			break;
 		}
 	}
+	return OxError(0);
+}
+
+template<typename T>
+ox::Error modelWriteDefinition(T *io, FileAddress::Data *obj) {
+	io->template setTypeInfo<FileAddress::Data>();
+	oxReturnError(io->field("path", &obj->path));
+	oxReturnError(io->field("constPath", &obj->constPath));
+	oxReturnError(io->field("inode", &obj->inode));
+	return OxError(0);
+}
+
+template<typename T>
+ox::Error modelWriteDefinition(T *io, FileAddress *fa) {
+	io->template setTypeInfo<FileAddress>();
+	oxReturnError(io->field("type", &fa->m_type));
+	oxReturnError(io->field("data", UnionView(&fa->m_data, fa->m_type)));
 	return OxError(0);
 }
 

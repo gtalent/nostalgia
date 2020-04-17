@@ -25,8 +25,8 @@ using TileMap = std::array<std::array<int, 128>, 128>;
 struct SdlImplData {
 	SDL_Window *window = nullptr;
 	SDL_Renderer *renderer = nullptr;
-	std::array<SDL_Texture*, 4> bgTextures;
-	std::array<TileMap, 4> bgTileMaps;
+	std::array<SDL_Texture*, 4> bgTextures{};
+	std::array<TileMap, 4> bgTileMaps{};
 	int64_t prevFpsCheckTime = 0;
 	uint64_t draws = 0;
 };
@@ -188,7 +188,10 @@ void draw(Context *ctx) {
 
 void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
 	auto id = ctx->implData<SdlImplData>();
-	id->bgTileMaps[layer][row][column] = tile;
+	auto z = static_cast<unsigned>(layer);
+	auto y = static_cast<unsigned>(row);
+	auto x = static_cast<unsigned>(column);
+	id->bgTileMaps[z][y][x] = tile;
 }
 
 }

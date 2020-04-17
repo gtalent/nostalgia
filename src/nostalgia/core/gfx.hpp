@@ -28,11 +28,13 @@ using Color16 = uint16_t;
 using Color32 = uint32_t;
 
 struct NostalgiaPalette {
+	static constexpr auto TypeName = "nostalgia::core::NostalgiaPalette";
 	static constexpr auto Fields = 1;
 	ox::Vector<Color16> colors;
 };
 
 struct NostalgiaGraphic {
+	static constexpr auto TypeName = "nostalgia::core::NostalgiaGraphic";
 	static constexpr auto Fields = 6;
 	int8_t bpp = 0;
 	// rows and columns are really only used by TileSheetEditor
@@ -45,14 +47,14 @@ struct NostalgiaGraphic {
 
 template<typename T>
 ox::Error model(T *io, NostalgiaPalette *pal) {
-	io->setTypeInfo("nostalgia::core::NostalgiaPalette", NostalgiaPalette::Fields);
+	io->template setTypeInfo<NostalgiaPalette>();
 	oxReturnError(io->field("colors", &pal->colors));
 	return OxError(0);
 }
 
 template<typename T>
 ox::Error model(T *io, NostalgiaGraphic *ng) {
-	io->setTypeInfo("nostalgia::core::NostalgiaGraphic", NostalgiaGraphic::Fields);
+	io->template setTypeInfo<NostalgiaGraphic>();
 	oxReturnError(io->field("bpp", &ng->bpp));
 	oxReturnError(io->field("rows", &ng->rows));
 	oxReturnError(io->field("columns", &ng->columns));

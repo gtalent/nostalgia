@@ -20,6 +20,7 @@ class SerStr {
 	protected:
 		int m_cap = 0;
 		char *m_str = nullptr;
+		char **m_tgt = nullptr;
 
 	public:
 		template<std::size_t sz>
@@ -33,6 +34,12 @@ class SerStr {
 			m_cap = cap;
 		}
 
+		constexpr SerStr(char **tgt, int cap = -1) noexcept {
+			m_tgt = tgt;
+			m_str = const_cast<char*>(*tgt);
+			m_cap = cap;
+		}
+
 		template<std::size_t cap>
 		constexpr SerStr(char (&str)[cap]) noexcept {
 			m_str = str;
@@ -43,13 +50,17 @@ class SerStr {
 			return m_str;
 		}
 
-		constexpr char *data() noexcept {
-			// do not return a non-const pointer to the const_casted m_str
+		constexpr char *data(std::size_t sz = 0) noexcept {
+			if (m_tgt && sz) {
+				*m_tgt = new char[sz];
+				m_str = *m_tgt;
+				m_cap = sz;
+			}
 			return m_str;
 		}
 
 		constexpr int len() noexcept {
-			return ox_strlen(m_str);
+			return m_str ? ox_strlen(m_str) : 0;
 		}
 
 		constexpr int cap() noexcept {

@@ -68,7 +68,7 @@ Error MetalClawWriter::field(const char*, bool *val) noexcept {
 
 Error MetalClawWriter::field(const char*, SerStr val) noexcept {
 	bool fieldSet = false;
-	if (val.cap() && (m_unionIdx == -1 || m_unionIdx == m_field)) {
+	if (val.len() && (m_unionIdx == -1 || m_unionIdx == m_field)) {
 		// write the length
 		const auto strLen = mc::encodeInteger(val.len());
 		if (m_buffIt + strLen.length + val.len() < m_buffLen) {

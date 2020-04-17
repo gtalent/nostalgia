@@ -13,6 +13,18 @@
 #include "typetraits.hpp"
 
 template<typename T1, typename T2>
+constexpr char *ox_strcpy(T1 dest, T2 src) noexcept {
+	std::size_t i = 0;
+	while (src[i]) {
+		dest[i] = src[i];
+		++i;
+	}
+	// set null terminator
+	dest[i] = 0;
+	return dest;
+}
+
+template<typename T1, typename T2>
 constexpr char *ox_strncpy(T1 dest, T2 src, std::size_t maxLen) noexcept {
 	std::size_t i = 0;
 	while (i < maxLen && src[i]) {

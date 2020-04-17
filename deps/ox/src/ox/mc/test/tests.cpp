@@ -36,7 +36,7 @@ struct TestStructNest {
 
 struct TestStruct {
 	static constexpr auto TypeName = "TestStruct";
-	static constexpr auto Fields = 15;
+	static constexpr auto Fields = 16;
 	bool Bool = false;
 	int32_t Int = 0;
 	int32_t Int1 = 0;
@@ -48,10 +48,16 @@ struct TestStruct {
 	int32_t Int7 = 0;
 	int32_t Int8 = 0;
 	TestUnion Union;
+	char *CString = nullptr;
 	ox::BString<32> String = "";
 	uint32_t List[4] = {0, 0, 0, 0};
 	TestStructNest EmptyStruct;
 	TestStructNest Struct;
+
+	~TestStruct() {
+		delete[] CString;
+	}
+
 };
 
 template<typename T>
@@ -86,6 +92,7 @@ ox::Error model(T *io, TestStruct *obj) {
 	oxReturnError(io->field("Int7", &obj->Int7));
 	oxReturnError(io->field("Int8", &obj->Int8));
 	oxReturnError(io->field("Union", ox::UnionView{&obj->Union, 1}));
+	oxReturnError(io->field("CString", ox::SerStr(&obj->CString)));
 	oxReturnError(io->field("String", &obj->String));
 	oxReturnError(io->field("List", obj->List, 4));
 	oxReturnError(io->field("EmptyStruct", &obj->EmptyStruct));
@@ -120,6 +127,8 @@ std::map<std::string, ox::Error(*)()> tests = {
 				testIn.Int = 42;
 				testIn.Union.Int = 42;
 				testIn.String = "Test String 1";
+				testIn.CString = new char[ox_strlen("c-string") + 1];
+				ox_strcpy(testIn.CString, "c-string");
 				testIn.List[0] = 1;
 				testIn.List[1] = 2;
 				testIn.List[2] = 3;
@@ -142,6 +151,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 				oxAssert(testIn.Int6               == testOut.Int6, "Int6 value mismatch");
 				oxAssert(testIn.Int7               == testOut.Int7, "Int7 value mismatch");
 				oxAssert(testIn.Int8               == testOut.Int8, "Int8 value mismatch");
+				oxAssert(ox_strcmp(testIn.CString, testOut.CString) == 0, "CString value mismatch");
 				oxAssert(testIn.Union.Int          == testOut.Union.Int, "Union.Int value mismatch");
 				oxAssert(testIn.String             == testOut.String, "String value mismatch");
 				oxAssert(testIn.List[0]            == testOut.List[0], "List[0] value mismatch");

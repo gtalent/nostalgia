@@ -83,11 +83,12 @@ Error MetalClawReader::field(const char*, SerStr val) {
 			auto [size, err] = mc::decodeInteger<StringLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
 			m_buffIt += bytesRead;
 			oxReturnError(err);
+			auto data = val.data(size + 1);
 			// read the string
 			if (val.cap() > -1 && static_cast<StringLength>(val.cap()) >= size) {
 				if (m_buffIt + size <= m_buffLen) {
-					ox_memcpy(val.data(), &m_buff[m_buffIt], size);
-					val.data()[size] = 0;
+					ox_memcpy(data, &m_buff[m_buffIt], size);
+					data[size] = 0;
 					m_buffIt += size;
 				} else {
 					return OxError(MC_BUFFENDED);
@@ -96,7 +97,10 @@ Error MetalClawReader::field(const char*, SerStr val) {
 				return OxError(MC_OUTBUFFENDED);
 			}
 		} else {
-			val.data()[0] = 0;
+			auto data = val.data();
+			if (data) {
+				data[0] = 0;
+			}
 		}
 	}
 	++m_field;

@@ -124,7 +124,7 @@ Error OrganicClawReader::field(const char *key, UnionView<U> val) {
 		const auto &jv = value(key);
 		if (jv.empty() || jv.isObject()) {
 			auto reader = child(key, val.idx());
-			return model(&reader, val.get());
+			err = model(&reader, val.get());
 		} else {
 			err = OxError(1, "Type mismatch");
 		}
@@ -178,9 +178,9 @@ Error readOC(const char *json, std::size_t jsonSize, T *val) noexcept {
 }
 
 template<typename T>
-ValErr<T> readOC(const char *json) {
-	T val;
-	oxReturnError(readOC(json, ox_strlen(json), &val));
+ValErr<std::unique_ptr<T>> readOC(const char *json) {
+	auto val = std::make_unique<T>();
+	oxReturnError(readOC(json, ox_strlen(json), val.get()));
 	return {std::move(val), OxError(0)};
 }
 

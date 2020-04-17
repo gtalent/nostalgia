@@ -186,15 +186,19 @@ Error OrganicClawReader::field(const char *key, SerStr val) {
 	const auto &jv = value(key);
 	if (targetValid()) {
 		if (jv.empty()) {
-			val.data()[0] = 0;
+			auto data = val.data();
+			if (data) {
+				data[0] = 0;
+			}
 		} else if (jv.isString()) {
 			jv.getString(&begin, &end);
 			auto strSize = end - begin;
+			auto data = val.data(static_cast<std::size_t>(strSize) + 1);
 			if (strSize >= val.cap()) {
 				err = OxError(1, "String size exceeds capacity of destination");
 			} else {
-				ox_memcpy(val.data(), begin, static_cast<std::size_t>(strSize));
-				val.data()[strSize] = 0;
+				ox_memcpy(data, begin, static_cast<std::size_t>(strSize));
+				data[strSize] = 0;
 			}
 		} else {
 			err = OxError(1, "Type mismatch");

@@ -42,10 +42,16 @@ struct TestStruct {
 	int32_t Int7 = 0;
 	int32_t Int8 = 0;
 	TestUnion Union;
+	char *CString = nullptr;
 	ox::BString<32> String = "";
-	uint32_t List[4] = {0, 0, 0 , 0};
+	uint32_t List[4] = {0, 0, 0, 0};
 	TestStructNest EmptyStruct;
 	TestStructNest Struct;
+
+	~TestStruct() {
+		delete[] CString;
+	}
+
 };
 
 template<typename T>
@@ -68,7 +74,7 @@ ox::Error model(T *io, TestStructNest *obj) {
 
 template<typename T>
 ox::Error model(T *io, TestStruct *obj) {
-	io->setTypeInfo("TestStruct", 14);
+	io->setTypeInfo("TestStruct", 16);
 	oxReturnError(io->field("Bool", &obj->Bool));
 	oxReturnError(io->field("Int", &obj->Int));
 	oxReturnError(io->field("Int1", &obj->Int1));
@@ -80,6 +86,7 @@ ox::Error model(T *io, TestStruct *obj) {
 	oxReturnError(io->field("Int7", &obj->Int7));
 	oxReturnError(io->field("Int8", &obj->Int8));
 	oxReturnError(io->field("Union", ox::UnionView{&obj->Union, 1}));
+	oxReturnError(io->field("CString", ox::SerStr(&obj->CString)));
 	oxReturnError(io->field("String", &obj->String));
 	oxReturnError(io->field("List", obj->List, 4));
 	oxReturnError(io->field("EmptyStruct", &obj->EmptyStruct));
@@ -106,6 +113,8 @@ std::map<std::string, ox::Error(*)()> tests = {
 				testIn.Int = 42;
 				testIn.Union.Int = 52;
 				testIn.String = "Test String 1";
+				testIn.CString = new char[ox_strlen("c-string") + 1];
+				ox_strcpy(testIn.CString, "c-string");
 				testIn.List[0] = 1;
 				testIn.List[1] = 2;
 				testIn.List[2] = 3;
@@ -120,28 +129,29 @@ std::map<std::string, ox::Error(*)()> tests = {
 				auto [testOut, readErr] = ox::readOC<TestStruct>(oc.c_str());
 				oxAssert(readErr, "readOC failed");
 
-				oxAssert(testIn.Bool               == testOut.Bool, "Bool value mismatch");
-				oxAssert(testIn.Int                == testOut.Int, "Int value mismatch");
-				oxAssert(testIn.Int1               == testOut.Int1, "Int1 value mismatch");
-				oxAssert(testIn.Int2               == testOut.Int2, "Int2 value mismatch");
-				oxAssert(testIn.Int3               == testOut.Int3, "Int3 value mismatch");
-				oxAssert(testIn.Int4               == testOut.Int4, "Int4 value mismatch");
-				oxAssert(testIn.Int5               == testOut.Int5, "Int5 value mismatch");
-				oxAssert(testIn.Int6               == testOut.Int6, "Int6 value mismatch");
-				oxAssert(testIn.Int7               == testOut.Int7, "Int7 value mismatch");
-				oxAssert(testIn.Int8               == testOut.Int8, "Int8 value mismatch");
-				oxAssert(testIn.Union.Int          == testOut.Union.Int, "Union.Int value mismatch");
-				oxAssert(testIn.String             == testOut.String, "String value mismatch");
-				oxAssert(testIn.List[0]            == testOut.List[0], "List[0] value mismatch");
-				oxAssert(testIn.List[1]            == testOut.List[1], "List[1] value mismatch");
-				oxAssert(testIn.List[2]            == testOut.List[2], "List[2] value mismatch");
-				oxAssert(testIn.List[3]            == testOut.List[3], "List[3] value mismatch");
-				oxAssert(testIn.EmptyStruct.Bool   == testOut.EmptyStruct.Bool, "EmptyStruct.Bool value mismatch");
-				oxAssert(testIn.EmptyStruct.Int    == testOut.EmptyStruct.Int, "EmptyStruct.Int value mismatch");
-				oxAssert(testIn.EmptyStruct.String == testOut.EmptyStruct.String, "EmptyStruct.String value mismatch");
-				oxAssert(testIn.Struct.Int         == testOut.Struct.Int, "Struct.Int value mismatch");
-				oxAssert(testIn.Struct.String      == testOut.Struct.String, "Struct.String value mismatch");
-				oxAssert(testIn.Struct.Bool        == testOut.Struct.Bool, "Struct.Bool value mismatch");
+				oxAssert(testIn.Bool               == testOut->Bool, "Bool value mismatch");
+				oxAssert(testIn.Int                == testOut->Int, "Int value mismatch");
+				oxAssert(testIn.Int1               == testOut->Int1, "Int1 value mismatch");
+				oxAssert(testIn.Int2               == testOut->Int2, "Int2 value mismatch");
+				oxAssert(testIn.Int3               == testOut->Int3, "Int3 value mismatch");
+				oxAssert(testIn.Int4               == testOut->Int4, "Int4 value mismatch");
+				oxAssert(testIn.Int5               == testOut->Int5, "Int5 value mismatch");
+				oxAssert(testIn.Int6               == testOut->Int6, "Int6 value mismatch");
+				oxAssert(testIn.Int7               == testOut->Int7, "Int7 value mismatch");
+				oxAssert(testIn.Int8               == testOut->Int8, "Int8 value mismatch");
+				oxAssert(ox_strcmp(testIn.CString, testOut->CString) == 0, "CString value mismatch");
+				oxAssert(testIn.Union.Int          == testOut->Union.Int, "Union.Int value mismatch");
+				oxAssert(testIn.String             == testOut->String, "String value mismatch");
+				oxAssert(testIn.List[0]            == testOut->List[0], "List[0] value mismatch");
+				oxAssert(testIn.List[1]            == testOut->List[1], "List[1] value mismatch");
+				oxAssert(testIn.List[2]            == testOut->List[2], "List[2] value mismatch");
+				oxAssert(testIn.List[3]            == testOut->List[3], "List[3] value mismatch");
+				oxAssert(testIn.EmptyStruct.Bool   == testOut->EmptyStruct.Bool, "EmptyStruct.Bool value mismatch");
+				oxAssert(testIn.EmptyStruct.Int    == testOut->EmptyStruct.Int, "EmptyStruct.Int value mismatch");
+				oxAssert(testIn.EmptyStruct.String == testOut->EmptyStruct.String, "EmptyStruct.String value mismatch");
+				oxAssert(testIn.Struct.Int         == testOut->Struct.Int, "Struct.Int value mismatch");
+				oxAssert(testIn.Struct.String      == testOut->Struct.String, "Struct.String value mismatch");
+				oxAssert(testIn.Struct.Bool        == testOut->Struct.Bool, "Struct.Bool value mismatch");
 
 				return OxError(0);
 			}

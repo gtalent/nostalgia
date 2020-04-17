@@ -18,12 +18,26 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QMap>
+#include <QValidator>
 #include <QVector>
 #include <QWizard>
 
 #include "nostalgiastudio_export.h"
 
 namespace nostalgia::studio {
+
+class PathExistsValidator: public QValidator {
+    private:
+        const class Context *m_ctx = nullptr;
+        QString m_pathTemplate;
+        bool m_shouldExist = true;
+
+    public:
+        PathExistsValidator(const class Context *ctx, QString pathTemplate, bool shouldExist);
+
+        QValidator::State validate(QString &input, int &pos) const override;
+
+};
 
 struct NOSTALGIASTUDIO_EXPORT WizardMaker {
 	QString name;

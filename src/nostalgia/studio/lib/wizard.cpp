@@ -15,12 +15,26 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
+#include "context.hpp"
+#include "project.hpp"
 #include "plugin.hpp"
 #include "wizard.hpp"
 
 namespace nostalgia::studio {
 
-using std::function;
+PathExistsValidator::PathExistsValidator(const Context *ctx, QString pathTemplate, bool shouldExist) {
+	m_ctx = ctx;
+	m_pathTemplate = pathTemplate;
+	m_shouldExist = shouldExist;
+}
+
+QValidator::State PathExistsValidator::validate(QString &input, int&) const {
+	auto path = m_pathTemplate.arg(input);
+	if (m_ctx->project->exists(path) == m_shouldExist) {
+		return QValidator::Acceptable;
+	}
+	return QValidator::Invalid;
+}
 
 WizardSelect::WizardSelect() {
 	m_listWidget = new QListWidget(this);
@@ -203,7 +217,7 @@ QComboBox *WizardFormPage::addComboBox(QString displayName, QString fieldName, Q
 	return cb;
 }
 
-QLineEdit *WizardFormPage::addLineEdit(QString displayName, QString fieldName, QString defaultVal, function<int(QString)> validator) {
+QLineEdit *WizardFormPage::addLineEdit(QString displayName, QString fieldName, QString defaultVal, std::function<int(QString)> validator) {
 	auto lbl = new QLabel(displayName, this);
 	auto le = new QLineEdit(this);
 	lbl->setBuddy(le);

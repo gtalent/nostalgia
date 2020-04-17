@@ -21,7 +21,7 @@ char *loadRom(const char *path) {
 		return nullptr;
 	}
 
-	const std::size_t size = file.tellg();
+	const auto size = file.tellg();
 	file.seekg(0, std::ios::beg);
 	auto buff = new char[size];
 	file.read(buff, size);

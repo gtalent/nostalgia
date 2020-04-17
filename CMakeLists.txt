@@ -37,6 +37,7 @@ if(NOT OX_BARE_METAL)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
+# enable ccache
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
@@ -121,6 +122,6 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 endif()
 
 add_subdirectory(deps/ox)
-include_directories(deps/ox/src)
+include_directories(SYSTEM deps/ox/src)
 
 add_subdirectory(src)

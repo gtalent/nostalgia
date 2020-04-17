@@ -18,7 +18,7 @@
 static void writeFileBuff(const std::string &path, std::vector<char> &buff) {
 	try {
 		std::ofstream f(path, std::ios::binary);
-		f.write(buff.data(), buff.size());
+		f.write(buff.data(), static_cast<intptr_t>(buff.size()));
 	} catch (const std::fstream::failure&) {
 		throw OxError(2);
 	}

@@ -12,13 +12,24 @@
 
 namespace ox {
 
-class BaseInteger {};
+struct BaseInteger {
+
+	constexpr BaseInteger() = default;
+
+	constexpr BaseInteger(const BaseInteger&) {
+	}
+
+	constexpr BaseInteger operator=(const BaseInteger&) {
+		return *this;
+	}
+
+};
 
 /**
  * Integer is a strongly typed integer wrapper used to create strongly typed
  * integers.
  */
-template<typename T, class Base = BaseInteger>
+template<typename T, typename Base = BaseInteger>
 class Integer: public Base {
 	private:
 		T m_i;
@@ -115,7 +126,9 @@ constexpr Integer<T, Base>::Integer(const Integer<T, Base> &i) noexcept: Base(i)
 
 template<typename T, class Base>
 constexpr Integer<T, Base> Integer<T, Base>::operator=(Integer<T, Base> i) noexcept {
-	return Integer<T, Base>(m_i = i.m_i);
+	Base::operator=(i);
+	m_i = i.m_i;
+	return *this;
 }
 
 template<typename T, class Base>

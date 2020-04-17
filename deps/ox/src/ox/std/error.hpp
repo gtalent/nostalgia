@@ -8,15 +8,12 @@
 
 #pragma once
 
+#include "defines.hpp"
 #include "strongint.hpp"
 #include "typetraits.hpp"
 #include "utility.hpp"
 
-#ifdef DEBUG
 #define OxError(...) ox::_error(__FILE__, __LINE__, __VA_ARGS__)
-#else
-#define OxError(...) static_cast<ox::Error>(__VA_ARGS__)
-#endif
 
 namespace ox {
 
@@ -33,15 +30,22 @@ struct BaseError {
 		line = o.line;
 	}
 
+	constexpr BaseError operator=(const BaseError &o) noexcept {
+		msg = o.msg;
+		file = o.file;
+		line = o.line;
+		return *this;
+	}
+
 };
 
 using Error = Integer<uint64_t, BaseError>;
 
 static constexpr Error _error(const char *file, uint32_t line, uint64_t errCode, const char *msg = nullptr) {
 	Error err = static_cast<ox::Error>(errCode);
-	err.file = file;
-	err.line = line;
-	err.msg = msg;
+		err.file = file;
+		err.line = line;
+		err.msg = msg;
 	return err;
 }
 

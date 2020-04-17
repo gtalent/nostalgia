@@ -37,7 +37,7 @@ void Zone::draw(Context *ctx) {
 }
 
 std::size_t Zone::size() {
-	return sizeof(Zone) + m_bounds.width * m_bounds.height * sizeof(Tile);
+	return sizeof(Zone) + static_cast<std::size_t>(m_bounds.width * m_bounds.height) * sizeof(Tile);
 }
 
 Tile *Zone::tile(int x, int y) {

@@ -5,6 +5,7 @@ project(nostalgia)
 set(NOSTALGIA_BUILD_TYPE "Native" CACHE STRING "The type of build to produce(Native/GBA)")
 set(NOSTALGIA_IDE_BUILD ON CACHE STRING "Build for IDE's to run")
 set(NOSTALGIA_QT_PATH "" CACHE STRING "Path to Qt Libraries")
+set(NOSTALGIA_BUILD_PLAYER ON CACHE BOOL "Build Player")
 set(NOSTALGIA_BUILD_STUDIO ON CACHE BOOL "Build Studio")
 
 if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")

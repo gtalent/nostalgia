@@ -42,7 +42,7 @@ clean:
 purge:
 	${ENV_RUN} ${RM_RF} build .current_build
 .PHONY: test
-test:
+test: build
 	$(foreach file, $(wildcard build/*), cmake --build $(file) --target test;)
 
 .PHONY: run

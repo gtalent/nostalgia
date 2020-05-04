@@ -4,7 +4,7 @@ pipeline {
 		stage('Environment') {
 			steps {
 				sh 'conan profile update settings.compiler.libcxx=libstdc++11 default'
-				sh 'conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan'
+				sh 'conan remote add -f bincrafters https://api.bintray.com/conan/bincrafters/public-conan'
 			}
 		}
 		stage('Build') {

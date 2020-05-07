@@ -27,6 +27,8 @@ class String {
 
 		String(const char *str) noexcept;
 
+		String(const char *str, std::size_t size) noexcept;
+
 		String(String&) noexcept;
 
 		String(String&&) noexcept;

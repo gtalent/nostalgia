@@ -13,7 +13,7 @@ namespace ox {
 
 String::String() noexcept {
 	if (m_buff.size()) {
-		m_buff[0] = 0;;
+		m_buff[0] = 0;
 	} else {
 		m_buff.push_back(0);
 	}
@@ -21,16 +21,22 @@ String::String() noexcept {
 
 String::String(std::size_t cap) noexcept {
 	m_buff.resize(cap + 1);
-	m_buff[0] = 0;;
+	m_buff[0] = 0;
 }
 
 String::String(const char *str) noexcept {
 	if (m_buff.size()) {
-		m_buff[0] = 0;;
+		m_buff[0] = 0;
 	} else {
 		m_buff.push_back(0);
 	}
 	*this = str;
+}
+
+String::String(const char *str, std::size_t size) noexcept {
+	m_buff.resize(size + 1);
+	memcpy(m_buff.data(), str, size);
+	m_buff[size] = 0;
 }
 
 String::String(String &other) noexcept {

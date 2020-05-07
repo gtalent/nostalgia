@@ -14,6 +14,7 @@
 #include <ox/std/byteswap.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/types.hpp>
+#include <ox/std/units.hpp>
 #include <ox/std/vector.hpp>
 
 #include "intops.hpp"
@@ -181,6 +182,15 @@ void MetalClawWriter::setTypeInfo(const char*, int fields) {
 	m_fieldPresence.setFields(fields);
 	m_buffIt = m_fieldPresence.getMaxLen();
 	memset(m_buff, 0, m_buffIt);
+}
+
+template<typename T>
+ValErr<Vector<char>> writeMC(T *val) {
+	Vector<char> buff(10 * units::MB);
+	MetalClawWriter writer(bit_cast<uint8_t*>(buff.data()), buff.size());
+	oxReturnError(model(&writer, val));
+	buff.resize(writer.size());
+	return buff;
 }
 
 template<typename T>

@@ -125,8 +125,8 @@ std::map<std::string, ox::Error(*)()> tests = {
 
 				auto [oc, writeErr] = ox::writeOC(&testIn);
 				oxAssert(writeErr, "writeOC failed");
-				std::cout << oc.c_str() << '\n';
-				auto [testOut, readErr] = ox::readOC<TestStruct>(oc.c_str());
+				std::cout << oc.data() << '\n';
+				auto [testOut, readErr] = ox::readOC<TestStruct>(oc.data());
 				oxAssert(readErr, "readOC failed");
 
 				oxAssert(testIn.Bool               == testOut->Bool, "Bool value mismatch");
@@ -176,7 +176,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 				oxAssert(ocErr, "Data generation failed");
 				auto type = ox::buildTypeDef(&testIn);
 				oxAssert(type.error, "Descriptor write failed");
-				ox::walkModel<ox::OrganicClawReader>(type.value, ox::bit_cast<uint8_t*>(oc.c_str()), oc.len() + 1,
+				ox::walkModel<ox::OrganicClawReader>(type.value, ox::bit_cast<uint8_t*>(oc.data()), oc.size(),
 					[](const ox::Vector<ox::FieldName>&, const ox::Vector<ox::TypeName>&, const ox::DescriptorField &f, ox::OrganicClawReader *rdr) -> ox::Error {
 						//std::cout << f.fieldName.c_str() << '\n';
 						auto fieldName = f.fieldName.c_str();

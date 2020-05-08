@@ -21,6 +21,22 @@
 
 namespace ox {
 
+namespace detail {
+
+template<bool>
+struct BoolWrapper {
+};
+
+template<typename T, typename = BoolWrapper<true>>
+struct preloadable: false_type {};
+
+template<typename T>
+struct preloadable<T, BoolWrapper<T::Preloadable>> {
+	static constexpr bool value = T::Preloadable;
+};
+
+}
+
 template<typename T>
 static constexpr int indirectionLevels(T) {
 	return 0;
@@ -187,11 +203,12 @@ void TypeDescWriter::setTypeInfo(const char *name, int) {
 	}
 	m_type = t;
 	m_type->typeName = name;
-	if (ox::is_union_v<T>) {
+	if (is_union_v<T>) {
 		m_type->primitiveType = PrimitiveType::Union;
 	} else {
 		m_type->primitiveType = PrimitiveType::Struct;
 	}
+	m_type->preloadable = detail::preloadable<T>::value;
 }
 
 template<typename T>

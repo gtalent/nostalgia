@@ -106,6 +106,7 @@ struct DescriptorType {
 	// - number of bytes for integer and float types
 	// - number of fields for structs and lists
 	int64_t length = 0;
+	bool preloadable = false;
 
 	DescriptorType() = default;
 
@@ -125,6 +126,7 @@ Error model(T *io, DescriptorType *type) {
 	err |= io->field("primitiveType", &type->primitiveType);
 	err |= io->field("fieldList", &type->fieldList);
 	err |= io->field("length", &type->length);
+	err |= io->field("preloadable", &type->preloadable);
 	return err;
 }
 

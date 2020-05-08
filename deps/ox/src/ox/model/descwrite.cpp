@@ -12,6 +12,26 @@
 
 namespace ox {
 
+namespace detail {
+
+struct preloadable_type {
+	static constexpr auto Preloadable = true;
+};
+
+struct non_preloadable_type {
+	static constexpr auto Preloadable = false;
+};
+
+struct non_preloadable_type2 {
+};
+
+static_assert(preloadable<preloadable_type>::value);
+static_assert(!preloadable<non_preloadable_type>::value);
+static_assert(!preloadable<non_preloadable_type2>::value);
+
+}
+
+
 static_assert([] {
 	int i = 0;
 	return indirectionLevels(i) == 0;

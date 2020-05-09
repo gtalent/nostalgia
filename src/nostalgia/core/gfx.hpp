@@ -30,12 +30,14 @@ using Color32 = uint32_t;
 struct NostalgiaPalette {
 	static constexpr auto TypeName = "nostalgia::core::NostalgiaPalette";
 	static constexpr auto Fields = 1;
+	static constexpr auto TypeVersion = 1;
 	ox::Vector<Color16> colors;
 };
 
 struct NostalgiaGraphic {
 	static constexpr auto TypeName = "nostalgia::core::NostalgiaGraphic";
 	static constexpr auto Fields = 6;
+	static constexpr auto TypeVersion = 1;
 	int8_t bpp = 0;
 	// rows and columns are really only used by TileSheetEditor
 	int rows = 1;

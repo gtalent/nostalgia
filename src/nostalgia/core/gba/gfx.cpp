@@ -25,11 +25,14 @@ constexpr auto GBA_TILE_COLUMNS = 32;
 constexpr auto GBA_TILE_ROWS = 32;
 
 struct GbaPaletteTarget {
+	static constexpr auto TypeName = NostalgiaPalette::TypeName;
+	static constexpr auto Fields = NostalgiaPalette::Fields;
 	volatile uint16_t *palette = nullptr;
 };
 
 struct GbaTileMapTarget {
-	static constexpr auto Fields = 4;
+	static constexpr auto TypeName = NostalgiaGraphic::TypeName;
+	static constexpr auto Fields = NostalgiaGraphic::Fields;
 	volatile uint32_t *bgCtl = nullptr;
 	ox::FileAddress defaultPalette;
 	GbaPaletteTarget pal;
@@ -38,7 +41,7 @@ struct GbaTileMapTarget {
 
 template<typename T>
 ox::Error modelRead(T *io, GbaPaletteTarget *t) {
-	io->setTypeInfo("nostalgia::core::NostalgiaPalette", NostalgiaPalette::Fields);
+	io->template setTypeInfo<T>();
 	oxReturnError(io->template field<Color16>("colors", [t](auto i, Color16 *c) {
 		t->palette[i] = *c;
 		return OxError(0);
@@ -48,7 +51,7 @@ ox::Error modelRead(T *io, GbaPaletteTarget *t) {
 
 template<typename T>
 ox::Error modelRead(T *io, GbaTileMapTarget *t) {
-	io->setTypeInfo("nostalgia::core::NostalgiaGraphic", NostalgiaGraphic::Fields);
+	io->template setTypeInfo<T>();
 
 	uint8_t bpp;
 	int dummy;

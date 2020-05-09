@@ -23,7 +23,7 @@ char *loadRom(const char *path) {
 
 	const auto size = file.tellg();
 	file.seekg(0, std::ios::beg);
-	auto buff = new char[size];
+	auto buff = new char[static_cast<std::size_t>(size)];
 	file.read(buff, size);
 	return buff;
 }

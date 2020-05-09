@@ -20,7 +20,7 @@ namespace nostalgia::core {
 
 NewPaletteWizardPage::NewPaletteWizardPage(const studio::Context *ctx) {
 	m_ctx = ctx;
-	addLineEdit(tr("&Palette Name:"), QString(PaletteName) + "*", "", [this](QString) {
+	addLineEdit(tr("&Palette Name:"), QString(PaletteName) + "*", "", [](QString) {
 		return 0;
 	});
 }

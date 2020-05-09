@@ -14,7 +14,7 @@ using namespace common;
 using namespace core;
 
 ox::Error Zone::init(Context *ctx, Bounds bnds, ox::FileAddress tileSheet, ox::FileAddress palette) {
-	const auto size = bnds.width * bnds.height;
+	const auto size = static_cast<std::size_t>(bnds.width * bnds.height);
 	m_tiles = new Tile[size];
 	m_bounds = bnds;
 	return core::loadTileSheet(ctx, core::TileSheetSpace::Background, 0, tileSheet, palette);

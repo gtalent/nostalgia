@@ -19,7 +19,7 @@ namespace nostalgia::core {
 
 NewTilesheetWizardPage::NewTilesheetWizardPage(const studio::Context *ctx) {
 	m_ctx = ctx;
-	addLineEdit(tr("&Tile Sheet Name:"), QString(TileSheetName) + "*", "", [this](QString) {
+	addLineEdit(tr("&Tile Sheet Name:"), QString(TileSheetName) + "*", "", [](QString) {
 		return 0;
 	});
 	m_palettePicker = addComboBox(tr("&Palette:"), QString(Palette) + "*", {""});

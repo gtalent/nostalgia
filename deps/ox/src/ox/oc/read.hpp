@@ -155,7 +155,7 @@ Error OrganicClawReader::field(const char *key, T *val, std::size_t valLen) {
 
 template<typename T>
 Error OrganicClawReader::field(const char *key, ox::Vector<T> *val) {
-	return field(nullptr, val->data(), val->size());
+	return field(key, val->data(), val->size());
 }
 
 template<typename T>

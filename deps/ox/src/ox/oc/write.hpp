@@ -83,7 +83,7 @@ class OrganicClawWriter {
 template<typename T>
 Error OrganicClawWriter::field(const char *key, T *val, std::size_t len) {
 	if (targetValid()) {
-		OrganicClawWriter w(Json::Value(Json::arrayValue));
+		OrganicClawWriter w((Json::Value(Json::arrayValue)));
 		for (std::size_t i = 0; i < len; ++i) {
 			oxReturnError(w.field("", &val[i]));
 		}

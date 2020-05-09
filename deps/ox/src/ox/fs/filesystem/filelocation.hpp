@@ -29,7 +29,6 @@ class FileAddress {
 		static constexpr auto TypeName = "ox::FileAddress";
 		static constexpr auto Fields = 2;
 
-	protected:
 		union Data {
 			static constexpr auto TypeName = "ox::FileAddress::Data";
 			static constexpr auto Fields = 3;
@@ -37,6 +36,8 @@ class FileAddress {
 			const char *constPath;
 			uint64_t inode;
 		};
+
+	protected:
 		FileAddressType m_type = FileAddressType::None;
 		Data m_data;
 

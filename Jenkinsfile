@@ -10,7 +10,7 @@ pipeline {
 		}
 		stage('Build Asan') {
 			steps {
-				sh 'make purge configure-debug'
+				sh 'make purge configure-asan'
 				sh 'make'
 			}
 		}

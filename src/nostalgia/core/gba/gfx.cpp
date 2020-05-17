@@ -27,12 +27,14 @@ constexpr auto GBA_TILE_ROWS = 32;
 struct GbaPaletteTarget {
 	static constexpr auto TypeName = NostalgiaPalette::TypeName;
 	static constexpr auto Fields = NostalgiaPalette::Fields;
+	static constexpr auto TypeVersion = NostalgiaPalette::TypeVersion;
 	volatile uint16_t *palette = nullptr;
 };
 
 struct GbaTileMapTarget {
 	static constexpr auto TypeName = NostalgiaGraphic::TypeName;
 	static constexpr auto Fields = NostalgiaGraphic::Fields;
+	static constexpr auto TypeVersion = NostalgiaGraphic::TypeVersion;
 	volatile uint32_t *bgCtl = nullptr;
 	ox::FileAddress defaultPalette;
 	GbaPaletteTarget pal;
@@ -41,17 +43,17 @@ struct GbaTileMapTarget {
 
 template<typename T>
 ox::Error modelRead(T *io, GbaPaletteTarget *t) {
-	io->template setTypeInfo<T>();
-	oxReturnError(io->template field<Color16>("colors", [t](auto i, Color16 *c) {
+	io->template setTypeInfo<GbaPaletteTarget>();
+	auto colorHandler = [t](std::size_t i, Color16 *c) {
 		t->palette[i] = *c;
 		return OxError(0);
-	}));
-	return OxError(0);
+	};
+	return io->template field<Color16, decltype(colorHandler)>("colors", colorHandler);
 }
 
 template<typename T>
 ox::Error modelRead(T *io, GbaTileMapTarget *t) {
-	io->template setTypeInfo<T>();
+	io->template setTypeInfo<GbaTileMapTarget>();
 
 	uint8_t bpp;
 	int dummy;
@@ -69,7 +71,7 @@ ox::Error modelRead(T *io, GbaTileMapTarget *t) {
 	oxReturnError(io->field("defaultPalette", &t->defaultPalette));
 	oxReturnError(io->field("pal", &t->pal));
 	uint16_t intermediate = 0;
-	auto err = io->template field<uint8_t>("tileMap", [t, &intermediate](auto i, uint8_t *tile) {
+	auto handleTileMap = [t, &intermediate](std::size_t i, uint8_t *tile) {
 		if (i & 1) { // i is odd
 			intermediate |= static_cast<uint16_t>(*tile) << 8;
 			t->tileMap[i / 2] = intermediate;
@@ -77,8 +79,8 @@ ox::Error modelRead(T *io, GbaTileMapTarget *t) {
 			intermediate = *tile & 0x00ff;
 		}
 		return OxError(0);
-	});
-	return OxError(err);
+	};
+	return io->template field<uint8_t, decltype(handleTileMap)>("tileMap", handleTileMap);
 }
 
 ox::Error initGfx(Context*) {

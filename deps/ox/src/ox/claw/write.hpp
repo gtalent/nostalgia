@@ -43,6 +43,16 @@ template<typename T>
 	return -1;
 }
 
+template<typename T, typename = int>
+struct type_version {
+	static constexpr auto value = -1;
+};
+
+template<typename T>
+struct type_version<T, decltype((void) T::TypeVersion, -1)> {
+	static constexpr auto value = T::TypeVersion;
+};
+
 template<typename T>
 constexpr const char *getTypeName(T *t) noexcept {
 	TypeInfoCatcher tnc;
@@ -65,7 +75,7 @@ ValErr<String> writeClawHeader(T *t, ClawFormat fmt) noexcept {
 	}
 	out += detail::getTypeName(t);
 	out += ";";
-	const auto tn = detail::getTypeVersion(t);
+	const auto tn = detail::type_version<T>::value;
 	if (tn > -1) {
 		out += tn;
 	}
@@ -76,7 +86,7 @@ ValErr<String> writeClawHeader(T *t, ClawFormat fmt) noexcept {
 }
 
 template<typename T>
-constexpr ValErr<Vector<char>> writeClaw(T *t, ClawFormat fmt) {
+ValErr<Vector<char>> writeClaw(T *t, ClawFormat fmt) {
 	auto [header, headerErr] = detail::writeClawHeader(t, fmt);
 	oxReturnError(headerErr);
 	const auto [data, dataErr] = fmt == ClawFormat::Metal ? writeMC(t) : writeOC(t);

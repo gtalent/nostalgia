@@ -77,7 +77,7 @@ class UnionView {
 		typename enable_if<is_union_v<Union>, Union>::type *m_union = nullptr;
 
 	public:
-		constexpr UnionView(Union *u, int idx) noexcept: m_idx(idx), m_union(u) {
+		constexpr explicit UnionView(Union *u, int idx) noexcept: m_idx(idx), m_union(u) {
 		}
 
 		constexpr auto idx() noexcept {

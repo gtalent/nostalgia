@@ -249,10 +249,12 @@ std::map<std::string, ox::Error(*)()> tests = {
 					oxReturnError(result.error);
 					if (result.value != val) {
 						std::cout << "Bad value: " << result.value << ", expected: " << val << '\n';
+						return OxError(1);
 					}
-					return OxError(result.value != val);
+					return OxError(0);
 				};
 				oxAssert(check(uint32_t(14)), "Decode of 14 failed.");
+				oxAssert(check(int64_t(-1)), "Decode of -1 failed.");
 				oxAssert(check(int64_t(1)), "Decode of 1 failed.");
 				oxAssert(check(int64_t(2)), "Decode of 2 failed.");
 				oxAssert(check(int64_t(42)), "Decode of 42 failed.");

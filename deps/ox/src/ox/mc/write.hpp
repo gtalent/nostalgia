@@ -181,7 +181,7 @@ void MetalClawWriter::setTypeInfo(const char*, int fields) {
 	m_fields = fields;
 	m_fieldPresence.setFields(fields);
 	m_buffIt = m_fieldPresence.getMaxLen();
-	memset(m_buff, 0, m_buffIt);
+	ox_memset(m_buff, 0, m_buffIt);
 }
 
 template<typename T>

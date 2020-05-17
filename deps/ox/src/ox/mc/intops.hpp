@@ -77,13 +77,6 @@ template<typename I>
 		}
 		const auto bytesIndicator = onMask<uint8_t>(bytes - 1);
 
-		// move sign bit
-		if constexpr(ox::is_signed<I>) {
-			if (val < 0) {
-				val ^= uint64_t(1) << (sizeof(I) * 8 - 1);
-				val |= uint64_t(1) << (bitsAvailable - 1);
-			}
-		}
 		// ensure we are copying from little endian represenstation
 		LittleEndian<I> leVal = val;
 		if (bytes == 9) {

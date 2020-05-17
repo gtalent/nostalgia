@@ -59,10 +59,6 @@ class MetalClawReader {
 		template<typename T, typename Handler>
 		[[nodiscard]] Error field(const char*, Handler handler);
 
-		// array handler, with callback to allow handling individual elements
-		template<typename T, typename Handler>
-		[[nodiscard]] Error field(const char*, Handler handler, ArrayLength len);
-
 		template<typename T>
 		[[nodiscard]] Error field(const char*, ox::Vector<T> *val);
 

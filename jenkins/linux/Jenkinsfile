@@ -1,5 +1,7 @@
 pipeline {
-	agent any
+	agent {
+		label 'linux-x86_64'
+	}
 	stages {
 		stage('Environment') {
 			steps {

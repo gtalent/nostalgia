@@ -1,4 +1,5 @@
 enable_language(C ASM)
+
 add_library(
 	GbaStartup
 		gba_crt0.s
@@ -7,4 +8,5 @@ add_library(
 
 target_link_libraries(
 	GbaStartup
+		OxStd
 )

@@ -3,6 +3,7 @@ add_library(
 		assert.cpp
 		buildinfo.cpp
 		byteswap.cpp
+		heapmgr.cpp
 		memops.cpp
 		new.cpp
 		random.cpp

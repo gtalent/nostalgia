@@ -5,6 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 #include <iostream>
 #include <map>
 #include <functional>
@@ -13,6 +14,16 @@
 using namespace std;
 
 map<string, function<int()>> tests = {
+	{
+		"malloc",
+		[] {
+			std::vector<char> buff(ox::units::MB);
+			ox::heapmgr::initHeap(&buff.front(), &buff.back());
+			oxAssert(ox::heapmgr::malloc(5) != nullptr, "malloc is broken");
+			oxAssert(ox::heapmgr::malloc(5) != nullptr, "malloc is broken");
+			return 0;
+		}
+	},
 	{
 		"ABCDEFG != HIJKLMN",
 		[]() {

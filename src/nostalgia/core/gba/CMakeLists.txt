@@ -4,7 +4,6 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 			core.cpp
 			gfx.cpp
 			media.cpp
-			mem.cpp
 			panic.cpp
 	)
 
@@ -28,8 +27,6 @@ endif()
 if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
 	add_executable(NostalgiaCore-GBA_Test
 		tests.cpp
-		mem.cpp
 	)
 	target_link_libraries(NostalgiaCore-GBA_Test NostalgiaCore)
-	add_test("NostalgiaCore-GBA\\ Test\\ malloc" NostalgiaCore-GBA_Test malloc)
 endif()

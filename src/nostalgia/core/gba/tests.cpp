@@ -1,3 +1,10 @@
+/*
+ * Copyright 2016 - 2020 gtalent2@gmail.com
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 
 #include <map>
 #include <string>
@@ -5,9 +12,7 @@
 
 #include <ox/std/std.hpp>
 
-#include <nostalgia/core/mem.hpp>
-
-namespace nostalgia::core {
+namespace ox::heapmgr {
 
 [[nodiscard]] void *malloc(std::size_t allocSize);
 
@@ -17,20 +22,7 @@ void initHeap(char *heapBegin, char *heapEnd);
 
 }
 
-using namespace nostalgia;
-
-int testMalloc(std::string) {
-    std::vector<char> buff(ox::units::MB);
-    core::initHeap(&buff.front(), &buff.back());
-    oxAssert(core::malloc(5) != nullptr, "malloc is broken");
-    oxAssert(core::malloc(5) != nullptr, "malloc is broken");
-    return 0;
-}
-
 std::map<std::string, int(*)(std::string)> tests = {
-	{
-		{ "malloc", testMalloc },
-    }
 };
 
 int main(int argc, const char **args) {

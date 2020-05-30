@@ -1,27 +1,16 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gtalent2@gmail.com
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "addresses.hpp"
+#include "assert.hpp"
+#include "bit.hpp"
+#include "heapmgr.hpp"
 
-#include <ox/std/assert.hpp>
-#include <ox/std/bit.hpp>
-
-// this warning is too dumb to realize that it can actually confirm the hard
-// coded address aligns with the requirement of HeapSegment, so it must be
-// suppressed
-#pragma GCC diagnostic ignored "-Wcast-align"
-
-#define HEAP_BEGIN reinterpret_cast<HeapSegment*>(MEM_WRAM_BEGIN)
-// set size to half of WRAM
-#define HEAP_SIZE ((MEM_WRAM_END - MEM_WRAM_BEGIN) / 2)
-#define HEAP_END reinterpret_cast<HeapSegment*>(MEM_WRAM_BEGIN + HEAP_SIZE)
-
-namespace nostalgia::core {
+namespace ox::heapmgr {
 
 static struct HeapSegment *volatile g_heapBegin = nullptr;
 static struct HeapSegment *volatile g_heapEnd = nullptr;
@@ -36,28 +25,23 @@ static constexpr std::size_t alignedSize(T = {}) {
 	return alignedSize(sizeof(T));
 }
 
-struct HeapSegment {
-	std::size_t size;
-	uint8_t inUse;
+void HeapSegment::init(std::size_t maxSize = ox::bit_cast<std::size_t>(g_heapEnd)) {
+	this->size = maxSize - ox::bit_cast<std::size_t>(this);
+	this->inUse = false;
+}
 
-	void init(std::size_t maxSize = ox::bit_cast<std::size_t>(g_heapEnd)) {
-		this->size = maxSize - ox::bit_cast<std::size_t>(this);
-		this->inUse = false;
-	}
+template<typename T>
+T *HeapSegment::data() {
+	return ox::bit_cast<T*>(ox::bit_cast<uint8_t*>(this) + alignedSize(this));
+}
 
-	template<typename T>
-	T *data() {
-		return ox::bit_cast<T*>(ox::bit_cast<uint8_t*>(this) + alignedSize(this));
-	}
+template<typename T = uint8_t>
+T *HeapSegment::end() {
+	const auto size = alignedSize(this) + alignedSize(this->size);
+	auto e = ox::bit_cast<uintptr_t>(ox::bit_cast<uint8_t*>(this) + size);
+	return ox::bit_cast<T*>(e);
+}
 
-	template<typename T = uint8_t>
-	T *end() {
-		const auto size = alignedSize(this) + alignedSize(this->size);
-		auto e = ox::bit_cast<uintptr_t>(ox::bit_cast<uint8_t*>(this) + size);
-		return ox::bit_cast<T*>(e);
-	}
-
-};
 
 void initHeap(char *heapBegin, char *heapEnd) {
 	g_heapBegin = ox::bit_cast<HeapSegment*>(heapBegin);
@@ -67,10 +51,6 @@ void initHeap(char *heapBegin, char *heapEnd) {
 	heapIdx->inUse = false;
 }
 
-void initHeap() {
-	initHeap(ox::bit_cast<char*>(HEAP_BEGIN), ox::bit_cast<char*>(HEAP_END));
-}
-
 struct SegmentPair {
 	HeapSegment *anteSegment = nullptr;
 	HeapSegment *segment = nullptr;
@@ -78,7 +58,7 @@ struct SegmentPair {
 
 static SegmentPair findSegmentOf(void *ptr) {
 	HeapSegment *prev = nullptr;
-	for (auto seg = HEAP_BEGIN; seg < HEAP_END;) {
+	for (auto seg = g_heapBegin; seg < g_heapEnd;) {
 		if (seg->data<void>() == ptr) {
 			return {prev, seg};
 		}
@@ -126,38 +106,38 @@ void free(void *ptr) {
 
 #ifndef OX_USE_STDLIB
 
-using namespace nostalgia;
+using namespace ox;
 
 void *operator new(std::size_t allocSize) {
-	return core::malloc(allocSize);
+	return heapmgr::malloc(allocSize);
 }
 
 void *operator new[](std::size_t allocSize) {
-	return core::malloc(allocSize);
+	return heapmgr::malloc(allocSize);
 }
 
 void operator delete(void *ptr) {
-	core::free(ptr);
+	heapmgr::free(ptr);
 }
 
 void operator delete[](void *ptr) {
-	core::free(ptr);
+	heapmgr::free(ptr);
 }
 
 void operator delete(void *ptr, unsigned) {
-	core::free(ptr);
+	heapmgr::free(ptr);
 }
 
 void operator delete[](void *ptr, unsigned) {
-	core::free(ptr);
+	heapmgr::free(ptr);
 }
 
 void operator delete(void *ptr, unsigned long int) {
-	core::free(ptr);
+	heapmgr::free(ptr);
 }
 
 void operator delete[](void *ptr, unsigned long int) {
-	core::free(ptr);
+	heapmgr::free(ptr);
 }
 
 #endif

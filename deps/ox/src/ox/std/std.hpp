@@ -15,6 +15,7 @@
 #include "error.hpp"
 #include "hardware.hpp"
 #include "hashmap.hpp"
+#include "heapmgr.hpp"
 #include "math.hpp"
 #include "memops.hpp"
 #include "new.hpp"

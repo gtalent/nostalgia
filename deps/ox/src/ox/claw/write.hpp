@@ -23,13 +23,17 @@ struct TypeInfoCatcher {
 
 	const char *name = nullptr;
 
-	template<typename T>
+	template<typename T = void>
 	constexpr void setTypeInfo(const char *name = T::TypeName, int = T::Fields) noexcept {
 		this->name = name;
 	}
 
 	constexpr ox::Error field(...) noexcept {
 		return OxError(0);
+	}
+
+	static constexpr auto opType() {
+		return OpType::Write;
 	}
 
 };

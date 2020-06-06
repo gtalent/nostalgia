@@ -35,7 +35,7 @@ T *HeapSegment::data() {
 	return ox::bit_cast<T*>(ox::bit_cast<uint8_t*>(this) + alignedSize(this));
 }
 
-template<typename T = uint8_t>
+template<typename T>
 T *HeapSegment::end() {
 	const auto size = alignedSize(this) + alignedSize(this->size);
 	auto e = ox::bit_cast<uintptr_t>(ox::bit_cast<uint8_t*>(this) + size);

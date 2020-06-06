@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - 2018 gtalent2@gmail.com
+ * Copyright 2015 - 2020 gtalent2@gmail.com
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -11,13 +11,11 @@
 #include <functional>
 #include <ox/std/std.hpp>
 
-using namespace std;
-
-map<string, function<int()>> tests = {
+std::map<std::string, std::function<int()>> tests = {
 	{
 		"malloc",
 		[] {
-			std::vector<char> buff(ox::units::MB);
+			ox::Vector<char> buff(ox::units::MB);
 			ox::heapmgr::initHeap(&buff.front(), &buff.back());
 			oxAssert(ox::heapmgr::malloc(5) != nullptr, "malloc is broken");
 			oxAssert(ox::heapmgr::malloc(5) != nullptr, "malloc is broken");

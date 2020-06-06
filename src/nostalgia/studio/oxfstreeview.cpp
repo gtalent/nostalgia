@@ -143,7 +143,7 @@ QVariant OxFSModel::data(const QModelIndex &index, int role) const {
 
 Qt::ItemFlags OxFSModel::flags(const QModelIndex &index) const {
 	if (!index.isValid()) {
-		return 0;
+		return {};
 	} else {
 		return QAbstractItemModel::flags(index);
 	}

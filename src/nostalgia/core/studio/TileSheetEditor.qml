@@ -23,7 +23,10 @@ Rectangle {
 
 		onClicked: {
 			if (mouse.button === Qt.RightButton) {
-				contextMenu.popup();
+				var tile = mouseArea.tileAt(mouseX, mouseY);
+				if (tile) {
+					contextMenu.popup();
+				}
 			} else {
 				contextMenu.dismiss();
 			}
@@ -92,7 +95,9 @@ Rectangle {
 				text: "Insert Tile"
 				onTriggered: {
 					var tile = mouseArea.tileAt(contextMenu.x, contextMenu.y);
-					sheetData.insertTileCmd(tile.tileNumber);
+					if (tile) {
+						sheetData.insertTileCmd(tile.tileNumber);
+					}
 				}
 			}
 

@@ -1,0 +1,43 @@
+pipeline {
+	agent {
+		label 'gba'
+	}
+	environment {
+		DEVKITARM = '/opt/devkitpro/devkitARM'
+	}
+	stages {
+		stage('Environment') {
+			steps {
+				sh 'conan profile update settings.compiler.libcxx=libstdc++11 default'
+				sh 'conan remote add -f bincrafters https://api.bintray.com/conan/bincrafters/public-conan'
+				sh 'make conan'
+			}
+		}
+		stage('Build Tools Debug') {
+			steps {
+				sh 'make purge configure-debug'
+				sh 'make install'
+			}
+		}
+		stage('Build GBA Debug') {
+			steps {
+				sh 'make purge configure-gba'
+				sh 'make'
+				sh 'make pkg-gba-debug'
+			}
+		}
+		stage('Build Tools Release') {
+			steps {
+				sh 'make purge configure-release'
+				sh 'make install'
+			}
+		}
+		stage('Build GBA Release') {
+			steps {
+				sh 'make purge configure-gba'
+				sh 'make'
+				sh 'make pkg-gba'
+			}
+		}
+	}
+}

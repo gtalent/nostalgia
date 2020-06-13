@@ -21,9 +21,9 @@ pipeline {
 		}
 		stage('Build GBA Debug') {
 			steps {
-				sh 'make purge configure-gba'
+				sh 'make configure-gba-debug'
 				sh 'make'
-				sh 'make pkg-gba-debug'
+				sh 'make pkg-gba'
 			}
 		}
 		stage('Build Tools Release') {
@@ -34,7 +34,7 @@ pipeline {
 		}
 		stage('Build GBA Release') {
 			steps {
-				sh 'make purge configure-gba'
+				sh 'make configure-gba'
 				sh 'make'
 				sh 'make pkg-gba'
 			}

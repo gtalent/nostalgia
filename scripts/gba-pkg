@@ -3,7 +3,7 @@
 set -e
 
 BIN=./dist/$(cat .current_build)/bin/
-PATH=$BIN:${DEVKITARM}/bin/:$PATH
+PATH=$BIN:${DEVKITPRO}/tools/bin/:${DEVKITARM}/bin/:$PATH
 NOSTALGIA_BIN=build/gba-*/src/nostalgia/player/nostalgia.bin
 NOSTALGIA_MEDIA=nostalgia_media.oxfs
 NOSTALGIA_PROJECT=sample_project

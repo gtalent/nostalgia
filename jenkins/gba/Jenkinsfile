@@ -3,6 +3,7 @@ pipeline {
 		label 'gba'
 	}
 	environment {
+		DEVKITPRO = '/opt/devkitpro'
 		DEVKITARM = '/opt/devkitpro/devkitARM'
 	}
 	stages {

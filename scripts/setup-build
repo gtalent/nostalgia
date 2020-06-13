@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+set -e
+
 target=$1
 buildType=$2
 
@@ -42,6 +44,8 @@ cmake -S $project -B $buildDir -GNinja \
       $toolchain
 
 mkdir -p dist
-echo ${buildConfig} > .current_build
+if [[ $target != gba ]] && [[ $target != gba-debug ]]; then
+	echo ${buildConfig} > .current_build
+fi
 rm -f compile_commands.json
 ln -s build/${buildConfig}/compile_commands.json

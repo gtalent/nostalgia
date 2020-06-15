@@ -56,8 +56,8 @@ void Project::writeBuff(QString path, uint8_t *buff, size_t buffLen) const {
 	emit fileUpdated(path);
 }
 
-std::vector<uint8_t> Project::loadBuff(QString path) const {
-	std::vector<uint8_t> buff(stat(path).size);
+std::vector<char> Project::loadBuff(QString path) const {
+	std::vector<char> buff(stat(path).size);
 	const auto csPath = path.toUtf8();
 	oxThrowError(m_fs.read(csPath.data(), buff.data(), buff.size()));
 	return buff;

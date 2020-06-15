@@ -10,6 +10,8 @@
 #include <string_view>
 #include <vector>
 
+#include <ox/claw/read.hpp>
+
 #include "pack.hpp"
 
 namespace nostalgia {
@@ -31,7 +33,12 @@ namespace {
 }
 
 // stub for now
-[[nodiscard]] ox::Error toMetalClaw(std::vector<uint8_t>*) {
+[[nodiscard]] ox::Error toMetalClaw(std::vector<uint8_t> *buff) {
+	auto [mc, err] = ox::stripClawHeader(ox::bit_cast<char*>(buff->data()), buff->size());
+	std::cout << "buff size: " << buff->size() << '\n';
+	oxReturnError(err);
+	buff->resize(mc.size());
+	ox_memcpy(buff->data(), mc.data(), mc.size());
 	return OxError(0);
 }
 
@@ -39,24 +46,27 @@ namespace {
 // transformations need to be done after the copy to the new FS is complete
 [[nodiscard]] ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
 	// copy
+	std::cout << "transformClaw: path: " << path << '\n';
 	oxTrace("pack::transformClaw") << "path:" << path.c_str();
 	return dest->ls(path.c_str(), [dest, path](const char *name, ox::InodeId_t) {
-		auto [stat, err] = dest->stat(path.c_str());
+		auto filePath = path + name;
+		auto [stat, err] = dest->stat(filePath.c_str());
 		oxReturnError(err);
 		if (stat.fileType == ox::FileType_Directory) {
 			const auto dir = path + name + '/';
 			oxReturnError(transformClaw(dest, dir));
 		} else {
+			std::cout << filePath << '\n';
 			// do transforms
-			if (endsWith(path, ".claw")) {
+			if (endsWith(name, ".ng") || endsWith(name, ".npal")) {
 				// load file
 				std::vector<uint8_t> buff(stat.size);
-				oxReturnError(dest->read(path.c_str(), buff.data(), buff.size()));
+				oxReturnError(dest->read(filePath.c_str(), buff.data(), buff.size()));
 				// do transformations
 				oxReturnError(pathToInode(&buff));
 				oxReturnError(toMetalClaw(&buff));
 				// write file to dest
-				oxReturnError(dest->write(path.c_str(), buff.data(), buff.size()));
+				oxReturnError(dest->write(filePath.c_str(), buff.data(), buff.size()));
 			}
 		}
 		return OxError(0);
@@ -114,6 +124,7 @@ struct VerificationPair {
 
 [[nodiscard]] ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest) {
 	oxReturnError(copy(src, dest, "/"));
+	std::cout << '\n';
 	oxReturnError(transformClaw(dest, "/"));
 	return OxError(0);
 }

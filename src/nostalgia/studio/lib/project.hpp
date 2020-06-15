@@ -16,8 +16,10 @@
 #include <ox/mc/mc.hpp>
 #include <qnamespace.h>
 
+#include "ox/claw/claw.hpp"
+#include <ox/fs/filesystem/passthroughfs.hpp>
+
 #include "nostalgiastudio_export.h"
-#include "ox/fs/filesystem/passthroughfs.hpp"
 
 namespace nostalgia::studio {
 
@@ -71,7 +73,7 @@ class NOSTALGIASTUDIO_EXPORT Project: public QObject {
 	private:
 		void writeBuff(QString path, uint8_t *buff, size_t buffLen) const;
 
-		std::vector<uint8_t> loadBuff(QString path) const;
+		std::vector<char> loadBuff(QString path) const;
 
 		void procDir(QStringList &paths, QString path) const;
 
@@ -91,12 +93,11 @@ class NOSTALGIASTUDIO_EXPORT Project: public QObject {
 
 template<typename T>
 void Project::writeObj(QString path, T *obj) const {
-	std::vector<uint8_t> buff(10 * ox::units::MB, 0);
 	// write MetalClaw
-	size_t mcSize = 0;
-	oxThrowError(ox::writeMC(buff.data(), buff.size(), obj, &mcSize));
+	auto [buff, err] = ox::writeClaw(obj, ox::ClawFormat::Metal);
+	oxThrowError(err);
 	// write to FS
-	writeBuff(path, buff.data(), mcSize);
+	writeBuff(path, ox::bit_cast<uint8_t*>(buff.data()), buff.size());
 	emit fileUpdated(path);
 }
 
@@ -104,7 +105,7 @@ template<typename T>
 std::unique_ptr<T> Project::loadObj(QString path) const {
 	auto obj = std::make_unique<T>();
 	auto buff = loadBuff(path);
-	oxThrowError(ox::readMC<T>(buff.data(), buff.size(), obj.get()));
+	oxThrowError(ox::readClaw<T>(buff.data(), buff.size(), obj.get()));
 	return obj;
 }
 

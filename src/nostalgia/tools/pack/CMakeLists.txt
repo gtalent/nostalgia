@@ -7,9 +7,9 @@ add_library(
 target_link_libraries(
 	NostalgiaPack PUBLIC
 		OxClArgs
+		OxClaw
 		OxFS
 		OxStd
-		OxMetalClaw
 		NostalgiaCommon
 		NostalgiaCore
 )

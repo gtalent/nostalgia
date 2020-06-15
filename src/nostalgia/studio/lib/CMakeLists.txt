@@ -19,7 +19,7 @@ target_link_libraries(
 	NostalgiaStudio PUBLIC
 		Qt5::Widgets
 		OxFS
-		OxMetalClaw
+		OxClaw
 )
 
 install(

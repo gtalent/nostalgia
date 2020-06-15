@@ -48,17 +48,19 @@ install(
 		error.hpp
 		hardware.hpp
 		hashmap.hpp
+		heapmgr.hpp
 		math.hpp
 		memops.hpp
 		new.hpp
 		random.hpp
+		std.hpp
+		stddef.hpp
 		stacktrace.hpp
 		string.hpp
 		strongint.hpp
 		strops.hpp
-		std.hpp
-		stddef.hpp
 		trace.hpp
+		typeinfo.hpp
 		types.hpp
 		typetraits.hpp
 		units.hpp

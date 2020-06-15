@@ -8,7 +8,9 @@
 
 #include "read.hpp"
 
-namespace ox::detail {
+namespace ox {
+
+namespace detail {
 
 ValErr<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept {
 	const auto s1End = ox_strchr(buff, ';', buffLen);
@@ -36,6 +38,7 @@ ValErr<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept {
 	const auto s3Size = s3End - buff;
 	String versionStr(buff, s3Size);
 	buff += s3Size + 1;
+	buffLen -= s3Size + 1;
 
 	ClawHeader hdr;
 	if (fmt == "M1") {
@@ -48,7 +51,18 @@ ValErr<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept {
 	hdr.typeName = typeName;
 	hdr.typeVersion = ox_atoi(versionStr.c_str());
 	hdr.data = buff;
+	hdr.dataSize = buffLen;
 	return hdr;
+}
+
+}
+
+ValErr<Vector<char>> stripClawHeader(const char *buff, std::size_t buffLen) noexcept {
+	auto header = detail::readHeader(buff, buffLen);
+	oxReturnError(header);
+	Vector<char> out(header.value.dataSize);
+	ox_memcpy(out.data(), header.value.data, out.size());
+	return ox::move(out);
 }
 
 }

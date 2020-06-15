@@ -14,7 +14,7 @@
 
 #include <SDL.h>
 
-#include <ox/mc/read.hpp>
+#include <ox/claw/read.hpp>
 
 #include <nostalgia/core/gfx.hpp>
 
@@ -31,20 +31,20 @@ struct SdlImplData {
 	uint64_t draws = 0;
 };
 
-[[nodiscard]] static ox::ValErr<ox::Vector<uint8_t>> readFile(Context *ctx, const ox::FileAddress &file) {
+[[nodiscard]] static ox::ValErr<ox::Vector<char>> readFile(Context *ctx, const ox::FileAddress &file) {
 	auto [stat, err] = ctx->rom->stat(file);
 	oxReturnError(err);
-	ox::Vector<uint8_t> buff(stat.size);
+	ox::Vector<char> buff(stat.size);
 	oxReturnError(ctx->rom->read(file, buff.data(), buff.size()));
 	return buff;
 }
 
 template<typename T>
-[[nodiscard]] ox::ValErr<T> readMC(Context *ctx, const ox::FileAddress &file) {
+[[nodiscard]] ox::ValErr<T> readObj(Context *ctx, const ox::FileAddress &file) {
 	auto [buff, err] = readFile(ctx, file);
 	oxReturnError(err);
 	T t;
-	oxReturnError(ox::readMC(buff.data(), buff.size(), &t));
+	oxReturnError(ox::readClaw(buff.data(), buff.size(), &t));
 	return t;
 }
 
@@ -97,13 +97,13 @@ ox::Error loadTileSheet(Context *ctx,
                         ox::FileAddress tilesheetPath,
                         ox::FileAddress palettePath) {
 	auto id = ctx->implData<SdlImplData>();
-	auto [tilesheet, tserr] = readMC<NostalgiaGraphic>(ctx, tilesheetPath);
+	auto [tilesheet, tserr] = readObj<NostalgiaGraphic>(ctx, tilesheetPath);
 	oxReturnError(tserr);
 	NostalgiaPalette palette;
 	if (!palettePath) {
 		palettePath = tilesheet.defaultPalette;
 	}
-	oxReturnError(readMC<NostalgiaPalette>(ctx, palettePath).get(&palette));
+	oxReturnError(readObj<NostalgiaPalette>(ctx, palettePath).get(&palette));
 
 	const unsigned bytesPerTile = tilesheet.bpp == 8 ? 64 : 32;
 	const auto tiles = tilesheet.tiles.size() / bytesPerTile;

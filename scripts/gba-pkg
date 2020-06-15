@@ -6,7 +6,7 @@ BIN=./dist/$(cat .current_build)/bin/
 PATH=$BIN:${DEVKITPRO}/tools/bin/:${DEVKITARM}/bin/:$PATH
 NOSTALGIA_BIN=build/gba-*/src/nostalgia/player/nostalgia.bin
 NOSTALGIA_MEDIA=nostalgia_media.oxfs
-NOSTALGIA_PROJECT=sample_project
+NOSTALGIA_PROJECT=$1
 NOSTALGIA_GBA=nostalgia.gba
 MEDIA_HEADER=media_header.txt
 

@@ -31,7 +31,7 @@ build:
 .PHONY: pkg-gba
 pkg-gba:
 	$(foreach file, $(wildcard build/*), cmake --build $(file) --target install;)
-	${ENV_RUN} ./scripts/gba-pkg
+	${ENV_RUN} ./scripts/gba-pkg sample_project
 .PHONY: install
 install:
 	$(foreach file, $(wildcard build/*), cmake --build $(file) --target install;)

@@ -35,7 +35,6 @@ namespace {
 // stub for now
 [[nodiscard]] ox::Error toMetalClaw(std::vector<uint8_t> *buff) {
 	auto [mc, err] = ox::stripClawHeader(ox::bit_cast<char*>(buff->data()), buff->size());
-	std::cout << "buff size: " << buff->size() << '\n';
 	oxReturnError(err);
 	buff->resize(mc.size());
 	ox_memcpy(buff->data(), mc.data(), mc.size());
@@ -46,7 +45,6 @@ namespace {
 // transformations need to be done after the copy to the new FS is complete
 [[nodiscard]] ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
 	// copy
-	std::cout << "transformClaw: path: " << path << '\n';
 	oxTrace("pack::transformClaw") << "path:" << path.c_str();
 	return dest->ls(path.c_str(), [dest, path](const char *name, ox::InodeId_t) {
 		auto filePath = path + name;
@@ -56,7 +54,6 @@ namespace {
 			const auto dir = path + name + '/';
 			oxReturnError(transformClaw(dest, dir));
 		} else {
-			std::cout << filePath << '\n';
 			// do transforms
 			if (endsWith(name, ".ng") || endsWith(name, ".npal")) {
 				// load file
@@ -124,7 +121,6 @@ struct VerificationPair {
 
 [[nodiscard]] ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest) {
 	oxReturnError(copy(src, dest, "/"));
-	std::cout << '\n';
 	oxReturnError(transformClaw(dest, "/"));
 	return OxError(0);
 }

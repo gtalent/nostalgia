@@ -90,7 +90,7 @@ namespace error {
 }
 
 template<typename T>
-[[nodiscard]] constexpr ox::Error toError(ox::ValErr<T> ve) noexcept {
+[[nodiscard]] constexpr ox::Error toError(const ox::ValErr<T> &ve) noexcept {
 	return ve.error;
 }
 

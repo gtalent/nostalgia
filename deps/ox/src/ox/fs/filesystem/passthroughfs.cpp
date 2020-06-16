@@ -7,6 +7,7 @@
  */
 
 #include "passthroughfs.hpp"
+#include <filesystem>
 
 #if defined(OX_HAS_PASSTHROUGHFS)
 
@@ -31,7 +32,11 @@ Error PassThroughFS::mkdir(const char *path, bool recursive) {
 	const auto u8p = p.u8string();
 	oxTrace("ox::fs::PassThroughFS::mkdir") << u8p.c_str();
 	if (recursive) {
-		success = std::filesystem::create_directories(p);
+		if (std::filesystem::is_directory(p)) {
+			success = true;
+		} else {
+			success = std::filesystem::create_directories(p);
+		}
 	} else {
 		success = std::filesystem::create_directory(p);
 	}

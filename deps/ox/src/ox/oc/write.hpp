@@ -100,7 +100,7 @@ Error OrganicClawWriter::field(const char *key, ox::BString<L> *val) {
 
 template<typename T>
 Error OrganicClawWriter::field(const char *key, T *val) {
-	if (targetValid()) {
+	if (val && targetValid()) {
 		OrganicClawWriter w;
 		oxReturnError(model(&w, val));
 		if (!w.m_json.isNull()) {

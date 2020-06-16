@@ -26,11 +26,11 @@ class FileAddress {
 	friend ox::Error model(T*, FileAddress*);
 
 	public:
-		static constexpr auto TypeName = "ox::FileAddress";
+		static constexpr auto TypeName = "net.drinkingtea.ox.FileAddress";
 		static constexpr auto Fields = 2;
 
 		union Data {
-			static constexpr auto TypeName = "ox::FileAddress::Data";
+			static constexpr auto TypeName = "net.drinkingtea.ox.FileAddress.Data";
 			static constexpr auto Fields = 3;
 			char *path;
 			const char *constPath;

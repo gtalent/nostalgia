@@ -40,7 +40,7 @@ clean:
 	$(foreach file, $(wildcard build/*), cmake --build $(file) --target clean;)
 .PHONY: purge
 purge:
-	${ENV_RUN} ${RM_RF} build .current_build
+	${ENV_RUN} ${RM_RF} build .current_build dist
 .PHONY: test
 test: build
 	$(foreach file, $(wildcard build/*), cmake --build $(file) --target test;)
@@ -86,7 +86,7 @@ devenv-shell:
 
 .PHONY: conan
 conan:
-	@mkdir -p conanbuild && cd conanbuild && conan install --build missing ../
+	@mkdir -p conanbuild && cd conanbuild && conan install ../ --build=missing
 
 .PHONY: configure-release
 configure-release:

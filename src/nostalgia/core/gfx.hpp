@@ -28,14 +28,14 @@ using Color16 = uint16_t;
 using Color32 = uint32_t;
 
 struct NostalgiaPalette {
-	static constexpr auto TypeName = "nostalgia::core::NostalgiaPalette";
+	static constexpr auto TypeName = "net.drinkingtea.nostalgia.core.NostalgiaPalette";
 	static constexpr auto Fields = 1;
 	static constexpr auto TypeVersion = 1;
 	ox::Vector<Color16> colors;
 };
 
 struct NostalgiaGraphic {
-	static constexpr auto TypeName = "nostalgia::core::NostalgiaGraphic";
+	static constexpr auto TypeName = "net.drinkingtea.nostalgia.core.NostalgiaGraphic";
 	static constexpr auto Fields = 6;
 	static constexpr auto TypeVersion = 1;
 	int8_t bpp = 0;

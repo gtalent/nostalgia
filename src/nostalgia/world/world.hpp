@@ -66,7 +66,7 @@ struct Zone {
 template<typename T>
 ox::Error modelRead(T *io, Zone *obj) {
 	auto err = OxError(0);
-	io->setTypeInfo("nostalgia::world::Zone", Zone::Fields);
+	io->setTypeInfo("net.drinkingtea.nostalgia.world.Zone", Zone::Fields);
 	err |= io->field("bounds", &obj->m_bounds);
 	return err;
 }
@@ -74,7 +74,7 @@ ox::Error modelRead(T *io, Zone *obj) {
 template<typename T>
 ox::Error modelWrite(T *io, Zone *obj) {
 	auto err = OxError(0);
-	io->setTypeInfo("nostalgia::world::Zone", Zone::Fields);
+	io->setTypeInfo("net.drinkingtea.nostalgia.world.Zone", Zone::Fields);
 	err |= io->field("bounds", &obj->m_bounds);
 	return err;
 }
@@ -99,14 +99,14 @@ struct Region {
 template<typename T>
 ox::Error modelRead(T *io, Region*) {
 	auto err = OxError(0);
-	io->setTypeInfo("nostalgia::World::Region", Region::Fields);
+	io->setTypeInfo("net.drinkingtea.nostalgia.world.Region", Region::Fields);
 	return err;
 }
 
 template<typename T>
 ox::Error modelWrite(T *io, Region*) {
 	auto err = OxError(0);
-	io->setTypeInfo("nostalgia::World::Region", Region::Fields);
+	io->setTypeInfo("net.drinkingtea.nostalgia.world.Region", Region::Fields);
 	return err;
 }
 

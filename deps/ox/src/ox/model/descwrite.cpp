@@ -116,13 +116,19 @@ DescriptorType *TypeDescWriter::type(uint64_t*, bool *alreadyExisted) {
 	return getType(TypeName, PT, Bytes, alreadyExisted);
 }
 
-DescriptorType *TypeDescWriter::type(const char*, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(char*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:string";
 	constexpr auto PT = PrimitiveType::String;
 	return getType(TypeName, PT, 0, alreadyExisted);
 }
 
 DescriptorType *TypeDescWriter::type(SerStr, bool *alreadyExisted) {
+	constexpr auto TypeName = "B:string";
+	constexpr auto PT = PrimitiveType::String;
+	return getType(TypeName, PT, 0, alreadyExisted);
+}
+
+DescriptorType *TypeDescWriter::type(String*, bool *alreadyExisted) {
 	constexpr auto TypeName = "B:string";
 	constexpr auto PT = PrimitiveType::String;
 	return getType(TypeName, PT, 0, alreadyExisted);

@@ -8,10 +8,13 @@
 
 #pragma once
 
+#include <ox/std/bit.hpp>
 #include <ox/std/error.hpp>
 #include <ox/std/hashmap.hpp>
 #include <ox/std/bstring.hpp>
 #include <ox/std/vector.hpp>
+
+#include "types.hpp"
 
 namespace ox {
 
@@ -32,8 +35,10 @@ enum class PrimitiveType: uint8_t {
 struct DescriptorField {
 	// order of fields matters
 
+	static constexpr auto TypeVersion = 1;
+
 	// only serialize type name if type has already been serialized
-	const struct DescriptorType *type = nullptr;
+	struct DescriptorType *type = nullptr;
 	FieldName fieldName;
 	int subscriptLevels = 0;
 
@@ -54,7 +59,7 @@ struct DescriptorField {
 		ownsType = false; // is copy, only owns type if move
 	}
 
-	constexpr DescriptorField(const DescriptorType *type, const FieldName &fieldName, int subscriptLevels, const TypeName &typeName, bool ownsType) noexcept {
+	constexpr DescriptorField(DescriptorType *type, const FieldName &fieldName, int subscriptLevels, const TypeName &typeName, bool ownsType) noexcept {
 		this->type = type;
 		this->fieldName = fieldName;
 		this->subscriptLevels = subscriptLevels;
@@ -99,6 +104,7 @@ struct DescriptorField {
 using FieldList = Vector<DescriptorField>;
 
 struct DescriptorType {
+	static constexpr auto TypeVersion = 1;
 	TypeName typeName;
 	PrimitiveType primitiveType;
 	// fieldList only applies to structs
@@ -120,14 +126,13 @@ struct DescriptorType {
 
 template<typename T>
 Error model(T *io, DescriptorType *type) {
-	auto err = OxError(0);
-	io->setTypeInfo("ox::DescriptorType", 4);
-	err |= io->field("typeName", &type->typeName);
-	err |= io->field("primitiveType", &type->primitiveType);
-	err |= io->field("fieldList", &type->fieldList);
-	err |= io->field("length", &type->length);
-	err |= io->field("preloadable", &type->preloadable);
-	return err;
+	io->template setTypeInfo<T>("net.drinkingtea.ox.DescriptorType", 5);
+	oxReturnError(io->field("typeName", &type->typeName));
+	oxReturnError(io->field("primitiveType", bit_cast<uint8_t*>(&type->primitiveType)));
+	oxReturnError(io->field("fieldList", &type->fieldList));
+	oxReturnError(io->field("length", &type->length));
+	oxReturnError(io->field("preloadable", &type->preloadable));
+	return OxError(0);
 }
 
 template<typename T>
@@ -135,16 +140,17 @@ Error modelWrite(T *io, DescriptorField *field) {
 	auto err = OxError(0);
 	io->setTypeInfo("ox::DescriptorField", 4);
 	if (field->ownsType) {
-		err |= io->field("typeName", "");
-		err |= io->field("type", field->type);
+		BString<2> empty = "";
+		oxReturnError(io->field("typeName", SerStr(&empty)));
+		oxReturnError(io->field("type", field->type));
 	} else {
-		err |= io->field("typeName", &field->type->typeName);
-		err |= io->field("type", static_cast<decltype(field->type)>(nullptr));
+		oxReturnError(io->field("typeName", SerStr(&field->type->typeName)));
+		oxReturnError(io->field("type", static_cast<decltype(field->type)>(nullptr)));
 	}
-	err |= io->field("fieldName", &field->fieldName);
+	oxReturnError(io->field("fieldName", &field->fieldName));
 	// defaultValue is unused now, but leave placeholder for backwards compatibility
-	const int DefaultValue = 0;
-	err |= io->field("defaultValue", &DefaultValue);
+	int DefaultValue = 0;
+	oxReturnError(io->field("defaultValue", &DefaultValue));
 	return err;
 }
 

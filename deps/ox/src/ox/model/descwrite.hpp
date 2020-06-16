@@ -9,8 +9,8 @@
 #pragma once
 
 #include <ox/std/byteswap.hpp>
-#include <ox/std/hashmap.hpp>
 #include <ox/std/bstring.hpp>
+#include <ox/std/string.hpp>
 #include <ox/std/trace.hpp>
 #include <ox/std/types.hpp>
 #include <ox/std/vector.hpp>
@@ -117,15 +117,20 @@ class TypeDescWriter {
 
 		DescriptorType *type(bool *val, bool *alreadyExisted);
 
-		DescriptorType *type(const char *val, bool *alreadyExisted);
+		DescriptorType *type(char *val, bool *alreadyExisted);
 
 		DescriptorType *type(SerStr val, bool *alreadyExisted);
+
+		DescriptorType *type(String *val, bool *alreadyExisted);
 
 		template<std::size_t sz>
 		DescriptorType *type(BString<sz> *val, bool *alreadyExisted);
 
 		template<typename T>
 		DescriptorType *type(T *val, bool *alreadyExisted);
+
+		template<typename T>
+		DescriptorType *type(Vector<T> *val, bool *alreadyExisted);
 
 		template<typename U>
 		DescriptorType *type(UnionView<U> val, bool *alreadyExisted);
@@ -192,6 +197,11 @@ DescriptorType *TypeDescWriter::type(T *val, bool *alreadyExisted) {
 		*alreadyExisted = false;
 		return dw.m_type;
 	}
+}
+
+template<typename T>
+DescriptorType *TypeDescWriter::type(Vector<T> *val, bool *alreadyExisted) {
+	return type(val->data(), alreadyExisted);
 }
 
 template<typename U>

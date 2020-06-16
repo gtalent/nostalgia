@@ -69,6 +69,10 @@ class TypeDescWriter {
 				return OxError(0);
 			}
 
+			static constexpr auto opType() {
+				return OpType::Write;
+			}
+
 		};
 
 		TypeStore *m_typeStoreOwnerRef = nullptr;

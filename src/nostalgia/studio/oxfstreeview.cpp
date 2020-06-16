@@ -29,7 +29,9 @@ OxFSFile::OxFSFile(PassThroughFS *fs, QString path, OxFSFile *parentItem) {
 		if (!stat.error) {
 			if (stat.value.fileType == FileType_Directory) {
 				fs->ls(m_path.toUtf8(), [&ls](const char *name, ox::InodeId_t) {
-					ls.push_back(name);
+					if (name[0] != '.') {
+						ls.push_back(name);
+					}
 					return OxError(0);
 				});
 				std::sort(ls.begin(), ls.end());

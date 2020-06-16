@@ -16,8 +16,9 @@
 #include <ox/mc/mc.hpp>
 #include <qnamespace.h>
 
-#include "ox/claw/claw.hpp"
+#include <ox/claw/claw.hpp>
 #include <ox/fs/filesystem/passthroughfs.hpp>
+#include <ox/model/descwrite.hpp>
 
 #include "nostalgiastudio_export.h"
 
@@ -98,6 +99,16 @@ void Project::writeObj(QString path, T *obj) const {
 	oxThrowError(err);
 	// write to FS
 	writeBuff(path, ox::bit_cast<uint8_t*>(buff.data()), buff.size());
+
+	// write type descriptor
+	const auto type = ox::buildTypeDef(obj);
+	const auto typeOut = ox::writeClaw(type.value, ox::ClawFormat::Organic);
+	oxThrowError(typeOut);
+	// write to FS
+	QString descPath = "/.nostalgia/type_descriptors/";
+	const auto typePath = descPath + type.value->typeName.c_str();
+	mkdir(descPath);
+	writeBuff(typePath, ox::bit_cast<uint8_t*>(typeOut.value.data()), typeOut.value.size());
 	emit fileUpdated(path);
 }
 

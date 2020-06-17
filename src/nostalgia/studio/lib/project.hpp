@@ -104,8 +104,8 @@ void Project::writeObj(QString path, T *obj) const {
 	const auto type = ox::buildTypeDef(obj);
 	auto typeOut = ox::writeClaw(type.value, ox::ClawFormat::Organic);
 	oxThrowError(typeOut);
-	// erase garbage last character
-	typeOut.value.pop_back();
+	// replace garbage last character with new line
+	typeOut.value.back() = '\n';
 	// write to FS
 	QString descPath = "/.nostalgia/type_descriptors/";
 	const auto typePath = descPath + type.value->typeName.c_str();

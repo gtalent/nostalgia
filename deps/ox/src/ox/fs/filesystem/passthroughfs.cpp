@@ -7,7 +7,6 @@
  */
 
 #include "passthroughfs.hpp"
-#include <filesystem>
 
 #if defined(OX_HAS_PASSTHROUGHFS)
 

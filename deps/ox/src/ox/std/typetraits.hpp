@@ -89,7 +89,7 @@ template<typename T>
 constexpr bool is_class_v = ox::is_class<T>();
 
 template<typename T>
-constexpr bool is_signed = ox::integral_constant<bool, T(-1) < T(0)>::value;
+constexpr bool is_signed_v = ox::integral_constant<bool, T(-1) < T(0)>::value;
 
 // enable_if ///////////////////////////////////////////////////////////////////
 

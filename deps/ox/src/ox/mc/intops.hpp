@@ -28,7 +28,7 @@ template<typename I>
 	// find most significant non-sign indicator bit
 	std::size_t highestBit = 0;
 	// start at one bit lower if signed
-	if constexpr(ox::is_signed<I>) {
+	if constexpr(ox::is_signed_v<I>) {
 		--shiftStart;
 	}
 	for (int i = shiftStart; i > -1; --i) {
@@ -65,7 +65,7 @@ template<typename I>
 	if (val) {
 		// bits needed to represent number factoring in space possibly
 		// needed for signed bit
-		const auto bits = highestBit(val) + 1 + (ox::is_signed<I> ? 1 : 0);
+		const auto bits = highestBit(val) + 1 + (ox::is_signed_v<I> ? 1 : 0);
 		// bytes needed to store value
 		std::size_t bytes = bits / 8 + (bits % 8 != 0);
 		const auto bitsAvailable = bytes * 8; // bits available to integer value
@@ -128,7 +128,7 @@ template<typename I>
 		decoded >>= bytes;
 		auto out = static_cast<I>(decoded);
 		// move sign bit
-		if constexpr(ox::is_signed<I>) {
+		if constexpr(ox::is_signed_v<I>) {
 			const auto valBits = bytes << 3;
 			// get sign
 			uint64_t sign = decoded >> (valBits - 1);

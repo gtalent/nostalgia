@@ -70,7 +70,7 @@ class TypeDescWriter {
 			}
 
 			static constexpr auto opType() {
-				return OpType::Write;
+				return OpType::WriteDefinition;
 			}
 
 		};

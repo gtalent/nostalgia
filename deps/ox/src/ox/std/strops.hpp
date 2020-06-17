@@ -66,7 +66,8 @@ template<typename T1, typename T2>
 	return retval;
 }
 
-[[nodiscard]] constexpr int ox_strncmp(const char *str1, const char *str2, const std::size_t maxLen) noexcept {
+template<typename T1, typename T2>
+[[nodiscard]] constexpr int ox_strncmp(T1 str1, T2 str2, const std::size_t maxLen) noexcept {
 	auto retval = 0;
 	std::size_t i = 0;
 	while (i < maxLen && (str1[i] || str2[i])) {

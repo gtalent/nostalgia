@@ -22,6 +22,10 @@ namespace {
 	return str.size() >= ending.size() && str.substr(str.size() - ending.size()) == ending;
 }
 
+static_assert(endsWith("asdf", "df"));
+static_assert(!endsWith("asdf", "awefawe"));
+static_assert(!endsWith("asdf", "eu"));
+
 /**
  * Convert path references to inodes to save space
  * @param buff buffer holding file
@@ -86,8 +90,11 @@ struct VerificationPair {
 	std::vector<VerificationPair> verficationPairs;
 	// copy
 	oxReturnError(src->ls(path.c_str(), [&verficationPairs, src, dest, path](std::string name, ox::InodeId_t) {
-		std::cout << "reading " << name << '\n';
 		auto currentFile = path + name;
+		if (currentFile == "/.nostalgia") {
+			return OxError(0);
+		}
+		std::cout << "reading " << name << '\n';
 		auto [stat, err] = src->stat((currentFile).c_str());
 		oxReturnError(err);
 		if (stat.fileType == ox::FileType_Directory) {

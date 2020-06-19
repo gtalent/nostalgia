@@ -55,6 +55,10 @@ class MetalClawReader {
 		template<typename T>
 		[[nodiscard]] Error field(const char*, T *val, std::size_t len);
 
+		// map handler
+		template<typename T>
+		[[nodiscard]] Error field(const char*, HashMap<String, T> *val);
+
 		// array handler, with callback to allow handling individual elements
 		template<typename T, typename Handler>
 		[[nodiscard]] Error field(const char*, Handler handler);
@@ -184,6 +188,34 @@ Error MetalClawReader::field(const char *name, T *val, std::size_t valLen) {
 			} else {
 				oxTrace("ox::mc::read::field(T)") << name << ", size:" << valLen;
 				return OxError(MC_OUTBUFFENDED);
+			}
+		}
+	}
+	++m_field;
+	return OxError(0);
+}
+
+template<typename T>
+Error MetalClawReader::field(const char*, HashMap<String, T> *val) {
+	if (m_unionIdx == -1 || m_unionIdx == m_field) {
+		if (m_fieldPresence.get(m_field)) {
+			// read the length
+			if (m_buffIt >= m_buffLen) {
+				return OxError(MC_BUFFENDED);
+			}
+			std::size_t bytesRead = 0;
+			auto len = mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+			m_buffIt += bytesRead;
+			oxReturnError(len.error);
+
+			// read the list
+			auto reader = child("");
+			reader.setTypeInfo("List", len.value);
+			for (std::size_t i = 0; i < len.value; i++) {
+				auto keyLen = reader.stringLength(nullptr);
+				auto wkey = ox_malloca(keyLen + 1, char, 0);
+				oxReturnError(reader.field("", SerStr(wkey.get(), keyLen)));
+				oxReturnError(reader.field("", &val->at(wkey.get())));
 			}
 		}
 	}

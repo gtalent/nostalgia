@@ -27,13 +27,13 @@ class Vector {
 
 		explicit Vector(std::size_t size) noexcept;
 
-		Vector(Vector &other) noexcept;
+		Vector(const Vector &other) noexcept;
 
 		Vector(Vector &&other) noexcept;
 
 		~Vector() noexcept;
 
-		Vector &operator=(Vector &other) noexcept;
+		Vector &operator=(const Vector &other) noexcept;
 
 		Vector &operator=(Vector &&other) noexcept;
 
@@ -97,7 +97,7 @@ Vector<T>::Vector(std::size_t size) noexcept {
 }
 
 template<typename T>
-Vector<T>::Vector(Vector<T> &other) noexcept {
+Vector<T>::Vector(const Vector<T> &other) noexcept {
 	m_size = other.m_size;
 	m_cap = other.m_cap;
 	m_items = reinterpret_cast<T*>(new AllocAlias<T>[m_cap]);
@@ -128,7 +128,7 @@ Vector<T>::~Vector() noexcept {
 }
 
 template<typename T>
-Vector<T> &Vector<T>::operator=(Vector<T> &other) noexcept {
+Vector<T> &Vector<T>::operator=(const Vector<T> &other) noexcept {
 	this->~Vector<T>();
 	m_size = other.m_size;
 	m_cap = other.m_cap;

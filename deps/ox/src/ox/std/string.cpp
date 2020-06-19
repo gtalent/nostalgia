@@ -39,7 +39,7 @@ String::String(const char *str, std::size_t size) noexcept {
 	m_buff[size] = 0;
 }
 
-String::String(String &other) noexcept {
+String::String(const String &other) noexcept {
 	m_buff = other.m_buff;
 }
 

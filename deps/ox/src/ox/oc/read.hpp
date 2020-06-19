@@ -12,6 +12,7 @@
 #include <ox/model/optype.hpp>
 #include <ox/model/types.hpp>
 #include <ox/std/byteswap.hpp>
+#include <ox/std/hashmap.hpp>
 #include <ox/std/memops.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/vector.hpp>
@@ -51,7 +52,10 @@ class OrganicClawReader {
 		[[nodiscard]] Error field(const char *key, T *val, std::size_t len);
 
 		template<typename T>
-		[[nodiscard]] Error field(const char *key, ox::Vector<T> *val);
+		[[nodiscard]] Error field(const char *key, Vector<T> *val);
+
+		template<typename T>
+		[[nodiscard]] Error field(const char*, HashMap<String, T> *val);
 
 		template<typename T>
 		[[nodiscard]] Error field(const char *key, T *val);
@@ -156,6 +160,19 @@ Error OrganicClawReader::field(const char *key, T *val, std::size_t valLen) {
 template<typename T>
 Error OrganicClawReader::field(const char *key, ox::Vector<T> *val) {
 	return field(key, val->data(), val->size());
+}
+
+template<typename T>
+[[nodiscard]] Error OrganicClawReader::field(const char *key, HashMap<String, T> *val) {
+	const auto &srcVal = value(key);
+	auto keys = srcVal.getMemberNames();
+	auto srcSize = srcVal.size();
+	OrganicClawReader r(srcVal);
+	for (decltype(srcSize) i = 0; i < srcSize; ++i) {
+		auto k = keys[i].c_str();
+		oxReturnError(r.field(k, &val->at(k)));
+	}
+	return OxError(0);
 }
 
 template<typename T>

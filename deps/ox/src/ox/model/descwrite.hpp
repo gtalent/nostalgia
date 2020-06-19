@@ -132,6 +132,9 @@ class TypeDescWriter {
 		template<typename T>
 		DescriptorType *type(Vector<T> *val, bool *alreadyExisted);
 
+		template<typename T>
+		DescriptorType *type(HashMap<String, T> *val, bool *alreadyExisted);
+
 		template<typename U>
 		DescriptorType *type(UnionView<U> val, bool *alreadyExisted);
 
@@ -202,6 +205,11 @@ DescriptorType *TypeDescWriter::type(T *val, bool *alreadyExisted) {
 template<typename T>
 DescriptorType *TypeDescWriter::type(Vector<T> *val, bool *alreadyExisted) {
 	return type(val->data(), alreadyExisted);
+}
+
+template<typename T>
+DescriptorType *TypeDescWriter::type(HashMap<String, T>*, bool *alreadyExisted) {
+	return type(static_cast<T*>(nullptr), alreadyExisted);
 }
 
 template<typename U>

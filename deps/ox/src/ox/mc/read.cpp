@@ -26,7 +26,9 @@ MetalClawReader::~MetalClawReader() noexcept {
 	if (m_parent) {
 		m_parent->m_buffIt += m_buffIt;
 	}
-	oxAssert(m_field == m_fields, "MetalClawReader: incorrect fields number given");
+	if (m_field != m_fields) {
+		oxTrace("ox::mc::MetalClawReader::error") << "MetalClawReader: incorrect fields number given";
+	}
 }
 
 Error MetalClawReader::field(const char*, int8_t *val) {

@@ -12,6 +12,7 @@
 
 #include <ox/model/optype.hpp>
 #include <ox/model/types.hpp>
+#include <ox/std/hashmap.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/vector.hpp>
 
@@ -52,6 +53,9 @@ class OrganicClawWriter {
 
 		template<typename T>
 		[[nodiscard]] Error field(const char*, ox::Vector<T> *val);
+
+		template<typename T>
+		[[nodiscard]] Error field(const char*, HashMap<String, T> *val);
 
 		template<std::size_t L>
 		[[nodiscard]] Error field(const char*, ox::BString<L> *val);
@@ -129,6 +133,20 @@ Error OrganicClawWriter::field(const char *key, ox::Vector<T> *val) {
 	return field(key, val->data(), val->size());
 }
 
+template<typename T>
+[[nodiscard]] Error OrganicClawWriter::field(const char *key, ox::HashMap<String, T> *val) {
+	if (targetValid()) {
+		auto &keys = val->keys();
+		OrganicClawWriter w;
+		for (std::size_t i = 0; i < keys.size(); ++i) {
+			auto k = keys[i].c_str();
+			oxReturnError(w.field(k, &val->at(k)));
+		}
+		value(key) = w.m_json;
+	}
+	++m_fieldIt;
+	return OxError(0);
+}
 
 template<typename T>
 ValErr<Vector<char>> writeOC(T *val) {

@@ -16,6 +16,9 @@ namespace ox {
 template<typename K, typename T>
 class HashMap {
 
+	using key_t = K;
+	using value_t = T;
+
 	private:
 		struct Pair {
 			K key = {};
@@ -30,6 +33,8 @@ class HashMap {
 		HashMap(HashMap &other);
 
 		~HashMap();
+
+		bool operator==(const HashMap &other) const;
 
 		HashMap &operator=(HashMap &other);
 
@@ -46,6 +51,8 @@ class HashMap {
 		bool contains(K key);
 
 		std::size_t size() const noexcept;
+
+		const Vector<K> &keys() const noexcept;
 
 	private:
 		void expand();
@@ -76,6 +83,20 @@ HashMap<K, T>::~HashMap() {
 	for (std::size_t i = 0; i < m_pairs.size(); i++) {
 		delete m_pairs[i];
 	}
+}
+
+template<typename K, typename T>
+bool HashMap<K, T>::operator==(const HashMap &other) const {
+	if (m_keys != other.m_keys) {
+		return false;
+	}
+	for (int i = 0; i < m_keys.size(); i++) {
+		auto &k = m_keys[i];
+		if (at(k) != other.at(k)) {
+			return false;
+		}
+	}
+	return true;
 }
 
 template<typename K, typename T>
@@ -113,6 +134,11 @@ bool HashMap<K, T>::contains(K k) {
 template<typename K, typename T>
 std::size_t HashMap<K, T>::size() const noexcept {
 	return m_keys.size();
+}
+
+template<typename K, typename T>
+const Vector<K> &HashMap<K, T>::keys() const noexcept {
+	return m_keys;
 }
 
 template<typename K, typename T>

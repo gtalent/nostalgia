@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include "ox/std/hashmap.hpp"
 #undef NDEBUG
 
 #include <assert.h>
@@ -36,7 +37,7 @@ struct TestStructNest {
 
 struct TestStruct {
 	static constexpr auto TypeName = "TestStruct";
-	static constexpr auto Fields = 16;
+	static constexpr auto Fields = 17;
 	bool Bool = false;
 	int32_t Int = 0;
 	int32_t Int1 = 0;
@@ -51,6 +52,7 @@ struct TestStruct {
 	char *CString = nullptr;
 	ox::BString<32> String = "";
 	uint32_t List[4] = {0, 0, 0, 0};
+	ox::HashMap<ox::String, int> Map;
 	TestStructNest EmptyStruct;
 	TestStructNest Struct;
 
@@ -95,6 +97,7 @@ ox::Error model(T *io, TestStruct *obj) {
 	oxReturnError(io->field("CString", ox::SerStr(&obj->CString)));
 	oxReturnError(io->field("String", &obj->String));
 	oxReturnError(io->field("List", obj->List, 4));
+	oxReturnError(io->field("Map", &obj->Map));
 	oxReturnError(io->field("EmptyStruct", &obj->EmptyStruct));
 	oxReturnError(io->field("Struct", &obj->Struct));
 	return OxError(0);
@@ -133,6 +136,8 @@ std::map<std::string, ox::Error(*)()> tests = {
 				testIn.List[1] = 2;
 				testIn.List[2] = 3;
 				testIn.List[3] = 4;
+				testIn.Map["asdf"] = 93;
+				testIn.Map["aoeu"] = 94;
 				testIn.Struct.Bool = false;
 				testIn.Struct.Int = 300;
 				testIn.Struct.String = "Test String 2";
@@ -158,6 +163,8 @@ std::map<std::string, ox::Error(*)()> tests = {
 				oxAssert(testIn.List[1]            == testOut.List[1], "List[1] value mismatch");
 				oxAssert(testIn.List[2]            == testOut.List[2], "List[2] value mismatch");
 				oxAssert(testIn.List[3]            == testOut.List[3], "List[3] value mismatch");
+				oxAssert(testIn.Map["asdf"]        == testOut.Map["asdf"], "Map[\"asdf\"] value mismatch");
+				oxAssert(testIn.Map["aoeu"]        == testOut.Map["aoeu"], "Map[\"aoeu\"] value mismatch");
 				oxAssert(testIn.EmptyStruct.Bool   == testOut.EmptyStruct.Bool, "EmptyStruct.Bool value mismatch");
 				oxAssert(testIn.EmptyStruct.Int    == testOut.EmptyStruct.Int, "EmptyStruct.Int value mismatch");
 				oxAssert(testIn.EmptyStruct.String == testOut.EmptyStruct.String, "EmptyStruct.String value mismatch");

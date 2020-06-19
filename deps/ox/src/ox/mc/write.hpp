@@ -19,6 +19,7 @@
 
 #include "intops.hpp"
 #include "err.hpp"
+#include "ox/std/hashmap.hpp"
 #include "presenceindicator.hpp"
 #include "types.hpp"
 
@@ -56,7 +57,10 @@ class MetalClawWriter {
 		[[nodiscard]] Error field(const char*, T *val, std::size_t len);
 
 		template<typename T>
-		[[nodiscard]] Error field(const char*, ox::Vector<T> *val);
+		[[nodiscard]] Error field(const char*, Vector<T> *val);
+
+		template<typename T>
+		[[nodiscard]] Error field(const char*, HashMap<String, T> *val);
 
 		template<std::size_t L>
 		[[nodiscard]] Error field(const char*, ox::BString<L> *val) noexcept;
@@ -153,8 +157,47 @@ Error MetalClawWriter::field(const char*, T *val, std::size_t len) {
 }
 
 template<typename T>
-Error MetalClawWriter::field(const char*, ox::Vector<T> *val) {
+Error MetalClawWriter::field(const char*, Vector<T> *val) {
 	return field(nullptr, val->data(), val->size());
+}
+
+template<typename T>
+[[nodiscard]] Error MetalClawWriter::field(const char*, HashMap<String, T> *val) {
+	auto &keys = val->keys();
+	auto len = keys.size();
+	bool fieldSet = false;
+
+	if (len && (m_unionIdx == -1 || m_unionIdx == m_field)) {
+		// write the length
+		const auto arrLen = mc::encodeInteger(len);
+		if (m_buffIt + arrLen.length < m_buffLen) {
+			ox_memcpy(&m_buff[m_buffIt], arrLen.data, arrLen.length);
+			m_buffIt += arrLen.length;
+		} else {
+			return OxError(MC_BUFFENDED);
+		}
+
+		MetalClawWriter writer(m_buff + m_buffIt, m_buffLen - m_buffIt);
+		// double len for both key and value
+		writer.setTypeInfo("Map", len * 2);
+
+		// write the array
+		for (std::size_t i = 0; i < len; i++) {
+			auto &key = keys[i];
+			const auto keyLen = ox_strlen(key);
+			auto wkey = static_cast<char*>(ox_alloca(keyLen));
+			memcpy(wkey, key.c_str(), keyLen + 1);
+			oxReturnError(writer.field("", SerStr(&wkey, keyLen)));
+			oxReturnError(writer.field("", &(*val)[key]));
+		}
+
+		m_buffIt += writer.m_buffIt;
+		fieldSet = true;
+	}
+
+	oxReturnError(m_fieldPresence.set(m_field, fieldSet));
+	m_field++;
+	return OxError(0);
 }
 
 template<typename I>

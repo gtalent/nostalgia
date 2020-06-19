@@ -9,6 +9,7 @@
 #include <ox/std/assert.hpp>
 #include <ox/std/byteswap.hpp>
 #include <ox/std/memops.hpp>
+#include <ox/std/trace.hpp>
 
 #include "write.hpp"
 
@@ -22,7 +23,9 @@ MetalClawWriter::MetalClawWriter(uint8_t *buff, std::size_t buffLen, int unionId
 }
 
 MetalClawWriter::~MetalClawWriter() noexcept {
-	oxAssert(m_field == m_fields, "MetalClawWriter: incorrect fields number given");
+	if (m_field != m_fields) {
+		oxTrace("ox::mc::MetalClawWriter::error") << "MetalClawReader: incorrect fields number given";
+	}
 }
 
 Error MetalClawWriter::field(const char*, int8_t *val) noexcept {

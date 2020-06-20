@@ -125,7 +125,7 @@ const String String::operator+(const String &src) const noexcept {
 	return *this + src.c_str();
 }
 
-bool String::operator==(const String &other) noexcept {
+bool String::operator==(const String &other) const noexcept {
 	bool retval = true;
 	std::size_t i = 0;
 	while (i < m_buff.size() && (m_buff[i] || other.m_buff[i])) {
@@ -138,7 +138,7 @@ bool String::operator==(const String &other) noexcept {
 	return retval;
 }
 
-bool String::operator!=(const String &other) noexcept {
+bool String::operator!=(const String &other) const noexcept {
 	return !operator==(other);
 }
 

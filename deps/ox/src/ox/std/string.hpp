@@ -59,9 +59,9 @@ class String {
 
 		const String operator+(const String &src) const noexcept;
 
-		bool operator==(const String &other) noexcept;
+		bool operator==(const String &other) const noexcept;
 
-		bool operator!=(const String &other) noexcept;
+		bool operator!=(const String &other) const noexcept;
 
 		char operator[](std::size_t i) const noexcept;
 

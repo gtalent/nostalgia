@@ -245,7 +245,7 @@ void Vector<T>::push_back(const T &item) noexcept {
 	if (m_size == m_cap) {
 		expandCap(m_cap ? m_cap * 2 : 100);
 	}
-	m_items[m_size] = item;
+	new (&m_items[m_size]) T(item);
 	++m_size;
 }
 

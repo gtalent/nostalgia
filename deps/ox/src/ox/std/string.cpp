@@ -70,6 +70,11 @@ const String &String::operator=(const String &src) noexcept {
 	return *this = src.c_str();
 }
 
+const String &String::operator=(const String &&src) noexcept {
+	m_buff = ox::move(src.m_buff);
+	return *this;
+}
+
 const String &String::operator+=(const char *str) noexcept {
 	std::size_t strLen = ox_strlen(str);
 	auto currentLen = len();

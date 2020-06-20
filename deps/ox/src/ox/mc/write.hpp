@@ -185,7 +185,7 @@ template<typename T>
 		for (std::size_t i = 0; i < len; i++) {
 			auto &key = keys[i];
 			const auto keyLen = ox_strlen(key);
-			auto wkey = static_cast<char*>(ox_alloca(keyLen));
+			auto wkey = static_cast<char*>(ox_alloca(keyLen + 1));
 			memcpy(wkey, key.c_str(), keyLen + 1);
 			oxReturnError(writer.field("", SerStr(&wkey, keyLen)));
 			oxReturnError(writer.field("", &(*val)[key]));

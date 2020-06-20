@@ -143,7 +143,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 				testIn.Struct.String = "Test String 2";
 
 				oxAssert(ox::writeMC(buff, buffLen, &testIn), "writeMC failed");
-				oxAssert(ox::readMC(buff, buffLen, &testOut), "writeMC failed");
+				oxAssert(ox::readMC(buff, buffLen, &testOut), "readMC failed");
 				//std::cout << testIn.Union.Int << "|" << testOut.Union.Int << "|\n";
 
 				oxAssert(testIn.Bool               == testOut.Bool, "Bool value mismatch");

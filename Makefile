@@ -31,7 +31,7 @@ build:
 .PHONY: pkg-gba
 pkg-gba:
 	$(foreach file, $(wildcard build/*), cmake --build $(file) --target install;)
-	${ENV_RUN} ./scripts/gba-pkg sample_project
+	${ENV_RUN} ./scripts/pkg-gba sample_project
 .PHONY: install
 install:
 	$(foreach file, $(wildcard build/*), cmake --build $(file) --target install;)
@@ -84,6 +84,10 @@ devenv-destroy:
 devenv-shell:
 	${ENV_RUN} bash
 
+.PHONY: setup-conan
+setup-conan:
+	conan profile update settings.compiler.libcxx=libstdc++11 default
+	conan remote add -f bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 .PHONY: conan
 conan:
 	@mkdir -p conanbuild && cd conanbuild && conan install ../ --build=missing

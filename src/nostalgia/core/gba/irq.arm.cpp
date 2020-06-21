@@ -14,7 +14,7 @@
 namespace nostalgia::core {
 
 void isr() {
-	REG_IF = IntId_vblank;
+	REG_IF = Int_vblank;
 }
 
 }

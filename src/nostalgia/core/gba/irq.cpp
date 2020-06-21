@@ -10,9 +10,9 @@
 
 namespace nostalgia::core {
 
-constexpr auto DispStat_irq_vblank = static_cast<uint16_t>(1) << 3;
-constexpr auto DispStat_irq_hblank = static_cast<uint16_t>(1) << 4;
-constexpr auto DispStat_irq_vcount = static_cast<uint16_t>(1) << 5;
+constexpr uint16_t DispStat_irq_vblank = 1 << 3;
+constexpr uint16_t DispStat_irq_hblank = 1 << 4;
+constexpr uint16_t DispStat_irq_vcount = 1 << 5;
 
 void isr();
 
@@ -21,7 +21,7 @@ ox::Error initIrq(Context*) {
 	// tell display to trigger vblank interrupts
 	REG_DISPSTAT |= DispStat_irq_vblank;
 	// tell proc which interrupts to handle
-	REG_IE |= IntId_vblank;
+	REG_IE |= Int_vblank;
 	REG_IME = 1;
 	return OxError(0);
 }

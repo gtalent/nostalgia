@@ -12,15 +12,22 @@
 
 namespace nostalgia::core {
 
-constexpr uint16_t IntId_vblank = static_cast<uint64_t>(1) << 0;
-constexpr uint16_t IntId_hblank = static_cast<uint64_t>(1) << 1;
-constexpr uint16_t IntId_vcount = static_cast<uint64_t>(1) << 2;
-constexpr uint16_t IntId_timer0 = static_cast<uint64_t>(1) << 3;
-constexpr uint16_t IntId_timer1 = static_cast<uint64_t>(1) << 4;
-constexpr uint16_t IntId_timer2 = static_cast<uint64_t>(1) << 5;
-constexpr uint16_t IntId_serial = static_cast<uint64_t>(1) << 6;  // link cable
-constexpr uint16_t IntId_input  = static_cast<uint64_t>(1) << 14; // gamepad
-constexpr uint16_t IntId_cart   = static_cast<uint64_t>(1) << 15; // cartridge removed
+constexpr uint16_t Int_vblank = 1 << 0;
+constexpr uint16_t Int_hblank = 1 << 1;
+constexpr uint16_t Int_vcount = 1 << 2;
+constexpr uint16_t Int_timer0 = 1 << 3;
+constexpr uint16_t Int_timer1 = 1 << 4;
+constexpr uint16_t Int_timer2 = 1 << 5;
+constexpr uint16_t Int_timer3 = 1 << 6;
+constexpr uint16_t Int_serial = 1 << 7; // link cable
+constexpr uint16_t Int_dma0   = 1 << 8;
+constexpr uint16_t Int_dma1   = 1 << 9;
+constexpr uint16_t Int_dma2   = 1 << 10;
+constexpr uint16_t Int_dma3   = 1 << 11;
+constexpr uint16_t Int_dma4   = 1 << 12;
+constexpr uint16_t Int_dma5   = 1 << 13;
+constexpr uint16_t Int_input  = 1 << 14; // gamepad
+constexpr uint16_t Int_cart   = 1 << 15; // cartridge removed
 
 [[nodiscard]] ox::Error initIrq(Context *ctx);
 

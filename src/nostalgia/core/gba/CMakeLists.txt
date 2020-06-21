@@ -3,9 +3,13 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 		NostalgiaCore-GBA
 			core.cpp
 			gfx.cpp
+			irq.arm.cpp
+			irq.cpp
 			media.cpp
 			panic.cpp
 	)
+
+	set_source_files_properties(irq.arm.cpp PROPERTIES COMPILE_FLAGS -marm)
 
 	target_link_libraries(
 		NostalgiaCore-GBA PUBLIC

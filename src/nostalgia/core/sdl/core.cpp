@@ -8,11 +8,16 @@
 
 #include <SDL.h>
 
-#include <nostalgia/core/core.hpp>
+#include <nostalgia/core/gfx.hpp>
 
 namespace nostalgia::core {
 
 void draw(Context *ctx);
+
+ox::Error init(Context *ctx) {
+	oxReturnError(initGfx(ctx));
+	return OxError(0);
+}
 
 ox::Error run(Context *ctx) {
 	for (auto running = true; running;) {

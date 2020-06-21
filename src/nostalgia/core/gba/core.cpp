@@ -8,7 +8,15 @@
 
 #include <nostalgia/core/core.hpp>
 
+#include "irq.hpp"
+
 namespace nostalgia::core {
+
+ox::Error init(Context *ctx) {
+	oxReturnError(initGfx(ctx));
+	oxReturnError(initIrq(ctx));
+	return OxError(0);
+}
 
 ox::Error run(Context*) {
 	while (1) {

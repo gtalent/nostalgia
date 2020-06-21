@@ -1,18 +1,30 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gtalent2@gmail.com
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 #pragma once
 
 #include <ox/std/types.hpp>
 
 /////////////////////////////////////////////////////////////////
-// I/O Registers
+// Interrupt Handler
 
-#define REG_DISPCNT *reinterpret_cast<volatile uint32_t*>(0x04000000)
+using interrupt_handler = void (*)(void);
+#define REG_ISR *reinterpret_cast<interrupt_handler*>(0x03007FFC)
+#define REG_IE  *reinterpret_cast<volatile uint16_t*>(0x04000200)
+#define REG_IF  *reinterpret_cast<volatile uint16_t*>(0x04000202)
+#define REG_IME *reinterpret_cast<volatile uint16_t*>(0x04000208)
+
+/////////////////////////////////////////////////////////////////
+// Display Registers
+
+#define REG_DISPCNT  *reinterpret_cast<volatile uint32_t*>(0x04000000)
+#define REG_DISPSTAT *reinterpret_cast<volatile uint32_t*>(0x04000004)
+#define REG_VCOUNT   *reinterpret_cast<volatile uint32_t*>(0x04000006)
 
 /////////////////////////////////////////////////////////////////
 // background registers
@@ -34,7 +46,6 @@
 #define REG_BG1VOFS *reinterpret_cast<volatile uint32_t*>(0x04000016)
 #define REG_BG2VOFS *reinterpret_cast<volatile uint32_t*>(0x0400001a)
 #define REG_BG3VOFS *reinterpret_cast<volatile uint32_t*>(0x0400001e)
-
 
 /////////////////////////////////////////////////////////////////
 // Memory Addresses

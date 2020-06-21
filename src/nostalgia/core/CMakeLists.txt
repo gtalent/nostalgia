@@ -1,6 +1,5 @@
 add_library(
 	NostalgiaCore
-		core.cpp
 		gfx.cpp
 		media.cpp
 )

@@ -1,18 +1,20 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gtalent2@gmail.com
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "mem.hpp"
-#include "core.hpp"
+// NOTE: this file is compiled as ARM and not THUMB, so don't but too much in
+// here
+
+#include "irq.hpp"
 
 namespace nostalgia::core {
 
-ox::Error init(Context *ctx) {
-	return initGfx(ctx);
+void isr() {
+	REG_IF = IntId_vblank;
 }
 
 }

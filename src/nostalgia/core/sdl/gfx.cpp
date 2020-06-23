@@ -31,6 +31,8 @@ struct SdlImplData {
 	uint64_t draws = 0;
 };
 
+constexpr auto Scale = 5;
+
 [[nodiscard]] static ox::ValErr<ox::Vector<char>> readFile(Context *ctx, const ox::FileAddress &file) {
 	auto [stat, err] = ctx->rom->stat(file);
 	oxReturnError(err);
@@ -51,7 +53,7 @@ template<typename T>
 ox::Error initGfx(Context *ctx) {
 	auto id = new SdlImplData;
 	ctx->setImplData(id);
-	id->window = SDL_CreateWindow("nostalgia", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768,
+	id->window = SDL_CreateWindow("nostalgia", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 240 * Scale, 160 * Scale,
 	                              SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
 	id->renderer = SDL_CreateRenderer(id->window, -1, SDL_RENDERER_ACCELERATED);
 	return OxError(id->window == nullptr);
@@ -139,7 +141,7 @@ ox::Error loadTileSheet(Context *ctx,
 
 void drawBackground(Context *ctx, const TileMap &tm, SDL_Texture *tex) {
 	if (tex) {
-		constexpr auto DstSize = 32;
+		constexpr auto DstSize = 8 * Scale;
 		auto id = ctx->implData<SdlImplData>();
 		//oxTrace("nostalgia::core::drawBackground") << "Drawing background";
 		SDL_Rect src = {}, dst = {};

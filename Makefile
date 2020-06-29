@@ -84,10 +84,17 @@ devenv-destroy:
 devenv-shell:
 	${ENV_RUN} bash
 
+ifeq ($(OS),linux)
 .PHONY: setup-conan
 setup-conan:
 	conan profile update settings.compiler.libcxx=libstdc++11 default
 	conan remote add -f bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+else
+.PHONY: setup-conan
+setup-conan:
+	conan remote add -f bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+endif
+
 .PHONY: conan
 conan:
 	@mkdir -p conanbuild && cd conanbuild && conan install ../ --build=missing

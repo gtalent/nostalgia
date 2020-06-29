@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gtalent2@gmail.com
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -17,12 +17,11 @@
 
 namespace nostalgia::core {
 
-extern char charMap[128];
-
-#define TILE_ADDR reinterpret_cast<uint16_t*>(0x06000000)
-
 constexpr auto GBA_TILE_COLUMNS = 32;
-constexpr auto GBA_TILE_ROWS = 32;
+
+using SpriteAttr = uint16_t[4];
+
+SpriteAttr spriteBuffer[128];
 
 struct GbaPaletteTarget {
 	static constexpr auto TypeName = NostalgiaPalette::TypeName;
@@ -142,7 +141,7 @@ ox::Error loadTileSheet(Context *ctx,
 	GbaTileMapTarget target;
 	target.pal.palette = &MEM_PALETTE_BG[section];
 	target.bgCtl = &bgCtl(section);
-	target.tileMap = &TILE_ADDR[section * 512];
+	target.tileMap = &ox::bit_cast<uint16_t*>(MEM_BG_MAP)[section * 512];
 	oxReturnError(ox::readMC(ts, tsStat.size, &target));
 	// load external palette if available
 	if (paletteAddr) {

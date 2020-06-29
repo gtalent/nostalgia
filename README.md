@@ -16,4 +16,5 @@ Install and use gmake instead of the make that comes with the system.
 
 Build options: release, debug, gba, gba-debug
 
+	make setup-conan
 	make purge conan configure-{gba,release,debug} install

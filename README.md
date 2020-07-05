@@ -2,10 +2,10 @@
 
 ## Prerequisites
 
-	* Install GCC, Clang, or Visual Studio with C++17 support (including std::filesystem)
-	* Install Make and CMake
-	* Install Conan
-	* Consider also install in Ninja build and ccache for faster build times
+* Install GCC, Clang, or Visual Studio with C++17 support (including std::filesystem)
+* Install Make and CMake
+* Install Conan
+* Consider also install in Ninja build and ccache for faster build times
 
 ## Platform Specific Setup
 

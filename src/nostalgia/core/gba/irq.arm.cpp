@@ -11,10 +11,21 @@
 
 #include "irq.hpp"
 
-namespace nostalgia::core {
+extern "C" {
 
-void isr() {
-	REG_IF = Int_vblank;
+void nostalgia_core_isr_timer0() {
+}
+
+void nostalgia_core_isr_timer1() {
+}
+
+void nostalgia_core_isr_timer2() {
+}
+
+void nostalgia_core_isr_timer3() {
+}
+
+void nostalgia_core_isr_vblank() {
 }
 
 }

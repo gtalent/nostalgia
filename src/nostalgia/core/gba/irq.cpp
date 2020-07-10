@@ -8,13 +8,13 @@
 
 #include "irq.hpp"
 
+extern "C" void isr();
+
 namespace nostalgia::core {
 
 constexpr uint16_t DispStat_irq_vblank = 1 << 3;
 constexpr uint16_t DispStat_irq_hblank = 1 << 4;
 constexpr uint16_t DispStat_irq_vcount = 1 << 5;
-
-void isr();
 
 ox::Error initIrq(Context*) {
 	REG_ISR = isr;

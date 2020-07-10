@@ -1,10 +1,13 @@
 if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
+	enable_language(C ASM)
+
 	add_library(
 		NostalgiaCore-GBA
 			core.cpp
 			gfx.cpp
 			irq.arm.cpp
 			irq.cpp
+			irq.s
 			media.cpp
 			panic.cpp
 	)
@@ -23,7 +26,8 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 		TARGETS
 			NostalgiaCore-GBA
 		DESTINATION
-			include/nostalgia/core
+			LIBRARY DESTINATION lib/nostalgia
+			ARCHIVE DESTINATION lib/nostalgia
 	)
 endif()
 

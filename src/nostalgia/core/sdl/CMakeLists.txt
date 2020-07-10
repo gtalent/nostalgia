@@ -19,5 +19,6 @@ install(
 	TARGETS
 		NostalgiaCore-SDL
 	DESTINATION
-		include/nostalgia/core
+		LIBRARY DESTINATION lib/nostalgia
+		ARCHIVE DESTINATION lib/nostalgia
 )

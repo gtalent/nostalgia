@@ -32,3 +32,11 @@ install(
 	DESTINATION
 		include/nostalgia/core
 )
+
+install(
+	TARGETS
+		NostalgiaCore
+	DESTINATION
+		LIBRARY DESTINATION lib/nostalgia
+		ARCHIVE DESTINATION lib/nostalgia
+)

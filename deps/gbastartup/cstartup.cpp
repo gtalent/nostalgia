@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -17,25 +17,20 @@
 // suppressed
 #pragma GCC diagnostic ignored "-Wcast-align"
 
-#define MEM_WRAM_BEGIN reinterpret_cast<uint8_t*>(0x02000000)
-#define MEM_WRAM_END   reinterpret_cast<uint8_t*>(0x0203FFFF)
+#define MEM_EWRAM_BEGIN reinterpret_cast<uint8_t*>(0x02000000)
+#define MEM_EWRAM_END   reinterpret_cast<uint8_t*>(0x0203FFFF)
 
-#define HEAP_BEGIN reinterpret_cast<ox::heapmgr::HeapSegment*>(MEM_WRAM_BEGIN)
-// set size to half of WRAM
-#define HEAP_SIZE ((MEM_WRAM_END - MEM_WRAM_BEGIN) / 2)
-#define HEAP_END  reinterpret_cast<ox::heapmgr::HeapSegment*>(MEM_WRAM_BEGIN + HEAP_SIZE)
+#define HEAP_BEGIN reinterpret_cast<ox::heapmgr::HeapSegment*>(MEM_EWRAM_BEGIN)
+// set size to half of EWRAM
+#define HEAP_SIZE ((MEM_EWRAM_END - MEM_EWRAM_BEGIN) / 2)
+#define HEAP_END  reinterpret_cast<ox::heapmgr::HeapSegment*>(MEM_EWRAM_BEGIN + HEAP_SIZE)
 
 extern void (*__preinit_array_start[]) (void);
 extern void (*__preinit_array_end[]) (void);
 extern void (*__init_array_start[]) (void);
 extern void (*__init_array_end[]) (void);
 
-namespace ox::heapmgr {
-
-void initHeap(char *heapBegin, char *heapEnd);
-
-}
-
+int main(int argc, const char **argv);
 
 extern "C" {
 
@@ -49,8 +44,6 @@ void __libc_init_array() {
 		__preinit_array_start[i]();
 	}
 }
-
-int main(int argc, const char **argv);
 
 int c_start() {
 	const char *args[2] = {"", "rom.oxfs"};

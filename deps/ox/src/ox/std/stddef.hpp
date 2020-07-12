@@ -25,3 +25,9 @@
 #else
 #define OX_ALIGN4 __attribute__((aligned(4)))
 #endif
+
+#ifdef _MSC_VER
+#define OX_ALIGN8
+#else
+#define OX_ALIGN8 __attribute__((aligned(8)))
+#endif

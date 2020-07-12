@@ -19,3 +19,9 @@
 #else
 #define OX_PACKED __attribute__((packed))
 #endif
+
+#ifdef _MSC_VER
+#define OX_ALIGN4
+#else
+#define OX_ALIGN4 __attribute__((aligned(4)))
+#endif

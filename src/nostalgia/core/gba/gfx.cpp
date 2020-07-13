@@ -201,13 +201,13 @@ void setTile(Context*, int layer, int column, int row, uint8_t tile) {
 	MEM_BG_MAP[layer][row * GbaTileColumns + column] = tile;
 }
 
-void setSprite(uint8_t idx, uint8_t x, uint8_t y, uint8_t tileIdx) {
+void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx) {
 	// block until g_spriteUpdates is less than buffer len
 	while (g_spriteUpdates >= config::GbaSpriteBufferLen);
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = static_cast<uint16_t>(y & ox::onMask<uint8_t>(7))
 	         | (static_cast<uint16_t>(1) << 10); // enable alpha
-	oa.attr1 = static_cast<uint16_t>(x);
+	oa.attr1 = static_cast<uint16_t>(x) & ox::onMask<uint8_t>(8);
 	oa.attr2 = static_cast<uint16_t>(tileIdx & ox::onMask<uint16_t>(8));
 	oa.idx = idx;
 	REG_IE &= ~Int_vblank; // disable vblank interrupt handler

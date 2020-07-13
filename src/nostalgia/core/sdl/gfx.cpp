@@ -72,7 +72,7 @@ ox::Error shutdownGfx(Context *ctx) {
 
 ox::Error initConsole(Context *ctx) {
 	constexpr auto TilesheetAddr = "/TileSheets/Charset.ng";
-	return loadTileSheet(ctx, TileSheetSpace::Background, 0, TilesheetAddr);
+	return loadBgTileSheet(ctx, 0, TilesheetAddr);
 }
 
 SDL_Color createSDL_Color(Color16 nc) {
@@ -93,11 +93,10 @@ SDL_Palette *createSDL_Palette(const NostalgiaPalette &npal) {
 	return pal;
 }
 
-ox::Error loadTileSheet(Context *ctx,
-                        TileSheetSpace tss,
-                        int section,
-                        ox::FileAddress tilesheetPath,
-                        ox::FileAddress palettePath) {
+ox::Error loadBgTileSheet(Context *ctx,
+                          int section,
+                          ox::FileAddress tilesheetPath,
+                          ox::FileAddress palettePath) {
 	auto id = ctx->implData<SdlImplData>();
 	auto [tilesheet, tserr] = readObj<NostalgiaGraphic>(ctx, tilesheetPath);
 	oxReturnError(tserr);
@@ -129,13 +128,18 @@ ox::Error loadTileSheet(Context *ctx,
 	SDL_FreePalette(sdlPalette);
 
 	auto sectionIdx = static_cast<unsigned>(section);
-	if (tss == TileSheetSpace::Background) {
-		if (id->bgTextures[sectionIdx]) {
-			SDL_DestroyTexture(id->bgTextures[sectionIdx]);
-		}
-		id->bgTextures[sectionIdx] = texture;
+	if (id->bgTextures[sectionIdx]) {
+		SDL_DestroyTexture(id->bgTextures[sectionIdx]);
 	}
+	id->bgTextures[sectionIdx] = texture;
 
+	return OxError(0);
+}
+
+ox::Error loadSpriteTileSheet(Context*,
+                              int,
+                              ox::FileAddress,
+                              ox::FileAddress) {
 	return OxError(0);
 }
 
@@ -194,6 +198,9 @@ void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
 	auto y = static_cast<unsigned>(row);
 	auto x = static_cast<unsigned>(column);
 	id->bgTileMaps[z][y][x] = tile;
+}
+
+void setSprite(uint8_t, uint8_t, uint8_t, uint8_t) {
 }
 
 }

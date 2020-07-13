@@ -97,7 +97,6 @@ isr:
 	// Interrupt Table End                            //
 	////////////////////////////////////////////////////
 
-
 isr_end:
 	// restore lr from before the Interrupt Table
 	pop {lr}

@@ -75,7 +75,12 @@ ox::Error model(T *io, NostalgiaGraphic *ng) {
 /**
  * @param section describes which section of the selected TileSheetSpace to use (e.g. MEM_PALLETE_BG[section])
  */
-[[nodiscard]] ox::Error loadTileSheet(Context *ctx, TileSheetSpace tss, int section, ox::FileAddress tilesheet, ox::FileAddress palette = nullptr);
+[[nodiscard]] ox::Error loadBgTileSheet(Context *ctx, int section, ox::FileAddress tilesheet, ox::FileAddress palette = nullptr);
+
+[[nodiscard]] ox::Error loadSpriteTileSheet(Context *ctx,
+                                            int section,
+                                            ox::FileAddress tilesheetAddr,
+                                            ox::FileAddress paletteAddr);
 
 [[nodiscard]] Color32 toColor32(Color16 nc) noexcept;
 
@@ -119,5 +124,7 @@ ox::Error model(T *io, NostalgiaGraphic *ng) {
 void puts(Context *ctx, int column, int row, const char *str);
 
 void setTile(Context *ctx, int layer, int column, int row, uint8_t tile);
+
+void setSprite(uint8_t idx, uint8_t x, uint8_t y, uint8_t tileIdx);
 
 }

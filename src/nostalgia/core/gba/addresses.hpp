@@ -50,13 +50,20 @@ using interrupt_handler = void (*)(void);
 /////////////////////////////////////////////////////////////////
 // Memory Addresses
 
-#define MEM_PALETTE_BG     reinterpret_cast<uint16_t*>(0x05000000)
-#define MEM_PALETTE_SPRITE reinterpret_cast<uint16_t*>(0x05000200)
+#define MEM_EWRAM_BEGIN reinterpret_cast<uint8_t*>(0x02000000)
+#define MEM_EWRAM_END   reinterpret_cast<uint8_t*>(0x0203FFFF)
+
+#define MEM_IWRAM_BEGIN reinterpret_cast<uint8_t*>(0x03000000)
+#define MEM_IWRAM_END   reinterpret_cast<uint8_t*>(0x03007FFF)
+
+#define MEM_BG_PALETTE reinterpret_cast<uint16_t*>(0x05000000)
+#define MEM_SPRITE_PALETTE reinterpret_cast<uint16_t*>(0x05000200)
 
 typedef uint16_t BgMapTile[1024];
-#define MEM_BG_MAP reinterpret_cast<BgMapTile*>(0x06000000)
+#define MEM_BG_TILES reinterpret_cast<BgMapTile*>(0x06000000)
+#define MEM_BG_MAP reinterpret_cast<BgMapTile*>(0x0600e000)
+
+#define MEM_SPRITE_TILES reinterpret_cast<uint8_t*>(0x06010000)
+#define MEM_OAM reinterpret_cast<uint64_t*>(0x07000000)
 
 #define MEM_ROM reinterpret_cast<char*>(0x08000000)
-
-#define MEM_WRAM_BEGIN reinterpret_cast<uint8_t*>(0x02000000)
-#define MEM_WRAM_END   reinterpret_cast<uint8_t*>(0x0203FFFF)

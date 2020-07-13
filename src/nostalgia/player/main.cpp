@@ -20,7 +20,11 @@ ox::Error run(ox::FileSystem *fs) {
 	//Zone zone;
 	//oxReturnError(zone.init(&ctx, Bounds{0, 0, 40, 40}, "/TileSheets/Charset.ng", "/Palettes/Charset.npal"));
 	//zone.draw(&ctx);
+	constexpr auto TileSheetAddr = "/TileSheets/Charset.ng";
+	constexpr auto PaletteAddr = "/Palettes/Charset.npal";
+	oxReturnError(core::loadSpriteTileSheet(&ctx, 0, TileSheetAddr, PaletteAddr));
 	oxReturnError(core::initConsole(&ctx));
+	core::setSprite(0, 50, 50, 7);
 	core::puts(&ctx, 10, 9, "DOPENESS!!!");
 	oxReturnError(core::run(&ctx));
 	oxReturnError(core::shutdownGfx(&ctx));

@@ -23,6 +23,7 @@ endif()
 
 install(
 	FILES
+		config.hpp
 		consts.hpp
 		context.hpp
 		core.hpp

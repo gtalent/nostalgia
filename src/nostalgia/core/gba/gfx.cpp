@@ -14,14 +14,12 @@
 #include <nostalgia/core/gfx.hpp>
 
 #include "addresses.hpp"
+#include "irq.hpp"
+#include "gfx.hpp"
 
 namespace nostalgia::core {
 
-constexpr auto GBA_TILE_COLUMNS = 32;
-
-using SpriteAttr = uint16_t[4];
-
-SpriteAttr spriteBuffer[128];
+constexpr auto GbaTileColumns = 32;
 
 struct GbaPaletteTarget {
 	static constexpr auto TypeName = NostalgiaPalette::TypeName;
@@ -88,8 +86,7 @@ ox::Error initGfx(Context*) {
 	/* Background 0 -\|| */
 	/* Objects -----\||| */
 	/*              |||| */
-	REG_DISPCNT = 0x1100;
-
+	REG_DISPCNT = 0x1101;
 	return OxError(0);
 }
 
@@ -126,11 +123,10 @@ ox::Error initConsole(Context *ctx) {
 		ox::FileStore32 fs(rom, 32 * ox::units::MB);
 		ctx->rom = new (ox_alloca(sizeof(ox::FileSystem32))) ox::FileSystem32(fs);
 	}
-	return loadTileSheet(ctx, TileSheetSpace::Background, 0, TilesheetAddr, PaletteAddr);
+	return loadBgTileSheet(ctx, 0, TilesheetAddr, PaletteAddr);
 }
 
-ox::Error loadTileSheet(Context *ctx,
-                        TileSheetSpace,
+ox::Error loadBgTileSheet(Context *ctx,
                         int section,
                         ox::FileAddress tilesheetAddr,
                         ox::FileAddress paletteAddr) {
@@ -139,25 +135,84 @@ ox::Error loadTileSheet(Context *ctx,
 	auto [ts, tserr] = ctx->rom->read(tilesheetAddr);
 	oxReturnError(tserr);
 	GbaTileMapTarget target;
-	target.pal.palette = &MEM_PALETTE_BG[section];
+	target.pal.palette = &MEM_BG_PALETTE[section];
 	target.bgCtl = &bgCtl(section);
-	target.tileMap = &ox::bit_cast<uint16_t*>(MEM_BG_MAP)[section * 512];
+	target.tileMap = &ox::bit_cast<uint16_t*>(MEM_BG_TILES)[section * 512];
 	oxReturnError(ox::readMC(ts, tsStat.size, &target));
 	// load external palette if available
 	if (paletteAddr) {
-		paletteAddr = target.defaultPalette;
+		auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
+		oxReturnError(palStatErr);
+		auto [pal, palErr] = ctx->rom->read(paletteAddr);
+		oxReturnError(palErr);
+		oxReturnError(ox::readMC(pal, palStat.size, &target.pal));
 	}
+	return OxError(0);
+}
+
+ox::Error loadSpriteTileSheet(Context *ctx,
+                              int section,
+                              ox::FileAddress tilesheetAddr,
+                              ox::FileAddress paletteAddr) {
+	auto [tsStat, tsStatErr] = ctx->rom->stat(tilesheetAddr);
+	oxReturnError(tsStatErr);
+	auto [ts, tserr] = ctx->rom->read(tilesheetAddr);
+	oxReturnError(tserr);
+	GbaTileMapTarget target;
+	target.pal.palette = &MEM_SPRITE_PALETTE[section];
+	target.bgCtl = &bgCtl(section);
+	target.tileMap = &ox::bit_cast<uint16_t*>(MEM_SPRITE_TILES)[section * 512];
+	oxReturnError(ox::readMC(ts, tsStat.size, &target));
+	// load external palette if available
+	if (paletteAddr) {
+		auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
+		oxReturnError(palStatErr);
+		auto [pal, palErr] = ctx->rom->read(paletteAddr);
+		oxReturnError(palErr);
+		oxReturnError(ox::readMC(pal, palStat.size, &target.pal));
+	}
+	return OxError(0);
+}
+
+ox::Error loadBgPalette(Context *ctx, int section, ox::FileAddress paletteAddr) {
+	GbaPaletteTarget target;
+	target.palette = &MEM_BG_PALETTE[section];
 	auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
 	oxReturnError(palStatErr);
 	auto [pal, palErr] = ctx->rom->read(paletteAddr);
 	oxReturnError(palErr);
-	oxReturnError(ox::readMC(pal, palStat.size, &target.pal));
+	oxReturnError(ox::readMC(pal, palStat.size, &target));
+	return OxError(0);
+}
+
+ox::Error loadSpritePalette(Context *ctx, int section, ox::FileAddress paletteAddr) {
+	GbaPaletteTarget target;
+	target.palette = &MEM_SPRITE_PALETTE[section];
+	auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
+	oxReturnError(palStatErr);
+	auto [pal, palErr] = ctx->rom->read(paletteAddr);
+	oxReturnError(palErr);
+	oxReturnError(ox::readMC(pal, palStat.size, &target));
 	return OxError(0);
 }
 
 // Do NOT use Context in the GBA version of this function.
 void setTile(Context*, int layer, int column, int row, uint8_t tile) {
-	MEM_BG_MAP[28 + layer][row * GBA_TILE_COLUMNS + column] = tile;
+	MEM_BG_MAP[layer][row * GbaTileColumns + column] = tile;
+}
+
+void setSprite(uint8_t idx, uint8_t x, uint8_t y, uint8_t tileIdx) {
+	// block until g_spriteUpdates is less than buffer len
+	while (g_spriteUpdates >= config::GbaSpriteBufferLen);
+	GbaSpriteAttrUpdate oa;
+	oa.attr0 = static_cast<uint16_t>(y & ox::onMask<uint8_t>(7))
+	         | (static_cast<uint16_t>(1) << 10); // enable alpha
+	oa.attr1 = static_cast<uint16_t>(x);
+	oa.attr2 = static_cast<uint16_t>(tileIdx & ox::onMask<uint16_t>(8));
+	oa.idx = idx;
+	REG_IE &= ~Int_vblank; // disable vblank interrupt handler
+	g_spriteBuffer[g_spriteUpdates++] = oa;
+	REG_IE |= Int_vblank; // enable vblank interrupt handler
 }
 
 }

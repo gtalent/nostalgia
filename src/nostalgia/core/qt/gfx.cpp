@@ -22,11 +22,10 @@ ox::Error initConsole(Context*) {
 	return OxError(1);
 }
 
-ox::Error loadTileSheet(Context*,
-                        TileSheetSpace,
-                        int,
-                        ox::FileAddress,
-                        ox::FileAddress) {
+ox::Error loadBgTileSheet(Context*,
+                          int,
+                          ox::FileAddress,
+                          ox::FileAddress) {
 	return OxError(1);
 }
 

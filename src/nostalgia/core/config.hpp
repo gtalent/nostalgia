@@ -11,5 +11,6 @@
 namespace nostalgia::core::config {
 
 constexpr auto GbaSpriteBufferLen = 128;
+constexpr auto GbaTimerBits = 64;
 
 }

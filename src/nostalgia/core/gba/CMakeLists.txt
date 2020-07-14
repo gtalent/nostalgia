@@ -6,7 +6,6 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 			core.cpp
 			gfx.cpp
 			irq.arm.cpp
-			irq.cpp
 			irq.s
 			media.cpp
 			panic.cpp

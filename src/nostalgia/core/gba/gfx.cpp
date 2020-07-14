@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -20,6 +20,10 @@
 namespace nostalgia::core {
 
 constexpr auto GbaTileColumns = 32;
+
+constexpr uint16_t DispStat_irq_vblank = 1 << 3;
+constexpr uint16_t DispStat_irq_hblank = 1 << 4;
+constexpr uint16_t DispStat_irq_vcount = 1 << 5;
 
 struct GbaPaletteTarget {
 	static constexpr auto TypeName = NostalgiaPalette::TypeName;
@@ -87,6 +91,10 @@ ox::Error initGfx(Context*) {
 	/* Objects -----\||| */
 	/*              |||| */
 	REG_DISPCNT = 0x1101;
+	// tell display to trigger vblank interrupts
+	REG_DISPSTAT |= DispStat_irq_vblank;
+	// enable vblank interrupt
+	REG_IE |= Int_vblank;
 	return OxError(0);
 }
 
@@ -202,14 +210,14 @@ void setTile(Context*, int layer, int column, int row, uint8_t tile) {
 }
 
 void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx) {
-	// block until g_spriteUpdates is less than buffer len
-	while (g_spriteUpdates >= config::GbaSpriteBufferLen);
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = static_cast<uint16_t>(y & ox::onMask<uint8_t>(7))
 	         | (static_cast<uint16_t>(1) << 10); // enable alpha
 	oa.attr1 = static_cast<uint16_t>(x) & ox::onMask<uint8_t>(8);
 	oa.attr2 = static_cast<uint16_t>(tileIdx & ox::onMask<uint16_t>(8));
 	oa.idx = idx;
+	// block until g_spriteUpdates is less than buffer len
+	while (g_spriteUpdates >= config::GbaSpriteBufferLen);
 	REG_IE &= ~Int_vblank; // disable vblank interrupt handler
 	g_spriteBuffer[g_spriteUpdates++] = oa;
 	REG_IE |= Int_vblank; // enable vblank interrupt handler

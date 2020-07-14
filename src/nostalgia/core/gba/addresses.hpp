@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -25,6 +25,21 @@ using interrupt_handler = void (*)(void);
 #define REG_DISPCNT  *reinterpret_cast<volatile uint32_t*>(0x04000000)
 #define REG_DISPSTAT *reinterpret_cast<volatile uint32_t*>(0x04000004)
 #define REG_VCOUNT   *reinterpret_cast<volatile uint32_t*>(0x04000006)
+
+/////////////////////////////////////////////////////////////////
+// Timers
+
+#define REG_TIMER0CTL *reinterpret_cast<volatile uint16_t*>(0x04000100)
+#define REG_TIMER0    *reinterpret_cast<volatile uint16_t*>(0x04000102)
+
+#define REG_TIMER1CTL *reinterpret_cast<volatile uint16_t*>(0x04000104)
+#define REG_TIMER1    *reinterpret_cast<volatile uint16_t*>(0x04000106)
+
+#define REG_TIMER2CTL *reinterpret_cast<volatile uint16_t*>(0x04000108)
+#define REG_TIMER2    *reinterpret_cast<volatile uint16_t*>(0x0400010a)
+
+#define REG_TIMER3CTL *reinterpret_cast<volatile uint16_t*>(0x0400010c)
+#define REG_TIMER3    *reinterpret_cast<volatile uint16_t*>(0x0400010e)
 
 /////////////////////////////////////////////////////////////////
 // background registers

@@ -1,14 +1,10 @@
 /*
- * Copyright 2016 - 2020 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
-#include <nostalgia/core/context.hpp>
-
-#include "addresses.hpp"
 
 namespace nostalgia::core {
 
@@ -28,7 +24,5 @@ constexpr uint16_t Int_dma4   = 1 << 12;
 constexpr uint16_t Int_dma5   = 1 << 13;
 constexpr uint16_t Int_input  = 1 << 14; // gamepad
 constexpr uint16_t Int_cart   = 1 << 15; // cartridge removed
-
-[[nodiscard]] ox::Error initIrq(Context *ctx);
 
 }

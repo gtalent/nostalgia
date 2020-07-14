@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,8 +9,6 @@
 // NOTE: this file is compiled as ARM and not THUMB, so don't but too much in
 // here
 
-#include <nostalgia/core/config.hpp>
-
 #include "addresses.hpp"
 #include "gfx.hpp"
 #include "irq.hpp"
@@ -19,6 +17,8 @@ namespace nostalgia::core {
 
 volatile uint16_t g_spriteUpdates = 0;
 GbaSpriteAttrUpdate g_spriteBuffer[config::GbaSpriteBufferLen];
+
+volatile uint32_t g_timerMs = 0;
 
 }
 
@@ -39,6 +39,7 @@ void nostalgia_core_isr_vblank() {
 }
 
 void nostalgia_core_isr_timer0() {
+	++g_timerMs;
 }
 
 void nostalgia_core_isr_timer1() {

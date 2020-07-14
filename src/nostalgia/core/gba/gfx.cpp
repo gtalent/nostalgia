@@ -90,7 +90,7 @@ ox::Error initGfx(Context*) {
 	/* Background 0 -\|| */
 	/* Objects -----\||| */
 	/*              |||| */
-	REG_DISPCNT = 0x1101;
+	REG_DISPCTL = 0x1101;
 	// tell display to trigger vblank interrupts
 	REG_DISPSTAT |= DispStat_irq_vblank;
 	// enable vblank interrupt
@@ -105,16 +105,16 @@ ox::Error shutdownGfx(Context*) {
 [[nodiscard]] constexpr volatile uint32_t &bgCtl(int bg) noexcept {
 	switch (bg) {
 		case 0:
-			return REG_BG0CNT;
+			return REG_BG0CTL;
 		case 1:
-			return REG_BG1CNT;
+			return REG_BG1CTL;
 		case 2:
-			return REG_BG2CNT;
+			return REG_BG2CTL;
 		case 3:
-			return REG_BG3CNT;
+			return REG_BG3CTL;
 		default:
 			oxPanic(OxError(1), "Looking up non-existent register");
-			return REG_BG0CNT;
+			return REG_BG0CTL;
 	}
 }
 

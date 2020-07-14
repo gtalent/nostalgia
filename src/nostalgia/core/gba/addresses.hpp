@@ -22,7 +22,7 @@ using interrupt_handler = void (*)(void);
 /////////////////////////////////////////////////////////////////
 // Display Registers
 
-#define REG_DISPCNT  *reinterpret_cast<volatile uint32_t*>(0x04000000)
+#define REG_DISPCTL  *reinterpret_cast<volatile uint32_t*>(0x04000000)
 #define REG_DISPSTAT *reinterpret_cast<volatile uint32_t*>(0x04000004)
 #define REG_VCOUNT   *reinterpret_cast<volatile uint32_t*>(0x04000006)
 
@@ -45,10 +45,10 @@ using interrupt_handler = void (*)(void);
 // background registers
 
 // background control registers
-#define REG_BG0CNT *reinterpret_cast<volatile uint32_t*>(0x04000008)
-#define REG_BG1CNT *reinterpret_cast<volatile uint32_t*>(0x0400000a)
-#define REG_BG2CNT *reinterpret_cast<volatile uint32_t*>(0x0400000c)
-#define REG_BG3CNT *reinterpret_cast<volatile uint32_t*>(0x0400000e)
+#define REG_BG0CTL *reinterpret_cast<volatile uint32_t*>(0x04000008)
+#define REG_BG1CTL *reinterpret_cast<volatile uint32_t*>(0x0400000a)
+#define REG_BG2CTL *reinterpret_cast<volatile uint32_t*>(0x0400000c)
+#define REG_BG3CTL *reinterpret_cast<volatile uint32_t*>(0x0400000e)
 
 // background horizontal scrolling registers
 #define REG_BG0HOFS *reinterpret_cast<volatile uint32_t*>(0x04000010)

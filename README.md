@@ -3,8 +3,9 @@
 ## Prerequisites
 
 * Install GCC, Clang, or Visual Studio with C++17 support (including std::filesystem)
+* Install [devkitPro](https://devkitpro.org/wiki/Getting_Started) to build for GBA
 * Install Make and CMake
-* Install Conan
+* Install [Conan](https://conan.io/)
 * Consider also install in Ninja build and ccache for faster build times
 
 ## Platform Specific Setup
@@ -19,3 +20,17 @@ Build options: release, debug, asan, gba, gba-debug
 
 	make setup-conan
 	make purge conan configure-{gba,release,debug} install
+
+## Run
+
+### Studio
+
+	make run-studio
+
+### Native Platform
+
+	make run
+
+### GBA
+
+	make gba-run

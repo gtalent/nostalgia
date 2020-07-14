@@ -31,7 +31,7 @@ static void initIrq() {
 static void initTimer() {
 	// make timer0 a ~1 millisecond timer
 	REG_TIMER0 = TicksMs59ns;
-	REG_TIMER0CTL = 0b11000011;
+	REG_TIMER0CTL = 0b11000000;
 	// enable interrupt for timer0
 	REG_IE |= Int_timer0;
 }

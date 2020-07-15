@@ -1,5 +1,5 @@
 //
-// Copyright 2016 - 2020 gtalent2@gmail.com
+// Copyright 2016 - 2020 gary@drinkingtea.net
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,7 +16,7 @@
 .extern nostalgia_core_isr_timer2
 .extern nostalgia_core_isr_timer3
 
-.equ REG_IFBIOS,         0x03fffff8
+.equ REG_IFBIOS,         0x03007ff8
 
 .equ REG_IE,             0x04000200
 .equ REG_IF,             0x04000202
@@ -54,51 +54,59 @@ isr:
 	strh r1, [r0, #2]
 	ldr r0, =#REG_IFBIOS
 	// Acknowledge IRQ in REG_IFBIOS
-	ldrh r2, [r0] // r2 becomes REG_IFBIOS value
+	ldr r2, [r0] // r2 becomes REG_IFBIOS value
 	orr r2, r2, r1
-	strh r2, [r0]
+	str r2, [r0]
 	// done with r2 as IFBIOS value
-	// done with r0 as REG_IE
-
-	// clear IME to disable interrupts
-	ldr r2, =#REG_IME
-	mov r0, #0
-	str r0, [r2]
-
-	// enter system mode
-	mrs r0, cpsr
-	bic r0, r0, #0xDF
-	orr r0, r0, #0x1F
-	msr cpsr, r0
-
-	push {lr}
-	ldr lr, =isr_end
+	// done with r0 as REG_IFBIOS
 
 	////////////////////////////////////////////////////
 	// Interrupt Table Begin                          //
 	////////////////////////////////////////////////////
 
 	cmp r1, #Int_vblank
-	beq nostalgia_core_isr_vblank
+	ldreq r0, =nostalgia_core_isr_vblank
+	beq isr_call_handler
 
 	cmp r1, #Int_timer0
-	beq nostalgia_core_isr_timer0
+	ldreq r0, =nostalgia_core_isr_timer0
+	beq isr_call_handler
 
 	cmp r1, #Int_timer1
-	beq nostalgia_core_isr_timer1
+	ldreq r0, =nostalgia_core_isr_timer1
+	beq isr_call_handler
 
 	cmp r1, #Int_timer2
-	beq nostalgia_core_isr_timer2
+	ldreq r0, =nostalgia_core_isr_timer2
+	beq isr_call_handler
 
 	cmp r1, #Int_timer3
-	beq nostalgia_core_isr_timer3
+	ldreq r0, =nostalgia_core_isr_timer3
+	beq isr_call_handler
 
 	////////////////////////////////////////////////////
 	// Interrupt Table End                            //
 	////////////////////////////////////////////////////
 
-isr_end:
-	// restore lr from before the Interrupt Table
+	b isr_end
+
+isr_call_handler:
+	// clear IME to disable interrupts
+	ldr r2, =#REG_IME
+	mov r1, #0
+	str r1, [r2]
+
+	// enter system mode
+	mrs r1, cpsr
+	bic r1, r1, #0xDF
+	orr r1, r1, #0x1F
+	msr cpsr, r1
+
+	push {lr}
+	ldr lr, =isr_restore
+	bx r0
+
+isr_restore:
 	pop {lr}
 
 	// re-enter irq mode
@@ -111,6 +119,8 @@ isr_end:
 	ldr r2, =#REG_IME
 	mov r0, #1
 	str r0, [r2]
+
+isr_end:
 
 	bx lr
 

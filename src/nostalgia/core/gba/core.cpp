@@ -10,6 +10,7 @@
 #include <nostalgia/core/core.hpp>
 
 #include "addresses.hpp"
+#include "bios.hpp"
 #include "irq.hpp"
 
 extern "C" void isr();
@@ -19,7 +20,7 @@ namespace nostalgia::core {
 // Timer Consts
 constexpr auto NanoSecond = 1000000000;
 constexpr auto MilliSecond = 1000;
-constexpr int TicksMs59ns = (NanoSecond / MilliSecond) / 59.59;
+constexpr int TicksMs59ns = 65535 - (NanoSecond / MilliSecond) / 59.59;
 
 extern volatile ox::Uint<config::GbaTimerBits> g_timerMs;
 
@@ -45,6 +46,7 @@ ox::Error init(Context *ctx) {
 
 ox::Error run(Context*) {
 	while (1) {
+		nostalgia_core_vblankwfi();
 	}
 	return OxError(0);
 }

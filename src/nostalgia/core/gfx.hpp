@@ -125,6 +125,8 @@ void puts(Context *ctx, int column, int row, const char *str);
 
 void setTile(Context *ctx, int layer, int column, int row, uint8_t tile);
 
+void clearTileLayer(Context*, int layer);
+
 void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx);
 
 }

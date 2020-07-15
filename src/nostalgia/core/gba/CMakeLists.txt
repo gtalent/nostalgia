@@ -3,6 +3,7 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 
 	add_library(
 		NostalgiaCore-GBA
+			bios.s
 			core.cpp
 			gfx.cpp
 			irq.arm.cpp

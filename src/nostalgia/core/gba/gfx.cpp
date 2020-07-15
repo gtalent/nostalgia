@@ -14,12 +14,14 @@
 #include <nostalgia/core/gfx.hpp>
 
 #include "addresses.hpp"
+#include "bios.hpp"
 #include "irq.hpp"
 #include "gfx.hpp"
 
 namespace nostalgia::core {
 
 constexpr auto GbaTileColumns = 32;
+constexpr auto GbaTileRows = 32;
 
 constexpr uint16_t DispStat_irq_vblank = 1 << 3;
 constexpr uint16_t DispStat_irq_hblank = 1 << 4;
@@ -209,6 +211,11 @@ void setTile(Context*, int layer, int column, int row, uint8_t tile) {
 	MEM_BG_MAP[layer][row * GbaTileColumns + column] = tile;
 }
 
+// Do NOT use Context in the GBA version of this function.
+void clearTileLayer(Context*, int layer) {
+	memset(&MEM_BG_MAP[layer], 0, GbaTileRows * GbaTileColumns);
+}
+
 void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx) {
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = static_cast<uint16_t>(y & ox::onMask<uint8_t>(7))
@@ -217,7 +224,9 @@ void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx) {
 	oa.attr2 = static_cast<uint16_t>(tileIdx & ox::onMask<uint16_t>(8));
 	oa.idx = idx;
 	// block until g_spriteUpdates is less than buffer len
-	while (g_spriteUpdates >= config::GbaSpriteBufferLen);
+	if (g_spriteUpdates >= config::GbaSpriteBufferLen) {
+		nostalgia_core_vblankwfi();
+	}
 	REG_IE &= ~Int_vblank; // disable vblank interrupt handler
 	g_spriteBuffer[g_spriteUpdates++] = oa;
 	REG_IE |= Int_vblank; // enable vblank interrupt handler

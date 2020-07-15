@@ -27,7 +27,7 @@ void panic([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_u
 
 }
 
-#define oxPanic(pass, msg) ox::panic(__FILE__, __LINE__, msg, pass)
+#define oxPanic(errCode, msg) ox::panic(__FILE__, __LINE__, msg, errCode)
 #ifndef NDEBUG
 #define oxAssert(pass, msg) ox::assertFunc<decltype(pass)>(__FILE__, __LINE__, pass, msg)
 #else

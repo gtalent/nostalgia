@@ -29,17 +29,17 @@ using interrupt_handler = void (*)(void);
 /////////////////////////////////////////////////////////////////
 // Timers
 
-#define REG_TIMER0CTL *reinterpret_cast<volatile uint16_t*>(0x04000100)
-#define REG_TIMER0    *reinterpret_cast<volatile uint16_t*>(0x04000102)
+#define REG_TIMER0    *reinterpret_cast<volatile uint16_t*>(0x04000100)
+#define REG_TIMER0CTL *reinterpret_cast<volatile uint16_t*>(0x04000102)
 
-#define REG_TIMER1CTL *reinterpret_cast<volatile uint16_t*>(0x04000104)
-#define REG_TIMER1    *reinterpret_cast<volatile uint16_t*>(0x04000106)
+#define REG_TIMER1    *reinterpret_cast<volatile uint16_t*>(0x04000104)
+#define REG_TIMER1CTL *reinterpret_cast<volatile uint16_t*>(0x04000106)
 
-#define REG_TIMER2CTL *reinterpret_cast<volatile uint16_t*>(0x04000108)
-#define REG_TIMER2    *reinterpret_cast<volatile uint16_t*>(0x0400010a)
+#define REG_TIMER2    *reinterpret_cast<volatile uint16_t*>(0x04000108)
+#define REG_TIMER2CTL *reinterpret_cast<volatile uint16_t*>(0x0400010a)
 
-#define REG_TIMER3CTL *reinterpret_cast<volatile uint16_t*>(0x0400010c)
-#define REG_TIMER3    *reinterpret_cast<volatile uint16_t*>(0x0400010e)
+#define REG_TIMER3    *reinterpret_cast<volatile uint16_t*>(0x0400010c)
+#define REG_TIMER3CTL *reinterpret_cast<volatile uint16_t*>(0x0400010e)
 
 /////////////////////////////////////////////////////////////////
 // background registers
@@ -82,3 +82,6 @@ typedef uint16_t BgMapTile[1024];
 #define MEM_OAM reinterpret_cast<uint64_t*>(0x07000000)
 
 #define MEM_ROM reinterpret_cast<char*>(0x08000000)
+
+#define MEM_SRAM reinterpret_cast<char*>(0x0e000000)
+#define MEM_SRAM_SIZE 65535

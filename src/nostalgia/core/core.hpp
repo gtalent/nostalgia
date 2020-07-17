@@ -16,9 +16,15 @@
 
 namespace nostalgia::core {
 
+using event_handler = int(*)(void);
+
 [[nodiscard]] ox::Error init(Context *ctx);
 
 [[nodiscard]] ox::Error run(Context *ctx);
+
+// Sets event handler that sleeps for the time given in the return value. The
+// sleep time is a minimum of ~16 milliseconds.
+void setEventHandler(event_handler);
 
 // Returns the number of milliseconds that have passed since the start of the
 //  program.

@@ -18,11 +18,13 @@ extern "C" void isr();
 namespace nostalgia::core {
 
 // Timer Consts
-constexpr auto NanoSecond = 1000000000;
-constexpr auto MilliSecond = 1000;
+constexpr int NanoSecond = 1000000000;
+constexpr int MilliSecond = 1000;
 constexpr int TicksMs59ns = 65535 - (NanoSecond / MilliSecond) / 59.59;
 
-extern volatile ox::Uint<config::GbaTimerBits> g_timerMs;
+extern event_handler g_eventHandler;
+
+extern volatile gba_timer_t g_timerMs;
 
 static void initIrq() {
 	REG_ISR = isr;
@@ -44,11 +46,8 @@ ox::Error init(Context *ctx) {
 	return OxError(0);
 }
 
-ox::Error run(Context*) {
-	while (1) {
-		nostalgia_core_vblankwfi();
-	}
-	return OxError(0);
+void setEventHandler(event_handler h) {
+	g_eventHandler = h;
 }
 
 uint64_t ticksMs() {

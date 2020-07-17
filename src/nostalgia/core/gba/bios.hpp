@@ -8,14 +8,19 @@
 
 #pragma once
 
+// Functions for accessing BIOS calls
+
 extern "C" {
 
+// waits for any interrupt
 void nostalgia_core_halt();
 
 void nostalgia_core_stop();
 
-void nostalgia_core_wfi();
+// waits for interrupts specified in interSubs
+void nostalgia_core_intrwait(unsigned discardExistingIntrs, unsigned intrSubs);
 
-void nostalgia_core_vblankwfi();
+// waits for vblank interrupt
+void nostalgia_core_vblankintrwait();
 
 }

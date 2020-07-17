@@ -4,6 +4,7 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 	add_library(
 		NostalgiaCore-GBA
 			bios.s
+			core.arm.cpp
 			core.cpp
 			gfx.cpp
 			irq.arm.cpp
@@ -12,7 +13,7 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 			panic.cpp
 	)
 
-	set_source_files_properties(irq.arm.cpp PROPERTIES COMPILE_FLAGS -marm)
+	set_source_files_properties(core.arm.cpp irq.arm.cpp PROPERTIES COMPILE_FLAGS -marm)
 
 	target_link_libraries(
 		NostalgiaCore-GBA PUBLIC

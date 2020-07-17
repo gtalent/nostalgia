@@ -8,9 +8,17 @@
 
 #pragma once
 
-namespace nostalgia::core::config {
+#include <ox/std/types.hpp>
+
+namespace nostalgia::core {
+
+namespace config {
 
 constexpr auto GbaSpriteBufferLen = 128;
-constexpr auto GbaTimerBits = 64;
+constexpr auto GbaEventLoopTimerBased = false;
+
+}
+
+using gba_timer_t = uint32_t;
 
 }

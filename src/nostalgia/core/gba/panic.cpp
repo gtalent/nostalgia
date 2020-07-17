@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -31,10 +31,9 @@ void panic(const char*, int, const char *msg, ox::Error err) {
 	puts(nullptr, 32 + 2,  6, msg);
 	puts(nullptr, 32 + 2,  8, serr.c_str());
 	puts(nullptr, 32 + 1, 15, "PLEASE RESTART THE SYSTEM");
-	// disable interrupts and wait for interrupt, halt and stop seem to have
-	// issues in mGBA
-	REG_IME = 0;
-	nostalgia_core_wfi();
+	// disable all interrupt handling and IntrWait on no interrupts
+	REG_IE = 0;
+	nostalgia_core_intrwait(0, 0);
 }
 
 }

@@ -18,7 +18,7 @@ namespace nostalgia::core {
 volatile uint16_t g_spriteUpdates = 0;
 GbaSpriteAttrUpdate g_spriteBuffer[config::GbaSpriteBufferLen];
 
-volatile uint32_t g_timerMs = 0;
+volatile gba_timer_t g_timerMs = 0;
 
 }
 
@@ -36,6 +36,10 @@ void nostalgia_core_isr_vblank() {
 		MEM_OAM[oa.idx] = *reinterpret_cast<uint64_t*>(&oa);
 	}
 	g_spriteUpdates = 0;
+	if constexpr(config::GbaEventLoopTimerBased) {
+		// disable vblank interrupt until it is needed again
+		REG_IE &= ~Int_vblank;
+	}
 }
 
 void nostalgia_core_isr_timer0() {

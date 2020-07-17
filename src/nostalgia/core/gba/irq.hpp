@@ -26,9 +26,3 @@ constexpr uint16_t Int_input  = 1 << 14; // gamepad
 constexpr uint16_t Int_cart   = 1 << 15; // cartridge removed
 
 }
-
-extern "C" {
-
-void nostalgia_core_wfi();
-
-}

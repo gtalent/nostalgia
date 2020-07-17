@@ -225,11 +225,18 @@ void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx) {
 	oa.idx = idx;
 	// block until g_spriteUpdates is less than buffer len
 	if (g_spriteUpdates >= config::GbaSpriteBufferLen) {
-		nostalgia_core_vblankwfi();
+		nostalgia_core_vblankintrwait();
 	}
-	REG_IE &= ~Int_vblank; // disable vblank interrupt handler
-	g_spriteBuffer[g_spriteUpdates++] = oa;
-	REG_IE |= Int_vblank; // enable vblank interrupt handler
+	if constexpr(config::GbaEventLoopTimerBased) {
+		REG_IE &= ~Int_vblank; // disable vblank interrupt handler
+		g_spriteBuffer[g_spriteUpdates++] = oa;
+		REG_IE |= Int_vblank; // enable vblank interrupt handler
+	} else {
+		auto ie = REG_IE; // disable vblank interrupt handler
+		REG_IE &= ~Int_vblank; // disable vblank interrupt handler
+		g_spriteBuffer[g_spriteUpdates++] = oa;
+		REG_IE = ie; // enable vblank interrupt handler
+	}
 }
 
 }

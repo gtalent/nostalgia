@@ -9,8 +9,11 @@
 #include <SDL.h>
 
 #include <nostalgia/core/gfx.hpp>
+#include <nostalgia/core/core.hpp>
 
 namespace nostalgia::core {
+
+static event_handler g_eventHandler = nullptr;
 
 void draw(Context *ctx);
 
@@ -39,6 +42,10 @@ ox::Error run(Context *ctx) {
 		SDL_Delay(1);
 	}
 	return OxError(0);
+}
+
+void setEventHandler(event_handler h) {
+	g_eventHandler = h;
 }
 
 uint64_t ticksMs() {

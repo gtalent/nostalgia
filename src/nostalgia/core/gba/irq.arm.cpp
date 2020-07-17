@@ -46,13 +46,4 @@ void nostalgia_core_isr_timer0() {
 	++g_timerMs;
 }
 
-void nostalgia_core_isr_timer1() {
-}
-
-void nostalgia_core_isr_timer2() {
-}
-
-void nostalgia_core_isr_timer3() {
-}
-
 }

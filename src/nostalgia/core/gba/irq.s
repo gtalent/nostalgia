@@ -72,18 +72,6 @@ isr:
 	ldreq r0, =nostalgia_core_isr_timer0
 	beq isr_call_handler
 
-	cmp r1, #Int_timer1
-	ldreq r0, =nostalgia_core_isr_timer1
-	beq isr_call_handler
-
-	cmp r1, #Int_timer2
-	ldreq r0, =nostalgia_core_isr_timer2
-	beq isr_call_handler
-
-	cmp r1, #Int_timer3
-	ldreq r0, =nostalgia_core_isr_timer3
-	beq isr_call_handler
-
 	////////////////////////////////////////////////////
 	// Interrupt Table End                            //
 	////////////////////////////////////////////////////

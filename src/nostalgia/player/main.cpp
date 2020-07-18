@@ -9,25 +9,34 @@
 #include <ox/fs/fs.hpp>
 #include <ox/std/units.hpp>
 #include <nostalgia/core/core.hpp>
+#include <nostalgia/core/input.hpp>
 #include <nostalgia/world/world.hpp>
 
 using namespace nostalgia;
 
-static unsigned spriteX = 0;
+static unsigned spriteX = 72;
+static unsigned spriteY = 64;
 
 static int mainLoop() {
-	spriteX += 2;
-	spriteX &= 255;
-	constexpr auto y = 64;
-	core::setSprite(0, spriteX +  8, y, 'n' - ('a' - 1));
-	core::setSprite(1, spriteX + 16, y, 'o' - ('a' - 1));
-	core::setSprite(2, spriteX + 24, y, 's' - ('a' - 1));
-	core::setSprite(3, spriteX + 32, y, 't' - ('a' - 1));
-	core::setSprite(4, spriteX + 40, y, 'a' - ('a' - 1));
-	core::setSprite(5, spriteX + 48, y, 'l' - ('a' - 1));
-	core::setSprite(6, spriteX + 56, y, 'g' - ('a' - 1));
-	core::setSprite(7, spriteX + 64, y, 'i' - ('a' - 1));
-	core::setSprite(8, spriteX + 72, y, 'a' - ('a' - 1));
+	if (core::buttonDown(core::GamePad_Right)) {
+		spriteX += 2;
+	} else if (core::buttonDown(core::GamePad_Left)) {
+		spriteX -= 2;
+	}
+	if (core::buttonDown(core::GamePad_Down)) {
+		spriteY += 2;
+	} else if (core::buttonDown(core::GamePad_Up)) {
+		spriteY -= 2;
+	}
+	core::setSprite(0, spriteX +  8, spriteY, 'n' - ('a' - 1));
+	core::setSprite(1, spriteX + 16, spriteY, 'o' - ('a' - 1));
+	core::setSprite(2, spriteX + 24, spriteY, 's' - ('a' - 1));
+	core::setSprite(3, spriteX + 32, spriteY, 't' - ('a' - 1));
+	core::setSprite(4, spriteX + 40, spriteY, 'a' - ('a' - 1));
+	core::setSprite(5, spriteX + 48, spriteY, 'l' - ('a' - 1));
+	core::setSprite(6, spriteX + 56, spriteY, 'g' - ('a' - 1));
+	core::setSprite(7, spriteX + 64, spriteY, 'i' - ('a' - 1));
+	core::setSprite(8, spriteX + 72, spriteY, 'a' - ('a' - 1));
 	return 16;
 }
 

@@ -63,6 +63,11 @@ using interrupt_handler = void (*)(void);
 #define REG_BG3VOFS *reinterpret_cast<volatile uint32_t*>(0x0400001e)
 
 /////////////////////////////////////////////////////////////////
+// User Input
+
+#define REG_GAMEPAD *reinterpret_cast<volatile uint16_t*>(0x04000130)
+
+/////////////////////////////////////////////////////////////////
 // Memory Addresses
 
 #define MEM_EWRAM_BEGIN reinterpret_cast<uint8_t*>(0x02000000)

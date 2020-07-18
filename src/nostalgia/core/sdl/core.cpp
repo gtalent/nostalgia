@@ -9,6 +9,7 @@
 #include <SDL.h>
 
 #include <nostalgia/core/gfx.hpp>
+#include <nostalgia/core/input.hpp>
 #include <nostalgia/core/core.hpp>
 
 namespace nostalgia::core {
@@ -50,6 +51,10 @@ void setEventHandler(event_handler h) {
 
 uint64_t ticksMs() {
 	return SDL_GetTicks();;
+}
+
+bool buttonDown(Key) {
+	return false;
 }
 
 }

@@ -28,6 +28,7 @@ install(
 		context.hpp
 		core.hpp
 		gfx.hpp
+		input.hpp
 		media.hpp
 		mem.hpp
 	DESTINATION

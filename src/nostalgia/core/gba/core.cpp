@@ -8,6 +8,7 @@
 
 #include <nostalgia/core/config.hpp>
 #include <nostalgia/core/core.hpp>
+#include <nostalgia/core/input.hpp>
 
 #include "addresses.hpp"
 #include "bios.hpp"
@@ -52,6 +53,10 @@ void setEventHandler(event_handler h) {
 
 uint64_t ticksMs() {
 	return g_timerMs;
+}
+
+bool buttonDown(Key k) {
+	return !(REG_GAMEPAD & k);
 }
 
 }

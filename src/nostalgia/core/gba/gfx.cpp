@@ -27,6 +27,24 @@ constexpr uint16_t DispStat_irq_vblank = 1 << 3;
 constexpr uint16_t DispStat_irq_hblank = 1 << 4;
 constexpr uint16_t DispStat_irq_vcount = 1 << 5;
 
+enum DispCtl {
+	DispCtl_Mode0 = 0,
+	DispCtl_Mode1 = 1,
+	DispCtl_Mode2 = 2,
+	DispCtl_Mode3 = 3,
+	DispCtl_Mode4 = 4,
+	DispCtl_Mode5 = 5,
+
+	DispCtl_SpriteMap1D = 1 << 6,
+
+	DispCtl_Bg0 = 1 << 8,
+	DispCtl_Bg1 = 1 << 9,
+	DispCtl_Bg2 = 1 << 10,
+	DispCtl_Bg3 = 1 << 11,
+
+	DispCtl_Obj = 1 << 12,
+};
+
 struct GbaPaletteTarget {
 	static constexpr auto TypeName = NostalgiaPalette::TypeName;
 	static constexpr auto Fields = NostalgiaPalette::Fields;
@@ -87,12 +105,10 @@ ox::Error modelRead(T *io, GbaTileMapTarget *t) {
 }
 
 ox::Error initGfx(Context*) {
-	/* Sprite Mode ----\ */
-	/*             ---\| */
-	/* Background 0 -\|| */
-	/* Objects -----\||| */
-	/*              |||| */
-	REG_DISPCTL = 0x1101;
+	REG_DISPCTL = DispCtl_Mode0
+	            | DispCtl_SpriteMap1D
+	            | DispCtl_Bg0
+	            | DispCtl_Obj;
 	// tell display to trigger vblank interrupts
 	REG_DISPSTAT |= DispStat_irq_vblank;
 	// enable vblank interrupt
@@ -216,11 +232,13 @@ void clearTileLayer(Context*, int layer) {
 	memset(&MEM_BG_MAP[layer], 0, GbaTileRows * GbaTileColumns);
 }
 
-void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx) {
+void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape, unsigned spriteSize) {
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = static_cast<uint16_t>(y & ox::onMask<uint8_t>(7))
-	         | (static_cast<uint16_t>(1) << 10); // enable alpha
-	oa.attr1 = static_cast<uint16_t>(x) & ox::onMask<uint8_t>(8);
+	         | (static_cast<uint16_t>(1) << 10) // enable alpha
+				| (static_cast<uint16_t>(spriteShape) << 14);
+	oa.attr1 = (static_cast<uint16_t>(x) & ox::onMask<uint8_t>(8))
+	         | (static_cast<uint16_t>(spriteSize) << 14);
 	oa.attr2 = static_cast<uint16_t>(tileIdx & ox::onMask<uint16_t>(8));
 	oa.idx = idx;
 	// block until g_spriteUpdates is less than buffer len

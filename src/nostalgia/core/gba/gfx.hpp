@@ -15,6 +15,24 @@
 
 namespace nostalgia::core {
 
+enum DispCtl {
+	DispCtl_Mode0 = 0,
+	DispCtl_Mode1 = 1,
+	DispCtl_Mode2 = 2,
+	DispCtl_Mode3 = 3,
+	DispCtl_Mode4 = 4,
+	DispCtl_Mode5 = 5,
+
+	DispCtl_SpriteMap1D = 1 << 6,
+
+	DispCtl_Bg0 = 1 << 8,
+	DispCtl_Bg1 = 1 << 9,
+	DispCtl_Bg2 = 1 << 10,
+	DispCtl_Bg3 = 1 << 11,
+
+	DispCtl_Obj = 1 << 12,
+};
+
 struct OX_ALIGN8 GbaSpriteAttrUpdate {
 	uint16_t attr0 = 0;
 	uint16_t attr1 = 0;

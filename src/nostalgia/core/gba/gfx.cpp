@@ -27,24 +27,6 @@ constexpr uint16_t DispStat_irq_vblank = 1 << 3;
 constexpr uint16_t DispStat_irq_hblank = 1 << 4;
 constexpr uint16_t DispStat_irq_vcount = 1 << 5;
 
-enum DispCtl {
-	DispCtl_Mode0 = 0,
-	DispCtl_Mode1 = 1,
-	DispCtl_Mode2 = 2,
-	DispCtl_Mode3 = 3,
-	DispCtl_Mode4 = 4,
-	DispCtl_Mode5 = 5,
-
-	DispCtl_SpriteMap1D = 1 << 6,
-
-	DispCtl_Bg0 = 1 << 8,
-	DispCtl_Bg1 = 1 << 9,
-	DispCtl_Bg2 = 1 << 10,
-	DispCtl_Bg3 = 1 << 11,
-
-	DispCtl_Obj = 1 << 12,
-};
-
 struct GbaPaletteTarget {
 	static constexpr auto TypeName = NostalgiaPalette::TypeName;
 	static constexpr auto Fields = NostalgiaPalette::Fields;
@@ -153,9 +135,9 @@ ox::Error initConsole(Context *ctx) {
 }
 
 ox::Error loadBgTileSheet(Context *ctx,
-                        int section,
-                        ox::FileAddress tilesheetAddr,
-                        ox::FileAddress paletteAddr) {
+                          int section,
+                          ox::FileAddress tilesheetAddr,
+                          ox::FileAddress paletteAddr) {
 	auto [tsStat, tsStatErr] = ctx->rom->stat(tilesheetAddr);
 	oxReturnError(tsStatErr);
 	auto [ts, tserr] = ctx->rom->read(tilesheetAddr);

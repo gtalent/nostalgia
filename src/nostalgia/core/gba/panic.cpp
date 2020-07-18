@@ -13,6 +13,7 @@
 
 #include "addresses.hpp"
 #include "bios.hpp"
+#include "gfx.hpp"
 
 namespace ox {
 
@@ -22,7 +23,7 @@ void panic(const char*, int, const char *msg, ox::Error err) {
 	oxIgnoreError(initGfx(nullptr));
 	oxIgnoreError(initConsole(nullptr));
 	// enable only BG 0
-	REG_DISPCTL = 0x0100;
+	REG_DISPCTL = DispCtl_Bg0;
 	clearTileLayer(nullptr, 0);
 	ox::BString<23> serr = "Error code: ";
 	serr += err;

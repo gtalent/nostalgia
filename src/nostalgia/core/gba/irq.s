@@ -64,12 +64,12 @@ isr:
 	// Interrupt Table Begin                          //
 	////////////////////////////////////////////////////
 
-	cmp r1, #Int_vblank
-	ldreq r0, =nostalgia_core_isr_vblank
-	beq isr_call_handler
-
 	cmp r1, #Int_timer0
 	ldreq r0, =nostalgia_core_isr_timer0
+	beq isr_call_handler
+
+	cmp r1, #Int_vblank
+	ldreq r0, =nostalgia_core_isr_vblank
 	beq isr_call_handler
 
 	////////////////////////////////////////////////////

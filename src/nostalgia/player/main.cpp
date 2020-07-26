@@ -16,10 +16,53 @@ using namespace nostalgia;
 
 constexpr auto GroundY = 128;
 
-static int spriteHeight = 24;
-static int spriteX = 72;
-static int spriteY = GroundY - spriteHeight;
-static int spriteYVel = 0;
+struct Character {
+	unsigned m_id = 0;
+	int m_height = 24;
+	int m_x = 72;
+	int m_y = GroundY - m_height;
+	int m_yVel = 0;
+
+	Character(unsigned m_id, int x = 72) {
+		this->m_id = m_id;
+		m_x = x;
+	}
+
+	void init() {
+		core::setSprite(m_id, static_cast<unsigned>(m_x), static_cast<unsigned>(m_y), 16, 2, 2);
+	}
+
+	void readUserInput() {
+		if (core::buttonDown(core::GamePad_Right)) {
+			if (m_x + 16 < 240) {
+				m_x += 2;
+			}
+		} else if (core::buttonDown(core::GamePad_Left)) {
+			if (m_x > 0) {
+				m_x -= 2;
+			}
+		}
+		if (core::buttonDown(core::GamePad_A) && m_y + m_height == GroundY) {
+			m_yVel = -9;
+		}
+	}
+
+	void update() {
+		if (m_yVel || m_y + m_height != GroundY) {
+			m_y += m_yVel;
+			m_yVel++;
+			if (m_y >= GroundY - m_height) {
+				m_y = GroundY - m_height;
+				m_yVel = 0;
+			}
+		}
+		// update sprites
+		core::setSprite(m_id, static_cast<unsigned>(m_x), static_cast<unsigned>(m_y), 16, 2, 2);
+	}
+};
+
+Character player(0, 72);
+Character opponent(1, 132);
 
 static void createCloud(core::Context *ctx, int x, int y) {
 	core::setTile(ctx, 0, x + 0, y + 0, 12);
@@ -61,30 +104,15 @@ static ox::Error initArena(core::Context *ctx) {
 			core::setTile(ctx, 0, i + 1, ii + 1, 7);
 		}
 	}
-	core::setSprite(0, static_cast<unsigned>(spriteX), static_cast<unsigned>(spriteY), 16, 2, 2);
+	player.init();
+	opponent.init();
 	return OxError(0);
 }
 
 static int mainLoop() {
-	if (core::buttonDown(core::GamePad_Right)) {
-		spriteX += 2;
-	} else if (core::buttonDown(core::GamePad_Left)) {
-		spriteX -= 2;
-	}
-	if (core::buttonDown(core::GamePad_A) && spriteY + spriteHeight == GroundY) {
-		spriteYVel = -9;
-	}
-
-	if (spriteYVel || spriteY + spriteHeight != GroundY) {
-		spriteY += spriteYVel;
-		spriteYVel++;
-		if (spriteY >= GroundY - spriteHeight) {
-			spriteY = GroundY - spriteHeight;
-			spriteYVel = 0;
-		}
-	}
-	// update sprites
-	core::setSprite(0, static_cast<unsigned>(spriteX), static_cast<unsigned>(spriteY), 16, 2, 2);
+	player.readUserInput();
+	player.update();
+	opponent.update();
 	return 32;
 }
 

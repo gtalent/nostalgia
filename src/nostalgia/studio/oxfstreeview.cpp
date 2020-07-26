@@ -217,8 +217,10 @@ int OxFSModel::columnCount(const QModelIndex &parent) const {
 }
 
 void OxFSModel::updateFile(QString path) {
-	auto pathItems = path.split("/").mid(1);
-	m_rootItem->appendChild(this, pathItems, "");
+	if (path[0] != '.') {
+		auto pathItems = path.split("/").mid(1);
+		m_rootItem->appendChild(this, pathItems, "");
+	}
 }
 
 void OxFSModel::setupModelData(const QStringList&, OxFSFile*) {

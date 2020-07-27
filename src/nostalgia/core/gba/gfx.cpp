@@ -95,6 +95,7 @@ ox::Error initGfx(Context*) {
 	REG_DISPSTAT |= DispStat_irq_vblank;
 	// enable vblank interrupt
 	REG_IE |= Int_vblank;
+	REG_BLNDCTL = 1 << 5;
 	return OxError(0);
 }
 

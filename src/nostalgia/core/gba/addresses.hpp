@@ -76,6 +76,8 @@ using interrupt_handler = void (*)(void);
 #define MEM_IWRAM_BEGIN reinterpret_cast<uint8_t*>(0x03000000)
 #define MEM_IWRAM_END   reinterpret_cast<uint8_t*>(0x03007FFF)
 
+#define REG_BLNDCTL *reinterpret_cast<uint16_t*>(0x04000050)
+
 #define MEM_BG_PALETTE reinterpret_cast<uint16_t*>(0x05000000)
 #define MEM_SPRITE_PALETTE reinterpret_cast<uint16_t*>(0x05000200)
 

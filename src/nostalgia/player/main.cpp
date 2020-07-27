@@ -17,33 +17,36 @@ using namespace nostalgia;
 constexpr auto GroundY = 128;
 
 struct Character {
+	unsigned m_tile = 0;
 	unsigned m_id = 0;
-	int m_height = 24;
+	int m_height = 32;
 	int m_x = 72;
 	int m_y = GroundY - m_height;
 	int m_yVel = 0;
+	int m_xSpeed = 2;
 
-	Character(unsigned m_id, int x = 72) {
+	Character(unsigned m_id, int x, unsigned tile) {
 		this->m_id = m_id;
 		m_x = x;
+		m_tile = tile;
 	}
 
 	void init() {
-		core::setSprite(m_id, static_cast<unsigned>(m_x), static_cast<unsigned>(m_y), 16, 2, 2);
+		core::setSprite(m_id, static_cast<unsigned>(m_x), static_cast<unsigned>(m_y), m_tile, 2, 1);
 	}
 
 	void readUserInput() {
 		if (core::buttonDown(core::GamePad_Right)) {
 			if (m_x + 16 < 240) {
-				m_x += 2;
+				m_x += m_xSpeed;
 			}
 		} else if (core::buttonDown(core::GamePad_Left)) {
 			if (m_x > 0) {
-				m_x -= 2;
+				m_x -= m_xSpeed;
 			}
 		}
 		if (core::buttonDown(core::GamePad_A) && m_y + m_height == GroundY) {
-			m_yVel = -9;
+			m_yVel = -10;
 		}
 	}
 
@@ -57,12 +60,12 @@ struct Character {
 			}
 		}
 		// update sprites
-		core::setSprite(m_id, static_cast<unsigned>(m_x), static_cast<unsigned>(m_y), 16, 2, 2);
+		core::setSprite(m_id, static_cast<unsigned>(m_x), static_cast<unsigned>(m_y), m_tile, 2, 2);
 	}
 };
 
-Character player(0, 72);
-Character opponent(1, 132);
+Character player(0, 72, 16);
+Character opponent(1, 132, 24);
 
 static void createCloud(core::Context *ctx, int x, int y) {
 	core::setTile(ctx, 0, x + 0, y + 0, 12);
@@ -71,17 +74,11 @@ static void createCloud(core::Context *ctx, int x, int y) {
 	core::setTile(ctx, 0, x + 1, y + 1, 15);
 }
 
-static ox::Error initArena(core::Context *ctx) {
+ox::Error initArena(core::Context *ctx) {
 	constexpr auto TileSheetAddr = "/TileSheets/Background.ng";
 	constexpr auto PaletteAddr = "/Palettes/Background.npal";
 	oxReturnError(core::loadBgTileSheet(ctx, 0, TileSheetAddr, PaletteAddr));
 	oxReturnError(core::loadSpriteTileSheet(ctx, 0, TileSheetAddr, PaletteAddr));
-	// clear bg1
-	for (int ii = 0; ii < 16; ii += 1) {
-		for (int i = 0; i < 32; i += 1) {
-			core::setTile(ctx, 1, i, ii, 0);
-		}
-	}
 	// setup sky
 	for (int ii = 0; ii < 16; ii += 2) {
 		for (int i = 0; i < 32; i += 2) {
@@ -109,22 +106,26 @@ static ox::Error initArena(core::Context *ctx) {
 	return OxError(0);
 }
 
-static int mainLoop() {
+int arenaLoop() {
 	player.readUserInput();
 	player.update();
 	opponent.update();
 	return 32;
 }
 
+ox::Error initMainScreen(core::Context *ctx) {
+	oxReturnError(core::initConsole(ctx));
+	core::puts(ctx, 8, 4, "Remote Fighter!");
+	core::puts(ctx, 10, 10, "Press Start");
+	return OxError(0);
+}
+
 ox::Error run(ox::FileSystem *fs) {
 	core::Context ctx;
 	ctx.rom = fs;
 	oxReturnError(core::init(&ctx));
-	//Zone zone;
-	//oxReturnError(zone.init(&ctx, Bounds{0, 0, 40, 40}, "/TileSheets/Charset.ng", "/Palettes/Charset.npal"));
-	//zone.draw(&ctx);
 	oxReturnError(initArena(&ctx));
-	core::setEventHandler(mainLoop);
+	core::setEventHandler(arenaLoop);
 	oxReturnError(core::run(&ctx));
 	oxReturnError(core::shutdownGfx(&ctx));
 	return OxError(0);

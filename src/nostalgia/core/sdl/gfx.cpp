@@ -200,7 +200,13 @@ void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
 	id->bgTileMaps[z][y][x] = tile;
 }
 
-void setSprite(unsigned, unsigned, unsigned, unsigned, unsigned, unsigned) {
+void clearTileLayer(Context*, int) {
+}
+
+void hideSprite(unsigned) {
+}
+
+void setSprite(unsigned, unsigned, unsigned, unsigned, unsigned, unsigned, unsigned) {
 }
 
 }

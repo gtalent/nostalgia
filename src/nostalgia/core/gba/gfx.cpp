@@ -21,7 +21,7 @@
 namespace nostalgia::core {
 
 constexpr auto GbaTileColumns = 32;
-constexpr auto GbaTileRows = 32;
+constexpr auto GbaTileRows = 64;
 
 constexpr uint16_t DispStat_irq_vblank = 1 << 3;
 constexpr uint16_t DispStat_irq_hblank = 1 << 4;
@@ -215,12 +215,33 @@ void clearTileLayer(Context*, int layer) {
 	memset(&MEM_BG_MAP[layer], 0, GbaTileRows * GbaTileColumns);
 }
 
-void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape, unsigned spriteSize) {
+void hideSprite(unsigned idx) {
+	GbaSpriteAttrUpdate oa;
+	oa.attr0 = 2 << 8;
+	oa.idx = idx;
+	// block until g_spriteUpdates is less than buffer len
+	if (g_spriteUpdates >= config::GbaSpriteBufferLen) {
+		nostalgia_core_vblankintrwait();
+	}
+	if constexpr(config::GbaEventLoopTimerBased) {
+		REG_IE &= ~Int_vblank; // disable vblank interrupt handler
+		g_spriteBuffer[g_spriteUpdates++] = oa;
+		REG_IE |= Int_vblank; // enable vblank interrupt handler
+	} else {
+		auto ie = REG_IE; // disable vblank interrupt handler
+		REG_IE &= ~Int_vblank; // disable vblank interrupt handler
+		g_spriteBuffer[g_spriteUpdates++] = oa;
+		REG_IE = ie; // enable vblank interrupt handler
+	}
+}
+
+void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape, unsigned spriteSize, unsigned flipped) {
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = static_cast<uint16_t>(y & ox::onMask<uint8_t>(7))
 	         | (static_cast<uint16_t>(1) << 10) // enable alpha
 				| (static_cast<uint16_t>(spriteShape) << 14);
 	oa.attr1 = (static_cast<uint16_t>(x) & ox::onMask<uint8_t>(8))
+	         | (static_cast<uint16_t>(flipped) << 12)
 	         | (static_cast<uint16_t>(spriteSize) << 14);
 	oa.attr2 = static_cast<uint16_t>(tileIdx & ox::onMask<uint16_t>(8));
 	oa.idx = idx;

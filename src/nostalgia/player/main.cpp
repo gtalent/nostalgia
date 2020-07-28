@@ -7,6 +7,7 @@
  */
 
 #include <ox/fs/fs.hpp>
+#include <ox/std/random.hpp>
 #include <ox/std/units.hpp>
 #include <nostalgia/core/core.hpp>
 #include <nostalgia/core/input.hpp>
@@ -155,13 +156,24 @@ void Character::readUserInput(Character *opponent) {
 	}
 }
 
+int diff(int a, int b) {
+	if (a > b) {
+		return a - b;
+	} else {
+		return b - a;
+	}
+}
+
 void Character::runAI(Character *opponent) {
 	// start jumping if opponent->m_bolt is active
-	if (opponent->m_bolt->m_active) {
-		if (m_y + m_height == GroundY) {
+	auto opBolt = opponent->m_bolt;
+	if (opBolt->m_active) {
+		int jmpDist = core::ticksMs() & 5;
+		if (m_y + m_height == GroundY && opBolt->tipY() > m_y &&
+		    (diff(m_x, opBolt->tipX()) < jmpDist || diff(m_x + Width, opBolt->tipX()) < jmpDist)) {
 			m_yVel = -9;
 		}
-		if (opponent->m_bolt->m_xVel < 0 && m_x > 0) {
+		if (opBolt->m_xVel < 0 && m_x > 0) {
 			m_x -= m_xSpeed;
 		} else if (m_x + Width < 240) {
 			m_x += m_xSpeed;
@@ -171,7 +183,7 @@ void Character::runAI(Character *opponent) {
 		if ((player.m_x >> 2) & 1 || (core::ticksMs() & 8) == 8) {
 			m_bolt->fire(m_x, m_y + 16, m_x > opponent->m_x);
 		}
-		if (!opponent->m_bolt->m_active) {
+		if (!opBolt->m_active) {
 			if (m_x > 0 && m_x > opponent->m_x) {
 				m_x -= m_xSpeed;
 			} else if (m_x + Width < 240) {
@@ -193,7 +205,7 @@ void Character::update(Character *opponent, Bolt *opponentBolt) {
 	// check if enemy bolt is in this sprite
 	if (opponentBolt->m_active &&
 		 m_x +  4 <= opponentBolt->tipX() && m_x + (Width-4) >= opponentBolt->tipX() &&
-	    m_y + 12 <= opponentBolt->tipY() && m_y + Height >= opponentBolt->tipY()) {
+	    m_y + 12 <= opponentBolt->tipY() && m_y + Height - 5 >= opponentBolt->tipY()) {
 		initGameOverScreen(opponent);
 	}
 	// update sprites

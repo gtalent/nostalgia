@@ -30,7 +30,7 @@ struct Bolt {
 
 	void init();
 
-	void update();
+	void update(core::Context *ctx);
 
 	void fire(int x, int y, bool left);
 
@@ -69,7 +69,7 @@ struct Character {
 
 	void runAI(Character *opponent);
 
-	void update(Character *opponent, Bolt *opponentBolt);
+	void update(core::Context *ctx, Character *opponent, Bolt *opponentBolt);
 
 };
 
@@ -77,9 +77,8 @@ Bolt playerBolt(1, 32);
 Bolt opponentBolt(3, 33);
 Character player(0, &playerBolt, 0 + Character::Width, 16);
 Character opponent(2, &opponentBolt, 240 - (10 + Character::Width), 24);
-core::Context ctx;
 
-void initGameOverScreen(Character *winner);
+void initGameOverScreen(core::Context *ctx, Character *winner);
 
 
 Bolt::Bolt(unsigned id, unsigned tile) {
@@ -93,7 +92,7 @@ void Bolt::init() {
 	core::hideSprite(m_id);
 }
 
-void Bolt::update() {
+void Bolt::update(core::Context*) {
 	if (m_ticksToLive) {
 		--m_ticksToLive;
 		m_x += m_xVel;
@@ -193,7 +192,7 @@ void Character::runAI(Character *opponent) {
 	}
 }
 
-void Character::update(Character *opponent, Bolt *opponentBolt) {
+void Character::update(core::Context *ctx, Character *opponent, Bolt *opponentBolt) {
 	if (m_yVel || m_y + m_height != GroundY) {
 		m_y += m_yVel;
 		m_yVel++;
@@ -206,58 +205,58 @@ void Character::update(Character *opponent, Bolt *opponentBolt) {
 	if (opponentBolt->m_active &&
 		 m_x +  4 <= opponentBolt->tipX() && m_x + (Width-4) >= opponentBolt->tipX() &&
 	    m_y + 12 <= opponentBolt->tipY() && m_y + Height - 5 >= opponentBolt->tipY()) {
-		initGameOverScreen(opponent);
+		initGameOverScreen(ctx, opponent);
 	}
 	// update sprites
 	auto flip = m_x > opponent->m_x;
 	core::setSprite(m_id, static_cast<unsigned>(m_x), static_cast<unsigned>(m_y), m_tile, 2, 2, flip);
 }
 
-static void createCloud(int x, int y) {
-	core::setTile(&ctx, 0, x + 0, y + 0, 12);
-	core::setTile(&ctx, 0, x + 1, y + 0, 13);
-	core::setTile(&ctx, 0, x + 0, y + 1, 14);
-	core::setTile(&ctx, 0, x + 1, y + 1, 15);
+static void createCloud(core::Context *ctx, int x, int y) {
+	core::setTile(ctx, 0, x + 0, y + 0, 12);
+	core::setTile(ctx, 0, x + 1, y + 0, 13);
+	core::setTile(ctx, 0, x + 0, y + 1, 14);
+	core::setTile(ctx, 0, x + 1, y + 1, 15);
 }
 
-int arenaLoop(core::Context*) {
+int arenaLoop(core::Context *ctx) {
 	player.readUserInput(&opponent);
-	player.update(&opponent, &opponentBolt);
+	player.update(ctx, &opponent, &opponentBolt);
 	opponent.runAI(&player);
-	opponent.update(&player, &playerBolt);
-	playerBolt.update();
-	opponentBolt.update();
+	opponent.update(ctx, &player, &playerBolt);
+	playerBolt.update(ctx);
+	opponentBolt.update(ctx);
 	return 32;
 }
 
-ox::Error initArena() {
+ox::Error initArena(core::Context *ctx) {
 	// rom FS needs to be reloaded for some reason
-	ctx.rom = core::loadRomFs("rom.oxfs");
+	ctx->rom = core::loadRomFs("rom.oxfs");
 	// setup scene
 	constexpr auto TileSheetAddr = "/TileSheets/Background.ng";
 	constexpr auto PaletteAddr = "/Palettes/Background.npal";
-	oxReturnError(core::loadBgTileSheet(&ctx, 0, TileSheetAddr, PaletteAddr));
-	oxReturnError(core::loadSpriteTileSheet(&ctx, 0, TileSheetAddr, PaletteAddr));
+	oxReturnError(core::loadBgTileSheet(ctx, 0, TileSheetAddr, PaletteAddr));
+	oxReturnError(core::loadSpriteTileSheet(ctx, 0, TileSheetAddr, PaletteAddr));
 	// setup sky
 	for (int ii = 0; ii < 16; ii += 2) {
 		for (int i = 0; i < 32; i += 2) {
-			core::setTile(&ctx, 0, i + 0, ii + 0, 8);
-			core::setTile(&ctx, 0, i + 1, ii + 0, 9);
-			core::setTile(&ctx, 0, i + 0, ii + 1, 10);
-			core::setTile(&ctx, 0, i + 1, ii + 1, 11);
+			core::setTile(ctx, 0, i + 0, ii + 0, 8);
+			core::setTile(ctx, 0, i + 1, ii + 0, 9);
+			core::setTile(ctx, 0, i + 0, ii + 1, 10);
+			core::setTile(ctx, 0, i + 1, ii + 1, 11);
 		}
 	}
-	createCloud(8, 10);
-	createCloud(22, 7);
-	createCloud(3, 4);
-	createCloud(16, 2);
+	createCloud(ctx, 8, 10);
+	createCloud(ctx, 22, 7);
+	createCloud(ctx, 3, 4);
+	createCloud(ctx, 16, 2);
 	// setup ground
 	for (int ii = 16; ii < 32; ii += 2) {
 		for (int i = 0; i < 32; i += 2) {
-			core::setTile(&ctx, 0, i + 0, ii + 0, 4);
-			core::setTile(&ctx, 0, i + 1, ii + 0, 5);
-			core::setTile(&ctx, 0, i + 0, ii + 1, 6);
-			core::setTile(&ctx, 0, i + 1, ii + 1, 7);
+			core::setTile(ctx, 0, i + 0, ii + 0, 4);
+			core::setTile(ctx, 0, i + 1, ii + 0, 5);
+			core::setTile(ctx, 0, i + 0, ii + 1, 6);
+			core::setTile(ctx, 0, i + 1, ii + 1, 7);
 		}
 	}
 	player.init();
@@ -268,52 +267,53 @@ ox::Error initArena() {
 	return OxError(0);
 }
 
-int gameOverLoop(core::Context*) {
+int gameOverLoop(core::Context *ctx) {
 	if (core::buttonDown(core::GamePad_Start)) {
-		initArena();
+		initArena(ctx);
 	}
 	return 16;
 }
 
-void initGameOverScreen(Character *winner) {
+void initGameOverScreen(core::Context *ctx, Character *winner) {
 	// rom FS needs to be reloaded for some reason
-	ctx.rom = core::loadRomFs("rom.oxfs");
-	oxIgnoreError(core::initConsole(&ctx));
+	ctx->rom = core::loadRomFs("rom.oxfs");
+	oxIgnoreError(core::initConsole(ctx));
 	core::clearTileLayer(nullptr, 0);
 	if (winner == &player) {
-		core::puts(&ctx, 6, 4, "You're a murderer!");
-		core::puts(&ctx, 3, 10, "Press Start To Play Again");
+		core::puts(ctx, 6, 4, "You're a murderer!");
+		core::puts(ctx, 3, 10, "Press Start To Play Again");
 	} else {
-		core::puts(&ctx, 8, 4, "You're a loser!");
-		core::puts(&ctx, 3, 10, "Press Start To Play Again");
+		core::puts(ctx, 8, 4, "You're a loser!");
+		core::puts(ctx, 3, 10, "Press Start To Play Again");
 	}
 	core::setEventHandler(gameOverLoop);
 }
 
-int mainScreenLoop(core::Context*) {
+int mainScreenLoop(core::Context *ctx) {
 	if (core::buttonDown(core::GamePad_Start)) {
-		initArena();
+		initArena(ctx);
 	}
 	return 16;
 }
 
-ox::Error initMainScreen() {
-	oxReturnError(core::initConsole(&ctx));
+ox::Error initMainScreen(core::Context *ctx) {
+	oxReturnError(core::initConsole(ctx));
 	core::clearTileLayer(nullptr, 0);
-	core::puts(&ctx, 8, 4, "Remote Fighter!");
-	core::puts(&ctx, 10, 10, "Press Start");
-	core::puts(&ctx, 0, 18, "Drinking Tea @");
+	core::puts(ctx, 8, 4, "Remote Fighter!");
+	core::puts(ctx, 10, 10, "Press Start");
+	core::puts(ctx, 0, 18, "Drinking Tea @");
 	core::setEventHandler(mainScreenLoop);
 	return OxError(0);
 }
 
 ox::Error run(ox::FileSystem *fs) {
+	core::Context ctx;
 	ctx.rom = fs;
 	oxReturnError(core::init(&ctx));
 	for (unsigned i = 0; i < 128; ++i) {
 		core::hideSprite(i);
 	}
-	oxReturnError(initMainScreen());
+	oxReturnError(initMainScreen(&ctx));
 	oxReturnError(core::run(&ctx));
 	oxReturnError(core::shutdownGfx(&ctx));
 	return OxError(0);

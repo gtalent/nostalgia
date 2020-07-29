@@ -17,7 +17,7 @@ using namespace nostalgia;
 static unsigned spriteX = 72;
 static unsigned spriteY = 64;
 
-static int mainLoop() {
+static int mainLoop(core::Context*) {
 	if (core::buttonDown(core::GamePad_Right)) {
 		spriteX += 2;
 	} else if (core::buttonDown(core::GamePad_Left)) {

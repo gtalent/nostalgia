@@ -35,9 +35,10 @@ All components have a platform indicator next to them:
 * deps - project dependencies
   * Ox - Library of things useful for portable bare metal and userland code. Not really that external...
     * clargs - Command Line Args processing (P-)
+    * claw - Reads and writes Metal or Organic Claw with header to indicate which
     * fs - file system (PG)
     * mc - Metal Claw serialization, builds on model (PG)
-    * oc - Organic Claw serialization, builds on model (P-)
+    * oc - Organic Claw serialization (wrapper around JsonCpp), builds on model (P-)
     * model - Data structure modelling (PG)
     * std - Standard-ish Library with a lot missing and some things added (PG)
   * GbaStartup - GBA assembly startup code, mostly pulled from devkitPro under MPL 2.0 (-G)

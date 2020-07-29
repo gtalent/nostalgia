@@ -37,6 +37,7 @@ All components have a platform indicator next to them:
     * clargs - Command Line Args processing (P-)
     * fs - file system (PG)
     * mc - Metal Claw serialization, builds on model (PG)
+    * oc - Organic Claw serialization, builds on model (P-)
     * model - Data structure modelling (PG)
     * std - Standard-ish Library with a lot missing and some things added (PG)
   * GbaStartup - GBA assembly startup code, mostly pulled from devkitPro under MPL 2.0 (-G)
@@ -58,8 +59,7 @@ All components have a platform indicator next to them:
 
 On the surface, it seems like C++ changes the way we do things from C for no
 reason, but there are reasons for many of these duplications of functionality.
-The C++ language designers aren't stupid, trust them or question them, but
-don't ignore them.
+The C++ language designers aren't stupid. Question them, but don't ignore them.
 
 #### Casting
 

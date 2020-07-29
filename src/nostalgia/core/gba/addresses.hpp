@@ -13,7 +13,7 @@
 /////////////////////////////////////////////////////////////////
 // Interrupt Handler
 
-using interrupt_handler = void (*)(void);
+using interrupt_handler = void (*)();
 #define REG_ISR *reinterpret_cast<interrupt_handler*>(0x03007FFC)
 #define REG_IE  *reinterpret_cast<volatile uint16_t*>(0x04000200)
 #define REG_IF  *reinterpret_cast<volatile uint16_t*>(0x04000202)

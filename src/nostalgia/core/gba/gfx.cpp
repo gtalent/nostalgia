@@ -215,7 +215,7 @@ void clearTileLayer(Context*, int layer) {
 	memset(&MEM_BG_MAP[layer], 0, GbaTileRows * GbaTileColumns);
 }
 
-void hideSprite(unsigned idx) {
+void hideSprite(Context*, unsigned idx) {
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = 2 << 8;
 	oa.idx = idx;
@@ -235,7 +235,7 @@ void hideSprite(unsigned idx) {
 	}
 }
 
-void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape, unsigned spriteSize, unsigned flipX) {
+void setSprite(Context*, unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape, unsigned spriteSize, unsigned flipX) {
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = static_cast<uint16_t>(y & ox::onMask<uint8_t>(7))
 	         | (static_cast<uint16_t>(1) << 10) // enable alpha

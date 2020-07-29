@@ -28,7 +28,7 @@ struct Bolt {
 
 	Bolt(unsigned id, unsigned tile);
 
-	void init();
+	void init(core::Context *ctx);
 
 	void update(core::Context *ctx);
 
@@ -63,7 +63,7 @@ struct Character {
 
 	Character(unsigned id, Bolt *bolt, int x, unsigned tile);
 
-	void init();
+	void init(core::Context *ctx);
 
 	void readUserInput(Character *opponent);
 
@@ -86,24 +86,24 @@ Bolt::Bolt(unsigned id, unsigned tile) {
 	m_tile = tile;
 }
 
-void Bolt::init() {
+void Bolt::init(core::Context *ctx) {
 	m_ticksToLive = 0;
 	m_active = false;
-	core::hideSprite(m_id);
+	core::hideSprite(ctx, m_id);
 }
 
-void Bolt::update(core::Context*) {
+void Bolt::update(core::Context *ctx) {
 	if (m_ticksToLive) {
 		--m_ticksToLive;
 		m_x += m_xVel;
 		if (m_x > 240 || m_x <= 0) {
-			core::hideSprite(m_id);
+			core::hideSprite(ctx, m_id);
 			m_active = false;
 		} else {
-			core::setSprite(m_id, static_cast<unsigned>(m_x), static_cast<unsigned>(m_y), m_tile);
+			core::setSprite(ctx, m_id, static_cast<unsigned>(m_x), static_cast<unsigned>(m_y), m_tile);
 		}
 	} else {
-		core::hideSprite(m_id);
+		core::hideSprite(ctx, m_id);
 	}
 }
 
@@ -131,10 +131,10 @@ Character::Character(unsigned id, Bolt *bolt, int x, unsigned tile) {
 	m_tile = tile;
 }
 
-void Character::init() {
+void Character::init(core::Context *ctx) {
 	m_x = m_defaultX;
 	m_y = GroundY - m_height;
-	core::setSprite(m_id, static_cast<unsigned>(m_x), static_cast<unsigned>(m_y), m_tile, 2, 2, 1);
+	core::setSprite(ctx, m_id, static_cast<unsigned>(m_x), static_cast<unsigned>(m_y), m_tile, 2, 2, 1);
 }
 
 void Character::readUserInput(Character *opponent) {
@@ -209,7 +209,7 @@ void Character::update(core::Context *ctx, Character *opponent, Bolt *opponentBo
 	}
 	// update sprites
 	auto flip = m_x > opponent->m_x;
-	core::setSprite(m_id, static_cast<unsigned>(m_x), static_cast<unsigned>(m_y), m_tile, 2, 2, flip);
+	core::setSprite(ctx, m_id, static_cast<unsigned>(m_x), static_cast<unsigned>(m_y), m_tile, 2, 2, flip);
 }
 
 static void createCloud(core::Context *ctx, int x, int y) {
@@ -259,10 +259,10 @@ ox::Error initArena(core::Context *ctx) {
 			core::setTile(ctx, 0, i + 1, ii + 1, 7);
 		}
 	}
-	player.init();
-	opponent.init();
-	playerBolt.init();
-	opponentBolt.init();
+	player.init(ctx);
+	opponent.init(ctx);
+	playerBolt.init(ctx);
+	opponentBolt.init(ctx);
 	core::setEventHandler(arenaLoop);
 	return OxError(0);
 }
@@ -311,7 +311,7 @@ ox::Error run(ox::FileSystem *fs) {
 	ctx.rom = fs;
 	oxReturnError(core::init(&ctx));
 	for (unsigned i = 0; i < 128; ++i) {
-		core::hideSprite(i);
+		core::hideSprite(&ctx, i);
 	}
 	oxReturnError(initMainScreen(&ctx));
 	oxReturnError(core::run(&ctx));

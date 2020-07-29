@@ -127,8 +127,8 @@ void setTile(Context *ctx, int layer, int column, int row, uint8_t tile);
 
 void clearTileLayer(Context*, int layer);
 
-void hideSprite(unsigned idx);
+void hideSprite(Context*, unsigned);
 
-void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape = 0, unsigned spriteSize = 0, unsigned flipX = 0);
+void setSprite(Context*, unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape = 0, unsigned spriteSize = 0, unsigned flipX = 0);
 
 }

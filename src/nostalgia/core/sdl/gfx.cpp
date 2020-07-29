@@ -203,10 +203,10 @@ void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
 void clearTileLayer(Context*, int) {
 }
 
-void hideSprite(unsigned) {
+void hideSprite(Context*, unsigned) {
 }
 
-void setSprite(unsigned, unsigned, unsigned, unsigned, unsigned, unsigned, unsigned) {
+void setSprite(Context*, unsigned, unsigned, unsigned, unsigned, unsigned, unsigned, unsigned) {
 }
 
 }

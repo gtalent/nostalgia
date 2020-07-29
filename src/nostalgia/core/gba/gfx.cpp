@@ -235,13 +235,13 @@ void hideSprite(unsigned idx) {
 	}
 }
 
-void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape, unsigned spriteSize, unsigned flipped) {
+void setSprite(unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape, unsigned spriteSize, unsigned flipX) {
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = static_cast<uint16_t>(y & ox::onMask<uint8_t>(7))
 	         | (static_cast<uint16_t>(1) << 10) // enable alpha
 				| (static_cast<uint16_t>(spriteShape) << 14);
 	oa.attr1 = (static_cast<uint16_t>(x) & ox::onMask<uint8_t>(8))
-	         | (static_cast<uint16_t>(flipped) << 12)
+	         | (static_cast<uint16_t>(flipX) << 12)
 	         | (static_cast<uint16_t>(spriteSize) << 14);
 	oa.attr2 = static_cast<uint16_t>(tileIdx & ox::onMask<uint16_t>(8));
 	oa.idx = idx;

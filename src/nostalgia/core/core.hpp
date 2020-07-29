@@ -16,7 +16,7 @@
 
 namespace nostalgia::core {
 
-using event_handler = int(*)(void);
+using event_handler = int(*)(Context*);
 
 [[nodiscard]] ox::Error init(Context *ctx);
 

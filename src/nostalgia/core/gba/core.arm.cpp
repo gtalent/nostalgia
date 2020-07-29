@@ -21,11 +21,11 @@ extern volatile gba_timer_t g_timerMs;
 gba_timer_t g_wakeupTime;
 event_handler g_eventHandler = nullptr;
 
-ox::Error run(Context*) {
+ox::Error run(Context *ctx) {
 	g_wakeupTime = 0;
 	while (1) {
 		if (g_wakeupTime <= g_timerMs && g_eventHandler) {
-			auto sleepTime = g_eventHandler();
+			auto sleepTime = g_eventHandler(ctx);
 			if (sleepTime >= 0) {
 				g_wakeupTime = g_timerMs + static_cast<unsigned>(sleepTime);
 			} else {

@@ -220,7 +220,7 @@ static void createCloud(int x, int y) {
 	core::setTile(&ctx, 0, x + 1, y + 1, 15);
 }
 
-int arenaLoop() {
+int arenaLoop(core::Context*) {
 	player.readUserInput(&opponent);
 	player.update(&opponent, &opponentBolt);
 	opponent.runAI(&player);
@@ -268,7 +268,7 @@ ox::Error initArena() {
 	return OxError(0);
 }
 
-int gameOverLoop() {
+int gameOverLoop(core::Context*) {
 	if (core::buttonDown(core::GamePad_Start)) {
 		initArena();
 	}
@@ -290,7 +290,7 @@ void initGameOverScreen(Character *winner) {
 	core::setEventHandler(gameOverLoop);
 }
 
-int mainScreenLoop() {
+int mainScreenLoop(core::Context*) {
 	if (core::buttonDown(core::GamePad_Start)) {
 		initArena();
 	}

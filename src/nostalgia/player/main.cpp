@@ -17,7 +17,7 @@ using namespace nostalgia;
 static unsigned spriteX = 72;
 static unsigned spriteY = 64;
 
-static int mainLoop(core::Context*) {
+static int mainLoop(core::Context *ctx) {
 	if (core::buttonDown(core::GamePad_Right)) {
 		spriteX += 2;
 	} else if (core::buttonDown(core::GamePad_Left)) {
@@ -28,15 +28,15 @@ static int mainLoop(core::Context*) {
 	} else if (core::buttonDown(core::GamePad_Up)) {
 		spriteY -= 2;
 	}
-	core::setSprite(0, spriteX +  8, spriteY, 'n' - ('a' - 1));
-	core::setSprite(1, spriteX + 16, spriteY, 'o' - ('a' - 1));
-	core::setSprite(2, spriteX + 24, spriteY, 's' - ('a' - 1));
-	core::setSprite(3, spriteX + 32, spriteY, 't' - ('a' - 1));
-	core::setSprite(4, spriteX + 40, spriteY, 'a' - ('a' - 1));
-	core::setSprite(5, spriteX + 48, spriteY, 'l' - ('a' - 1));
-	core::setSprite(6, spriteX + 56, spriteY, 'g' - ('a' - 1));
-	core::setSprite(7, spriteX + 64, spriteY, 'i' - ('a' - 1));
-	core::setSprite(8, spriteX + 72, spriteY, 'a' - ('a' - 1));
+	core::setSprite(ctx, 0, spriteX +  8, spriteY, 'n' - ('a' - 1));
+	core::setSprite(ctx, 1, spriteX + 16, spriteY, 'o' - ('a' - 1));
+	core::setSprite(ctx, 2, spriteX + 24, spriteY, 's' - ('a' - 1));
+	core::setSprite(ctx, 3, spriteX + 32, spriteY, 't' - ('a' - 1));
+	core::setSprite(ctx, 4, spriteX + 40, spriteY, 'a' - ('a' - 1));
+	core::setSprite(ctx, 5, spriteX + 48, spriteY, 'l' - ('a' - 1));
+	core::setSprite(ctx, 6, spriteX + 56, spriteY, 'g' - ('a' - 1));
+	core::setSprite(ctx, 7, spriteX + 64, spriteY, 'i' - ('a' - 1));
+	core::setSprite(ctx, 8, spriteX + 72, spriteY, 'a' - ('a' - 1));
 	return 16;
 }
 

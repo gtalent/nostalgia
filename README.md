@@ -5,6 +5,7 @@
 * Install GCC, Clang, or Visual Studio with C++17 support (including std::filesystem)
 * Install [devkitPro](https://devkitpro.org/wiki/Getting_Started) to build for GBA
 * Install Ninja, Make, and CMake
+* Ensure you have prerequisites for vcpkg (curl, zip, unzip)
 * Consider also installing ccache for faster subsequent build times
 
 ## Platform Specific Setup

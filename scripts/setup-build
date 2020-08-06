@@ -11,6 +11,7 @@ if [[ $target == gba ]]; then
 	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/modules/GBA.cmake"
 	nostalgiaBuildType="GBA"
 else
+	toolchain="-DCMAKE_TOOLCHAIN_FILE=.vcpkg/scripts/buildsystems/vcpkg.cmake"
 	nostalgiaBuildType="Native"
 fi
 

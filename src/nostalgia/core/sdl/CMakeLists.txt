@@ -4,11 +4,12 @@ add_library(
 		gfx.cpp
 )
 
-find_package(sdl2 REQUIRED)
+find_package(SDL2 REQUIRED)
 
 target_link_libraries(
 	NostalgiaCore-SDL PUBLIC
-		sdl2::sdl2
+		SDL2::SDL2main
+		SDL2::SDL2-static
 		OxClaw
 		OxFS
 		OxStd

@@ -2,6 +2,7 @@ OS=$(shell uname | tr [:upper:] [:lower:])
 HOST_ENV=${OS}-$(shell uname -m)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=nostalgia-devenv
+VCPKG_DIR=./.vcpkg/
 CURRENT_BUILD=$(file < .current_build)
 ifneq ($(shell which docker 2> /dev/null),)
 	ifeq ($(shell docker inspect --format="{{.State.Status}}" ${DEVENV} 2>&1),running)
@@ -84,20 +85,12 @@ devenv-destroy:
 devenv-shell:
 	${ENV_RUN} bash
 
-ifeq ($(OS),linux)
-.PHONY: setup-conan
-setup-conan:
-	conan profile update settings.compiler.libcxx=libstdc++11 default
-	conan remote add -f bincrafters https://api.bintray.com/conan/bincrafters/public-conan
-else
-.PHONY: setup-conan
-setup-conan:
-	conan remote add -f bincrafters https://api.bintray.com/conan/bincrafters/public-conan
-endif
-
-.PHONY: conan
-conan:
-	@mkdir -p conanbuild && cd conanbuild && conan install ../ --build=missing
+.PHONY: vcpkg
+vcpkg:
+	${RM_RF} ${VCPKG_DIR}
+	git clone https://github.com/microsoft/vcpkg ${VCPKG_DIR}
+	${VCPKG_DIR}/bootstrap-vcpkg.sh
+	${VCPKG_DIR}/vcpkg install sdl2 jsoncpp
 
 .PHONY: configure-release
 configure-release:

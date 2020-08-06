@@ -5,8 +5,7 @@ pipeline {
 	stages {
 		stage('Environment') {
 			steps {
-				sh 'make setup-conan'
-				sh 'make conan'
+				sh 'make vcpkg'
 			}
 		}
 		stage('Build Asan') {

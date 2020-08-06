@@ -4,14 +4,14 @@ add_library(
 		write.cpp
 )
 
-find_package(JsonCpp REQUIRED)
+find_package(jsoncpp REQUIRED)
 
 target_compile_options(OxOrganicClaw PRIVATE -Wsign-conversion)
 
 target_link_libraries(
 	OxOrganicClaw PUBLIC
 		OxModel
-		JsonCpp::JsonCpp
+		jsoncpp_lib
 )
 
 set_property(

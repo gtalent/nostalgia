@@ -1,4 +1,5 @@
 .current_build
+.vcpkg
 compile_commands.json
 build
 conanbuild

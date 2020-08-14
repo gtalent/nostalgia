@@ -2,7 +2,7 @@ OS=$(shell uname | tr [:upper:] [:lower:])
 HOST_ENV=${OS}-$(shell uname -m)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=nostalgia-devenv
-VCPKG_DIR=./.vcpkg/
+VCPKG_DIR=./.vcpkg-${HOST_ENV}/
 CURRENT_BUILD=$(file < .current_build)
 ifneq ($(shell which docker 2> /dev/null),)
 	ifeq ($(shell docker inspect --format="{{.State.Status}}" ${DEVENV} 2>&1),running)
@@ -95,24 +95,24 @@ vcpkg:
 .PHONY: configure-release
 configure-release:
 	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-release
-	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} release
+	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} release ${VCPKG_DIR}
 
 .PHONY: configure-debug
 configure-debug:
 	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-debug
-	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} debug
+	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} debug ${VCPKG_DIR}
 
 .PHONY: configure-asan
 configure-asan:
 	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-asan
-	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} asan
+	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} asan ${VCPKG_DIR}
 
 .PHONY: configure-gba
 configure-gba:
 	${ENV_RUN} ${RM_RF} build/gba-release
-	${ENV_RUN} ./scripts/setup-build gba release
+	${ENV_RUN} ./scripts/setup-build gba release ${VCPKG_DIR}
 
 .PHONY: configure-gba-debug
 configure-gba-debug:
 	${ENV_RUN} ${RM_RF} build/gba-debug
-	${ENV_RUN} ./scripts/setup-build gba debug
+	${ENV_RUN} ./scripts/setup-build gba debug ${VCPKG_DIR}

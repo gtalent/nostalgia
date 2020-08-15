@@ -2,7 +2,10 @@
 
 set -e
 
-BIN=./dist/$(cat .current_build)/bin/
+OS=$(uname | tr [:upper:] [:lower:])
+HOST_ENV=${OS}-$(uname -m)
+
+BIN=./dist/${HOST_ENV}-$(cat .current_build)/bin/
 PATH=$BIN:${DEVKITPRO}/tools/bin/:${DEVKITARM}/bin/:$PATH
 NOSTALGIA_BIN=build/gba-*/src/nostalgia/player/nostalgia.bin
 NOSTALGIA_MEDIA=nostalgia_media.oxfs

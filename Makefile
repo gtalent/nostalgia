@@ -2,8 +2,8 @@ OS=$(shell uname | tr [:upper:] [:lower:])
 HOST_ENV=${OS}-$(shell uname -m)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=nostalgia-devenv
-VCPKG_DIR=./.vcpkg-${HOST_ENV}/
-CURRENT_BUILD=$(file < .current_build)
+VCPKG_DIR=./.vcpkg-$(HOST_ENV)/
+CURRENT_BUILD=$(HOST_ENV)-$(file < .current_build)
 ifneq ($(shell which docker 2> /dev/null),)
 	ifeq ($(shell docker inspect --format="{{.State.Status}}" ${DEVENV} 2>&1),running)
 		ENV_RUN=docker exec -i -t --user $(shell id -u ${USER}) ${DEVENV}

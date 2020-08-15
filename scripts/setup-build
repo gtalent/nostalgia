@@ -47,7 +47,7 @@ cmake -S $project -B $buildDir -GNinja \
 
 mkdir -p dist
 if [[ $target != gba ]] && [[ $target != gba-debug ]]; then
-	echo ${buildConfig} > .current_build
+	echo ${buildType} > .current_build
 fi
 rm -f compile_commands.json
 ln -s build/${buildConfig}/compile_commands.json

@@ -62,7 +62,9 @@ ox::Error initGfx(Context *ctx) {
 ox::Error shutdownGfx(Context *ctx) {
 	auto id = ctx->implData<SdlImplData>();
 	for (auto tex : id->bgTextures) {
-		SDL_DestroyTexture(tex);
+		if (tex) {
+			SDL_DestroyTexture(tex);
+		}
 	}
 	SDL_DestroyRenderer(id->renderer);
 	SDL_DestroyWindow(id->window);

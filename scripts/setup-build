@@ -4,6 +4,7 @@ set -e
 
 target=$1
 buildType=$2
+vcpkg_dir=$3
 
 project=$(pwd)/
 
@@ -11,7 +12,7 @@ if [[ $target == gba ]]; then
 	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/modules/GBA.cmake"
 	nostalgiaBuildType="GBA"
 else
-	toolchain="-DCMAKE_TOOLCHAIN_FILE=.vcpkg/scripts/buildsystems/vcpkg.cmake"
+	toolchain="-DCMAKE_TOOLCHAIN_FILE=$vcpkg_dir/scripts/buildsystems/vcpkg.cmake"
 	nostalgiaBuildType="Native"
 fi
 
@@ -46,7 +47,7 @@ cmake -S $project -B $buildDir -GNinja \
 
 mkdir -p dist
 if [[ $target != gba ]] && [[ $target != gba-debug ]]; then
-	echo ${buildConfig} > .current_build
+	echo ${buildType} > .current_build
 fi
 rm -f compile_commands.json
 ln -s build/${buildConfig}/compile_commands.json

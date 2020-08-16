@@ -1,3 +1,4 @@
+.clangd
 .current_build
 .vcpkg
 compile_commands.json

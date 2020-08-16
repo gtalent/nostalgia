@@ -5,6 +5,7 @@ pipeline {
 	environment {
 		DEVKITPRO = '/opt/devkitpro'
 		DEVKITARM = '/opt/devkitpro/devkitARM'
+		VCPKG_DIR_BASE = '/var/lib/vcpkg/nostalgia/'
 	}
 	stages {
 		stage('Environment') {

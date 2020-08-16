@@ -2,7 +2,11 @@ OS=$(shell uname | tr [:upper:] [:lower:])
 HOST_ENV=${OS}-$(shell uname -m)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=nostalgia-devenv
-VCPKG_DIR=./.vcpkg-$(HOST_ENV)/
+ifndef VCPKG_DIR_BASE
+	VCPKG_DIR_BASE=.vcpkg
+endif
+VCPKG_VERSION=2020.06
+VCPKG_DIR=$(VCPKG_DIR_BASE)/$(VCPKG_VERSION)-$(HOST_ENV)
 CURRENT_BUILD=$(HOST_ENV)-$(file < .current_build)
 ifneq ($(shell which docker 2> /dev/null),)
 	ifeq ($(shell docker inspect --format="{{.State.Status}}" ${DEVENV} 2>&1),running)
@@ -86,10 +90,16 @@ devenv-shell:
 	${ENV_RUN} bash
 
 .PHONY: vcpkg
-vcpkg:
+vcpkg: ${VCPKG_DIR} vcpkg-install
+
+${VCPKG_DIR}:
 	${RM_RF} ${VCPKG_DIR}
-	git clone https://github.com/microsoft/vcpkg ${VCPKG_DIR}
+	mkdir -p ${VCPKG_DIR_BASE}
+	git clone -b release --depth 1 --branch ${VCPKG_VERSION} https://github.com/microsoft/vcpkg.git ${VCPKG_DIR}
 	${VCPKG_DIR}/bootstrap-vcpkg.sh
+
+.PHONY: vcpkg-install
+vcpkg-install:
 	${VCPKG_DIR}/vcpkg install sdl2 jsoncpp
 
 .PHONY: configure-release

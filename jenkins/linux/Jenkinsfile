@@ -2,6 +2,9 @@ pipeline {
 	agent {
 		label 'linux-x86_64'
 	}
+	environment {
+		VCPKG_DIR_BASE = '/var/lib/vcpkg/nostalgia/'
+	}
 	stages {
 		stage('Environment') {
 			steps {

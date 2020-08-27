@@ -47,9 +47,9 @@ if 'NOSTALGIA_QT_PATH' in os.environ:
 else:
     qt_path = ''
 
-buildDir = '{:s}/build/{:s}'.format(project, build_config)
-mkdir(buildDir)
-subprocess.run(['cmake', '-S', project, '-B', buildDir, '-GNinja',
+build_dir = '{:s}/build/{:s}'.format(project, build_config)
+mkdir(build_dir)
+subprocess.run(['cmake', '-S', project, '-B', build_dir, '-GNinja',
         '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
         '-DCMAKE_BUILD_TYPE={:s}'.format(build_type_arg),
         '-DUSE_ASAN={:s}'.format(sanitizer_status),
@@ -61,7 +61,7 @@ subprocess.run(['cmake', '-S', project, '-B', buildDir, '-GNinja',
     ])
 
 mkdir('dist')
-if target != 'gba' and target != 'gba-debug':
+if target != 'gba':
     cb = open('.current_build', 'w')
     cb.write(build_type)
     cb.close()

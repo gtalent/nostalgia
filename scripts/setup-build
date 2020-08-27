@@ -1,53 +1,70 @@
-#! /usr/bin/env bash
+#! /usr/bin/env python3
 
-set -e
+import os
+import subprocess
+import sys
 
-target=$1
-buildType=$2
-vcpkg_dir=$3
+target = sys.argv[1]
+build_type = sys.argv[2]
+vcpkg_dir = sys.argv[3]
 
-project=$(pwd)/
+project = os.getcwd() + '/'
 
-if [[ $target == gba ]]; then
-	toolchain="-DCMAKE_TOOLCHAIN_FILE=cmake/modules/GBA.cmake"
-	nostalgiaBuildType="GBA"
-else
-	toolchain="-DCMAKE_TOOLCHAIN_FILE=$vcpkg_dir/scripts/buildsystems/vcpkg.cmake"
-	nostalgiaBuildType="Native"
-fi
+def mkdir(path):
+    try:
+        os.mkdir(path)
+    except:
+        pass
 
-if [[ $buildType == asan ]]; then
-	buildTypeArg="Debug"
-	sanitizerStatus="ON"
-elif [[ $buildType == debug ]]; then
-	buildTypeArg="Debug"
-	sanitizerStatus="OFF"
-elif [[ $buildType == release ]]; then
-	buildTypeArg="Release"
-	sanitizerStatus="OFF"
-fi
+def rm(path):
+    try:
+        os.remove(path)
+    except:
+        pass
 
-buildConfig=${target}-${buildType}
+if target == 'gba':
+    toolchain = '-DCMAKE_TOOLCHAIN_FILE=cmake/modules/GBA.cmake'
+    nostalgia_build_type = 'GBA'
+else:
+    toolchain = '-DCMAKE_TOOLCHAIN_FILE={:s}/scripts/buildsystems/vcpkg.cmake'.format(vcpkg_dir)
+    nostalgia_build_type = 'Native'
 
-if [[ $NOSTALGIA_QT_PATH != "" ]]; then
-	qtPath="-DNOSTALGIA_QT_PATH=${NOSTALGIA_QT_PATH}"
-fi
+if build_type == 'asan':
+    build_type_arg = 'Debug'
+    sanitizer_status = 'ON'
+elif build_type == 'debug':
+    build_type_arg = 'Debug'
+    sanitizer_status = 'OFF'
+elif build_type == 'release':
+    build_type_arg = 'Release'
+    sanitizer_status = 'OFF'
 
-buildDir="${project}/build/${buildConfig}"
-mkdir -p $buildDir
-cmake -S $project -B $buildDir -GNinja \
-      -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-      -DCMAKE_BUILD_TYPE=${buildTypeArg} \
-      -DUSE_ASAN=${sanitizerStatus} \
-      -DNOSTALGIA_IDE_BUILD=OFF \
-      -DNOSTALGIA_BUILD_CONFIG=${buildConfig} \
-      -DNOSTALGIA_BUILD_TYPE=${nostalgiaBuildType} \
-      $qtPath \
-      $toolchain
 
-mkdir -p dist
-if [[ $target != gba ]] && [[ $target != gba-debug ]]; then
-	echo ${buildType} > .current_build
-fi
-rm -f compile_commands.json
-ln -s build/${buildConfig}/compile_commands.json
+build_config = '{:s}-{:s}'.format(target, build_type)
+
+if 'NOSTALGIA_QT_PATH' in os.environ:
+    qt_path = '-DNOSTALGIA_QT_PATH={:s}'.format(os.environ['NOSTALGIA_QT_PATH'])
+else:
+    qt_path = ''
+
+buildDir = '{:s}/build/{:s}'.format(project, build_config)
+mkdir(buildDir)
+subprocess.run(['cmake', '-S', project, '-B', buildDir, '-GNinja',
+        '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
+        '-DCMAKE_BUILD_TYPE={:s}'.format(build_type_arg),
+        '-DUSE_ASAN={:s}'.format(sanitizer_status),
+        '-DNOSTALGIA_IDE_BUILD=OFF',
+        '-DNOSTALGIA_BUILD_CONFIG={:s}'.format(build_config),
+        '-DNOSTALGIA_BUILD_TYPE={:s}'.format(nostalgia_build_type),
+        qt_path,
+        toolchain,
+    ])
+
+mkdir('dist')
+if target != 'gba' and target != 'gba-debug':
+    cb = open('.current_build', 'w')
+    cb.write(build_type)
+    cb.close()
+
+rm('compile_commands.json')
+os.symlink('build/{:s}/compile_commands.json'.format(build_config), 'compile_commands.json')

@@ -8,19 +8,15 @@ target = sys.argv[1]
 build_type = sys.argv[2]
 vcpkg_dir = sys.argv[3]
 
-project = os.getcwd() + '/'
+project = os.getcwd()
 
 def mkdir(path):
-    try:
+    if not os.path.exists(path) and os.path.isdir(path):
         os.mkdir(path)
-    except:
-        pass
 
 def rm(path):
-    try:
+    if os.path.exists(path) or os.path.islink(path):
         os.remove(path)
-    except:
-        pass
 
 if target == 'gba':
     toolchain = '-DCMAKE_TOOLCHAIN_FILE=cmake/modules/GBA.cmake'

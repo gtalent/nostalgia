@@ -1,4 +1,4 @@
-FROM fedora:30
+FROM fedora:32
 
 RUN dnf update -y
 
@@ -30,6 +30,9 @@ RUN dnf install -y qt5-devel
 RUN dnf install -y findutils
 RUN dnf install -y ninja-build
 RUN dnf install -y libcxx-devel libcxxabi-devel
+RUN dnf install -y unzip
+RUN dnf install -y ccache
+RUN dnf install -y pacman
 
 ###############################################################################
 # Install devkitARM
@@ -59,3 +62,4 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 ENV CC clang
 ENV CXX clang++
+ENV VCPKG_DIR_BASE /var/vcpkg/

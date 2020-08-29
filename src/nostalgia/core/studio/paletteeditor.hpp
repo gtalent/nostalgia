@@ -18,6 +18,7 @@ class PaletteEditor: public studio::Editor {
 	friend class AddColorCommand;
 	friend class RemoveColorCommand;
 	friend class UpdateColorCommand;
+	friend class MoveColorCommand;
 
 	private:
 		const studio::Context *m_ctx = nullptr;
@@ -26,6 +27,8 @@ class PaletteEditor: public studio::Editor {
 		class QTableWidget *m_table = nullptr;
 		class QPushButton *m_addBtn = nullptr;
 		class QPushButton *m_rmBtn = nullptr;
+		class QPushButton *m_moveUpBtn = nullptr;
+		class QPushButton *m_moveDownBtn = nullptr;
 
 	public:
 		PaletteEditor(QString path, const studio::Context *ctx, QWidget *parent);
@@ -41,6 +44,8 @@ class PaletteEditor: public studio::Editor {
 		void rmColor(int idx);
 
 		void updateColor(int idx, Color16);
+
+		void moveColor(int idx, int offset);
 
 		void saveItem() override;
 
@@ -63,6 +68,10 @@ class PaletteEditor: public studio::Editor {
 		void addColorClicked();
 
 		void rmColorClicked();
+
+		void moveColorUpClicked();
+
+		void moveColorDownClicked();
 
 };
 

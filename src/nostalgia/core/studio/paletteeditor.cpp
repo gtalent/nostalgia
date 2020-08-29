@@ -10,7 +10,6 @@
 #include <QItemDelegate>
 #include <QPainter>
 #include <QPushButton>
-#include <QStyledItemDelegate>
 #include <QTableWidget>
 #include <QToolBar>
 
@@ -28,26 +27,6 @@ enum class PaletteEditorCommandId {
 	MoveColor,
 };
 
-struct PaletteEditorColorTableDelegate: public QStyledItemDelegate {
-
-	QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem&, const QModelIndex &idx) const {
-		const auto max = idx.column() != 3 ? 31 : 1;
-		auto le = new QLineEdit(parent);
-		auto validator = new QIntValidator(0, max, le);
-		le->setValidator(validator);
-		return le;
-	}
-
-	void paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &idx) const {
-		if (idx.column() != 4) {
-			QStyledItemDelegate::paint(painter, opt, idx);
-		} else {
-			auto color = idx.model()->data(idx, Qt::DisplayRole).toString();
-			painter->fillRect(opt.rect, QColor(color));
-		}
-	}
-
-};
 
 class AddColorCommand: public QUndoCommand {
 	private:
@@ -169,6 +148,24 @@ class MoveColorCommand: public QUndoCommand {
 };
 
 
+QWidget *PaletteEditorColorTableDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem&, const QModelIndex &idx) const {
+	const auto max = idx.column() != 3 ? 31 : 1;
+	auto le = new QLineEdit(parent);
+	auto validator = new QIntValidator(0, max, le);
+	le->setValidator(validator);
+	return le;
+}
+
+void PaletteEditorColorTableDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &idx) const {
+	if (idx.column() != 4) {
+		QStyledItemDelegate::paint(painter, opt, idx);
+	} else {
+		auto color = idx.model()->data(idx, Qt::DisplayRole).toString();
+		painter->fillRect(opt.rect, QColor(color));
+	}
+}
+
+
 static QTableWidgetItem *mkCell(QString v, bool editable = true) {
 	auto c = new QTableWidgetItem;
 	c->setText(v);
@@ -206,7 +203,7 @@ PaletteEditor::PaletteEditor(QString path, const studio::Context *ctx, QWidget *
 	canvasLyt->setMenuBar(tb);
 
 	m_table = new QTableWidget(this);
-	m_table->setItemDelegate(new PaletteEditorColorTableDelegate);
+	m_table->setItemDelegate(&m_colorTableDelegate);
 	m_table->setColumnCount(5);
 	m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
 	m_table->setSelectionMode(QAbstractItemView::SingleSelection);

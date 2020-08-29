@@ -8,10 +8,20 @@
 
 #pragma once
 
+#include <QStyledItemDelegate>
+
 #include <nostalgia/core/gfx.hpp>
 #include <nostalgia/studio/studio.hpp>
 
 namespace nostalgia::core {
+
+struct PaletteEditorColorTableDelegate: public QStyledItemDelegate {
+
+	QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem&, const QModelIndex &idx) const;
+
+	void paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &idx) const;
+
+};
 
 class PaletteEditor: public studio::Editor {
 
@@ -21,6 +31,7 @@ class PaletteEditor: public studio::Editor {
 	friend class MoveColorCommand;
 
 	private:
+		PaletteEditorColorTableDelegate m_colorTableDelegate;
 		const studio::Context *m_ctx = nullptr;
 		QString m_itemPath;
 		std::unique_ptr<NostalgiaPalette> m_pal;

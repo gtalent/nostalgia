@@ -28,6 +28,51 @@ enum class PaletteEditorCommandId {
 };
 
 
+class ColorChannelValidator: public QValidator {
+
+	public:
+		ColorChannelValidator(QLineEdit *parent);
+
+		QValidator::State validate(QString &input, int&) const override;
+
+	private:
+		QString convert(const QString &input) const;
+
+};
+
+ColorChannelValidator::ColorChannelValidator(QLineEdit *parent): QValidator(parent) {
+	connect(parent, &QLineEdit::editingFinished, [this, parent] {
+		parent->setText(convert(parent->text()));
+	});
+}
+
+QString ColorChannelValidator::convert(const QString &input) const {
+	int num = 0;
+	if (input[0] == '_') {
+		num = input.mid(1).toInt() >> 3;
+	}
+	return QString::number(num);
+}
+
+QValidator::State ColorChannelValidator::validate(QString &input, int&) const {
+	if (input.size() == 0) {
+		return QValidator::State::Intermediate;
+	}
+	const auto convert = input[0] == '_';
+	const auto max = convert ? 255 : 31;
+	const auto numTxt = convert ? input.mid(1) : input;
+	bool isNumber = false;
+	const auto num = numTxt.toInt(&isNumber);
+	if (isNumber && num >= 0 && num <= max) {
+		return QValidator::State::Acceptable;
+	} else if (numTxt == "") {
+		return QValidator::State::Intermediate;
+	} else {
+		return QValidator::State::Invalid;
+	}
+}
+
+
 class AddColorCommand: public QUndoCommand {
 	private:
 		PaletteEditor *m_editor = nullptr;
@@ -149,10 +194,11 @@ class MoveColorCommand: public QUndoCommand {
 
 
 QWidget *PaletteEditorColorTableDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem&, const QModelIndex &idx) const {
-	const auto max = idx.column() != 3 ? 31 : 1;
 	auto le = new QLineEdit(parent);
-	auto validator = new QIntValidator(0, max, le);
-	le->setValidator(validator);
+	if (idx.column()) {
+		auto validator = new ColorChannelValidator(le);
+		le->setValidator(validator);
+	}
 	return le;
 }
 

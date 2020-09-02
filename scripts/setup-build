@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import os
+import shutil
 import subprocess
 import sys
 
@@ -43,9 +44,14 @@ if 'NOSTALGIA_QT_PATH' in os.environ:
 else:
     qt_path = ''
 
+if shutil.which('ninja') == None:
+    build_tool = ''
+else:
+    build_tool = '-GNinja'
+
 build_dir = '{:s}/build/{:s}'.format(project, build_config)
 mkdir(build_dir)
-subprocess.run(['cmake', '-S', project, '-B', build_dir, '-GNinja',
+subprocess.run(['cmake', '-S', project, '-B', build_dir, build_tool,
         '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
         '-DCMAKE_BUILD_TYPE={:s}'.format(build_type_arg),
         '-DUSE_ASAN={:s}'.format(sanitizer_status),

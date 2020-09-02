@@ -347,7 +347,8 @@ Color16 PaletteEditor::rowColor(int row) const {
 }
 
 void PaletteEditor::colorSelected() {
-	auto row = m_table->currentRow();
+	auto selIdxs = m_table->selectionModel()->selectedIndexes();
+	auto row = selIdxs.size() ? selIdxs[0].row() : -1;
 	if (row > -1) {
 		m_rmBtn->setEnabled(true);
 		m_moveUpBtn->setEnabled(row > 0);

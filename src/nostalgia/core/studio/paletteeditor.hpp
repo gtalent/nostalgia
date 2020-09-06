@@ -8,24 +8,38 @@
 
 #pragma once
 
+#include <QStyledItemDelegate>
+
 #include <nostalgia/core/gfx.hpp>
 #include <nostalgia/studio/studio.hpp>
 
 namespace nostalgia::core {
+
+struct PaletteEditorColorTableDelegate: public QStyledItemDelegate {
+
+	QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem&, const QModelIndex &idx) const;
+
+	void paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &idx) const;
+
+};
 
 class PaletteEditor: public studio::Editor {
 
 	friend class AddColorCommand;
 	friend class RemoveColorCommand;
 	friend class UpdateColorCommand;
+	friend class MoveColorCommand;
 
 	private:
+		PaletteEditorColorTableDelegate m_colorTableDelegate;
 		const studio::Context *m_ctx = nullptr;
 		QString m_itemPath;
 		std::unique_ptr<NostalgiaPalette> m_pal;
 		class QTableWidget *m_table = nullptr;
 		class QPushButton *m_addBtn = nullptr;
 		class QPushButton *m_rmBtn = nullptr;
+		class QPushButton *m_moveUpBtn = nullptr;
+		class QPushButton *m_moveDownBtn = nullptr;
 
 	public:
 		PaletteEditor(QString path, const studio::Context *ctx, QWidget *parent);
@@ -41,6 +55,8 @@ class PaletteEditor: public studio::Editor {
 		void rmColor(int idx);
 
 		void updateColor(int idx, Color16);
+
+		void moveColor(int idx, int offset);
 
 		void saveItem() override;
 
@@ -63,6 +79,10 @@ class PaletteEditor: public studio::Editor {
 		void addColorClicked();
 
 		void rmColorClicked();
+
+		void moveColorUpClicked();
+
+		void moveColorDownClicked();
 
 };
 

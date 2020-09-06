@@ -9,6 +9,7 @@
 #pragma once
 
 #include <QStringList>
+#include <QStyledItemDelegate>
 #include <QUndoStack>
 #include <QVariant>
 
@@ -16,6 +17,12 @@
 #include <nostalgia/studio/studio.hpp>
 
 namespace nostalgia::core {
+
+struct TileSheetEditorColorTableDelegate: public QStyledItemDelegate {
+
+	void paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &idx) const;
+
+};
 
 class SheetData: public QObject {
 	Q_OBJECT
@@ -113,6 +120,7 @@ class TileSheetEditor: public studio::Editor {
 	Q_OBJECT
 
 	private:
+		TileSheetEditorColorTableDelegate m_colorTableDelegate;
 		QString m_itemPath;
 		QString m_itemName;
 		const studio::Context *m_ctx = nullptr;

@@ -10,7 +10,6 @@
 #include <QItemDelegate>
 #include <QPainter>
 #include <QPushButton>
-#include <QStyledItemDelegate>
 #include <QTableWidget>
 #include <QToolBar>
 
@@ -25,28 +24,54 @@ enum class PaletteEditorCommandId {
 	AddColor,
 	RemoveColor,
 	UpdateColor,
+	MoveColor,
 };
 
-struct PaletteEditorColorTableDelegate: public QStyledItemDelegate {
 
-	QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem&, const QModelIndex &idx) const {
-		const auto max = idx.column() != 3 ? 31 : 1;
-		auto le = new QLineEdit(parent);
-		auto validator = new QIntValidator(0, max, le);
-		le->setValidator(validator);
-		return le;
-	}
+class ColorChannelValidator: public QValidator {
 
-	void paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &idx) const {
-		if (idx.column() != 4) {
-			QStyledItemDelegate::paint(painter, opt, idx);
-		} else {
-			auto color = idx.model()->data(idx, Qt::DisplayRole).toString();
-			painter->fillRect(opt.rect, QColor(color));
-		}
-	}
+	public:
+		ColorChannelValidator(QLineEdit *parent);
+
+		QValidator::State validate(QString &input, int&) const override;
+
+	private:
+		QString convert(const QString &input) const;
 
 };
+
+ColorChannelValidator::ColorChannelValidator(QLineEdit *parent): QValidator(parent) {
+	connect(parent, &QLineEdit::editingFinished, [this, parent] {
+		parent->setText(convert(parent->text()));
+	});
+}
+
+QString ColorChannelValidator::convert(const QString &input) const {
+	int num = 0;
+	if (input[0] == '_') {
+		num = input.mid(1).toInt() >> 3;
+	}
+	return QString::number(num);
+}
+
+QValidator::State ColorChannelValidator::validate(QString &input, int&) const {
+	if (input.size() == 0) {
+		return QValidator::State::Intermediate;
+	}
+	const auto convert = input[0] == '_';
+	const auto max = convert ? 255 : 31;
+	const auto numTxt = convert ? input.mid(1) : input;
+	bool isNumber = false;
+	const auto num = numTxt.toInt(&isNumber);
+	if (isNumber && num >= 0 && num <= max) {
+		return QValidator::State::Acceptable;
+	} else if (numTxt == "") {
+		return QValidator::State::Intermediate;
+	} else {
+		return QValidator::State::Invalid;
+	}
+}
+
 
 class AddColorCommand: public QUndoCommand {
 	private:
@@ -138,6 +163,54 @@ class UpdateColorCommand: public QUndoCommand {
 
 };
 
+class MoveColorCommand: public QUndoCommand {
+	private:
+		PaletteEditor *m_editor = nullptr;
+		int m_idx = -1;
+		int m_offset = 0;
+
+	public:
+		MoveColorCommand(PaletteEditor *editor, int idx, int offset) {
+			m_editor = editor;
+			m_idx = idx;
+			m_offset = offset;
+		}
+
+		virtual ~MoveColorCommand() = default;
+
+		int id() const override {
+			return static_cast<int>(PaletteEditorCommandId::MoveColor);
+		}
+
+		void redo() override {
+			m_editor->moveColor(m_idx, m_offset);
+		}
+
+		void undo() override {
+			m_editor->moveColor(m_idx + m_offset, -m_offset);
+		}
+
+};
+
+
+QWidget *PaletteEditorColorTableDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem&, const QModelIndex &idx) const {
+	auto le = new QLineEdit(parent);
+	if (idx.column()) {
+		auto validator = new ColorChannelValidator(le);
+		le->setValidator(validator);
+	}
+	return le;
+}
+
+void PaletteEditorColorTableDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &idx) const {
+	if (idx.column() != 4) {
+		QStyledItemDelegate::paint(painter, opt, idx);
+	} else {
+		auto color = idx.model()->data(idx, Qt::DisplayRole).toString();
+		painter->fillRect(opt.rect, QColor(color));
+	}
+}
+
 
 static QTableWidgetItem *mkCell(QString v, bool editable = true) {
 	auto c = new QTableWidgetItem;
@@ -164,13 +237,19 @@ PaletteEditor::PaletteEditor(QString path, const studio::Context *ctx, QWidget *
 	auto tb = new QToolBar(tr("Tile Sheet Options"));
 	m_addBtn = new QPushButton(tr("Add"), tb);
 	m_rmBtn = new QPushButton(tr("Remove"), tb);
+	m_moveUpBtn = new QPushButton(tr("Move Up"), tb);
+	m_moveDownBtn = new QPushButton(tr("Move Down"), tb);
 	m_rmBtn->setEnabled(false);
+	m_moveUpBtn->setEnabled(false);
+	m_moveDownBtn->setEnabled(false);
 	tb->addWidget(m_addBtn);
 	tb->addWidget(m_rmBtn);
+	tb->addWidget(m_moveUpBtn);
+	tb->addWidget(m_moveDownBtn);
 	canvasLyt->setMenuBar(tb);
 
 	m_table = new QTableWidget(this);
-	m_table->setItemDelegate(new PaletteEditorColorTableDelegate);
+	m_table->setItemDelegate(&m_colorTableDelegate);
 	m_table->setColumnCount(5);
 	m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
 	m_table->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -181,6 +260,8 @@ PaletteEditor::PaletteEditor(QString path, const studio::Context *ctx, QWidget *
 	connect(m_table, &QTableWidget::itemSelectionChanged, this, &PaletteEditor::colorSelected);
 	connect(m_addBtn, &QPushButton::clicked, this, &PaletteEditor::addColorClicked);
 	connect(m_rmBtn, &QPushButton::clicked, this, &PaletteEditor::rmColorClicked);
+	connect(m_moveUpBtn, &QPushButton::clicked, this, &PaletteEditor::moveColorUpClicked);
+	connect(m_moveDownBtn, &QPushButton::clicked, this, &PaletteEditor::moveColorDownClicked);
 	connect(m_table, &QTableWidget::cellChanged, this, &PaletteEditor::cellChanged);
 	m_pal = m_ctx->project->loadObj<NostalgiaPalette>(m_itemPath);
 	load();
@@ -188,18 +269,6 @@ PaletteEditor::PaletteEditor(QString path, const studio::Context *ctx, QWidget *
 
 QString PaletteEditor::itemName() const {
 	return m_itemPath.mid(m_itemPath.lastIndexOf('/'));
-}
-
-void PaletteEditor::addColor(int idx, Color16 c) {
-	m_pal->colors.insert(static_cast<std::size_t>(idx), c);
-	addTableRow(idx, c);
-	setUnsavedChanges(true);
-}
-
-void PaletteEditor::rmColor(int idx) {
-	rmTableRow(idx);
-	m_pal->colors.erase(static_cast<std::size_t>(idx));
-	setUnsavedChanges(true);
 }
 
 void PaletteEditor::addTableRow(int i, Color16 c) {
@@ -229,9 +298,30 @@ void PaletteEditor::setTableRow(int idx, Color16 c) {
 	connect(m_table, &QTableWidget::cellChanged, this, &PaletteEditor::cellChanged);
 }
 
+void PaletteEditor::addColor(int idx, Color16 c) {
+	m_pal->colors.insert(static_cast<std::size_t>(idx), c);
+	addTableRow(idx, c);
+	setUnsavedChanges(true);
+}
+
+void PaletteEditor::rmColor(int idx) {
+	rmTableRow(idx);
+	m_pal->colors.erase(static_cast<std::size_t>(idx));
+	setUnsavedChanges(true);
+}
+
 void PaletteEditor::updateColor(int idx, Color16 c) {
 	m_pal->colors[static_cast<std::size_t>(idx)] = c;
 	setTableRow(idx, c);
+	setUnsavedChanges(true);
+}
+
+void PaletteEditor::moveColor(int idx, int offset) {
+	auto c = m_pal->colors[static_cast<std::size_t>(idx)];
+	m_pal->colors.erase(static_cast<std::size_t>(idx));
+	m_pal->colors.insert(static_cast<std::size_t>(idx + offset), c);
+	rmTableRow(idx);
+	addTableRow(idx + offset, c);
 	setUnsavedChanges(true);
 }
 
@@ -257,11 +347,16 @@ Color16 PaletteEditor::rowColor(int row) const {
 }
 
 void PaletteEditor::colorSelected() {
-	auto row = m_table->currentRow();
+	auto selIdxs = m_table->selectionModel()->selectedIndexes();
+	auto row = selIdxs.size() ? selIdxs[0].row() : -1;
 	if (row > -1) {
 		m_rmBtn->setEnabled(true);
+		m_moveUpBtn->setEnabled(row > 0);
+		m_moveDownBtn->setEnabled(row < m_table->rowCount() - 1);
 	} else {
 		m_rmBtn->setEnabled(false);
+		m_moveUpBtn->setEnabled(false);
+		m_moveDownBtn->setEnabled(false);
 	}
 }
 
@@ -279,6 +374,16 @@ void PaletteEditor::addColorClicked() {
 void PaletteEditor::rmColorClicked() {
 	auto row = m_table->currentRow();
 	undoStack()->push(new RemoveColorCommand(this, m_pal->colors[static_cast<std::size_t>(row)], row));
+}
+
+void PaletteEditor::moveColorUpClicked() {
+	auto row = m_table->currentRow();
+	undoStack()->push(new MoveColorCommand(this, row, -1));
+}
+
+void PaletteEditor::moveColorDownClicked() {
+	auto row = m_table->currentRow();
+	undoStack()->push(new MoveColorCommand(this, row, 1));
 }
 
 }

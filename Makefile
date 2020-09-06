@@ -32,23 +32,23 @@ endif
 
 .PHONY: build
 build:
-	$(foreach file, $(wildcard build/*), cmake --build $(file) --target;)
+	$(foreach file, $(wildcard build/*), ${ENV_RUN} cmake --build $(file) --target;)
 .PHONY: pkg-gba
 pkg-gba:
-	$(foreach file, $(wildcard build/*), cmake --build $(file) --target install;)
+	$(foreach file, $(wildcard build/*), ${ENV_RUN} cmake --build $(file) --target install;)
 	${ENV_RUN} ./scripts/pkg-gba sample_project
 .PHONY: install
 install:
-	$(foreach file, $(wildcard build/*), cmake --build $(file) --target install;)
+	$(foreach file, $(wildcard build/*), ${ENV_RUN} cmake --build $(file) --target install;)
 .PHONY: clean
 clean:
-	$(foreach file, $(wildcard build/*), cmake --build $(file) --target clean;)
+	$(foreach file, $(wildcard build/*), ${ENV_RUN} cmake --build $(file) --target clean;)
 .PHONY: purge
 purge:
 	${ENV_RUN} ${RM_RF} build .current_build dist
 .PHONY: test
 test: build
-	$(foreach file, $(wildcard build/*), cmake --build $(file) --target test;)
+	$(foreach file, $(wildcard build/*), ${ENV_RUN} cmake --build $(file) --target test;)
 
 .PHONY: run
 run: install
@@ -93,10 +93,10 @@ devenv-shell:
 vcpkg: ${VCPKG_DIR} vcpkg-install
 
 ${VCPKG_DIR}:
-	${RM_RF} ${VCPKG_DIR}
-	mkdir -p ${VCPKG_DIR_BASE}
-	git clone -b release --depth 1 --branch ${VCPKG_VERSION} https://github.com/microsoft/vcpkg.git ${VCPKG_DIR}
-	${VCPKG_DIR}/bootstrap-vcpkg.sh
+	${ENV_RUN} ${RM_RF} ${VCPKG_DIR}
+	${ENV_RUN} mkdir -p ${VCPKG_DIR_BASE}
+	${ENV_RUN} git clone -b release --depth 1 --branch ${VCPKG_VERSION} https://github.com/microsoft/vcpkg.git ${VCPKG_DIR}
+	${ENV_RUN} ${VCPKG_DIR}/bootstrap-vcpkg.sh
 
 .PHONY: vcpkg-install
 vcpkg-install:

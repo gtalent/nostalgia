@@ -118,6 +118,8 @@ include_directories(SYSTEM deps/ox/src)
 
 if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 	add_subdirectory(deps/gbastartup)
+elseif(NOSTALGIA_BUILD_STUDIO)
+	add_subdirectory(deps/QDark)
 endif()
 
 add_subdirectory(src)

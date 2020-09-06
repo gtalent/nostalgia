@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <ox/clargs/clargs.hpp>
+#include <qdark/theme.hpp>
 #include "mainwindow.hpp"
 
 using namespace nostalgia::studio;
@@ -20,6 +21,9 @@ int main(int argc, char **args) {
 	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	QApplication app(argc, args);
+
+	// load theme
+	qdark::load(&app);
 
 	try {
 		MainWindow w(argProfilePath);

@@ -126,7 +126,9 @@ constexpr Integer<T, Base>::Integer(const Integer<T, Base> &i) noexcept: Base(i)
 
 template<typename T, class Base>
 constexpr Integer<T, Base> Integer<T, Base>::operator=(Integer<T, Base> i) noexcept {
-	Base::operator=(i);
+	// needed in case T has nodiscard
+	constexpr auto ignore = [](Base) {};
+	ignore(Base::operator=(i));
 	m_i = i.m_i;
 	return *this;
 }

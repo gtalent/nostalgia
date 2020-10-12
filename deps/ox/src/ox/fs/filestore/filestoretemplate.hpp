@@ -235,7 +235,7 @@ Error FileStoreTemplate<size_t>::decLinks(InodeId_t id) {
 	if (item.valid()) {
 		item->links--;
 		if (item->links == 0) {
-			remove(item);
+			oxReturnError(remove(item));
 		}
 		return OxError(0);
 	}

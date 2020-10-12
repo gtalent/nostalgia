@@ -17,40 +17,45 @@
 
 namespace ox {
 
-struct BaseError {
+struct [[nodiscard]] Error {
 	const char *msg = nullptr;
 	const char *file = "";
 	uint16_t line = 0;
+	uint64_t m_i = 0;
 
-	BaseError() = default;
+	constexpr Error(uint64_t i = 0) {
+		m_i = i;
+	}
 
-	constexpr BaseError(const BaseError &o) noexcept {
+	constexpr Error(const Error &o) noexcept {
 		msg = o.msg;
 		file = o.file;
 		line = o.line;
 	}
 
-	constexpr BaseError operator=(const BaseError &o) noexcept {
+	constexpr Error &operator=(const Error &o) noexcept {
 		msg = o.msg;
 		file = o.file;
 		line = o.line;
 		return *this;
 	}
 
+	constexpr operator uint64_t() const noexcept {
+		return m_i;
+	}
+
 };
 
-using Error = Integer<uint64_t, BaseError>;
-
 static constexpr Error _error(const char *file, uint32_t line, uint64_t errCode, const char *msg = nullptr) {
-	Error err = static_cast<ox::Error>(errCode);
-		err.file = file;
-		err.line = line;
-		err.msg = msg;
+	auto err = static_cast<ox::Error>(errCode);
+	err.file = file;
+	err.line = line;
+	err.msg = msg;
 	return err;
 }
 
 template<typename T>
-struct ValErr {
+struct [[nodiscard]] ValErr {
 	T value;
 	Error error;
 

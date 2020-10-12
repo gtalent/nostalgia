@@ -51,6 +51,12 @@ class OutStream {
 			return *this;
 		}
 
+		inline OutStream &operator<<(Error err) {
+			m_msg.msg += m_delimiter;
+			m_msg.msg += static_cast<int64_t>(err);
+			return *this;
+		}
+
 		/**
 		 * del sets the delimiter between log segments.
 		 */

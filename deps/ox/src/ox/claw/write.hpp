@@ -60,7 +60,7 @@ struct type_version<T, decltype((void) T::TypeVersion, -1)> {
 template<typename T>
 constexpr const char *getTypeName(T *t) noexcept {
 	TypeInfoCatcher tnc;
-	model(&tnc, t);
+	oxIgnoreError(model(&tnc, t));
 	return tnc.name;
 }
 

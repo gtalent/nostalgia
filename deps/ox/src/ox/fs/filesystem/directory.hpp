@@ -155,7 +155,7 @@ ox::Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents
 
 		// determine if already exists
 		auto name = nameBuff;
-		path.get(name);
+		oxReturnError(path.get(name));
 		auto childInode = find(name->c_str());
 		if (!childInode.ok()) {
 			// if this is not the last item in the path and parents is disabled,
@@ -223,7 +223,7 @@ ox::Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t in
 		// insert the new entry on this directory
 
 		// get the name
-		path.next(name);
+		oxReturnError(path.next(name));
 
 		// find existing version of directory
 		oxTrace("ox::fs::Directory::write") << "Searching for directory inode" << m_inodeId;

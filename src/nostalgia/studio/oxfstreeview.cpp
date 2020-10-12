@@ -28,12 +28,12 @@ OxFSFile::OxFSFile(PassThroughFS *fs, QString path, OxFSFile *parentItem) {
 		auto stat = fs->stat(static_cast<const char*>(m_path.toUtf8()));
 		if (!stat.error) {
 			if (stat.value.fileType == FileType_Directory) {
-				fs->ls(m_path.toUtf8(), [&ls](const char *name, ox::InodeId_t) {
+				oxThrowError(fs->ls(m_path.toUtf8(), [&ls](const char *name, ox::InodeId_t) {
 					if (name[0] != '.') {
 						ls.push_back(name);
 					}
 					return OxError(0);
-				});
+				}));
 				std::sort(ls.begin(), ls.end());
 			}
 			auto p = m_path;

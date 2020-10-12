@@ -26,7 +26,7 @@ void panic(const char*, int, const char *msg, ox::Error err) {
 	REG_DISPCTL = DispCtl_Bg0;
 	clearTileLayer(nullptr, 0);
 	ox::BString<23> serr = "Error code: ";
-	serr += err;
+	serr += static_cast<int64_t>(err);
 	puts(nullptr, 32 + 1,  1, "SADNESS...");
 	puts(nullptr, 32 + 1,  4, "UNEXPECTED STATE:");
 	puts(nullptr, 32 + 2,  6, msg);

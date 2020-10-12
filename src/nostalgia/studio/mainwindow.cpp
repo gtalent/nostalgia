@@ -247,7 +247,7 @@ int MainWindow::readState() {
 	restoreGeometry(settings.value("geometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
 	auto json = settings.value("json").toString();
-	err |= readJson(json, &m_state);
+	oxReturnError(readJson(json, &m_state));
 	settings.endGroup();
 
 	openProject(m_state.projectPath);
@@ -258,7 +258,7 @@ int MainWindow::readState() {
 void MainWindow::writeState() {
 	// generate JSON for application specific state info
 	QString json;
-	writeJson(&json, &m_state);
+	oxIgnoreError(writeJson(&json, &m_state));
 
 	QSettings settings(m_profile.orgName, m_profile.appName);
 	settings.beginGroup("MainWindow");

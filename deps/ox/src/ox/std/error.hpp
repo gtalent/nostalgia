@@ -23,7 +23,7 @@ struct [[nodiscard]] Error {
 	uint16_t line = 0;
 	uint64_t m_i = 0;
 
-	constexpr Error(uint64_t i = 0) {
+	explicit constexpr Error(uint64_t i = 0) {
 		m_i = i;
 	}
 
@@ -31,12 +31,14 @@ struct [[nodiscard]] Error {
 		msg = o.msg;
 		file = o.file;
 		line = o.line;
+		m_i = o.m_i;
 	}
 
 	constexpr Error &operator=(const Error &o) noexcept {
 		msg = o.msg;
 		file = o.file;
 		line = o.line;
+		m_i = o.m_i;
 		return *this;
 	}
 
@@ -46,7 +48,7 @@ struct [[nodiscard]] Error {
 
 };
 
-static constexpr Error _error(const char *file, uint32_t line, uint64_t errCode, const char *msg = nullptr) {
+constexpr Error _error(const char *file, uint32_t line, uint64_t errCode, const char *msg = nullptr) {
 	auto err = static_cast<ox::Error>(errCode);
 	err.file = file;
 	err.line = line;

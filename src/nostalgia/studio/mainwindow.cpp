@@ -313,6 +313,8 @@ void MainWindow::openProject(QString projectPath) {
 	m_state.projectPath = projectPath;
 	// reopen tabs
 	auto openTabs = readTabs();
+	// clear open tabs
+	writeTabs({});
 	for (auto t : openTabs) {
 		try {
 			openFile(t, true);

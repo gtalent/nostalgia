@@ -55,6 +55,7 @@ MainWindow::MainWindow(QString profilePath) {
 	setWindowTitle(m_profile.appName);
 	m_ctx.appName = m_profile.appName;
 	m_ctx.orgName = m_profile.orgName;
+	m_ctx.tabParent = m_tabs;
 
 	m_tabs = new QTabWidget(this);
 	auto tabBar = m_tabs->tabBar();

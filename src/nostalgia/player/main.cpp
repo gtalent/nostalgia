@@ -36,7 +36,7 @@ static int eventHandler(core::Context *ctx) {
 	return 16;
 }
 
-ox::Error run(ox::FileSystem *fs) {
+static ox::Error run(ox::FileSystem *fs) {
 	core::Context ctx;
 	ctx.rom = fs;
 	oxReturnError(core::init(&ctx));

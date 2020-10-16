@@ -27,14 +27,14 @@ struct ClawHeader {
 	std::size_t dataSize = 0;
 };
 
-[[nodiscard]] ValErr<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept;
+ValErr<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept;
 
 }
 
-[[nodiscard]] ValErr<Vector<char>> stripClawHeader(const char *buff, std::size_t buffLen) noexcept;
+ValErr<Vector<char>> stripClawHeader(const char *buff, std::size_t buffLen) noexcept;
 
 template<typename T>
-[[nodiscard]] Error readClaw(char *buff, std::size_t buffLen, T *val) {
+Error readClaw(char *buff, std::size_t buffLen, T *val) {
 	auto header = detail::readHeader(buff, buffLen);
 	oxReturnError(header);
 	switch (header.value.fmt) {

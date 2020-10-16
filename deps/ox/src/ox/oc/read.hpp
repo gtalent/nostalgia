@@ -35,44 +35,44 @@ class OrganicClawReader {
 
 		OrganicClawReader(const Json::Value &json, int unionIdx = -1);
 
-		[[nodiscard]] Error field(const char *key, int8_t *val);
-		[[nodiscard]] Error field(const char *key, int16_t *val);
-		[[nodiscard]] Error field(const char *key, int32_t *val);
-		[[nodiscard]] Error field(const char *key, int64_t *val);
+		Error field(const char *key, int8_t *val);
+		Error field(const char *key, int16_t *val);
+		Error field(const char *key, int32_t *val);
+		Error field(const char *key, int64_t *val);
 
-		[[nodiscard]] Error field(const char *key, uint8_t *val);
-		[[nodiscard]] Error field(const char *key, uint16_t *val);
-		[[nodiscard]] Error field(const char *key, uint32_t *val);
-		[[nodiscard]] Error field(const char *key, uint64_t *val);
+		Error field(const char *key, uint8_t *val);
+		Error field(const char *key, uint16_t *val);
+		Error field(const char *key, uint32_t *val);
+		Error field(const char *key, uint64_t *val);
 
-		[[nodiscard]] Error field(const char *key, bool *val);
+		Error field(const char *key, bool *val);
 
 		// array handler
 		template<typename T>
-		[[nodiscard]] Error field(const char *key, T *val, std::size_t len);
+		Error field(const char *key, T *val, std::size_t len);
 
 		template<typename T>
-		[[nodiscard]] Error field(const char *key, Vector<T> *val);
+		Error field(const char *key, Vector<T> *val);
 
 		template<typename T>
-		[[nodiscard]] Error field(const char*, HashMap<String, T> *val);
+		Error field(const char*, HashMap<String, T> *val);
 
 		template<typename T>
-		[[nodiscard]] Error field(const char *key, T *val);
+		Error field(const char *key, T *val);
 
 		template<typename U>
-		[[nodiscard]] Error field(const char *key, UnionView<U> val);
+		Error field(const char *key, UnionView<U> val);
 
 		template<std::size_t L>
-		[[nodiscard]] Error field(const char *key, ox::BString<L> *val);
+		Error field(const char *key, ox::BString<L> *val);
 
-		[[nodiscard]] Error field(const char *key, SerStr val);
+		Error field(const char *key, SerStr val);
 
 		/**
 		 * Reads an array length from the current location in the buffer.
 		 * @param pass indicates that the parsing should iterate past the array length
 		 */
-		[[nodiscard]] ValErr<std::size_t> arrayLength(const char *key, bool pass = true);
+		ValErr<std::size_t> arrayLength(const char *key, bool pass = true);
 
 		/**
 		 * Reads an string length from the current location in the buffer.
@@ -163,7 +163,7 @@ Error OrganicClawReader::field(const char *key, ox::Vector<T> *val) {
 }
 
 template<typename T>
-[[nodiscard]] Error OrganicClawReader::field(const char *key, HashMap<String, T> *val) {
+Error OrganicClawReader::field(const char *key, HashMap<String, T> *val) {
 	const auto &srcVal = value(key);
 	auto keys = srcVal.getMemberNames();
 	auto srcSize = srcVal.size();

@@ -43,7 +43,7 @@ struct OX_PACKED DirectoryEntry {
 	public:
 		DirectoryEntry() = default;
 
-		[[nodiscard]] ox::Error init(InodeId_t inode, const char *name, InodeId_t bufferSize) {
+		Error init(InodeId_t inode, const char *name, InodeId_t bufferSize) {
 			m_bufferSize = bufferSize;
 			auto d = data();
 			if (d.valid()) {
@@ -99,23 +99,23 @@ class Directory {
 		/**
 		 * Initializes Directory.
 		 */
-		[[nodiscard]] ox::Error init() noexcept;
+		Error init() noexcept;
 
-		[[nodiscard]] ox::Error mkdir(PathIterator path, bool parents, FileName *nameBuff = nullptr);
+		Error mkdir(PathIterator path, bool parents, FileName *nameBuff = nullptr);
 
 		/**
 		 * @param parents indicates the operation should create non-existent directories in the path, like mkdir -p
 		 */
-		[[nodiscard]] ox::Error write(PathIterator it, InodeId_t inode, FileName *nameBuff = nullptr) noexcept;
+		Error write(PathIterator it, InodeId_t inode, FileName *nameBuff = nullptr) noexcept;
 
-		[[nodiscard]] ox::Error remove(PathIterator it, FileName *nameBuff = nullptr) noexcept;
+		Error remove(PathIterator it, FileName *nameBuff = nullptr) noexcept;
 
 		template<typename F>
-		[[nodiscard]] ox::Error ls(F cb) noexcept;
+		Error ls(F cb) noexcept;
 
-		[[nodiscard]] ValErr<typename FileStore::InodeId_t> findEntry(const FileName &name) const noexcept;
+		ValErr<typename FileStore::InodeId_t> findEntry(const FileName &name) const noexcept;
 
-		[[nodiscard]] ValErr<typename FileStore::InodeId_t> find(PathIterator name, FileName *nameBuff = nullptr) const noexcept;
+		ValErr<typename FileStore::InodeId_t> find(PathIterator name, FileName *nameBuff = nullptr) const noexcept;
 
 };
 

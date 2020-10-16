@@ -39,49 +39,49 @@ class MetalClawReader {
 
 		~MetalClawReader() noexcept;
 
-		[[nodiscard]] Error field(const char*, int8_t *val);
-		[[nodiscard]] Error field(const char*, int16_t *val);
-		[[nodiscard]] Error field(const char*, int32_t *val);
-		[[nodiscard]] Error field(const char*, int64_t *val);
+		Error field(const char*, int8_t *val);
+		Error field(const char*, int16_t *val);
+		Error field(const char*, int32_t *val);
+		Error field(const char*, int64_t *val);
 
-		[[nodiscard]] Error field(const char*, uint8_t *val);
-		[[nodiscard]] Error field(const char*, uint16_t *val);
-		[[nodiscard]] Error field(const char*, uint32_t *val);
-		[[nodiscard]] Error field(const char*, uint64_t *val);
+		Error field(const char*, uint8_t *val);
+		Error field(const char*, uint16_t *val);
+		Error field(const char*, uint32_t *val);
+		Error field(const char*, uint64_t *val);
 
-		[[nodiscard]] Error field(const char*, bool *val);
+		Error field(const char*, bool *val);
 
 		// array handler
 		template<typename T>
-		[[nodiscard]] Error field(const char*, T *val, std::size_t len);
+		Error field(const char*, T *val, std::size_t len);
 
 		// map handler
 		template<typename T>
-		[[nodiscard]] Error field(const char*, HashMap<String, T> *val);
+		Error field(const char*, HashMap<String, T> *val);
 
 		// array handler, with callback to allow handling individual elements
 		template<typename T, typename Handler>
-		[[nodiscard]] Error field(const char*, Handler handler);
+		Error field(const char*, Handler handler);
 
 		template<typename T>
-		[[nodiscard]] Error field(const char*, ox::Vector<T> *val);
+		Error field(const char*, ox::Vector<T> *val);
 
 		template<typename T>
-		[[nodiscard]] Error field(const char*, T *val);
+		Error field(const char*, T *val);
 
 		template<typename U>
-		[[nodiscard]] Error field(const char*, UnionView<U> val);
+		Error field(const char*, UnionView<U> val);
 
 		template<std::size_t L>
-		[[nodiscard]] Error field(const char*, ox::BString<L> *val);
+		Error field(const char*, ox::BString<L> *val);
 
-		[[nodiscard]] Error field(const char*, SerStr val);
+		Error field(const char*, SerStr val);
 
 		/**
 		 * Reads an array length from the current location in the buffer.
 		 * @param pass indicates that the parsing should iterate past the array length
 		 */
-		[[nodiscard]] ValErr<ArrayLength> arrayLength(const char *name, bool pass = true);
+		ValErr<ArrayLength> arrayLength(const char *name, bool pass = true);
 
 		/**
 		 * Reads an string length from the current location in the buffer.
@@ -114,7 +114,7 @@ class MetalClawReader {
 
 	private:
 		template<typename I>
-		[[nodiscard]] Error readInteger(I *val);
+		Error readInteger(I *val);
 
 };
 

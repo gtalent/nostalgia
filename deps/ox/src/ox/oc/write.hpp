@@ -33,39 +33,39 @@ class OrganicClawWriter {
 
 		OrganicClawWriter(Json::Value json, int unionIdx = -1);
 
-		[[nodiscard]] Error field(const char*, int8_t *val);
-		[[nodiscard]] Error field(const char*, int16_t *val);
-		[[nodiscard]] Error field(const char*, int32_t *val);
-		[[nodiscard]] Error field(const char*, int64_t *val);
+		Error field(const char*, int8_t *val);
+		Error field(const char*, int16_t *val);
+		Error field(const char*, int32_t *val);
+		Error field(const char*, int64_t *val);
 
-		[[nodiscard]] Error field(const char*, uint8_t *val);
-		[[nodiscard]] Error field(const char*, uint16_t *val);
-		[[nodiscard]] Error field(const char*, uint32_t *val);
-		[[nodiscard]] Error field(const char*, uint64_t *val);
+		Error field(const char*, uint8_t *val);
+		Error field(const char*, uint16_t *val);
+		Error field(const char*, uint32_t *val);
+		Error field(const char*, uint64_t *val);
 
-		[[nodiscard]] Error field(const char*, bool *val);
+		Error field(const char*, bool *val);
 
 		template<typename T>
-		[[nodiscard]] Error field(const char*, T *val, std::size_t len);
+		Error field(const char*, T *val, std::size_t len);
 
 		template<typename U>
-		[[nodiscard]] Error field(const char*, UnionView<U> val);
+		Error field(const char*, UnionView<U> val);
 
 		template<typename T>
-		[[nodiscard]] Error field(const char*, ox::Vector<T> *val);
+		Error field(const char*, ox::Vector<T> *val);
 
 		template<typename T>
-		[[nodiscard]] Error field(const char*, HashMap<String, T> *val);
+		Error field(const char*, HashMap<String, T> *val);
 
 		template<std::size_t L>
-		[[nodiscard]] Error field(const char*, ox::BString<L> *val);
+		Error field(const char*, ox::BString<L> *val);
 
-		[[nodiscard]] Error field(const char*, ox::String val);
+		Error field(const char*, ox::String val);
 
-		[[nodiscard]] Error field(const char*, SerStr val);
+		Error field(const char*, SerStr val);
 
 		template<typename T>
-		[[nodiscard]] Error field(const char*, T *val);
+		Error field(const char*, T *val);
 
 		template<typename T = void>
 		constexpr void setTypeInfo(const char* = T::TypeName, int = T::Fields) {
@@ -134,7 +134,7 @@ Error OrganicClawWriter::field(const char *key, ox::Vector<T> *val) {
 }
 
 template<typename T>
-[[nodiscard]] Error OrganicClawWriter::field(const char *key, ox::HashMap<String, T> *val) {
+Error OrganicClawWriter::field(const char *key, ox::HashMap<String, T> *val) {
 	if (targetValid()) {
 		auto &keys = val->keys();
 		OrganicClawWriter w;

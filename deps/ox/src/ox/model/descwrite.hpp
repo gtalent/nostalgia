@@ -60,12 +60,12 @@ class TypeDescWriter {
 			}
 
 			template<typename T>
-			[[nodiscard]] constexpr ox::Error field(const char*, T*, std::size_t) noexcept {
+			constexpr Error field(const char*, T*, std::size_t) noexcept {
 				return OxError(0);
 			}
 
 			template<typename T>
-			[[nodiscard]] constexpr ox::Error field(const char*, T) noexcept {
+			constexpr Error field(const char*, T) noexcept {
 				return OxError(0);
 			}
 
@@ -85,13 +85,13 @@ class TypeDescWriter {
 		~TypeDescWriter();
 
 		template<typename T>
-		[[nodiscard]] ox::Error field(const char *name, T *val, std::size_t valLen);
+		Error field(const char *name, T *val, std::size_t valLen);
 
 		template<typename T>
-		[[nodiscard]] ox::Error field(const char *name, T val);
+		Error field(const char *name, T val);
 
 		template<typename T>
-		[[nodiscard]] ox::Error field(const char *name, T *val);
+		Error field(const char *name, T *val);
 
 		template<typename T = std::nullptr_t>
 		void setTypeInfo(const char *name = T::TypeName, int fields = T::Fields);
@@ -234,7 +234,7 @@ void TypeDescWriter::setTypeInfo(const char *name, int) {
 }
 
 template<typename T>
-[[nodiscard]] ValErr<DescriptorType*> buildTypeDef(T *val) {
+ValErr<DescriptorType*> buildTypeDef(T *val) {
 	TypeDescWriter writer;
 	Error err = model(&writer, val);
 	return {writer.definition(), err};

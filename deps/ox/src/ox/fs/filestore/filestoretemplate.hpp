@@ -79,19 +79,19 @@ class FileStoreTemplate {
 
 		[[nodiscard]] static Error format(void *buffer, size_t bufferSize);
 
-		[[nodiscard]] Error setSize(InodeId_t buffSize);
+		Error setSize(InodeId_t buffSize);
 
-		[[nodiscard]] Error incLinks(InodeId_t id);
+		Error incLinks(InodeId_t id);
 
-		[[nodiscard]] Error decLinks(InodeId_t id);
+		Error decLinks(InodeId_t id);
 
-		[[nodiscard]] Error write(InodeId_t id, void *data, FsSize_t dataLen, uint8_t fileType = 0);
+		Error write(InodeId_t id, void *data, FsSize_t dataLen, uint8_t fileType = 0);
 
-		[[nodiscard]] Error remove(InodeId_t id);
+		Error remove(InodeId_t id);
 
-		[[nodiscard]] Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size = nullptr) const;
+		Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size = nullptr) const;
 
-		[[nodiscard]] Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size = nullptr) const;
+		Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size = nullptr) const;
 
 		const ptrarith::Ptr<uint8_t, std::size_t> read(InodeId_t id) const;
 
@@ -106,15 +106,15 @@ class FileStoreTemplate {
 		 * @return 0 if read is a success
 		 */
 		template<typename T>
-		[[nodiscard]] ox::Error read(InodeId_t id, FsSize_t readStart,
+		Error read(InodeId_t id, FsSize_t readStart,
 		           FsSize_t readSize, T *data,
 		           FsSize_t *size) const;
 
-		[[nodiscard]] ValErr<StatInfo> stat(InodeId_t id);
+		ValErr<StatInfo> stat(InodeId_t id);
 
-		[[nodiscard]] ox::Error resize();
+		Error resize();
 
-		[[nodiscard]] ox::Error resize(std::size_t size, void *newBuff = nullptr);
+		Error resize(std::size_t size, void *newBuff = nullptr);
 
 		[[nodiscard]] InodeId_t spaceNeeded(FsSize_t size);
 
@@ -124,13 +124,13 @@ class FileStoreTemplate {
 
 		[[nodiscard]] char *buff();
 
-		[[nodiscard]] Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t));
+		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t));
 
-		[[nodiscard]] ValErr<InodeId_t> generateInodeId();
+		ValErr<InodeId_t> generateInodeId();
 
 		bool valid() const;
 
-		[[nodiscard]] ox::Error compact();
+		Error compact();
 
 	private:
 		FileStoreData *fileStoreData() const;

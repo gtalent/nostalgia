@@ -30,7 +30,7 @@ class DataWalker {
 
 		[[nodiscard]] const DescriptorType *type() const noexcept;
 
-		[[nodiscard]] ox::Error read(const DescriptorField&, Reader *rdr);
+		Error read(const DescriptorField&, Reader *rdr);
 
 	protected:
 		void pushNamePath(FieldName fn);

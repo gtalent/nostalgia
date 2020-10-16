@@ -83,7 +83,7 @@ struct [[nodiscard]] ValErr {
 		return error == 0;
 	}
 
-	[[nodiscard]] constexpr ox::Error get(T *val) noexcept {
+	constexpr Error get(T *val) noexcept {
 		*val = value;
 		return error;
 	}
@@ -92,12 +92,12 @@ struct [[nodiscard]] ValErr {
 
 namespace error {
 
-[[nodiscard]] constexpr ox::Error toError(ox::Error e) noexcept {
+constexpr Error toError(ox::Error e) noexcept {
 	return e;
 }
 
 template<typename T>
-[[nodiscard]] constexpr ox::Error toError(const ox::ValErr<T> &ve) noexcept {
+constexpr Error toError(const ox::ValErr<T> &ve) noexcept {
 	return ve.error;
 }
 

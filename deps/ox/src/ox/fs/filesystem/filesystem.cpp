@@ -10,7 +10,7 @@
 
 namespace ox {
 
-[[nodiscard]] ox::ValErr<uint8_t*> FileSystem::read(FileAddress addr) {
+ValErr<uint8_t*> FileSystem::read(FileAddress addr) {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return read(addr.getInode().value);
@@ -22,7 +22,7 @@ namespace ox {
 	}
 }
 
-[[nodiscard]] ox::Error FileSystem::read(FileAddress addr, void *buffer, std::size_t size) {
+Error FileSystem::read(FileAddress addr, void *buffer, std::size_t size) {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return read(addr.getInode().value, buffer, size);
@@ -34,7 +34,7 @@ namespace ox {
 	}
 }
 
-[[nodiscard]] ox::Error FileSystem::read(FileAddress addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) {
+Error FileSystem::read(FileAddress addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return read(addr.getInode().value, readStart, readSize, buffer, size);
@@ -46,7 +46,7 @@ namespace ox {
 	}
 }
 
-[[nodiscard]] ox::Error FileSystem::remove(FileAddress addr, bool recursive) {
+Error FileSystem::remove(FileAddress addr, bool recursive) {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return remove(addr.getInode().value, recursive);

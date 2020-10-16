@@ -109,7 +109,7 @@ Error MetalClawReader::field(const char*, SerStr val) {
 	return OxError(0);
 }
 
-[[nodiscard]] ValErr<ArrayLength> MetalClawReader::arrayLength(const char*, bool pass) {
+ValErr<ArrayLength> MetalClawReader::arrayLength(const char*, bool pass) {
 	if ((m_unionIdx == -1 || m_unionIdx == m_field) && m_fieldPresence.get(m_field)) {
 		// read the length
 		if (m_buffIt >= m_buffLen) {

@@ -9,10 +9,13 @@
 #include <array>
 
 #include <QBuffer>
+#include <QDialog>
+#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QPainter>
 #include <QPointer>
+#include <QPushButton>
 #include <QQmlContext>
 #include <QQuickItem>
 #include <QQuickWidget>
@@ -28,12 +31,47 @@
 
 #include <nostalgia/core/consts.hpp>
 #include <nostalgia/common/point.hpp>
+#include <qnamespace.h>
 
 #include "consts.hpp"
 #include "util.hpp"
 #include "tilesheeteditor.hpp"
 
 namespace nostalgia::core {
+
+class ModAfterDialog: public QDialog {
+
+	private:
+		QComboBox *const m_afterColor = new QComboBox(this);
+		QSpinBox *const m_mod = new QSpinBox(this);
+
+	public:
+		ModAfterDialog(const QStringList &palette, QWidget *parent = nullptr): QDialog(parent) {
+			auto range = palette.size();
+			auto okBtn = new QPushButton(tr("&OK"), this);
+			setWindowTitle(tr("Mod Colors After"));
+			setWindowModality(Qt::WindowModality::ApplicationModal);
+			for (int i = 0; i < palette.size(); ++i) {
+				const auto c = palette[i];
+				m_afterColor->addItem(QString("%1: %2").arg(i + 1).arg(c));
+			}
+			m_mod->setMinimum(-range + 1);
+			m_mod->setMaximum(range - 1);
+			auto lyt = new QFormLayout(this); lyt->addRow(tr("&Greater/Equal To:"), m_afterColor);
+			lyt->addRow(tr("&Mod By:"), m_mod);
+			lyt->addWidget(okBtn);
+			connect(okBtn, &QPushButton::clicked, this, &ModAfterDialog::accept);
+		}
+
+		int color() {
+			return m_afterColor->currentIndex() - 1;
+		}
+
+		int mod() {
+			return m_mod->value();
+		}
+
+};
 
 struct LabeledSpinner: public QWidget {
 
@@ -106,6 +144,36 @@ class UpdateDimensionsCommand: public QUndoCommand {
 
 };
 
+
+class ModPixelsCommand: public QUndoCommand {
+	private:
+		SheetData *m_sheetData = nullptr;
+		QHash<int, int> m_pixelUpdates;
+		int m_mod = 0;
+
+	public:
+		ModPixelsCommand(SheetData *sheetData, int mod): m_sheetData(sheetData), m_mod(mod) {
+		}
+
+		virtual ~ModPixelsCommand() = default;
+
+		void addPixel(int index, int mod) {
+			m_pixelUpdates[index] = mod;
+		}
+
+		int id() const override {
+			return static_cast<int>(CommandId::ModPixel);
+		}
+
+		void redo() override {
+			m_sheetData->modPixels(m_pixelUpdates, 1);
+		}
+
+		void undo() override {
+			m_sheetData->modPixels(m_pixelUpdates, -1);
+		}
+
+};
 
 class UpdatePixelsCommand: public QUndoCommand {
 	private:
@@ -354,6 +422,27 @@ void SheetData::setSelectedColor(int index) {
 	m_selectedColor = index;
 }
 
+void SheetData::modGteCmd(int color, int mod) {
+	auto cmd = new ModPixelsCommand(this, mod);
+	for (int i = 0; i < m_pixels.size(); ++i) {
+		const auto p = m_pixels[i];
+		if (p >= color) {
+			const auto mx = (m_palette.size() - p) - 1;
+			cmd->addPixel(i, std::clamp(mod, -p, mx));
+		}
+	}
+	m_cmdStack->push(cmd);
+}
+
+void SheetData::modPixels(const QHash<int, int> &mods, int inversion) {
+	for (const auto index : mods.keys()) {
+		const auto mod = mods[index];
+		m_pixels[index] += mod * inversion;
+	}
+	emit pixelsChanged();
+	emit changeOccurred();
+}
+
 std::unique_ptr<NostalgiaGraphic> SheetData::toNostalgiaGraphic() const {
 	auto ng = std::make_unique<NostalgiaGraphic>();
 	const auto highestColorIdx = static_cast<uint8_t>(*std::max_element(m_pixels.begin(), m_pixels.end()));
@@ -433,8 +522,10 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 	auto tb = new QToolBar(tr("Tile Sheet Options"));
 	m_tilesX = new LabeledSpinner(tr("Tiles &X:"), 1, m_sheetData.columns());
 	m_tilesY = new LabeledSpinner(tr("Tiles &Y:"), 1, m_sheetData.rows());
+	m_updateAfterBtn = new QPushButton(tr("&Mod After"), tb);
 	tb->addWidget(m_tilesX);
 	tb->addWidget(m_tilesY);
+	tb->addWidget(m_updateAfterBtn);
 	canvasLyt->setMenuBar(tb);
 	lyt->addWidget(m_splitter);
 	m_splitter->addWidget(canvasParent);
@@ -453,6 +544,7 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 	m_sheetData.load(m_ctx, m_itemPath);
 	connect(m_tilesX->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::updateColumns);
 	connect(m_tilesY->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::updateRows);
+	connect(m_updateAfterBtn, &QPushButton::clicked, this, &TileSheetEditor::updateAfterClicked);
 	m_canvas->rootContext()->setContextProperty("sheetData", &m_sheetData);
 	m_canvas->setSource(QUrl::fromLocalFile(":/qml/TileSheetEditor.qml"));
 	m_canvas->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -507,7 +599,6 @@ QWidget *TileSheetEditor::setupColorPicker(QWidget *parent) {
 	m_colorPicker.colorTable->setSelectionMode(QAbstractItemView::SingleSelection);
 	m_colorPicker.colorTable->setHorizontalHeaderLabels(QStringList() << tr("Hex Code") << tr("Color"));
 	m_colorPicker.colorTable->horizontalHeader()->setStretchLastSection(true);
-	m_colorPicker.colorTable->verticalHeader()->hide();
 	connect(m_colorPicker.colorTable, &QTableWidget::itemSelectionChanged, this, &TileSheetEditor::colorSelected);
 	connect(m_colorPicker.palette, &QComboBox::currentTextChanged, this, [this](QString name) {
 		m_sheetData.setPalette(m_ctx, palettePath(name));
@@ -634,6 +725,15 @@ void TileSheetEditor::setColorTable() {
 		auto ci = tbl->item(i, 1);
 		ci->setFlags(ci->flags() & ~Qt::ItemIsEditable);
 	}
+}
+
+void TileSheetEditor::updateAfterClicked() {
+	auto d = new ModAfterDialog(m_sheetData.palette(), this);
+	connect(d, &ModAfterDialog::accepted, [this, d] {
+		m_sheetData.modGteCmd(d->color(), d->mod());
+	});
+	connect(d, &ModAfterDialog::finished, d, &ModAfterDialog::deleteLater);
+	d->open();
 }
 
 }

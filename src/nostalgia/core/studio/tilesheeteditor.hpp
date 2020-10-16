@@ -82,6 +82,10 @@ class SheetData: public QObject {
 
 		void setSelectedColor(int index);
 
+		void modGteCmd(int val, int mod);
+
+		void modPixels(const QHash<int, int> &pixels, int inversion);
+
 		[[nodiscard]] std::unique_ptr<NostalgiaGraphic> toNostalgiaGraphic() const;
 
 	public slots:
@@ -128,6 +132,7 @@ class TileSheetEditor: public studio::Editor {
 		class QSplitter *m_splitter = nullptr;
 		struct LabeledSpinner *m_tilesX = nullptr;
 		struct LabeledSpinner *m_tilesY = nullptr;
+		class QPushButton *m_updateAfterBtn = nullptr;
 		class QQuickWidget* m_canvas = nullptr;
 		struct {
 			QComboBox *palette = nullptr;
@@ -165,6 +170,9 @@ class TileSheetEditor: public studio::Editor {
 		void colorSelected();
 
 		void setColorTable();
+
+	private slots:
+		void updateAfterClicked();
 
 };
 

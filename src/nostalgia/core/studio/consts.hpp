@@ -17,8 +17,9 @@ constexpr auto PaletteDir = "/Palettes/";
 // Command IDs to use with QUndoCommand::id()
 enum class CommandId {
 	UpdatePixel = 1,
-	UpdateDimension = 2,
-	InsertTile = 3,
+	ModPixel = 2,
+	UpdateDimension = 3,
+	InsertTile = 4,
 };
 
 }

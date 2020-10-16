@@ -105,7 +105,7 @@ class FileSystemTemplate: public FileSystem {
 
 		~FileSystemTemplate();
 
-		[[nodiscard]] static ox::Error format(void *buff, uint64_t buffSize);
+		static Error format(void *buff, uint64_t buffSize);
 
 		Error mkdir(const char *path, bool recursive = false) override;
 

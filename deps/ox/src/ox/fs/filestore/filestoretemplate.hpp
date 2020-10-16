@@ -77,7 +77,7 @@ class FileStoreTemplate {
 
 		FileStoreTemplate(void *buff, size_t buffSize);
 
-		[[nodiscard]] static Error format(void *buffer, size_t bufferSize);
+		static Error format(void *buffer, size_t bufferSize);
 
 		Error setSize(InodeId_t buffSize);
 

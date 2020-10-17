@@ -13,7 +13,7 @@
 #include "typetraits.hpp"
 #include "utility.hpp"
 
-#define OxError(...) ox::_error(__FILE__, __LINE__, __VA_ARGS__)
+#define OxError(...) ox::Error(__FILE__, __LINE__, __VA_ARGS__)
 
 namespace ox {
 
@@ -21,40 +21,37 @@ struct [[nodiscard]] Error {
 	const char *msg = nullptr;
 	const char *file = "";
 	uint16_t line = 0;
-	uint64_t m_i = 0;
+	uint64_t errCode = 0;
 
-	explicit constexpr Error(uint64_t i = 0) {
-		m_i = i;
+	constexpr Error() noexcept = default;
+
+	explicit constexpr Error(const char *file, uint32_t line, uint64_t errCode, const char *msg = nullptr) noexcept {
+		this->file = file;
+		this->line = line;
+		this->msg = msg;
+		this->errCode = errCode;
 	}
 
 	constexpr Error(const Error &o) noexcept {
-		msg = o.msg;
-		file = o.file;
-		line = o.line;
-		m_i = o.m_i;
+		this->msg = o.msg;
+		this->file = o.file;
+		this->line = o.line;
+		this->errCode = o.errCode;
 	}
 
 	constexpr Error &operator=(const Error &o) noexcept {
-		msg = o.msg;
-		file = o.file;
-		line = o.line;
-		m_i = o.m_i;
+		this->msg = o.msg;
+		this->file = o.file;
+		this->line = o.line;
+		this->errCode = o.errCode;
 		return *this;
 	}
 
 	constexpr operator uint64_t() const noexcept {
-		return m_i;
+		return errCode;
 	}
 
 };
-
-constexpr Error _error(const char *file, uint32_t line, uint64_t errCode, const char *msg = nullptr) {
-	auto err = static_cast<Error>(errCode);
-	err.file = file;
-	err.line = line;
-	err.msg = msg;
-	return err;
-}
 
 template<typename T>
 struct [[nodiscard]] Result {
@@ -90,7 +87,7 @@ struct [[nodiscard]] Result {
 
 };
 
-namespace error {
+namespace detail {
 
 constexpr Error toError(Error e) noexcept {
 	return e;
@@ -105,7 +102,7 @@ constexpr Error toError(const Result<T> &ve) noexcept {
 
 }
 
-inline void oxIgnoreError(ox::Error) {}
-#define oxReturnError(x) if (const auto _ox_error = ox::error::toError(x)) return _ox_error
-#define oxThrowError(x) if (const auto _ox_error = ox::error::toError(x)) throw _ox_error
+inline void oxIgnoreError(ox::Error) noexcept {}
+#define oxReturnError(x) if (const auto _ox_error = ox::detail::toError(x)) return _ox_error
+#define oxThrowError(x) if (const auto _ox_error = ox::detail::toError(x)) throw _ox_error
 

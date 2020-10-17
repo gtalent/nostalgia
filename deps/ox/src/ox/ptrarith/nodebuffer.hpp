@@ -393,7 +393,7 @@ size_t NodeBuffer<size_t, Item>::spaceNeeded(size_t size) {
 
 template<typename size_t, typename Item>
 template<typename F>
-ox::Error NodeBuffer<size_t, Item>::compact(F cb) {
+Error NodeBuffer<size_t, Item>::compact(F cb) {
 	auto src = firstItem();
 	auto dest = ptr(sizeof(*this));
 	while (dest.offset() <= src.offset()) {

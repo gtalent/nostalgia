@@ -412,7 +412,7 @@ const ptrarith::Ptr<uint8_t, std::size_t> FileStoreTemplate<size_t>::read(InodeI
 }
 
 template<typename size_t>
-ox::Error FileStoreTemplate<size_t>::resize() {
+Error FileStoreTemplate<size_t>::resize() {
 	oxReturnError(compact());
 	const auto newSize = size() - available();
 	oxTrace("ox::fs::FileStoreTemplate::resize") << "resize to:" << newSize;
@@ -492,9 +492,9 @@ Result<typename FileStoreTemplate<size_t>::InodeId_t> FileStoreTemplate<size_t>:
 }
 
 template<typename size_t>
-ox::Error FileStoreTemplate<size_t>::compact() {
+Error FileStoreTemplate<size_t>::compact() {
 	auto isFirstItem = true;
-	return m_buffer->compact([this, &isFirstItem](uint64_t oldAddr, ItemPtr item) -> ox::Error {
+	return m_buffer->compact([this, &isFirstItem](uint64_t oldAddr, ItemPtr item) -> Error {
 		if (isFirstItem) {
 			isFirstItem = false;
 			return OxError(0);

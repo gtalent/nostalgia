@@ -28,7 +28,7 @@ struct TypeInfoCatcher {
 		this->name = name;
 	}
 
-	constexpr ox::Error field(...) noexcept {
+	constexpr Error field(...) noexcept {
 		return OxError(0);
 	}
 

@@ -130,7 +130,7 @@ Directory<FileStore, InodeId_t>::Directory(FileStore fs, InodeId_t inodeId) {
 }
 
 template<typename FileStore, typename InodeId_t>
-ox::Error Directory<FileStore, InodeId_t>::init() noexcept {
+Error Directory<FileStore, InodeId_t>::init() noexcept {
 	constexpr auto Size = sizeof(Buffer);
 	oxTrace("ox::fs::Directory::init") << "Initializing Directory with Inode ID:" << m_inodeId;
 	oxReturnError(m_fs.write(m_inodeId, nullptr, Size, FileType_Directory));
@@ -145,7 +145,7 @@ ox::Error Directory<FileStore, InodeId_t>::init() noexcept {
 }
 
 template<typename FileStore, typename InodeId_t>
-ox::Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents, FileName *nameBuff) {
+Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents, FileName *nameBuff) {
 	if (path.valid()) {
 		oxTrace("ox::fs::Directory::mkdir") << path.fullPath();
 		// reuse nameBuff if it has already been allocated, as it is a rather large variable
@@ -190,7 +190,7 @@ ox::Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents
 }
 
 template<typename FileStore, typename InodeId_t>
-ox::Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode, FileName *nameBuff) noexcept {
+Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode, FileName *nameBuff) noexcept {
 	// reuse nameBuff if it has already been allocated, as it is a rather large variable
 	if (nameBuff == nullptr) {
 		nameBuff = reinterpret_cast<FileName*>(ox_alloca(sizeof(FileName)));
@@ -261,7 +261,7 @@ ox::Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t in
 }
 
 template<typename FileStore, typename InodeId_t>
-ox::Error Directory<FileStore, InodeId_t>::remove(PathIterator path, FileName *nameBuff) noexcept {
+Error Directory<FileStore, InodeId_t>::remove(PathIterator path, FileName *nameBuff) noexcept {
 	// reuse nameBuff if it has already been allocated, as it is a rather large variable
 	if (nameBuff == nullptr) {
 		nameBuff = reinterpret_cast<FileName*>(ox_alloca(sizeof(FileName)));
@@ -292,7 +292,7 @@ ox::Error Directory<FileStore, InodeId_t>::remove(PathIterator path, FileName *n
 
 template<typename FileStore, typename InodeId_t>
 template<typename F>
-ox::Error Directory<FileStore, InodeId_t>::ls(F cb) noexcept {
+Error Directory<FileStore, InodeId_t>::ls(F cb) noexcept {
 	oxTrace("ox::fs::Directory::ls");
 	auto buff = m_fs.read(m_inodeId).template to<Buffer>();
 	if (!buff.valid()) {

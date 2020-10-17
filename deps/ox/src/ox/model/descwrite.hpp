@@ -143,7 +143,7 @@ class TypeDescWriter {
 
 // array handler
 template<typename T>
-ox::Error TypeDescWriter::field(const char *name, T *val, std::size_t) {
+Error TypeDescWriter::field(const char *name, T *val, std::size_t) {
 	if (m_type) {
 		constexpr typename ox::remove_pointer<decltype(val)>::type *p = nullptr;
 		bool alreadyExisted = false;
@@ -159,7 +159,7 @@ ox::Error TypeDescWriter::field(const char *name, T *val, std::size_t) {
 }
 
 template<typename T>
-ox::Error TypeDescWriter::field(const char *name, T val) {
+Error TypeDescWriter::field(const char *name, T val) {
 	if (m_type) {
 		bool alreadyExisted = false;
 		const auto t = type(val, &alreadyExisted);
@@ -171,7 +171,7 @@ ox::Error TypeDescWriter::field(const char *name, T val) {
 }
 
 template<typename T>
-ox::Error TypeDescWriter::field(const char *name, T *val) {
+Error TypeDescWriter::field(const char *name, T *val) {
 	if (m_type) {
 		bool alreadyExisted = false;
 		const auto t = type(val, &alreadyExisted);

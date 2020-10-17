@@ -37,34 +37,34 @@ class PassThroughFS: public FileSystem {
 
 		[[nodiscard]] std::string basePath();
 
-		ox::Error mkdir(const char *path, bool recursive = false) override;
+		Error mkdir(const char *path, bool recursive = false) override;
 
-		ox::Error move(const char *src, const char *dest) override;
+		Error move(const char *src, const char *dest) override;
 
-		ox::Error read(const char *path, void *buffer, std::size_t buffSize) override;
+		Error read(const char *path, void *buffer, std::size_t buffSize) override;
 
-		ox::Result<uint8_t*> read(const char*) override;
+		Result<uint8_t*> read(const char*) override;
 
-		ox::Error read(uint64_t inode, void *buffer, std::size_t size) override;
+		Error read(uint64_t inode, void *buffer, std::size_t size) override;
 
-		ox::Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) override;
+		Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) override;
 
-		ox::Result<uint8_t*> read(uint64_t) override;
+		Result<uint8_t*> read(uint64_t) override;
 
 		template<typename F>
-		ox::Error ls(const char *dir, F cb);
+		Error ls(const char *dir, F cb);
 
-		ox::Error remove(const char *path, bool recursive = false) override;
+		Error remove(const char *path, bool recursive = false) override;
 
-		ox::Error resize(uint64_t size, void *buffer = nullptr) override;
+		Error resize(uint64_t size, void *buffer = nullptr) override;
 
-		ox::Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
+		Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
 
-		ox::Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
+		Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
 
-		ox::Result<FileStat> stat(uint64_t inode) override;
+		Result<FileStat> stat(uint64_t inode) override;
 
-		ox::Result<FileStat> stat(const char *path) override;
+		Result<FileStat> stat(const char *path) override;
 
 		uint64_t spaceNeeded(uint64_t size) override;
 
@@ -74,7 +74,7 @@ class PassThroughFS: public FileSystem {
 
 		char *buff() override;
 
-		ox::Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) override;
+		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) override;
 
 		bool valid() const override;
 
@@ -87,7 +87,7 @@ class PassThroughFS: public FileSystem {
 };
 
 template<typename F>
-ox::Error PassThroughFS::ls(const char *dir, F cb) {
+Error PassThroughFS::ls(const char *dir, F cb) {
 	for (auto &p : std::filesystem::directory_iterator(m_path / stripSlash(dir))) {
 		auto u8p = p.path().filename().u8string();
 		oxReturnError(cb(u8p.c_str(), 0));

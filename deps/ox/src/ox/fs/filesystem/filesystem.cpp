@@ -58,7 +58,7 @@ Error FileSystem::remove(FileAddress addr, bool recursive) {
 	}
 }
 
-ox::Error FileSystem::write(FileAddress addr, void *buffer, uint64_t size, uint8_t fileType) {
+Error FileSystem::write(FileAddress addr, void *buffer, uint64_t size, uint8_t fileType) {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return write(addr.getInode().value, buffer, size, fileType);
@@ -70,7 +70,7 @@ ox::Error FileSystem::write(FileAddress addr, void *buffer, uint64_t size, uint8
 	}
 }
 
-ox::Result<FileStat> FileSystem::stat(FileAddress addr) {
+Result<FileStat> FileSystem::stat(FileAddress addr) {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return stat(addr.getInode().value);

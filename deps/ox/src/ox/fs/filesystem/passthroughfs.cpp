@@ -90,7 +90,7 @@ Error PassThroughFS::remove(const char *path, bool recursive) {
 	}
 }
 
-ox::Error PassThroughFS::resize(uint64_t, void*) {
+Error PassThroughFS::resize(uint64_t, void*) {
 	// unsupported
 	return OxError(1);
 }

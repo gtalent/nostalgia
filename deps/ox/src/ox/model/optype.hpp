@@ -39,7 +39,7 @@ Error modelWriteDefinition(T*, O*) {
 
 template<typename T, typename O>
 Error model(T *io, O *obj) {
-	ox::Error err;
+	Error err;
 	if constexpr(ox_strcmp(T::opType(), ox::OpType::Read) == 0) {
 		err = modelRead(io, obj);
 	} else if constexpr(ox_strcmp(T::opType(), ox::OpType::Write) == 0) {

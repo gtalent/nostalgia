@@ -17,7 +17,7 @@ namespace ox {
 template<typename Reader, typename T>
 class DataWalker {
 	template<typename ReaderBase, typename FH>
-	friend ox::Error parseField(const DescriptorField &field, ReaderBase *rdr, DataWalker<ReaderBase, FH> *walker);
+	friend Error parseField(const DescriptorField &field, ReaderBase *rdr, DataWalker<ReaderBase, FH> *walker);
 
 	private:
 		Vector<const DescriptorType*> m_typeStack;
@@ -54,7 +54,7 @@ const DescriptorType *DataWalker<Reader, T>::type() const noexcept {
 }
 
 template<typename Reader, typename T>
-ox::Error DataWalker<Reader, T>::read(const DescriptorField &f, Reader *rdr) {
+Error DataWalker<Reader, T>::read(const DescriptorField &f, Reader *rdr) {
 	// get const ref of paths
 	const auto &pathCr = m_path;
 	const auto &typePathCr = m_typePath;
@@ -82,7 +82,7 @@ void DataWalker<Reader, T>::popType() {
 }
 
 template<typename Reader, typename FH>
-static ox::Error parseField(const DescriptorField &field, Reader *rdr, DataWalker<Reader, FH> *walker) {
+static Error parseField(const DescriptorField &field, Reader *rdr, DataWalker<Reader, FH> *walker) {
 	walker->pushNamePath(field.fieldName);
 	if (field.subscriptLevels) {
 		// add array handling
@@ -131,7 +131,7 @@ static ox::Error parseField(const DescriptorField &field, Reader *rdr, DataWalke
 }
 
 template<typename Reader, typename FH>
-ox::Error model(Reader *rdr, DataWalker<Reader, FH> *walker) {
+Error model(Reader *rdr, DataWalker<Reader, FH> *walker) {
 	auto type = walker->type();
 	if (!type) {
 		return OxError(1);
@@ -146,7 +146,7 @@ ox::Error model(Reader *rdr, DataWalker<Reader, FH> *walker) {
 }
 
 template<typename Reader, typename Handler>
-ox::Error walkModel(DescriptorType *type, uint8_t *data, std::size_t dataLen, Handler handler) {
+Error walkModel(DescriptorType *type, uint8_t *data, std::size_t dataLen, Handler handler) {
 	DataWalker<Reader, Handler> walker(type, handler);
 	Reader rdr(data, dataLen);
 	return model(&rdr, &walker);

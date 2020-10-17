@@ -49,7 +49,7 @@ struct [[nodiscard]] Error {
 };
 
 constexpr Error _error(const char *file, uint32_t line, uint64_t errCode, const char *msg = nullptr) {
-	auto err = static_cast<ox::Error>(errCode);
+	auto err = static_cast<Error>(errCode);
 	err.file = file;
 	err.line = line;
 	err.msg = msg;
@@ -92,12 +92,12 @@ struct [[nodiscard]] Result {
 
 namespace error {
 
-constexpr Error toError(ox::Error e) noexcept {
+constexpr Error toError(Error e) noexcept {
 	return e;
 }
 
 template<typename T>
-constexpr Error toError(const ox::Result<T> &ve) noexcept {
+constexpr Error toError(const Result<T> &ve) noexcept {
 	return ve.error;
 }
 

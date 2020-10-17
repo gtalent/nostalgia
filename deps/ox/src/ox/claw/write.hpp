@@ -65,7 +65,7 @@ constexpr const char *getTypeName(T *t) noexcept {
 }
 
 template<typename T>
-ValErr<String> writeClawHeader(T *t, ClawFormat fmt) noexcept {
+Result<String> writeClawHeader(T *t, ClawFormat fmt) noexcept {
 	String out;
 	switch (fmt) {
 		case ClawFormat::Metal:
@@ -90,7 +90,7 @@ ValErr<String> writeClawHeader(T *t, ClawFormat fmt) noexcept {
 }
 
 template<typename T>
-ValErr<Vector<char>> writeClaw(T *t, ClawFormat fmt) {
+Result<Vector<char>> writeClaw(T *t, ClawFormat fmt) {
 	auto [header, headerErr] = detail::writeClawHeader(t, fmt);
 	oxReturnError(headerErr);
 	const auto [data, dataErr] = fmt == ClawFormat::Metal ? writeMC(t) : writeOC(t);

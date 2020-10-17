@@ -228,7 +228,7 @@ void MetalClawWriter::setTypeInfo(const char*, int fields) {
 }
 
 template<typename T>
-ValErr<Vector<char>> writeMC(T *val) {
+Result<Vector<char>> writeMC(T *val) {
 	Vector<char> buff(10 * units::MB);
 	MetalClawWriter writer(bit_cast<uint8_t*>(buff.data()), buff.size());
 	oxReturnError(model(&writer, val));

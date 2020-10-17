@@ -21,7 +21,7 @@ namespace ox {
 class OrganicClawWriter {
 
 	template<typename T>
-	friend ValErr<Vector<char>> writeOC(T *val);
+	friend Result<Vector<char>> writeOC(T *val);
 
 	protected:
 		Json::Value m_json;
@@ -149,7 +149,7 @@ Error OrganicClawWriter::field(const char *key, ox::HashMap<String, T> *val) {
 }
 
 template<typename T>
-ValErr<Vector<char>> writeOC(T *val) {
+Result<Vector<char>> writeOC(T *val) {
 	OrganicClawWriter writer;
 	oxReturnError(model(&writer, val));
 	Json::StreamWriterBuilder jsonBuilder;

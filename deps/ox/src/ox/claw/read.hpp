@@ -27,11 +27,11 @@ struct ClawHeader {
 	std::size_t dataSize = 0;
 };
 
-ValErr<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept;
+Result<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept;
 
 }
 
-ValErr<Vector<char>> stripClawHeader(const char *buff, std::size_t buffLen) noexcept;
+Result<Vector<char>> stripClawHeader(const char *buff, std::size_t buffLen) noexcept;
 
 template<typename T>
 Error readClaw(char *buff, std::size_t buffLen, T *val) {

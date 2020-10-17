@@ -81,7 +81,7 @@ class MetalClawReader {
 		 * Reads an array length from the current location in the buffer.
 		 * @param pass indicates that the parsing should iterate past the array length
 		 */
-		ValErr<ArrayLength> arrayLength(const char *name, bool pass = true);
+		Result<ArrayLength> arrayLength(const char *name, bool pass = true);
 
 		/**
 		 * Reads an string length from the current location in the buffer.

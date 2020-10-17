@@ -68,7 +68,7 @@ class FileAddress {
 			}
 		}
 
-		ValErr<uint64_t> getInode() const noexcept {
+		Result<uint64_t> getInode() const noexcept {
 			switch (m_type) {
 				case FileAddressType::Inode:
 					return m_data.inode;
@@ -77,7 +77,7 @@ class FileAddress {
 			}
 		}
 
-		ValErr<const char*> getPath() const noexcept {
+		Result<const char*> getPath() const noexcept {
 			switch (m_type) {
 				case FileAddressType::Path:
 					return m_data.path;

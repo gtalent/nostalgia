@@ -113,9 +113,9 @@ class Directory {
 		template<typename F>
 		Error ls(F cb) noexcept;
 
-		ValErr<typename FileStore::InodeId_t> findEntry(const FileName &name) const noexcept;
+		Result<typename FileStore::InodeId_t> findEntry(const FileName &name) const noexcept;
 
-		ValErr<typename FileStore::InodeId_t> find(PathIterator name, FileName *nameBuff = nullptr) const noexcept;
+		Result<typename FileStore::InodeId_t> find(PathIterator name, FileName *nameBuff = nullptr) const noexcept;
 
 };
 
@@ -314,7 +314,7 @@ ox::Error Directory<FileStore, InodeId_t>::ls(F cb) noexcept {
 }
 
 template<typename FileStore, typename InodeId_t>
-ValErr<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::findEntry(const FileName &name) const noexcept {
+Result<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::findEntry(const FileName &name) const noexcept {
 	oxTrace("ox::fs::Directory::findEntry") << name.c_str();
 	auto buff = m_fs.read(m_inodeId).template to<Buffer>();
 	if (!buff.valid()) {
@@ -339,7 +339,7 @@ ValErr<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::findEntry
 }
 
 template<typename FileStore, typename InodeId_t>
-ValErr<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::find(PathIterator path, FileName *nameBuff) const noexcept {
+Result<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::find(PathIterator path, FileName *nameBuff) const noexcept {
 	// reuse nameBuff if it has already been allocated, as it is a rather large variable
 	if (nameBuff == nullptr) {
 		nameBuff = reinterpret_cast<FileName*>(ox_alloca(sizeof(FileName)));

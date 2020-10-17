@@ -72,7 +72,7 @@ class OrganicClawReader {
 		 * Reads an array length from the current location in the buffer.
 		 * @param pass indicates that the parsing should iterate past the array length
 		 */
-		ValErr<std::size_t> arrayLength(const char *key, bool pass = true);
+		Result<std::size_t> arrayLength(const char *key, bool pass = true);
 
 		/**
 		 * Reads an string length from the current location in the buffer.
@@ -195,7 +195,7 @@ Error readOC(const char *json, std::size_t jsonSize, T *val) noexcept {
 }
 
 template<typename T>
-ValErr<std::unique_ptr<T>> readOC(const char *json) {
+Result<std::unique_ptr<T>> readOC(const char *json) {
 	auto val = std::make_unique<T>();
 	oxReturnError(readOC(json, ox_strlen(json), val.get()));
 	return {std::move(val), OxError(0)};

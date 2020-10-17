@@ -12,7 +12,7 @@ namespace ox {
 
 namespace detail {
 
-ValErr<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept {
+Result<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept {
 	const auto s1End = ox_strchr(buff, ';', buffLen);
 	if (!s1End) {
 		return OxError(1);
@@ -57,7 +57,7 @@ ValErr<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept {
 
 }
 
-ValErr<Vector<char>> stripClawHeader(const char *buff, std::size_t buffLen) noexcept {
+Result<Vector<char>> stripClawHeader(const char *buff, std::size_t buffLen) noexcept {
 	auto header = detail::readHeader(buff, buffLen);
 	oxReturnError(header);
 	Vector<char> out(header.value.dataSize);

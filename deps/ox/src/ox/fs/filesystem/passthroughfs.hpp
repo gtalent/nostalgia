@@ -43,13 +43,13 @@ class PassThroughFS: public FileSystem {
 
 		ox::Error read(const char *path, void *buffer, std::size_t buffSize) override;
 
-		ox::ValErr<uint8_t*> read(const char*) override;
+		ox::Result<uint8_t*> read(const char*) override;
 
 		ox::Error read(uint64_t inode, void *buffer, std::size_t size) override;
 
 		ox::Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) override;
 
-		ox::ValErr<uint8_t*> read(uint64_t) override;
+		ox::Result<uint8_t*> read(uint64_t) override;
 
 		template<typename F>
 		ox::Error ls(const char *dir, F cb);
@@ -62,9 +62,9 @@ class PassThroughFS: public FileSystem {
 
 		ox::Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
 
-		ox::ValErr<FileStat> stat(uint64_t inode) override;
+		ox::Result<FileStat> stat(uint64_t inode) override;
 
-		ox::ValErr<FileStat> stat(const char *path) override;
+		ox::Result<FileStat> stat(const char *path) override;
 
 		uint64_t spaceNeeded(uint64_t size) override;
 

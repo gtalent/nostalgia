@@ -110,7 +110,7 @@ class FileStoreTemplate {
 		           FsSize_t readSize, T *data,
 		           FsSize_t *size) const;
 
-		ValErr<StatInfo> stat(InodeId_t id);
+		Result<StatInfo> stat(InodeId_t id);
 
 		Error resize();
 
@@ -126,7 +126,7 @@ class FileStoreTemplate {
 
 		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t));
 
-		ValErr<InodeId_t> generateInodeId();
+		Result<InodeId_t> generateInodeId();
 
 		bool valid() const;
 
@@ -435,17 +435,17 @@ Error FileStoreTemplate<size_t>::resize(std::size_t size, void *newBuff) {
 }
 
 template<typename size_t>
-ValErr<StatInfo> FileStoreTemplate<size_t>::stat(InodeId_t id) {
+Result<StatInfo> FileStoreTemplate<size_t>::stat(InodeId_t id) {
 	auto inode = find(id);
 	if (inode.valid()) {
-		return ValErr<StatInfo>({
+		return Result<StatInfo>({
 			id,
 			inode->links,
 			inode->size(),
 			inode->fileType,
 		});
 	}
-	return ValErr<StatInfo>({}, OxError(0));
+	return Result<StatInfo>({}, OxError(0));
 }
 
 template<typename size_t>
@@ -477,7 +477,7 @@ Error FileStoreTemplate<size_t>::walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) {
 }
 
 template<typename size_t>
-ValErr<typename FileStoreTemplate<size_t>::InodeId_t> FileStoreTemplate<size_t>::generateInodeId() {
+Result<typename FileStoreTemplate<size_t>::InodeId_t> FileStoreTemplate<size_t>::generateInodeId() {
 	auto fsData = fileStoreData();
 	if (fsData) {
 		for (auto i = 0; i < 100; i++) {

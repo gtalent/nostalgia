@@ -114,7 +114,7 @@ static_assert(countBytes(0b01111111) == 8);
 static_assert(countBytes(0b11111111) == 9);
 
 template<typename I>
-ValErr<I> decodeInteger(uint8_t buff[9], std::size_t buffLen, std::size_t *bytesRead) noexcept {
+Result<I> decodeInteger(uint8_t buff[9], std::size_t buffLen, std::size_t *bytesRead) noexcept {
 	const auto bytes = countBytes(buff[0]);
 	if (bytes == 9) {
 		*bytesRead = bytes;
@@ -144,7 +144,7 @@ ValErr<I> decodeInteger(uint8_t buff[9], std::size_t buffLen, std::size_t *bytes
 }
 
 template<typename I>
-ValErr<I> decodeInteger(McInt m) noexcept {
+Result<I> decodeInteger(McInt m) noexcept {
 	std::size_t bytesRead;
 	return decodeInteger<I>(m.data, 9, &bytesRead);
 }

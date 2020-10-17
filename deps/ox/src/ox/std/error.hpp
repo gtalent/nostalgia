@@ -57,18 +57,18 @@ constexpr Error _error(const char *file, uint32_t line, uint64_t errCode, const 
 }
 
 template<typename T>
-struct [[nodiscard]] ValErr {
+struct [[nodiscard]] Result {
 	T value;
 	Error error;
 
-	constexpr ValErr() noexcept: error(0) {
+	constexpr Result() noexcept: error(0) {
 	}
 
-	constexpr ValErr(Error error) noexcept: value(ox::move(value)), error(error) {
+	constexpr Result(Error error) noexcept: value(ox::move(value)), error(error) {
 		this->error = error;
 	}
 
-	constexpr ValErr(T value, Error error = OxError(0)) noexcept: value(ox::move(value)), error(error) {
+	constexpr Result(T value, Error error = OxError(0)) noexcept: value(ox::move(value)), error(error) {
 	}
 
 	explicit constexpr operator const T&() const noexcept {
@@ -97,7 +97,7 @@ constexpr Error toError(ox::Error e) noexcept {
 }
 
 template<typename T>
-constexpr Error toError(const ox::ValErr<T> &ve) noexcept {
+constexpr Error toError(const ox::Result<T> &ve) noexcept {
 	return ve.error;
 }
 

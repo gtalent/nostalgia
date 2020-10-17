@@ -10,7 +10,7 @@
 
 namespace ox {
 
-ValErr<uint8_t*> FileSystem::read(FileAddress addr) {
+Result<uint8_t*> FileSystem::read(FileAddress addr) {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return read(addr.getInode().value);
@@ -70,7 +70,7 @@ ox::Error FileSystem::write(FileAddress addr, void *buffer, uint64_t size, uint8
 	}
 }
 
-ox::ValErr<FileStat> FileSystem::stat(FileAddress addr) {
+ox::Result<FileStat> FileSystem::stat(FileAddress addr) {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return stat(addr.getInode().value);

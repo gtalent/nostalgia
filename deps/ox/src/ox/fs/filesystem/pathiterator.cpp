@@ -140,7 +140,7 @@ Error PathIterator::next(BString<MaxFileNameLength> *fileName) {
 	return next(fileName->data(), fileName->cap());
 }
 
-ValErr<std::size_t> PathIterator::nextSize() const {
+Result<std::size_t> PathIterator::nextSize() const {
 	std::size_t size = 0;
 	auto retval = OxError(1);
 	auto it = m_iterator;

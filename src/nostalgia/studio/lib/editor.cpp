@@ -13,6 +13,9 @@ namespace nostalgia::studio {
 Editor::Editor(QWidget *parent): QWidget(parent) {
 }
 
+void Editor::cut() {
+}
+
 void Editor::copy() {
 }
 
@@ -47,6 +50,15 @@ void Editor::setExportable(bool exportable) {
 
 bool Editor::exportable() const {
 	return m_exportable;
+}
+
+void Editor::setCutEnabled(bool v) {
+	m_cutEnabled = v;
+	emit cutEnabledChanged(v);
+}
+
+bool Editor::cutEnabled() const {
+	return m_cutEnabled;
 }
 
 void Editor::setCopyEnabled(bool v) {

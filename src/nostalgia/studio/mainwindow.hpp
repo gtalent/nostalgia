@@ -75,6 +75,7 @@ class MainWindow: public QMainWindow {
 		QAction *m_importAction = nullptr;
 		QAction *m_saveAction = nullptr;
 		QAction *m_exportAction = nullptr;
+		QAction *m_cutAction = nullptr;
 		QAction *m_copyAction = nullptr;
 		QAction *m_pasteAction = nullptr;
 		Context m_ctx;
@@ -148,6 +149,8 @@ class MainWindow: public QMainWindow {
 		void saveFile();
 
 		void exportFile();
+
+		void cutAction();
 
 		void copyAction();
 

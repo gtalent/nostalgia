@@ -22,6 +22,7 @@ class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 		QUndoStack m_cmdStack;
 		bool m_unsavedChanges = false;
 		bool m_exportable = false;
+		bool m_cutEnabled = false;
 		bool m_copyEnabled = false;
 		bool m_pasteEnabled = false;
 
@@ -34,6 +35,8 @@ class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 		 * Returns the name of item being edited.
 		 */
 		virtual QString itemName() const = 0;
+
+		virtual void cut();
 
 		virtual void copy();
 
@@ -63,6 +66,10 @@ class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 
 		[[nodiscard]] bool exportable() const;
 
+		void setCutEnabled(bool);
+
+		[[nodiscard]] bool cutEnabled() const;
+
 		void setCopyEnabled(bool);
 
 		[[nodiscard]] bool copyEnabled() const;
@@ -81,6 +88,8 @@ class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 		void unsavedChangesChanged(bool);
 
 		void exportableChanged(bool);
+
+		void cutEnabledChanged(bool);
 
 		void copyEnabledChanged(bool);
 

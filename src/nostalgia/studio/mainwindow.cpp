@@ -195,6 +195,17 @@ void MainWindow::setupMenu() {
 	editMenu->addSeparator();
 
 	// Copy
+	m_cutAction = addAction(
+		editMenu,
+		tr("&Cut"),
+		tr(""),
+		QKeySequence::Cut,
+		this,
+		SLOT(cutAction())
+	);
+	m_cutAction->setEnabled(false);
+
+	// Copy
 	m_copyAction = addAction(
 		editMenu,
 		tr("&Copy"),
@@ -500,6 +511,10 @@ void MainWindow::exportFile() {
 	m_currentEditor->exportFile();
 }
 
+void MainWindow::cutAction() {
+	m_currentEditor->cut();
+}
+
 void MainWindow::copyAction() {
 	m_currentEditor->copy();
 }
@@ -533,6 +548,7 @@ void MainWindow::changeTab(int idx) {
 		disconnect(m_currentEditor, &Editor::unsavedChangesChanged, m_saveAction, &QAction::setEnabled);
 		disconnect(m_currentEditor, &Editor::unsavedChangesChanged, this, &MainWindow::markUnsavedChanges);
 		disconnect(m_currentEditor, &Editor::exportableChanged, m_exportAction, &QAction::setEnabled);
+		disconnect(m_currentEditor, &Editor::cutEnabledChanged, m_cutAction, &QAction::setEnabled);
 		disconnect(m_currentEditor, &Editor::copyEnabledChanged, m_copyAction, &QAction::setEnabled);
 		disconnect(m_currentEditor, &Editor::pasteEnabledChanged, m_pasteAction, &QAction::setEnabled);
 	}
@@ -541,6 +557,7 @@ void MainWindow::changeTab(int idx) {
 		m_saveAction->setEnabled(m_currentEditor->unsavedChanges());
 		connect(m_currentEditor, &Editor::unsavedChangesChanged, m_saveAction, &QAction::setEnabled);
 		connect(m_currentEditor, &Editor::unsavedChangesChanged, this, &MainWindow::markUnsavedChanges);
+		connect(m_currentEditor, &Editor::cutEnabledChanged, m_cutAction, &QAction::setEnabled);
 		connect(m_currentEditor, &Editor::copyEnabledChanged, m_copyAction, &QAction::setEnabled);
 		connect(m_currentEditor, &Editor::pasteEnabledChanged, m_pasteAction, &QAction::setEnabled);
 		m_exportAction->setEnabled(m_currentEditor->exportable());

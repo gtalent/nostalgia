@@ -13,6 +13,12 @@ namespace nostalgia::studio {
 Editor::Editor(QWidget *parent): QWidget(parent) {
 }
 
+void Editor::copy() {
+}
+
+void Editor::paste() {
+}
+
 void Editor::exportFile() {
 }
 
@@ -26,7 +32,7 @@ void Editor::setUnsavedChanges(bool uc) {
     emit unsavedChangesChanged(uc);
 }
 
-[[nodiscard]] bool Editor::unsavedChanges() noexcept {
+bool Editor::unsavedChanges() noexcept {
 	return m_unsavedChanges;
 }
 
@@ -41,6 +47,24 @@ void Editor::setExportable(bool exportable) {
 
 bool Editor::exportable() const {
 	return m_exportable;
+}
+
+void Editor::setCopyEnabled(bool v) {
+	m_copyEnabled = v;
+	emit copyEnabledChanged(v);
+}
+
+bool Editor::copyEnabled() const {
+	return m_copyEnabled;
+}
+
+void Editor::setPasteEnabled(bool v) {
+	m_pasteEnabled = v;
+	emit pasteEnabledChanged(v);
+}
+
+bool Editor::pasteEnabled() const {
+	return m_pasteEnabled;
 }
 
 void Editor::saveItem() {

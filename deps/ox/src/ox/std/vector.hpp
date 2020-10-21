@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - 2018 gtalent2@gmail.com
+ * Copyright 2015 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -25,17 +25,17 @@ class Vector {
 	public:
 		Vector() noexcept = default;
 
-		explicit Vector(std::size_t size) noexcept;
+		explicit Vector(std::size_t size);
 
-		Vector(const Vector &other) noexcept;
+		Vector(const Vector &other);
 
-		Vector(Vector &&other) noexcept;
+		Vector(Vector &&other);
 
-		~Vector() noexcept;
+		~Vector();
 
-		Vector &operator=(const Vector &other) noexcept;
+		Vector &operator=(const Vector &other);
 
-		Vector &operator=(Vector &&other) noexcept;
+		Vector &operator=(Vector &&other);
 
 		T &operator[](std::size_t i) noexcept;
 
@@ -51,43 +51,47 @@ class Vector {
 
 		std::size_t size() const noexcept;
 
-		void resize(std::size_t size) noexcept;
+		[[nodiscard]] bool empty() const;
 
-		T *data();
+		void clear();
 
-		const T *data() const;
+		void resize(std::size_t size);
 
-		bool contains(T) const noexcept;
+		T *data() noexcept;
 
-		void insert(std::size_t pos, const T &val) noexcept;
+		const T *data() const noexcept;
+
+		[[nodiscard]] bool contains(T) const;
+
+		void insert(std::size_t pos, const T &val);
 
 		template<typename... Args>
-		void emplace_back(Args&&... args) noexcept;
+		void emplace_back(Args&&... args);
 
-		void push_back(const T &item) noexcept;
+		void push_back(const T &item);
 
-		void pop_back() noexcept;
+		void pop_back();
 
 		/**
 		 * Removes an item from the Vector.
 		 * @param pos position of item to remove
 		 */
-		void erase(std::size_t pos) noexcept;
+		void erase(std::size_t pos);
 
 		/**
 		 * Moves the last item in the Vector to position pos and decrements the
 		 * size by 1.
 		 * @param pos position of item to remove
 		 */
-		void unordered_erase(std::size_t pos) noexcept;
+		void unordered_erase(std::size_t pos);
 
 	private:
-		void expandCap(std::size_t cap) noexcept;
+		void expandCap(std::size_t cap);
 
 };
 
 template<typename T>
-Vector<T>::Vector(std::size_t size) noexcept {
+Vector<T>::Vector(std::size_t size) {
 	m_size = size;
 	m_cap = m_size;
 	m_items = reinterpret_cast<T*>(new AllocAlias<T>[m_cap]);
@@ -97,7 +101,7 @@ Vector<T>::Vector(std::size_t size) noexcept {
 }
 
 template<typename T>
-Vector<T>::Vector(const Vector<T> &other) noexcept {
+Vector<T>::Vector(const Vector<T> &other) {
 	m_size = other.m_size;
 	m_cap = other.m_cap;
 	m_items = reinterpret_cast<T*>(new AllocAlias<T>[m_cap]);
@@ -107,7 +111,7 @@ Vector<T>::Vector(const Vector<T> &other) noexcept {
 }
 
 template<typename T>
-Vector<T>::Vector(Vector<T> &&other) noexcept {
+Vector<T>::Vector(Vector<T> &&other) {
 	m_size = other.m_size;
 	m_cap = other.m_cap;
 	m_items = other.m_items;
@@ -117,7 +121,7 @@ Vector<T>::Vector(Vector<T> &&other) noexcept {
 }
 
 template<typename T>
-Vector<T>::~Vector() noexcept {
+Vector<T>::~Vector() {
 	if constexpr(ox::is_class<T>()) {
 		for (std::size_t i = 0; i < m_size; i++) {
 			m_items[i].~T();
@@ -128,7 +132,7 @@ Vector<T>::~Vector() noexcept {
 }
 
 template<typename T>
-Vector<T> &Vector<T>::operator=(const Vector<T> &other) noexcept {
+Vector<T> &Vector<T>::operator=(const Vector<T> &other) {
 	this->~Vector<T>();
 	m_size = other.m_size;
 	m_cap = other.m_cap;
@@ -140,7 +144,7 @@ Vector<T> &Vector<T>::operator=(const Vector<T> &other) noexcept {
 }
 
 template<typename T>
-Vector<T> &Vector<T>::operator=(Vector<T> &&other) noexcept {
+Vector<T> &Vector<T>::operator=(Vector<T> &&other) {
 	this->~Vector<T>();
 	m_size = other.m_size;
 	m_cap = other.m_cap;
@@ -187,28 +191,44 @@ std::size_t Vector<T>::size() const noexcept {
 }
 
 template<typename T>
-void Vector<T>::resize(std::size_t size) noexcept {
+bool Vector<T>::empty() const {
+	return !m_size;
+}
+
+template<typename T>
+void Vector<T>::clear() {
+	resize(0);
+}
+
+template<typename T>
+void Vector<T>::resize(std::size_t size) {
 	if (m_cap < size) {
 		expandCap(size);
 	}
-	for (std::size_t i = m_size; i < size; i++) {
-		m_items[i] = {};
+	if (m_size < size) {
+		for (std::size_t i = m_size; i < size; i++) {
+			m_items[i] = {};
+		}
+	} else {
+		for (std::size_t i = size; i < m_size; i++) {
+			m_items[i].~T();
+		}
 	}
 	m_size = size;
 }
 
 template<typename T>
-T *Vector<T>::data() {
+T *Vector<T>::data() noexcept {
 	return m_items;
 }
 
 template<typename T>
-const T *Vector<T>::data() const {
+const T *Vector<T>::data() const noexcept {
 	return m_items;
 }
 
 template<typename T>
-bool Vector<T>::contains(T v) const noexcept {
+bool Vector<T>::contains(T v) const {
 	for (std::size_t i = 0; i < m_size; i++) {
 		if (m_items[i] == v) {
 			return true;
@@ -218,13 +238,13 @@ bool Vector<T>::contains(T v) const noexcept {
 }
 
 template<typename T>
-void Vector<T>::insert(std::size_t pos, const T &val) noexcept {
+void Vector<T>::insert(std::size_t pos, const T &val) {
 	// TODO: insert should ideally have its own expandCap
 	if (m_size == m_cap) {
 		expandCap(m_cap ? m_cap * 2 : 100);
 	}
 	for (auto i = m_size; i > pos; --i) {
-		m_items[i] = m_items[i - 1];
+		m_items[i] = ox::move(m_items[i - 1]);
 	}
 	m_items[pos] = val;
 	++m_size;
@@ -232,7 +252,7 @@ void Vector<T>::insert(std::size_t pos, const T &val) noexcept {
 
 template<typename T>
 template<typename... Args>
-void Vector<T>::emplace_back(Args&&... args) noexcept {
+void Vector<T>::emplace_back(Args&&... args) {
 	if (m_size == m_cap) {
 		expandCap(m_cap ? m_cap * 2 : 100);
 	}
@@ -241,7 +261,7 @@ void Vector<T>::emplace_back(Args&&... args) noexcept {
 }
 
 template<typename T>
-void Vector<T>::push_back(const T &item) noexcept {
+void Vector<T>::push_back(const T &item) {
 	if (m_size == m_cap) {
 		expandCap(m_cap ? m_cap * 2 : 100);
 	}
@@ -250,26 +270,27 @@ void Vector<T>::push_back(const T &item) noexcept {
 }
 
 template<typename T>
-void Vector<T>::pop_back() noexcept {
+void Vector<T>::pop_back() {
 	--m_size;
+	m_items[m_size].~T();
 }
 
 template<typename T>
-void Vector<T>::erase(std::size_t pos) noexcept {
+void Vector<T>::erase(std::size_t pos) {
 	m_size--;
 	for (auto i = pos; i < m_size; i++) {
-		m_items[i] = m_items[i + 1];
+		m_items[i] = ox::move(m_items[i + 1]);
 	}
 }
 
 template<typename T>
-void Vector<T>::unordered_erase(std::size_t pos) noexcept {
+void Vector<T>::unordered_erase(std::size_t pos) {
 	m_size--;
-	m_items[pos] = m_items[m_size];
+	m_items[pos] = ox::move(m_items[m_size]);
 }
 
 template<typename T>
-void Vector<T>::expandCap(std::size_t cap) noexcept {
+void Vector<T>::expandCap(std::size_t cap) {
 	auto oldItems = m_items;
 	m_cap = cap;
 	m_items = reinterpret_cast<T*>(new AllocAlias<T>[m_cap]);

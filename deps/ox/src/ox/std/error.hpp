@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - 2018 gtalent2@gmail.com
+ * Copyright 2015 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -19,11 +19,12 @@ namespace ox {
 
 struct [[nodiscard]] Error {
 	const char *msg = nullptr;
-	const char *file = "";
+	const char *file = nullptr;
 	uint16_t line = 0;
 	uint64_t errCode = 0;
 
-	constexpr Error() noexcept = default;
+	constexpr Error(uint64_t ec = 0) noexcept: errCode(ec) {
+	}
 
 	explicit constexpr Error(const char *file, uint32_t line, uint64_t errCode, const char *msg = nullptr) noexcept {
 		this->file = file;

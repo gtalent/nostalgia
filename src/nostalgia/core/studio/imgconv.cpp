@@ -26,16 +26,6 @@ namespace {
 	return (a << 15) | (r << 10) | (g << 5) | (b << 0);
 }
 
-[[nodiscard]] int pointToIdx(int w, int x, int y) {
-	constexpr auto colLength = PixelsPerTile;
-	const auto rowLength = (w / TileWidth) * colLength;
-	const auto colStart = colLength * (x / TileWidth);
-	const auto rowStart = rowLength * (y / TileHeight);
-	const auto colOffset = x % TileWidth;
-	const auto rowOffset = (y % TileHeight) * TileHeight;
-	return colStart + colOffset + rowStart + rowOffset;
-}
-
 }
 
 [[nodiscard]] static int countColors(const QImage &img, int argTiles) {

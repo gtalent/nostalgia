@@ -1,14 +1,13 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <array>
+#include <memory>
 
-#include <QBuffer>
 #include <QDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
@@ -23,21 +22,51 @@
 #include <QSettings>
 #include <QSpinBox>
 #include <QSplitter>
-#include <QUndoCommand>
 #include <QTableWidget>
 #include <QToolBar>
+#include <QUndoCommand>
 #include <QVBoxLayout>
-#include <memory>
+#include <qnamespace.h>
 
 #include <nostalgia/core/consts.hpp>
 #include <nostalgia/common/point.hpp>
-#include <qnamespace.h>
 
 #include "consts.hpp"
+#include "imgconv.hpp"
 #include "util.hpp"
 #include "tilesheeteditor.hpp"
 
 namespace nostalgia::core {
+
+[[nodiscard]] constexpr int ptToIdx(int x, int y, int c) noexcept {
+	return pointToIdx(c * TileWidth, x, y);
+}
+
+[[nodiscard]] constexpr int ptToIdx(common::Point pt, int c) noexcept {
+	return pointToIdx(c * TileWidth, pt.x, pt.y);
+}
+
+[[nodiscard]] constexpr common::Point idxToPt(int i, int c) noexcept {
+	const auto t = i / PixelsPerTile; // tile number
+	const auto iti = i % PixelsPerTile; // in tile index
+	const auto tc = t % c; // tile column
+	const auto tr = t / c; // tile row
+	const auto itx = iti % TileWidth; // in tile x
+	const auto ity = iti / TileHeight; // in tile y
+	return {
+		itx + tc * TileWidth,
+		ity + tr * TileHeight,
+	};
+}
+
+static_assert(idxToPt(4, 1) == common::Point{4, 0});
+static_assert(idxToPt(8, 1) == common::Point{0, 1});
+static_assert(idxToPt(8, 2) == common::Point{0, 1});
+static_assert(idxToPt(64, 2) == common::Point{8, 0});
+static_assert(idxToPt(128, 2) == common::Point{0, 8});
+static_assert(idxToPt(129, 2) == common::Point{1, 8});
+static_assert(idxToPt(192, 2) == common::Point{8, 8});
+static_assert(idxToPt(384, 8) == common::Point{48, 0});
 
 class ModAfterDialog: public QDialog {
 
@@ -57,7 +86,8 @@ class ModAfterDialog: public QDialog {
 			}
 			m_mod->setMinimum(-range + 1);
 			m_mod->setMaximum(range - 1);
-			auto lyt = new QFormLayout(this); lyt->addRow(tr("&Greater/Equal To:"), m_afterColor);
+			auto lyt = new QFormLayout(this);
+			lyt->addRow(tr("&Greater/Equal To:"), m_afterColor);
 			lyt->addRow(tr("&Mod By:"), m_mod);
 			lyt->addWidget(okBtn);
 			connect(okBtn, &QPushButton::clicked, this, &ModAfterDialog::accept);
@@ -149,10 +179,9 @@ class ModPixelsCommand: public QUndoCommand {
 	private:
 		SheetData *m_sheetData = nullptr;
 		QHash<int, int> m_pixelUpdates;
-		int m_mod = 0;
 
 	public:
-		ModPixelsCommand(SheetData *sheetData, int mod): m_sheetData(sheetData), m_mod(mod) {
+		ModPixelsCommand(SheetData *sheetData): m_sheetData(sheetData) {
 		}
 
 		virtual ~ModPixelsCommand() = default;
@@ -198,10 +227,11 @@ class UpdatePixelsCommand: public QUndoCommand {
 		int m_newColorId = 0;
 		const QStringList &m_palette;
 		QVector<int> &m_pixels;
+		QVector<int> &m_pixelSelected;
 		QSet<PixelUpdate> m_pixelUpdates;
 
 	public:
-		UpdatePixelsCommand(QVector<int> &pixels, const QStringList &palette, QQuickItem *pixelItem, int newColorId, uint64_t cmdIdx): m_palette(palette), m_pixels(pixels) {
+		UpdatePixelsCommand(QVector<int> &pixels, QVector<int> &pixelSelected, const QStringList &palette, QQuickItem *pixelItem, int newColorId, uint64_t cmdIdx): m_palette(palette), m_pixels(pixels), m_pixelSelected(pixelSelected) {
 			m_newColorId = newColorId;
 			m_cmdIdx = cmdIdx;
 			PixelUpdate pu;
@@ -235,6 +265,7 @@ class UpdatePixelsCommand: public QUndoCommand {
 				if (m_pixels.size() < index) {
 					auto sz = (index / 64 + 1) * 64;
 					m_pixels.resize(sz);
+					m_pixelSelected.resize(sz);
 				}
 				m_pixels[index] = m_newColorId;
 			}
@@ -288,6 +319,86 @@ class InsertTileCommand: public QUndoCommand {
 
 };
 
+class PasteClipboardCommand: public QUndoCommand {
+	private:
+		SheetData *m_sheetData = nullptr;
+		TileSheetClipboard m_restore;
+		TileSheetClipboard m_apply;
+
+	public:
+		PasteClipboardCommand(SheetData *sheetData,
+		                      const TileSheetClipboard &restore,
+		                      const TileSheetClipboard &apply): m_sheetData(sheetData), m_restore(restore), m_apply(apply) {
+		}
+
+		virtual ~PasteClipboardCommand() = default;
+
+		int id() const override {
+			return static_cast<int>(CommandId::ClipboardPaste);
+		}
+
+		void redo() override {
+			m_sheetData->applyClipboard(m_apply);
+		}
+
+		void undo() override {
+			m_sheetData->applyClipboard(m_restore);
+		}
+
+};
+
+
+void TileSheetClipboard::add(int idx, int color) {
+	if (m_chunks.size() && m_chunks.back().index + m_chunks.back().size == idx) {
+		++m_chunks.back().size;
+	} else {
+		m_chunks.push_back({idx, 1});
+	}
+	m_pixels.push_back(color);
+}
+
+void TileSheetClipboard::clear() {
+	m_chunks.clear();
+	m_pixels.clear();
+}
+
+bool TileSheetClipboard::empty() const {
+	return m_pixels.empty();
+}
+
+void TileSheetClipboard::paste(int targetIdx, QVector<int> *pixels) const {
+	std::size_t ci = 0; // clipboard index
+	// set prevSrcIdx to current source index, as first iteration is already
+	// correct
+	int prevSrcIdx = m_chunks.size() ? m_chunks[0].index : 0;
+	for (std::size_t chunkIdx = 0; chunkIdx < m_chunks.size(); ++chunkIdx) {
+		const auto &chunk = m_chunks[chunkIdx];
+		targetIdx += chunk.index - prevSrcIdx;
+		prevSrcIdx = chunk.index;
+		const auto targetMod = targetIdx - chunk.index;
+		for (int i = 0; i < chunk.size; ++i) {
+			const auto ti = chunk.index + i + targetMod; // target index
+			if (ti < pixels->size()) {
+				(*pixels)[ti] = m_pixels[ci];
+			}
+			++ci;
+		}
+	}
+}
+
+void TileSheetClipboard::setPoints(common::Point p1, common::Point p2) {
+	m_p1 = p1;
+	m_p2 = p2;
+}
+
+common::Point TileSheetClipboard::point1() const {
+	return m_p1;
+}
+
+common::Point TileSheetClipboard::point2() const {
+	return m_p2;
+}
+
 
 void TileSheetEditorColorTableDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &idx) const {
 	if (idx.column() != 1) {
@@ -302,21 +413,37 @@ void TileSheetEditorColorTableDelegate::paint(QPainter *painter, const QStyleOpt
 SheetData::SheetData(QUndoStack *undoStack): m_cmdStack(undoStack) {
 }
 
+void SheetData::selectPixel(QVariant pixelItem) {
+	auto p = qobject_cast<QQuickItem*>(pixelItem.value<QObject*>());
+	if (p && p != m_prevPixelOperand) {
+		const auto index = p->property("pixelNumber").toInt();
+		const auto point = idxToPt(index, m_columns);
+		m_prevPixelOperand = p;
+		if (m_selectionStart == common::Point{-1, -1}) {
+			m_selectionStart = point;
+		}
+		markSelection(point);
+	}
+}
+
 void SheetData::updatePixel(QVariant pixelItem) {
 	auto p = qobject_cast<QQuickItem*>(pixelItem.value<QObject*>());
-	if (p && p != m_prevPixelUpdated) {
-		m_cmdStack->push(new UpdatePixelsCommand(m_pixels, m_palette, p, m_selectedColor, m_cmdIdx));
-		m_prevPixelUpdated = p;
+	if (p && p != m_prevPixelOperand) {
+		m_cmdStack->push(new UpdatePixelsCommand(m_pixels, m_pixelSelected, m_palette, p, m_selectedColor, m_cmdIdx));
+		m_prevPixelOperand = p;
 		emit changeOccurred();
 	}
 }
 
 void SheetData::beginCmd() {
 	++m_cmdIdx;
+	m_selectionStart = {-1, -1};
+	m_selectionEnd = {-1, -1};
+	emit pixelSelectedChanged(0);
 }
 
 void SheetData::endCmd() {
-	m_prevPixelUpdated = nullptr;
+	m_prevPixelOperand = nullptr;
 }
 
 void SheetData::insertTileCmd(int tileIdx) {
@@ -333,6 +460,10 @@ int SheetData::columns() const {
 
 int SheetData::rows() const {
 	return m_rows;
+}
+
+const QVector<int> &SheetData::pixelSelected() const {
+	return m_pixelSelected;
 }
 
 const QVector<int> &SheetData::pixels() const {
@@ -401,6 +532,7 @@ void SheetData::setPalette(const studio::Context *ctx, QString palPath) {
 void SheetData::insertTile(int tileIdx, QVector<int> tileData) {
 	auto pxIdx = tileIdx * PixelsPerTile;
 	m_pixels.insert(pxIdx, PixelsPerTile, 0);
+	m_pixelSelected.insert(pxIdx, PixelsPerTile, 0);
 	std::copy(tileData.begin(), tileData.end(), &m_pixels[pxIdx]);
 	emit pixelsChanged();
 	emit changeOccurred();
@@ -413,6 +545,7 @@ QVector<int> SheetData::deleteTile(int tileIdx) {
 	          m_pixels.begin() + (pxIdx + PixelsPerTile),
 	          std::back_inserter(out));
 	m_pixels.remove(pxIdx, PixelsPerTile);
+	m_pixelSelected.remove(pxIdx, PixelsPerTile);
 	emit pixelsChanged();
 	emit changeOccurred();
 	return out;
@@ -423,7 +556,7 @@ void SheetData::setSelectedColor(int index) {
 }
 
 void SheetData::modGteCmd(int color, int mod) {
-	auto cmd = new ModPixelsCommand(this, mod);
+	auto cmd = new ModPixelsCommand(this);
 	for (int i = 0; i < m_pixels.size(); ++i) {
 		const auto p = m_pixels[i];
 		if (p >= color) {
@@ -469,6 +602,79 @@ std::unique_ptr<NostalgiaGraphic> SheetData::toNostalgiaGraphic() const {
 	return ng;
 }
 
+int SheetData::activeTool() const {
+	return static_cast<int>(m_activeTool);
+}
+
+bool SheetData::clipboardEmpty() const {
+	return m_clipboard.empty();
+}
+
+void SheetData::cutToClipboard() {
+	m_clipboard.setPoints(m_selectionStart, m_selectionEnd);
+	cutToClipboard(&m_clipboard);
+}
+
+void SheetData::cutToClipboard(TileSheetClipboard *cb) {
+	const auto start = ptToIdx(cb->point1(), m_columns);
+	const auto end = ptToIdx(cb->point2(), m_columns);
+	for (int i = start; i <= end; ++i) {
+		const auto s = m_pixelSelected[i];
+		if (s) {
+			cb->add(i, m_pixels[i]);
+			m_pixels[i] = 0;
+		}
+	}
+	emit pixelsChanged();
+	emit changeOccurred();
+}
+
+void SheetData::copyToClipboard() {
+	m_clipboard.setPoints(m_selectionStart, m_selectionEnd);
+	copyToClipboard(&m_clipboard);
+}
+
+void SheetData::copyToClipboard(TileSheetClipboard *cb) {
+	const auto start = ptToIdx(cb->point1(), m_columns);
+	const auto end = ptToIdx(cb->point2(), m_columns);
+	for (int i = start; i <= end; ++i) {
+		const auto s = m_pixelSelected[i];
+		if (s) {
+			cb->add(i, m_pixels[i]);
+		}
+	}
+}
+
+void SheetData::pasteClipboard() {
+	TileSheetClipboard apply = m_clipboard;
+	TileSheetClipboard restore;
+	const auto p2 = m_selectionStart + (apply.point2() - apply.point1());
+	apply.setPoints(m_selectionStart, p2);
+	restore.setPoints(m_selectionStart, p2);
+	markSelection(p2);
+	copyToClipboard(&restore);
+	m_cmdStack->push(new PasteClipboardCommand(this, restore, apply));
+}
+
+void SheetData::applyClipboard(const TileSheetClipboard &cb) {
+	const auto idx = ptToIdx(cb.point1(), m_columns);
+	cb.paste(idx, &m_pixels);
+	emit pixelsChanged();
+	emit changeOccurred();
+}
+
+void SheetData::markSelection(common::Point selectionEnd) {
+	// mark selection
+	m_selectionEnd = selectionEnd;
+	ox::memsetElements(m_pixelSelected.data(), 0, static_cast<std::size_t>(m_pixelSelected.size()));
+	for (auto x = m_selectionStart.x; x <= m_selectionEnd.x; ++x) {
+		for (auto y = m_selectionStart.y; y <= m_selectionEnd.y; ++y) {
+			m_pixelSelected[ptToIdx(x, y, m_columns)] |= 1;
+		}
+	}
+	emit pixelSelectedChanged((m_selectionEnd.x - m_selectionStart.x + 1) * (m_selectionEnd.y - m_selectionStart.y + 1));
+}
+
 void SheetData::setColumns(int columns) {
 	m_columns = columns;
 	emit columnsChanged(columns);
@@ -489,11 +695,19 @@ void SheetData::updateRows(int rows) {
 	m_cmdStack->push(new UpdateDimensionsCommand(this, UpdateDimensionsCommand::Dimension::Rows, m_rows, rows));
 }
 
+void SheetData::setActiveTool(int t) {
+	m_activeTool = static_cast<TileSheetTool>(t);
+	ox::memsetElements(m_pixelSelected.data(), 0, static_cast<std::size_t>(m_pixelSelected.size()));
+	emit pixelSelectedChanged(0);
+}
+
 void SheetData::updatePixels(const NostalgiaGraphic *ng) {
 	m_pixels.clear();
+	m_pixelSelected.clear();
 	if (ng->bpp == 8) {
 		for (std::size_t i = 0; i < ng->tiles.size(); i++) {
 			m_pixels.push_back(ng->tiles[i]);
+			m_pixelSelected.push_back(0);
 		}
 	} else {
 		for (std::size_t i = 0; i < ng->tiles.size() * 2; i++) {
@@ -504,9 +718,14 @@ void SheetData::updatePixels(const NostalgiaGraphic *ng) {
 				p = ng->tiles[i / 2] & 0xF;
 			}
 			m_pixels.push_back(p);
+			m_pixelSelected.push_back(0);
 		}
 	}
 	emit pixelsChanged();
+}
+
+const char *SheetData::activeToolString() const {
+	return toString(m_activeTool);
 }
 
 TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidget *parent): studio::Editor(parent), m_sheetData(undoStack()) {
@@ -522,10 +741,21 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 	auto tb = new QToolBar(tr("Tile Sheet Options"));
 	m_tilesX = new LabeledSpinner(tr("Tiles &X:"), 1, m_sheetData.columns());
 	m_tilesY = new LabeledSpinner(tr("Tiles &Y:"), 1, m_sheetData.rows());
-	m_updateAfterBtn = new QPushButton(tr("&Mod After"), tb);
+	auto updateAfterBtn = new QPushButton(tr("&Mod GTE"), tb);
+	m_toolBtns.addButton(new QPushButton(tr("&Select"), tb), static_cast<int>(TileSheetTool::Select));
+	m_toolBtns.addButton(new QPushButton(tr("&Draw"), tb), static_cast<int>(TileSheetTool::Draw));
+	//m_toolBtns.addButton(new QPushButton(tr("F&ill"), tb), static_cast<int>(TileSheetTool::Fill));
 	tb->addWidget(m_tilesX);
 	tb->addWidget(m_tilesY);
-	tb->addWidget(m_updateAfterBtn);
+	tb->addSeparator();
+	tb->addWidget(updateAfterBtn);
+	tb->addSeparator();
+	for (auto btn : m_toolBtns.buttons()) {
+		btn->setCheckable(true);
+		tb->addWidget(btn);
+	}
+	m_toolBtns.button(m_sheetData.activeTool())->setChecked(true);
+	connect(&m_toolBtns, &QButtonGroup::idClicked, &m_sheetData, &SheetData::setActiveTool);
 	canvasLyt->setMenuBar(tb);
 	lyt->addWidget(m_splitter);
 	m_splitter->addWidget(canvasParent);
@@ -544,7 +774,7 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 	m_sheetData.load(m_ctx, m_itemPath);
 	connect(m_tilesX->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::updateColumns);
 	connect(m_tilesY->spinBox, QOverload<int>::of(&QSpinBox::valueChanged), &m_sheetData, &SheetData::updateRows);
-	connect(m_updateAfterBtn, &QPushButton::clicked, this, &TileSheetEditor::updateAfterClicked);
+	connect(updateAfterBtn, &QPushButton::clicked, this, &TileSheetEditor::updateAfterClicked);
 	m_canvas->rootContext()->setContextProperty("sheetData", &m_sheetData);
 	m_canvas->setSource(QUrl::fromLocalFile(":/qml/TileSheetEditor.qml"));
 	m_canvas->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -553,6 +783,11 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 	restoreState();
 	connect(&m_sheetData, &SheetData::changeOccurred, [this] { setUnsavedChanges(true); });
 	connect(&m_sheetData, &SheetData::paletteChanged, this, &TileSheetEditor::setColorTable);
+	connect(&m_sheetData, &SheetData::pixelSelectedChanged, [this](int selected) {
+		setCutEnabled(selected);
+		setCopyEnabled(selected);
+		setPasteEnabled(selected && !m_sheetData.clipboardEmpty());
+	});
 	setExportable(true);
 }
 
@@ -582,6 +817,18 @@ void TileSheetEditor::exportFile() {
 		}
 		toQImage(ng.get(), npal.get()).save(path, "PNG");
 	}
+}
+
+void TileSheetEditor::cut() {
+	m_sheetData.cutToClipboard();
+}
+
+void TileSheetEditor::copy() {
+	m_sheetData.copyToClipboard();
+}
+
+void TileSheetEditor::paste() {
+	m_sheetData.pasteClipboard();
 }
 
 void TileSheetEditor::saveItem() {
@@ -657,28 +904,6 @@ QString TileSheetEditor::palettePath(QString paletteName) const {
 	return PaletteDir + paletteName + FileExt_npal;
 }
 
-constexpr common::Point idxToPt(int i, int c) noexcept {
-	const auto t = i / PixelsPerTile; // tile number
-	const auto iti = i % PixelsPerTile; // in tile index
-	const auto tc = t % c; // tile column
-	const auto tr = t / c; // tile row
-	const auto itx = iti % TileWidth; // in tile x
-	const auto ity = iti / TileHeight; // in tile y
-	return {
-		itx + tc * TileWidth,
-		ity + tr * TileHeight,
-	};
-}
-
-static_assert(idxToPt(4, 1) == common::Point{4, 0});
-static_assert(idxToPt(8, 1) == common::Point{0, 1});
-static_assert(idxToPt(8, 2) == common::Point{0, 1});
-static_assert(idxToPt(64, 2) == common::Point{8, 0});
-static_assert(idxToPt(128, 2) == common::Point{0, 8});
-static_assert(idxToPt(129, 2) == common::Point{1, 8});
-static_assert(idxToPt(192, 2) == common::Point{8, 8});
-static_assert(idxToPt(384, 8) == common::Point{48, 0});
-
 QImage TileSheetEditor::toQImage(NostalgiaGraphic *ng, NostalgiaPalette *npal) const {
 	const auto w = ng->columns * TileWidth;
 	const auto h = ng->rows * TileHeight;
@@ -730,7 +955,10 @@ void TileSheetEditor::setColorTable() {
 void TileSheetEditor::updateAfterClicked() {
 	auto d = new ModAfterDialog(m_sheetData.palette(), this);
 	connect(d, &ModAfterDialog::accepted, [this, d] {
-		m_sheetData.modGteCmd(d->color(), d->mod());
+		auto mod = d->mod();
+		if (mod) {
+			m_sheetData.modGteCmd(d->color(), mod);
+		}
 	});
 	connect(d, &ModAfterDialog::finished, d, &ModAfterDialog::deleteLater);
 	d->open();

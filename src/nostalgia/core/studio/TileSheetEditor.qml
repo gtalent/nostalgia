@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -34,10 +34,21 @@ Rectangle {
 
 		onPressed: {
 			if (mouse.button === Qt.LeftButton && !contextMenu.visible) {
-				var pixel = pixelAt(mouseX, mouseY);
-				if (pixel) {
-					sheetData.beginCmd();
-					sheetData.updatePixel(pixel);
+				switch (sheetData.activeTool) {
+					case 'Draw':
+						var pixel = pixelAt(mouseX, mouseY);
+						if (pixel) {
+							sheetData.beginCmd();
+							sheetData.updatePixel(pixel);
+						}
+						break;
+					case 'Select':
+						var pixel = pixelAt(mouseX, mouseY);
+						if (pixel) {
+							sheetData.beginCmd();
+							sheetData.selectPixel(pixel);
+						}
+						break;
 				}
 			}
 		}
@@ -112,7 +123,19 @@ Rectangle {
 
 		onPositionChanged: {
 			if (mouseArea.pressedButtons & Qt.LeftButton && !contextMenu.visible) {
-				sheetData.updatePixel(pixelAt(mouseX, mouseY));
+				var pixel = pixelAt(mouseX, mouseY);
+				switch (sheetData.activeTool) {
+					case 'Draw':
+						if (pixel) {
+							sheetData.updatePixel(pixel);
+						}
+						break;
+					case 'Select':
+						if (pixel) {
+							sheetData.selectPixel(pixel);
+						}
+						break;
+				}
 			}
 		}
 

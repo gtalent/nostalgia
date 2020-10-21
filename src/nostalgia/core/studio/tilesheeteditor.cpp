@@ -322,13 +322,13 @@ class InsertTileCommand: public QUndoCommand {
 class PasteClipboardCommand: public QUndoCommand {
 	private:
 		SheetData *m_sheetData = nullptr;
-		TileSheetClipboard m_restore;
-		TileSheetClipboard m_apply;
+		std::unique_ptr<TileSheetClipboard> m_restore;
+		std::unique_ptr<TileSheetClipboard> m_apply;
 
 	public:
 		PasteClipboardCommand(SheetData *sheetData,
-		                      const TileSheetClipboard &restore,
-		                      const TileSheetClipboard &apply): m_sheetData(sheetData), m_restore(restore), m_apply(apply) {
+		                      std::unique_ptr<TileSheetClipboard> &&restore,
+		                      std::unique_ptr<TileSheetClipboard> &&apply): m_sheetData(sheetData), m_restore(std::move(restore)), m_apply(std::move(apply)) {
 		}
 
 		virtual ~PasteClipboardCommand() = default;
@@ -338,11 +338,11 @@ class PasteClipboardCommand: public QUndoCommand {
 		}
 
 		void redo() override {
-			m_sheetData->applyClipboard(m_apply);
+			m_sheetData->applyClipboard(*m_apply);
 		}
 
 		void undo() override {
-			m_sheetData->applyClipboard(m_restore);
+			m_sheetData->applyClipboard(*m_restore);
 		}
 
 };
@@ -618,16 +618,16 @@ void SheetData::cutToClipboard() {
 void SheetData::cutToClipboard(TileSheetClipboard *cb) {
 	const auto start = ptToIdx(cb->point1(), m_columns);
 	const auto end = ptToIdx(cb->point2(), m_columns);
-	TileSheetClipboard apply;
+	auto apply = std::make_unique<TileSheetClipboard>();
 	for (int i = start; i <= end; ++i) {
 		const auto s = m_pixelSelected[i];
 		if (s) {
 			cb->add(i, m_pixels[i]);
-			apply.add(i, 0);
+			apply->add(i, 0);
 		}
 	}
-	apply.setPoints(cb->point1(), cb->point2());
-	m_cmdStack->push(new PasteClipboardCommand(this, *cb, apply));
+	apply->setPoints(cb->point1(), cb->point2());
+	m_cmdStack->push(new PasteClipboardCommand(this, std::make_unique<TileSheetClipboard>(*cb), std::move(apply)));
 }
 
 void SheetData::copyToClipboard() {
@@ -647,14 +647,14 @@ void SheetData::copyToClipboard(TileSheetClipboard *cb) {
 }
 
 void SheetData::pasteClipboard() {
-	TileSheetClipboard apply = m_clipboard;
-	TileSheetClipboard restore;
-	const auto p2 = m_selectionStart + (apply.point2() - apply.point1());
-	apply.setPoints(m_selectionStart, p2);
-	restore.setPoints(m_selectionStart, p2);
+	auto apply = std::make_unique<TileSheetClipboard>(m_clipboard);
+	auto restore = std::make_unique<TileSheetClipboard>();
+	const auto p2 = m_selectionStart + (apply->point2() - apply->point1());
+	apply->setPoints(m_selectionStart, p2);
+	restore->setPoints(m_selectionStart, p2);
 	markSelection(p2);
-	copyToClipboard(&restore);
-	m_cmdStack->push(new PasteClipboardCommand(this, restore, apply));
+	copyToClipboard(restore.get());
+	m_cmdStack->push(new PasteClipboardCommand(this, std::move(restore), std::move(apply)));
 }
 
 void SheetData::applyClipboard(const TileSheetClipboard &cb) {

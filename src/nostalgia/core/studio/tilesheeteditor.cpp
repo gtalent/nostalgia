@@ -618,15 +618,16 @@ void SheetData::cutToClipboard() {
 void SheetData::cutToClipboard(TileSheetClipboard *cb) {
 	const auto start = ptToIdx(cb->point1(), m_columns);
 	const auto end = ptToIdx(cb->point2(), m_columns);
+	TileSheetClipboard apply;
 	for (int i = start; i <= end; ++i) {
 		const auto s = m_pixelSelected[i];
 		if (s) {
 			cb->add(i, m_pixels[i]);
-			m_pixels[i] = 0;
+			apply.add(i, 0);
 		}
 	}
-	emit pixelsChanged();
-	emit changeOccurred();
+	apply.setPoints(cb->point1(), cb->point2());
+	m_cmdStack->push(new PasteClipboardCommand(this, *cb, apply));
 }
 
 void SheetData::copyToClipboard() {

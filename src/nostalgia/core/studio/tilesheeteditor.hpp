@@ -72,8 +72,8 @@ struct TileSheetClipboard {
 	friend ox::Error model(T*, TileSheetClipboard*);
 
 	protected:
-		ox::Vector<PixelChunk> m_chunks;
-		ox::Vector<int> m_pixels;
+		std::vector<PixelChunk> m_chunks;
+		std::vector<int> m_pixels;
 		common::Point m_p1;
 		common::Point m_p2;
 

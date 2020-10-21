@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "bit.hpp"
 #include "new.hpp"
 #include "types.hpp"
 #include "utility.hpp"
@@ -37,17 +38,17 @@ class Vector {
 
 		Vector &operator=(Vector &&other);
 
-		T &operator[](std::size_t i) noexcept;
+		[[nodiscard]] T &operator[](std::size_t i) noexcept;
 
-		const T &operator[](std::size_t i) const noexcept;
+		[[nodiscard]] const T &operator[](std::size_t i) const noexcept;
 
-		T &front() noexcept;
+		[[nodiscard]] T &front() noexcept;
 
-		const T &front() const noexcept;
+		[[nodiscard]] const T &front() const noexcept;
 
-		T &back() noexcept;
+		[[nodiscard]] T &back() noexcept;
 
-		const T &back() const noexcept;
+		[[nodiscard]] const T &back() const noexcept;
 
 		std::size_t size() const noexcept;
 
@@ -57,9 +58,9 @@ class Vector {
 
 		void resize(std::size_t size);
 
-		T *data() noexcept;
+		[[nodiscard]] T *data() noexcept;
 
-		const T *data() const noexcept;
+		[[nodiscard]] const T *data() const noexcept;
 
 		[[nodiscard]] bool contains(T) const;
 
@@ -94,7 +95,7 @@ template<typename T>
 Vector<T>::Vector(std::size_t size) {
 	m_size = size;
 	m_cap = m_size;
-	m_items = reinterpret_cast<T*>(new AllocAlias<T>[m_cap]);
+	m_items = bit_cast<T*>(new AllocAlias<T>[m_cap]);
 	for (std::size_t i = 0; i < size; i++) {
 		m_items[i] = {};
 	}
@@ -104,7 +105,7 @@ template<typename T>
 Vector<T>::Vector(const Vector<T> &other) {
 	m_size = other.m_size;
 	m_cap = other.m_cap;
-	m_items = reinterpret_cast<T*>(new AllocAlias<T>[m_cap]);
+	m_items = bit_cast<T*>(new AllocAlias<T>[m_cap]);
 	for (std::size_t i = 0; i < m_size; i++) {
 		m_items[i] = ox::move(other.m_items[i]);
 	}
@@ -127,7 +128,7 @@ Vector<T>::~Vector() {
 			m_items[i].~T();
 		}
 	}
-	delete[] reinterpret_cast<AllocAlias<T>*>(m_items);
+	delete[] bit_cast<AllocAlias<T>*>(m_items);
 	m_items = nullptr;
 }
 
@@ -136,7 +137,7 @@ Vector<T> &Vector<T>::operator=(const Vector<T> &other) {
 	this->~Vector<T>();
 	m_size = other.m_size;
 	m_cap = other.m_cap;
-	m_items = reinterpret_cast<T*>(new AllocAlias<T>[m_cap]);
+	m_items = bit_cast<T*>(new AllocAlias<T>[m_cap]);
 	for (std::size_t i = 0; i < m_size; i++) {
 		m_items[i] = other.m_items[i];
 	}
@@ -293,7 +294,7 @@ template<typename T>
 void Vector<T>::expandCap(std::size_t cap) {
 	auto oldItems = m_items;
 	m_cap = cap;
-	m_items = reinterpret_cast<T*>(new AllocAlias<T>[m_cap]);
+	m_items = bit_cast<T*>(new AllocAlias<T>[m_cap]);
 	if (oldItems) { // move over old items
 		const auto itRange = cap > m_size ? m_size : cap;
 		for (std::size_t i = 0; i < itRange; i++) {
@@ -302,7 +303,7 @@ void Vector<T>::expandCap(std::size_t cap) {
 		for (std::size_t i = itRange; i < m_cap; i++) {
 			new (&m_items[i]) T;
 		}
-		delete[] reinterpret_cast<AllocAlias<T>*>(oldItems);
+		delete[] bit_cast<AllocAlias<T>*>(oldItems);
 	}
 }
 

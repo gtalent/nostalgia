@@ -6,7 +6,9 @@ add_library(
 
 find_package(jsoncpp REQUIRED)
 
-target_compile_options(OxOrganicClaw PRIVATE -Wsign-conversion)
+if(NOT MSVC)
+	target_compile_options(OxOrganicClaw PRIVATE -Wsign-conversion)
+endif()
 
 target_link_libraries(
 	OxOrganicClaw PUBLIC

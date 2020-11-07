@@ -11,7 +11,9 @@ add_library(
 		rsrc.qrc
 )
 
-target_compile_options(NostalgiaCore-Studio PRIVATE -Wsign-conversion)
+if(NOT MSVC)
+	target_compile_options(NostalgiaCore-Studio PRIVATE -Wsign-conversion)
+endif()
 
 target_link_libraries(
 	NostalgiaCore-Studio

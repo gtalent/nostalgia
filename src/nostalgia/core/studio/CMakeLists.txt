@@ -1,3 +1,7 @@
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
 add_library(
 	NostalgiaCore-Studio SHARED
 		imgconv.cpp

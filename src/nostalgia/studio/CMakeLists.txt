@@ -1,5 +1,8 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
 add_executable(
 	nostalgia-studio MACOSX_BUNDLE
 		json_read.cpp

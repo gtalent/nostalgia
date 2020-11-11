@@ -76,7 +76,7 @@ isr:
 	// Interrupt Table End                            //
 	////////////////////////////////////////////////////
 
-	b isr_end
+	bx lr
 
 isr_call_handler:
 	// clear IME to disable interrupts
@@ -107,8 +107,6 @@ isr_restore:
 	ldr r2, =#REG_IME
 	mov r0, #1
 	str r0, [r2]
-
-isr_end:
 
 	bx lr
 

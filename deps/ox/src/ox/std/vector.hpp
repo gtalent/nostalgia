@@ -50,7 +50,7 @@ class Vector {
 
 		[[nodiscard]] const T &back() const noexcept;
 
-		std::size_t size() const noexcept;
+		[[nodiscard]] std::size_t size() const noexcept;
 
 		[[nodiscard]] bool empty() const;
 

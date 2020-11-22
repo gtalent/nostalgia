@@ -8,4 +8,4 @@ target_link_libraries(
 		OxStd
 )
 
-add_test("Test\\ PtrArith::setSize" PtrArithTests PtrArith::setSize)
+add_test("Test PtrArith::setSize" PtrArithTests PtrArith::setSize)

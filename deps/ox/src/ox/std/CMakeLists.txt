@@ -5,7 +5,6 @@ add_library(
 		byteswap.cpp
 		heapmgr.cpp
 		memops.cpp
-		new.cpp
 		random.cpp
 		substitutes.cpp
 		stacktrace.cpp

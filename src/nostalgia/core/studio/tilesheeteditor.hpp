@@ -51,40 +51,39 @@ struct PixelChunk {
 	static constexpr auto TypeName = "net.drinkingtea.nostalgia.core.studio.PixelChunk";
 	static constexpr auto Fields = 2;
 	static constexpr auto TypeVersion = 1;
-	int index = -1;
+	common::Point pt;
 	int size = 0;
 };
 
 template<typename T>
 ox::Error model(T *io, PixelChunk *c) {
 	io->template setTypeInfo<PixelChunk>();
-	oxReturnError(io->field("index", &c->index));
+	oxReturnError(io->field("pt", &c->pt));
 	oxReturnError(io->field("size", &c->size));
 	return OxError(0);
 }
 
 struct TileSheetClipboard {
 	static constexpr auto TypeName = "net.drinkingtea.nostalgia.core.studio.TileSheetClipboard";
-	static constexpr auto Fields = 2;
+	static constexpr auto Fields = 3;
 	static constexpr auto TypeVersion = 1;
 
 	template<typename T>
 	friend ox::Error model(T*, TileSheetClipboard*);
 
 	protected:
-		std::vector<PixelChunk> m_chunks;
 		std::vector<int> m_pixels;
 		common::Point m_p1;
 		common::Point m_p2;
 
 	public:
-		void add(int idx, int color);
+		void addPixel(int color);
 
 		void clear();
 
 		[[nodiscard]] bool empty() const;
 
-		void paste(int targetIdx, QVector<int> *pixels) const;
+		void pastePixels(common::Point pt, QVector<int> *tgt, int tgtColumns) const;
 
 		void setPoints(common::Point p1, common::Point p2);
 
@@ -97,8 +96,9 @@ struct TileSheetClipboard {
 template<typename T>
 ox::Error model(T *io, TileSheetClipboard *b) {
 	io->template setTypeInfo<TileSheetClipboard>();
-	oxReturnError(io->field("chunks", &b->m_chunks));
 	oxReturnError(io->field("pixels", &b->m_pixels));
+	oxReturnError(io->field("p1", &b->m_p1));
+	oxReturnError(io->field("p2", &b->m_p2));
 	return OxError(0);
 }
 

@@ -348,17 +348,11 @@ class PasteClipboardCommand: public QUndoCommand {
 };
 
 
-void TileSheetClipboard::add(int idx, int color) {
-	if (m_chunks.size() && m_chunks.back().index + m_chunks.back().size == idx) {
-		++m_chunks.back().size;
-	} else {
-		m_chunks.push_back({idx, 1});
-	}
+void TileSheetClipboard::addPixel(int color) {
 	m_pixels.push_back(color);
 }
 
 void TileSheetClipboard::clear() {
-	m_chunks.clear();
 	m_pixels.clear();
 }
 
@@ -366,22 +360,17 @@ bool TileSheetClipboard::empty() const {
 	return m_pixels.empty();
 }
 
-void TileSheetClipboard::paste(int targetIdx, QVector<int> *pixels) const {
-	std::size_t ci = 0; // clipboard index
-	// set prevSrcIdx to current source index, as first iteration is already
-	// correct
-	int prevSrcIdx = m_chunks.size() ? m_chunks[0].index : 0;
-	for (std::size_t chunkIdx = 0; chunkIdx < m_chunks.size(); ++chunkIdx) {
-		const auto &chunk = m_chunks[chunkIdx];
-		targetIdx += chunk.index - prevSrcIdx;
-		prevSrcIdx = chunk.index;
-		const auto targetMod = targetIdx - chunk.index;
-		for (int i = 0; i < chunk.size; ++i) {
-			const auto ti = chunk.index + i + targetMod; // target index
-			if (ti < pixels->size()) {
-				(*pixels)[ti] = m_pixels[ci];
+void TileSheetClipboard::pastePixels(common::Point pt, QVector<int> *tgtPixels, int tgtColumns) const {
+	std::size_t srcIdx = 0;
+	const auto w = m_p2.x - m_p1.x;
+	const auto h = m_p2.y - m_p1.y;
+	for (int x = 0; x <= w; ++x) {
+		for (int y = 0; y <= h; ++y) {
+			const auto tgtIdx = ptToIdx(pt + common::Point(x, y), tgtColumns);
+			if (tgtIdx < tgtPixels->size()) {
+				(*tgtPixels)[tgtIdx] = m_pixels[srcIdx];
 			}
-			++ci;
+			++srcIdx;
 		}
 	}
 }
@@ -616,18 +605,23 @@ void SheetData::cutToClipboard() {
 }
 
 void SheetData::cutToClipboard(TileSheetClipboard *cb) {
-	const auto start = ptToIdx(cb->point1(), m_columns);
-	const auto end = ptToIdx(cb->point2(), m_columns);
+	const auto pt1 = cb->point1();
+	const auto pt2 = cb->point2();
 	auto apply = std::make_unique<TileSheetClipboard>();
-	for (int i = start; i <= end; ++i) {
-		const auto s = m_pixelSelected[i];
-		if (s) {
-			cb->add(i, m_pixels[i]);
-			apply->add(i, 0);
+	for (int x = pt1.x; x <= pt2.x; ++x) {
+		for (int y = pt1.y; y <= pt2.y; ++y) {
+			const auto pt = common::Point(x, y);
+			const auto i = ptToIdx(pt, m_columns);
+			const auto s = m_pixelSelected[i];
+			if (s) {
+				cb->addPixel(m_pixels[i]);
+				apply->addPixel(0);
+			}
 		}
 	}
 	apply->setPoints(cb->point1(), cb->point2());
-	m_cmdStack->push(new PasteClipboardCommand(this, std::make_unique<TileSheetClipboard>(*cb), std::move(apply)));
+	auto restore = std::make_unique<TileSheetClipboard>(*cb);
+	m_cmdStack->push(new PasteClipboardCommand(this, std::move(restore), std::move(apply)));
 }
 
 void SheetData::copyToClipboard() {
@@ -636,12 +630,13 @@ void SheetData::copyToClipboard() {
 }
 
 void SheetData::copyToClipboard(TileSheetClipboard *cb) {
-	const auto start = ptToIdx(cb->point1(), m_columns);
-	const auto end = ptToIdx(cb->point2(), m_columns);
-	for (int i = start; i <= end; ++i) {
-		const auto s = m_pixelSelected[i];
-		if (s) {
-			cb->add(i, m_pixels[i]);
+	const auto p1 = cb->point1();
+	const auto p2 = cb->point2();
+	for (int x = p1.x; x <= p2.x; ++x) {
+		for (int y = p1.y; y <= p2.y; ++y) {
+			const auto pt = common::Point(x, y);
+			const auto idx = ptToIdx(pt, m_columns);
+			cb->addPixel(m_pixels[idx]);
 		}
 	}
 }
@@ -658,8 +653,7 @@ void SheetData::pasteClipboard() {
 }
 
 void SheetData::applyClipboard(const TileSheetClipboard &cb) {
-	const auto idx = ptToIdx(cb.point1(), m_columns);
-	cb.paste(idx, &m_pixels);
+	cb.pastePixels(cb.point1(), &m_pixels, m_columns);
 	emit pixelsChanged();
 	emit changeOccurred();
 }

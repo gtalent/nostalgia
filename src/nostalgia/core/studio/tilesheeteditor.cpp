@@ -204,6 +204,49 @@ class ModPixelsCommand: public QUndoCommand {
 
 };
 
+class FillPixelsCommand: public QUndoCommand {
+	private:
+		const std::array<bool, PixelsPerTile> m_pixelUpdateMap;
+		const std::size_t m_idx = 0;
+		const int m_oldColor = 0;
+		const int m_newColor = 0;
+		SheetData *const m_sheetData = nullptr;
+
+	public:
+		FillPixelsCommand(SheetData *sheetData, const std::array<bool, PixelsPerTile> &pum, int idx, int oldColor, int newColor):
+			m_pixelUpdateMap(pum),
+			m_idx(static_cast<std::size_t>(idx)),
+			m_oldColor(oldColor),
+			m_newColor(newColor),
+			m_sheetData(sheetData) {
+		}
+
+		virtual ~FillPixelsCommand() = default;
+
+		int id() const override {
+			return static_cast<int>(CommandId::ModPixel);
+		}
+
+		void redo() override {
+			for (std::size_t i = 0; i < m_pixelUpdateMap.size(); ++i) {
+				if (m_pixelUpdateMap[i]) {
+					m_sheetData->setPixel(i + m_idx, m_newColor);
+				}
+			}
+			m_sheetData->notifyUpdate();
+		}
+
+		void undo() override {
+			for (std::size_t i = 0; i < m_pixelUpdateMap.size(); ++i) {
+				if (m_pixelUpdateMap[i]) {
+					m_sheetData->setPixel(i + m_idx, m_oldColor);
+				}
+			}
+			m_sheetData->notifyUpdate();
+		}
+
+};
+
 class UpdatePixelsCommand: public QUndoCommand {
 	private:
 		struct PixelUpdate {
@@ -402,6 +445,18 @@ void TileSheetEditorColorTableDelegate::paint(QPainter *painter, const QStyleOpt
 SheetData::SheetData(QUndoStack *undoStack): m_cmdStack(undoStack) {
 }
 
+void SheetData::fillPixel(QVariant pixelItem) {
+	const auto p = qobject_cast<QQuickItem*>(pixelItem.value<QObject*>());
+	if (p && p != m_prevPixelOperand) {
+		const auto idx = p->property("pixelNumber").toInt();
+		const auto pt = idxToPt(idx, m_columns);
+		const auto oldColor = m_pixels[idx];
+		std::array<bool, PixelsPerTile> pixels = {};
+		getFillPixels(pixels.data(), pt, oldColor);
+		m_cmdStack->push(new FillPixelsCommand(this, pixels, idx / PixelsPerTile * PixelsPerTile, oldColor, m_selectedColor));
+	}
+}
+
 void SheetData::selectPixel(QVariant pixelItem) {
 	auto p = qobject_cast<QQuickItem*>(pixelItem.value<QObject*>());
 	if (p && p != m_prevPixelOperand) {
@@ -467,6 +522,38 @@ QString SheetData::palettePath() const {
 	return m_currentPalettePath;
 }
 
+void SheetData::getFillPixels(bool *pixels, common::Point pt, int oldColor) const {
+	const auto tileIdx = [this](const common::Point &pt) noexcept {
+		return ptToIdx(pt, m_columns) / PixelsPerTile;
+	};
+	// get points
+	const auto leftPt = pt + common::Point(-1, 0);
+	const auto rightPt = pt + common::Point(1, 0);
+	const auto topPt = pt + common::Point(0, -1);
+	const auto bottomPt = pt + common::Point(0, 1);
+	// calculate indices
+	const auto idx = ptToIdx(pt, m_columns);
+	const auto leftIdx = ptToIdx(leftPt, m_columns);
+	const auto rightIdx = ptToIdx(rightPt, m_columns);
+	const auto topIdx = ptToIdx(topPt, m_columns);
+	const auto bottomIdx = ptToIdx(bottomPt, m_columns);
+	const auto tile = tileIdx(pt);
+	// mark pixels to update
+	pixels[idx % PixelsPerTile] = true;
+	if (!pixels[leftIdx % PixelsPerTile] && tile == tileIdx(leftPt) && m_pixels[leftIdx] == oldColor) {
+		getFillPixels(pixels, leftPt, oldColor);
+	}
+	if (!pixels[rightIdx % PixelsPerTile] && tile == tileIdx(rightPt) && m_pixels[rightIdx] == oldColor) {
+		getFillPixels(pixels, rightPt, oldColor);
+	}
+	if (!pixels[topIdx % PixelsPerTile] && tile == tileIdx(topPt) && m_pixels[topIdx] == oldColor) {
+		getFillPixels(pixels, topPt, oldColor);
+	}
+	if (!pixels[bottomIdx % PixelsPerTile] && tile == tileIdx(bottomPt) && m_pixels[bottomIdx] == oldColor) {
+		getFillPixels(pixels, bottomPt, oldColor);
+	}
+}
+
 void SheetData::load(const studio::Context *ctx, QString ngPath, QString palPath) {
 	auto ng = ctx->project->loadObj<NostalgiaGraphic>(ngPath);
 	if (palPath == "" && ng->defaultPalette.type() == ox::FileAddressType::Path) {
@@ -523,8 +610,7 @@ void SheetData::insertTile(int tileIdx, QVector<int> tileData) {
 	m_pixels.insert(pxIdx, PixelsPerTile, 0);
 	m_pixelSelected.insert(pxIdx, PixelsPerTile, 0);
 	std::copy(tileData.begin(), tileData.end(), &m_pixels[pxIdx]);
-	emit pixelsChanged();
-	emit changeOccurred();
+	notifyUpdate();
 }
 
 QVector<int> SheetData::deleteTile(int tileIdx) {
@@ -535,8 +621,7 @@ QVector<int> SheetData::deleteTile(int tileIdx) {
 	          std::back_inserter(out));
 	m_pixels.remove(pxIdx, PixelsPerTile);
 	m_pixelSelected.remove(pxIdx, PixelsPerTile);
-	emit pixelsChanged();
-	emit changeOccurred();
+	notifyUpdate();
 	return out;
 }
 
@@ -561,6 +646,14 @@ void SheetData::modPixels(const QHash<int, int> &mods, int inversion) {
 		const auto mod = mods[index];
 		m_pixels[index] += mod * inversion;
 	}
+	notifyUpdate();
+}
+
+void SheetData::setPixel(int index, int color) {
+	m_pixels[index] = color;
+}
+
+void SheetData::notifyUpdate() {
 	emit pixelsChanged();
 	emit changeOccurred();
 }
@@ -654,8 +747,7 @@ void SheetData::pasteClipboard() {
 
 void SheetData::applyClipboard(const TileSheetClipboard &cb) {
 	cb.pastePixels(cb.point1(), &m_pixels, m_columns);
-	emit pixelsChanged();
-	emit changeOccurred();
+	notifyUpdate();
 }
 
 void SheetData::markSelection(common::Point selectionEnd) {
@@ -739,7 +831,7 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 	auto updateAfterBtn = new QPushButton(tr("&Mod GTE"), tb);
 	m_toolBtns.addButton(new QPushButton(tr("&Select"), tb), static_cast<int>(TileSheetTool::Select));
 	m_toolBtns.addButton(new QPushButton(tr("&Draw"), tb), static_cast<int>(TileSheetTool::Draw));
-	//m_toolBtns.addButton(new QPushButton(tr("F&ill"), tb), static_cast<int>(TileSheetTool::Fill));
+	m_toolBtns.addButton(new QPushButton(tr("F&ill"), tb), static_cast<int>(TileSheetTool::Fill));
 	tb->addWidget(m_tilesX);
 	tb->addWidget(m_tilesY);
 	tb->addSeparator();

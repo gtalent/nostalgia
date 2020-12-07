@@ -29,6 +29,16 @@ Rectangle {
 				}
 			} else {
 				contextMenu.dismiss();
+				switch (sheetData.activeTool) {
+					case 'Fill':
+					{
+						var pixel = pixelAt(mouseX, mouseY);
+						if (pixel) {
+							sheetData.fillPixel(pixel);
+						}
+						break;
+					}
+				}
 			}
 		}
 

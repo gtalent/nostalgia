@@ -135,7 +135,9 @@ class SheetData: public QObject {
 		TileSheetClipboard m_clipboard;
 
 	public:
-		SheetData(QUndoStack*);
+		explicit SheetData(QUndoStack*);
+
+		Q_INVOKABLE void fillPixel(QVariant pixel);
 
 		Q_INVOKABLE void selectPixel(QVariant pixel);
 
@@ -161,6 +163,8 @@ class SheetData: public QObject {
 
 		[[nodiscard]] QString palettePath() const;
 
+		void getFillPixels(bool *pixels, common::Point pt, int oldColor) const;
+
 		void load(const studio::Context *ctx, QString ngPath, QString palPath = "");
 
 		void reload(const studio::Context *ctx);
@@ -180,6 +184,10 @@ class SheetData: public QObject {
 		void modGteCmd(int val, int mod);
 
 		void modPixels(const QHash<int, int> &pixels, int inversion);
+
+		void setPixel(int index, int color);
+
+		void notifyUpdate();
 
 		[[nodiscard]] std::unique_ptr<NostalgiaGraphic> toNostalgiaGraphic() const;
 

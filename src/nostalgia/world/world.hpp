@@ -51,7 +51,7 @@ struct Zone {
 
 		~Zone();
 
-		[[nodiscard]] ox::Error init(core::Context *ctx, common::Bounds bnds, ox::FileAddress tileSheet, ox::FileAddress palette = {});
+		ox::Error init(core::Context *ctx, common::Bounds bnds, ox::FileAddress tileSheet, ox::FileAddress palette = {});
 
 		void draw(core::Context *ctx);
 

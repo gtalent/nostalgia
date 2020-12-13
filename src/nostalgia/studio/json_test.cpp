@@ -24,11 +24,11 @@ struct TestStructNest {
 template<typename T>
 Error model(T *io, TestStructNest *obj) {
 	auto err = OxError(0);
-	err |= io->setTypeInfo("TestStructNest", 4);
-	err |= io->field("Bool", &obj->Bool);
-	err |= io->field("Int", &obj->Int);
-	err |= io->field("Double", &obj->Double);
-	err |= io->field("String", &obj->String);
+	oxReturnError(io->setTypeInfo("TestStructNest", 4));
+	oxReturnError(io->field("Bool", &obj->Bool));
+	oxReturnError(io->field("Int", &obj->Int));
+	oxReturnError(io->field("Double", &obj->Double));
+	oxReturnError(io->field("String", &obj->String));
 	return err;
 }
 
@@ -43,12 +43,12 @@ struct TestStruct {
 template<typename T>
 Error model(T *io, TestStruct *obj) {
 	auto err = OxError(0);
-	err |= io->setTypeInfo("TestStruct", 5);
-	err |= io->field("Bool", &obj->Bool);
-	err |= io->field("Int", &obj->Int);
-	err |= io->field("Double", &obj->Double);
-	err |= io->field("String", &obj->String);
-	err |= io->field("Struct", &obj->Struct);
+	oxReturnError(io->setTypeInfo("TestStruct", 5));
+	oxReturnError(io->field("Bool", &obj->Bool));
+	oxReturnError(io->field("Int", &obj->Int));
+	oxReturnError(io->field("Double", &obj->Double));
+	oxReturnError(io->field("String", &obj->String));
+	oxReturnError(io->field("Struct", &obj->Struct));
 	return err;
 }
 
@@ -68,8 +68,8 @@ int main() {
 		}
 	};
 	TestStruct tsOut;
-	err |= writeJson(&json, &ts);
-	err |= readJson(json, &tsOut);
+	oxReturnError(writeJson(&json, &ts));
+	oxReturnError(readJson(json, &tsOut));
 
 	cout << tsOut.Bool << endl;
 	cout << tsOut.Int << endl;

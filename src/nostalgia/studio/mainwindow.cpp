@@ -55,6 +55,7 @@ MainWindow::MainWindow(QString profilePath) {
 	setWindowTitle(m_profile.appName);
 	m_ctx.appName = m_profile.appName;
 	m_ctx.orgName = m_profile.orgName;
+	m_ctx.tabParent = m_tabs;
 
 	m_tabs = new QTabWidget(this);
 	auto tabBar = m_tabs->tabBar();
@@ -190,6 +191,41 @@ void MainWindow::setupMenu() {
 	auto redoAction = m_undoGroup.createRedoAction(this, tr("&Redo"));
 	editMenu->addAction(redoAction);
 	redoAction->setShortcuts(QKeySequence::Redo);
+
+	editMenu->addSeparator();
+
+	// Copy
+	m_cutAction = addAction(
+		editMenu,
+		tr("&Cut"),
+		tr(""),
+		QKeySequence::Cut,
+		this,
+		SLOT(cutAction())
+	);
+	m_cutAction->setEnabled(false);
+
+	// Copy
+	m_copyAction = addAction(
+		editMenu,
+		tr("&Copy"),
+		tr(""),
+		QKeySequence::Copy,
+		this,
+		SLOT(copyAction())
+	);
+	m_copyAction->setEnabled(false);
+
+	// Paste
+	m_pasteAction = addAction(
+		editMenu,
+		tr("&Paste"),
+		tr(""),
+		QKeySequence::Paste,
+		this,
+		SLOT(pasteAction())
+	);
+	m_pasteAction->setEnabled(false);
 }
 
 void MainWindow::setupProjectExplorer() {
@@ -247,7 +283,7 @@ int MainWindow::readState() {
 	restoreGeometry(settings.value("geometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
 	auto json = settings.value("json").toString();
-	err |= readJson(json, &m_state);
+	oxReturnError(readJson(json, &m_state));
 	settings.endGroup();
 
 	openProject(m_state.projectPath);
@@ -258,7 +294,7 @@ int MainWindow::readState() {
 void MainWindow::writeState() {
 	// generate JSON for application specific state info
 	QString json;
-	writeJson(&json, &m_state);
+	oxIgnoreError(writeJson(&json, &m_state));
 
 	QSettings settings(m_profile.orgName, m_profile.appName);
 	settings.beginGroup("MainWindow");
@@ -312,6 +348,8 @@ void MainWindow::openProject(QString projectPath) {
 	m_state.projectPath = projectPath;
 	// reopen tabs
 	auto openTabs = readTabs();
+	// clear open tabs
+	writeTabs({});
 	for (auto t : openTabs) {
 		try {
 			openFile(t, true);
@@ -473,6 +511,18 @@ void MainWindow::exportFile() {
 	m_currentEditor->exportFile();
 }
 
+void MainWindow::cutAction() {
+	m_currentEditor->cut();
+}
+
+void MainWindow::copyAction() {
+	m_currentEditor->copy();
+}
+
+void MainWindow::pasteAction() {
+	m_currentEditor->paste();
+}
+
 void MainWindow::closeTab(int idx) {
 	auto tab = static_cast<studio::Editor*>(m_tabs->widget(idx));
 	m_undoGroup.removeStack(tab->undoStack());
@@ -498,12 +548,18 @@ void MainWindow::changeTab(int idx) {
 		disconnect(m_currentEditor, &Editor::unsavedChangesChanged, m_saveAction, &QAction::setEnabled);
 		disconnect(m_currentEditor, &Editor::unsavedChangesChanged, this, &MainWindow::markUnsavedChanges);
 		disconnect(m_currentEditor, &Editor::exportableChanged, m_exportAction, &QAction::setEnabled);
+		disconnect(m_currentEditor, &Editor::cutEnabledChanged, m_cutAction, &QAction::setEnabled);
+		disconnect(m_currentEditor, &Editor::copyEnabledChanged, m_copyAction, &QAction::setEnabled);
+		disconnect(m_currentEditor, &Editor::pasteEnabledChanged, m_pasteAction, &QAction::setEnabled);
 	}
 	m_currentEditor = tab;
 	if (m_currentEditor) {
 		m_saveAction->setEnabled(m_currentEditor->unsavedChanges());
 		connect(m_currentEditor, &Editor::unsavedChangesChanged, m_saveAction, &QAction::setEnabled);
 		connect(m_currentEditor, &Editor::unsavedChangesChanged, this, &MainWindow::markUnsavedChanges);
+		connect(m_currentEditor, &Editor::cutEnabledChanged, m_cutAction, &QAction::setEnabled);
+		connect(m_currentEditor, &Editor::copyEnabledChanged, m_copyAction, &QAction::setEnabled);
+		connect(m_currentEditor, &Editor::pasteEnabledChanged, m_pasteAction, &QAction::setEnabled);
 		m_exportAction->setEnabled(m_currentEditor->exportable());
 		connect(m_currentEditor, &Editor::exportableChanged, m_exportAction, &QAction::setEnabled);
 		m_undoGroup.setActiveStack(tab->undoStack());

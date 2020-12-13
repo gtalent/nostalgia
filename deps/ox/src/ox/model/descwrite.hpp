@@ -60,12 +60,12 @@ class TypeDescWriter {
 			}
 
 			template<typename T>
-			[[nodiscard]] constexpr ox::Error field(const char*, T*, std::size_t) noexcept {
+			constexpr Error field(const char*, T*, std::size_t) noexcept {
 				return OxError(0);
 			}
 
 			template<typename T>
-			[[nodiscard]] constexpr ox::Error field(const char*, T) noexcept {
+			constexpr Error field(const char*, T) noexcept {
 				return OxError(0);
 			}
 
@@ -85,13 +85,13 @@ class TypeDescWriter {
 		~TypeDescWriter();
 
 		template<typename T>
-		[[nodiscard]] ox::Error field(const char *name, T *val, std::size_t valLen);
+		Error field(const char *name, T *val, std::size_t valLen);
 
 		template<typename T>
-		[[nodiscard]] ox::Error field(const char *name, T val);
+		Error field(const char *name, T val);
 
 		template<typename T>
-		[[nodiscard]] ox::Error field(const char *name, T *val);
+		Error field(const char *name, T *val);
 
 		template<typename T = std::nullptr_t>
 		void setTypeInfo(const char *name = T::TypeName, int fields = T::Fields);
@@ -143,7 +143,7 @@ class TypeDescWriter {
 
 // array handler
 template<typename T>
-ox::Error TypeDescWriter::field(const char *name, T *val, std::size_t) {
+Error TypeDescWriter::field(const char *name, T *val, std::size_t) {
 	if (m_type) {
 		constexpr typename ox::remove_pointer<decltype(val)>::type *p = nullptr;
 		bool alreadyExisted = false;
@@ -159,7 +159,7 @@ ox::Error TypeDescWriter::field(const char *name, T *val, std::size_t) {
 }
 
 template<typename T>
-ox::Error TypeDescWriter::field(const char *name, T val) {
+Error TypeDescWriter::field(const char *name, T val) {
 	if (m_type) {
 		bool alreadyExisted = false;
 		const auto t = type(val, &alreadyExisted);
@@ -171,7 +171,7 @@ ox::Error TypeDescWriter::field(const char *name, T val) {
 }
 
 template<typename T>
-ox::Error TypeDescWriter::field(const char *name, T *val) {
+Error TypeDescWriter::field(const char *name, T *val) {
 	if (m_type) {
 		bool alreadyExisted = false;
 		const auto t = type(val, &alreadyExisted);
@@ -234,7 +234,7 @@ void TypeDescWriter::setTypeInfo(const char *name, int) {
 }
 
 template<typename T>
-[[nodiscard]] ValErr<DescriptorType*> buildTypeDef(T *val) {
+Result<DescriptorType*> buildTypeDef(T *val) {
 	TypeDescWriter writer;
 	Error err = model(&writer, val);
 	return {writer.definition(), err};

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - 2018 gtalent2@gmail.com
+ * Copyright 2015 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,55 +13,60 @@
 #include "typetraits.hpp"
 #include "utility.hpp"
 
-#define OxError(...) ox::_error(__FILE__, __LINE__, __VA_ARGS__)
+#define OxError(...) ox::Error(__FILE__, __LINE__, __VA_ARGS__)
 
 namespace ox {
 
-struct BaseError {
+struct [[nodiscard]] Error {
 	const char *msg = nullptr;
-	const char *file = "";
+	const char *file = nullptr;
 	uint16_t line = 0;
+	uint64_t errCode = 0;
 
-	BaseError() = default;
-
-	constexpr BaseError(const BaseError &o) noexcept {
-		msg = o.msg;
-		file = o.file;
-		line = o.line;
+	constexpr Error(uint64_t ec = 0) noexcept: errCode(ec) {
 	}
 
-	constexpr BaseError operator=(const BaseError &o) noexcept {
-		msg = o.msg;
-		file = o.file;
-		line = o.line;
+	explicit constexpr Error(const char *file, uint32_t line, uint64_t errCode, const char *msg = nullptr) noexcept {
+		this->file = file;
+		this->line = line;
+		this->msg = msg;
+		this->errCode = errCode;
+	}
+
+	constexpr Error(const Error &o) noexcept {
+		this->msg = o.msg;
+		this->file = o.file;
+		this->line = o.line;
+		this->errCode = o.errCode;
+	}
+
+	constexpr Error &operator=(const Error &o) noexcept {
+		this->msg = o.msg;
+		this->file = o.file;
+		this->line = o.line;
+		this->errCode = o.errCode;
 		return *this;
+	}
+
+	constexpr operator uint64_t() const noexcept {
+		return errCode;
 	}
 
 };
 
-using Error = Integer<uint64_t, BaseError>;
-
-static constexpr Error _error(const char *file, uint32_t line, uint64_t errCode, const char *msg = nullptr) {
-	Error err = static_cast<ox::Error>(errCode);
-		err.file = file;
-		err.line = line;
-		err.msg = msg;
-	return err;
-}
-
 template<typename T>
-struct ValErr {
+struct [[nodiscard]] Result {
 	T value;
 	Error error;
 
-	constexpr ValErr() noexcept: error(0) {
+	constexpr Result() noexcept: error(0) {
 	}
 
-	constexpr ValErr(Error error) noexcept: value(ox::move(value)), error(error) {
+	constexpr Result(Error error) noexcept: value(ox::move(value)), error(error) {
 		this->error = error;
 	}
 
-	constexpr ValErr(T value, Error error = OxError(0)) noexcept: value(ox::move(value)), error(error) {
+	constexpr Result(T value, Error error = OxError(0)) noexcept: value(ox::move(value)), error(error) {
 	}
 
 	explicit constexpr operator const T&() const noexcept {
@@ -76,21 +81,21 @@ struct ValErr {
 		return error == 0;
 	}
 
-	[[nodiscard]] constexpr ox::Error get(T *val) noexcept {
+	constexpr Error get(T *val) noexcept {
 		*val = value;
 		return error;
 	}
 
 };
 
-namespace error {
+namespace detail {
 
-[[nodiscard]] constexpr ox::Error toError(ox::Error e) noexcept {
+constexpr Error toError(Error e) noexcept {
 	return e;
 }
 
 template<typename T>
-[[nodiscard]] constexpr ox::Error toError(const ox::ValErr<T> &ve) noexcept {
+constexpr Error toError(const Result<T> &ve) noexcept {
 	return ve.error;
 }
 
@@ -98,7 +103,7 @@ template<typename T>
 
 }
 
-inline void oxIgnoreError(ox::Error) {}
-#define oxReturnError(x) if (const auto _ox_error = ox::error::toError(x)) return _ox_error
-#define oxThrowError(x) if (const auto _ox_error = ox::error::toError(x)) throw _ox_error
+inline void oxIgnoreError(ox::Error) noexcept {}
+#define oxReturnError(x) if (const auto _ox_error = ox::detail::toError(x)) return _ox_error
+#define oxThrowError(x) if (const auto _ox_error = ox::detail::toError(x)) throw _ox_error
 

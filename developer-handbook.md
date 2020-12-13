@@ -144,10 +144,6 @@ extra fields to enhance debugability. If instantiated through the ```OxError(x)`
 macro, it will also include the file and line of the error. The ```OxError(x)```
 macro should only be used for the initial instantiation of an ```ox::Error```.
 
-While not strictly necessary, it is a very helpful thing to mark functions
-returning ```ox::Error```s as ```[[nodiscard]]```. This will make sure no
-errors are accidentally ignored.
-
 In addition to ```ox::Error``` there is also the template ```ox::ValErr<T>```.
 ```ox::ValErr``` simply wraps the type T value in a struct that also includes
 error information, which allows the returning of a value and an error without
@@ -156,7 +152,7 @@ resorting to output parameters.
 ```ox::ValErr``` can be used as follows:
 
 ```cpp
-[[nodiscard]] ox::ValErr<int> foo(int i) {
+ox::ValErr<int> foo(int i) {
 	if (i < 10) {
 		return i + 1; // implicitly calls ox::ValErr<T>::ValErr(T)
 	}
@@ -199,7 +195,7 @@ void studioCode() {
 	doStuff(val);
 }
 
-[[nodiscard]] ox::Error engineCode() {
+ox::Error engineCode() {
 	auto [val, err] = foo(1);
 	oxReturnError(err);
 	doStuff(val);
@@ -216,7 +212,7 @@ void studioCode() {
 	doStuff(valerr.value);
 }
 
-[[nodiscard]] ox::Error engineCode() {
+ox::Error engineCode() {
 	auto valerr = foo(1);
 	oxReturnError(valerr);
 	doStuff(valerr.value);

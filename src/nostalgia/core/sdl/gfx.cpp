@@ -33,7 +33,7 @@ struct SdlImplData {
 
 constexpr auto Scale = 5;
 
-[[nodiscard]] static ox::ValErr<ox::Vector<char>> readFile(Context *ctx, const ox::FileAddress &file) {
+static ox::Result<ox::Vector<char>> readFile(Context *ctx, const ox::FileAddress &file) {
 	auto [stat, err] = ctx->rom->stat(file);
 	oxReturnError(err);
 	ox::Vector<char> buff(stat.size);
@@ -42,7 +42,7 @@ constexpr auto Scale = 5;
 }
 
 template<typename T>
-[[nodiscard]] ox::ValErr<T> readObj(Context *ctx, const ox::FileAddress &file) {
+ox::Result<T> readObj(Context *ctx, const ox::FileAddress &file) {
 	auto [buff, err] = readFile(ctx, file);
 	oxReturnError(err);
 	T t;

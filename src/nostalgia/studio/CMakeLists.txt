@@ -1,5 +1,8 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
 add_executable(
 	nostalgia-studio MACOSX_BUNDLE
 		json_read.cpp
@@ -48,6 +51,6 @@ target_link_libraries(
 		Qt5::Widgets
 )
 
-add_test("Test\\ NostalgiaStudioJson" NostalgiaStudioJsonTest)
+add_test("Test NostalgiaStudioJson" NostalgiaStudioJsonTest)
 
 add_subdirectory(lib)

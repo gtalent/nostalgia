@@ -130,14 +130,14 @@ class OX_PACKED NodeBuffer {
 
 		[[nodiscard]] ItemPtr malloc(size_t size);
 
-		[[nodiscard]] ox::Error free(ItemPtr item);
+		Error free(ItemPtr item);
 
 		[[nodiscard]] bool valid(size_t maxSize);
 
 		/**
 		 * Set size, capacity.
 		 */
-		[[nodiscard]] ox::Error setSize(size_t size);
+		Error setSize(size_t size);
 
 		/**
 		 * Get size, capacity.
@@ -157,7 +157,7 @@ class OX_PACKED NodeBuffer {
 		static size_t spaceNeeded(size_t size);
 
 		template<typename F>
-		[[nodiscard]] ox::Error compact(F cb = [](uint64_t, ItemPtr) {});
+		Error compact(F cb = [](uint64_t, ItemPtr) {});
 
 		void truncate();
 
@@ -393,7 +393,7 @@ size_t NodeBuffer<size_t, Item>::spaceNeeded(size_t size) {
 
 template<typename size_t, typename Item>
 template<typename F>
-ox::Error NodeBuffer<size_t, Item>::compact(F cb) {
+Error NodeBuffer<size_t, Item>::compact(F cb) {
 	auto src = firstItem();
 	auto dest = ptr(sizeof(*this));
 	while (dest.offset() <= src.offset()) {

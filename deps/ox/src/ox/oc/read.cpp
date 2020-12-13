@@ -208,7 +208,7 @@ Error OrganicClawReader::field(const char *key, SerStr val) {
 	return err;
 }
 
-[[nodiscard]] ValErr<std::size_t> OrganicClawReader::arrayLength(const char *key, bool) {
+Result<std::size_t> OrganicClawReader::arrayLength(const char *key, bool) {
 	const auto &jv = value(key);
 	if (jv.empty()) {
 		return 0;

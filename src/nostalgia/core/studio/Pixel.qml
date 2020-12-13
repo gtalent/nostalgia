@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gtalent2@gmail.com
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -25,6 +25,14 @@ Rectangle {
 		visible: pixel.width > 42 // that's acutally not HGtG reference
 		anchors.horizontalCenter: pixel.horizontalCenter
 		anchors.bottom: pixel.bottom
+	}
+
+	Rectangle {
+		visible: sheetData ? sheetData.pixelSelected[pixel.pixelNumber] & 1 == 1 : false
+		color: '#0088ff'
+		opacity: 0.5
+		width: parent.width
+		height: parent.height
 	}
 
 }

@@ -41,37 +41,37 @@ class MetalClawWriter {
 
 		~MetalClawWriter() noexcept;
 
-		[[nodiscard]] Error field(const char*, int8_t *val) noexcept;
-		[[nodiscard]] Error field(const char*, int16_t *val) noexcept;
-		[[nodiscard]] Error field(const char*, int32_t *val) noexcept;
-		[[nodiscard]] Error field(const char*, int64_t *val) noexcept;
+		Error field(const char*, int8_t *val) noexcept;
+		Error field(const char*, int16_t *val) noexcept;
+		Error field(const char*, int32_t *val) noexcept;
+		Error field(const char*, int64_t *val) noexcept;
 
-		[[nodiscard]] Error field(const char*, uint8_t *val) noexcept;
-		[[nodiscard]] Error field(const char*, uint16_t *val) noexcept;
-		[[nodiscard]] Error field(const char*, uint32_t *val) noexcept;
-		[[nodiscard]] Error field(const char*, uint64_t *val) noexcept;
+		Error field(const char*, uint8_t *val) noexcept;
+		Error field(const char*, uint16_t *val) noexcept;
+		Error field(const char*, uint32_t *val) noexcept;
+		Error field(const char*, uint64_t *val) noexcept;
 
-		[[nodiscard]] Error field(const char*, bool *val) noexcept;
-
-		template<typename T>
-		[[nodiscard]] Error field(const char*, T *val, std::size_t len);
+		Error field(const char*, bool *val) noexcept;
 
 		template<typename T>
-		[[nodiscard]] Error field(const char*, Vector<T> *val);
+		Error field(const char*, T *val, std::size_t len);
 
 		template<typename T>
-		[[nodiscard]] Error field(const char*, HashMap<String, T> *val);
+		Error field(const char*, Vector<T> *val);
+
+		template<typename T>
+		Error field(const char*, HashMap<String, T> *val);
 
 		template<std::size_t L>
-		[[nodiscard]] Error field(const char*, ox::BString<L> *val) noexcept;
+		Error field(const char*, ox::BString<L> *val) noexcept;
 
-		[[nodiscard]] Error field(const char*, SerStr val) noexcept;
+		Error field(const char*, SerStr val) noexcept;
 
 		template<typename T>
-		[[nodiscard]] Error field(const char*, T *val);
+		Error field(const char*, T *val);
 
 		template<typename U>
-		[[nodiscard]] Error field(const char*, UnionView<U> val);
+		Error field(const char*, UnionView<U> val);
 
 		template<typename T = std::nullptr_t>
 		void setTypeInfo(const char *name = T::TypeName, int fields = T::Fields);
@@ -84,7 +84,7 @@ class MetalClawWriter {
 
 	private:
 		template<typename I>
-		[[nodiscard]] Error appendInteger(I val) noexcept;
+		Error appendInteger(I val) noexcept;
 
 };
 
@@ -162,7 +162,7 @@ Error MetalClawWriter::field(const char*, Vector<T> *val) {
 }
 
 template<typename T>
-[[nodiscard]] Error MetalClawWriter::field(const char*, HashMap<String, T> *val) {
+Error MetalClawWriter::field(const char*, HashMap<String, T> *val) {
 	auto &keys = val->keys();
 	auto len = keys.size();
 	bool fieldSet = false;
@@ -228,7 +228,7 @@ void MetalClawWriter::setTypeInfo(const char*, int fields) {
 }
 
 template<typename T>
-ValErr<Vector<char>> writeMC(T *val) {
+Result<Vector<char>> writeMC(T *val) {
 	Vector<char> buff(10 * units::MB);
 	MetalClawWriter writer(bit_cast<uint8_t*>(buff.data()), buff.size());
 	oxReturnError(model(&writer, val));

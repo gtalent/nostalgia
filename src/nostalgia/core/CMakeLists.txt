@@ -4,7 +4,9 @@ add_library(
 		media.cpp
 )
 
-target_compile_options(NostalgiaCore PUBLIC -Wsign-conversion)
+if(NOT MSVC)
+	target_compile_options(NostalgiaCore PUBLIC -Wsign-conversion)
+endif()
 
 target_link_libraries(
 	NostalgiaCore PUBLIC

@@ -32,12 +32,12 @@ static_assert(!endsWith("asdf", "eu"));
  * @return error
  * stub for now
  */
-[[nodiscard]] ox::Error pathToInode(std::vector<uint8_t>*) {
+ox::Error pathToInode(std::vector<uint8_t>*) {
 	return OxError(0);
 }
 
 // stub for now
-[[nodiscard]] ox::Error toMetalClaw(std::vector<uint8_t> *buff) {
+ox::Error toMetalClaw(std::vector<uint8_t> *buff) {
 	auto [mc, err] = ox::stripClawHeader(ox::bit_cast<char*>(buff->data()), buff->size());
 	oxReturnError(err);
 	buff->resize(mc.size());
@@ -47,7 +47,7 @@ static_assert(!endsWith("asdf", "eu"));
 
 // claw file transformations are broken out because path to inode
 // transformations need to be done after the copy to the new FS is complete
-[[nodiscard]] ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
+ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
 	// copy
 	oxTrace("pack::transformClaw") << "path:" << path.c_str();
 	return dest->ls(path.c_str(), [dest, path](const char *name, ox::InodeId_t) {
@@ -74,7 +74,7 @@ static_assert(!endsWith("asdf", "eu"));
 	});
 }
 
-[[nodiscard]] ox::Error verifyFile(ox::FileSystem32 *fs, const std::string &path, const std::vector<uint8_t> &expected) noexcept {
+ox::Error verifyFile(ox::FileSystem32 *fs, const std::string &path, const std::vector<uint8_t> &expected) noexcept {
 	std::vector<uint8_t> buff(expected.size());
 	oxReturnError(fs->read(path.c_str(), buff.data(), buff.size()));
 	return OxError(buff == expected ? 0 : 1);
@@ -85,7 +85,7 @@ struct VerificationPair {
 	std::vector<uint8_t> buff;
 };
 
-[[nodiscard]] ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {
+ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {
 	std::cout << "copying directory: " << path << '\n';
 	std::vector<VerificationPair> verficationPairs;
 	// copy
@@ -126,7 +126,7 @@ struct VerificationPair {
 
 }
 
-[[nodiscard]] ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest) {
+ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest) {
 	oxReturnError(copy(src, dest, "/"));
 	oxReturnError(transformClaw(dest, "/"));
 	return OxError(0);

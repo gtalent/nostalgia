@@ -1,5 +1,15 @@
-OS=$(shell uname | tr [:upper:] [:lower:])
-HOST_ENV=${OS}-$(shell uname -m)
+ifeq (${OS},Windows_NT)
+	SHELL := powershell.exe
+	.SHELLFLAGS := -NoProfile -Command
+	OS=windows
+	HOST_ENV=${OS}
+	RM_RF=Remove-Item -ErrorAction Ignore -Recurse -Path
+else
+	OS=$(shell uname | tr [:upper:] [:lower:])
+	HOST_ENV=${OS}-$(shell uname -m)
+	RM_RF=rm -rf
+endif
+
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=nostalgia-devenv
 ifndef VCPKG_DIR_BASE
@@ -12,12 +22,6 @@ ifneq ($(shell which docker 2> /dev/null),)
 	ifeq ($(shell docker inspect --format="{{.State.Status}}" ${DEVENV} 2>&1),running)
 		ENV_RUN=docker exec -i -t --user $(shell id -u ${USER}) ${DEVENV}
 	endif
-endif
-
-ifeq ($(OS),windows)
-	RM_RF=Remove-Item -ErrorAction Ignore -Path -Recurse
-else
-	RM_RF=rm -rf
 endif
 
 ifeq ($(OS),darwin)
@@ -93,36 +97,56 @@ devenv-shell:
 vcpkg: ${VCPKG_DIR} vcpkg-install
 
 ${VCPKG_DIR}:
+ifneq (,$(wildcard ${VCPKG_DIR}))
 	${ENV_RUN} ${RM_RF} ${VCPKG_DIR}
+endif
 	${ENV_RUN} mkdir -p ${VCPKG_DIR_BASE}
 	${ENV_RUN} git clone -b release --depth 1 --branch ${VCPKG_VERSION} https://github.com/microsoft/vcpkg.git ${VCPKG_DIR}
+ifneq (${OS},windows)
 	${ENV_RUN} ${VCPKG_DIR}/bootstrap-vcpkg.sh
+else
+	${ENV_RUN} ${VCPKG_DIR}/bootstrap-vcpkg.bat
+endif
 
 .PHONY: vcpkg-install
 vcpkg-install:
+ifneq (${OS},windows)
 	${VCPKG_DIR}/vcpkg install sdl2 jsoncpp
+else
+	${VCPKG_DIR}/vcpkg install --triplet x64-windows sdl2 jsoncpp
+endif
 
 .PHONY: configure-release
 configure-release:
+ifneq (,$(wildcard build/${HOST_ENV}-release))
 	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-release
-	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} release ${VCPKG_DIR}
+endif
+	${ENV_RUN} python ./scripts/setup-build.py ${HOST_ENV} release ${VCPKG_DIR}
 
 .PHONY: configure-debug
 configure-debug:
+ifneq (,$(wildcard build/${HOST_ENV}-debug))
 	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-debug
-	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} debug ${VCPKG_DIR}
+endif
+	${ENV_RUN} python ./scripts/setup-build.py ${HOST_ENV} debug ${VCPKG_DIR}
 
 .PHONY: configure-asan
 configure-asan:
+ifneq (,$(wildcard build/${HOST_ENV}-asan))
 	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-asan
-	${ENV_RUN} ./scripts/setup-build ${HOST_ENV} asan ${VCPKG_DIR}
+endif
+	${ENV_RUN} python ./scripts/setup-build.py ${HOST_ENV} asan ${VCPKG_DIR}
 
 .PHONY: configure-gba
 configure-gba:
+ifneq (,$(wildcard build/gba-release))
 	${ENV_RUN} ${RM_RF} build/gba-release
-	${ENV_RUN} ./scripts/setup-build gba release ${VCPKG_DIR}
+endif
+	${ENV_RUN} python ./scripts/setup-build.py gba release ${VCPKG_DIR}
 
 .PHONY: configure-gba-debug
 configure-gba-debug:
+ifneq (,$(wildcard build/gba-debug))
 	${ENV_RUN} ${RM_RF} build/gba-debug
-	${ENV_RUN} ./scripts/setup-build gba debug ${VCPKG_DIR}
+endif
+	${ENV_RUN} python ./scripts/setup-build.py gba debug ${VCPKG_DIR}

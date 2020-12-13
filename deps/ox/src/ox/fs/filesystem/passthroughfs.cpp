@@ -64,7 +64,7 @@ Error PassThroughFS::read(const char *path, void *buffer, std::size_t buffSize) 
 	return OxError(0);
 }
 
-ValErr<uint8_t*> PassThroughFS::read(const char*) {
+Result<uint8_t*> PassThroughFS::read(const char*) {
 	return OxError(1);
 }
 
@@ -78,7 +78,7 @@ Error PassThroughFS::read(uint64_t, std::size_t, std::size_t, void*, std::size_t
 	return OxError(1);
 }
 
-ValErr<uint8_t*> PassThroughFS::read(uint64_t) {
+Result<uint8_t*> PassThroughFS::read(uint64_t) {
 	return OxError(1);
 }
 
@@ -90,7 +90,7 @@ Error PassThroughFS::remove(const char *path, bool recursive) {
 	}
 }
 
-ox::Error PassThroughFS::resize(uint64_t, void*) {
+Error PassThroughFS::resize(uint64_t, void*) {
 	// unsupported
 	return OxError(1);
 }
@@ -112,12 +112,12 @@ Error PassThroughFS::write(uint64_t, void*, uint64_t, uint8_t) {
 	return OxError(1);
 }
 
-ValErr<FileStat> PassThroughFS::stat(uint64_t) {
+Result<FileStat> PassThroughFS::stat(uint64_t) {
 	// unsupported
 	return {{}, OxError(1)};
 }
 
-ValErr<FileStat> PassThroughFS::stat(const char *path) {
+Result<FileStat> PassThroughFS::stat(const char *path) {
 	std::error_code ec;
 	const auto p = m_path / stripSlash(path);
 	uint8_t type = std::filesystem::is_directory(p, ec) ?

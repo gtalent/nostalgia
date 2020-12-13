@@ -53,7 +53,7 @@ struct NostalgiaStudioProfile {
 template<typename T>
 ox::Error model(T *io, NostalgiaStudioProfile *obj) {
 	auto err = OxError(0);
-	io->setTypeInfo("NostalgiaStudioProfile", 3);
+	oxReturnError(io->setTypeInfo("NostalgiaStudioProfile", 3));
 	oxReturnError(io->field("app_name", &obj->appName));
 	oxReturnError(io->field("org_name", &obj->orgName));
 	oxReturnError(io->field("plugins_path", &obj->pluginsPath));
@@ -75,6 +75,9 @@ class MainWindow: public QMainWindow {
 		QAction *m_importAction = nullptr;
 		QAction *m_saveAction = nullptr;
 		QAction *m_exportAction = nullptr;
+		QAction *m_cutAction = nullptr;
+		QAction *m_copyAction = nullptr;
+		QAction *m_pasteAction = nullptr;
 		Context m_ctx;
 		QPointer<QMenu> m_viewMenu;
 		QVector<QPointer<QDockWidget>> m_dockWidgets;
@@ -84,7 +87,7 @@ class MainWindow: public QMainWindow {
 		QPointer<OxFSModel> m_oxfsView = nullptr;
 		QTabWidget *m_tabs = nullptr;
 		QUndoGroup m_undoGroup;
-		Editor* m_currentEditor = nullptr;
+		Editor *m_currentEditor = nullptr;
 
 	public:
 		MainWindow(QString profilePath);
@@ -146,6 +149,12 @@ class MainWindow: public QMainWindow {
 		void saveFile();
 
 		void exportFile();
+
+		void cutAction();
+
+		void copyAction();
+
+		void pasteAction();
 
 		void closeTab(int idx);
 

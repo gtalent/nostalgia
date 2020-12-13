@@ -10,7 +10,7 @@ add_library(
 )
 
 if(NOT OX_BARE_METAL)
-	if(NOT APPLE)
+	if(NOT APPLE AND NOT MSVC)
 		target_link_libraries(
 			OxFS PUBLIC
 				stdc++fs

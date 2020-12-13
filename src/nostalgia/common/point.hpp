@@ -57,7 +57,9 @@ class Point {
 		constexpr Point operator/=(int i);
 
 
-		constexpr bool operator==(const Point&);
+		constexpr bool operator==(const Point&) const;
+
+		constexpr bool operator!=(const Point&) const;
 
 };
 
@@ -169,8 +171,13 @@ constexpr Point Point::operator/=(int i) {
 	return *this;
 }
 
-constexpr bool Point::operator==(const Point &p) {
+constexpr bool Point::operator==(const Point &p) const {
 	return x == p.x && y == p.y;
+}
+
+
+constexpr bool Point::operator!=(const Point &p) const {
+	return x != p.x || y != p.y;
 }
 
 

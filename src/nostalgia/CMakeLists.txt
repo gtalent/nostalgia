@@ -6,8 +6,6 @@ if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
 	if(NOSTALGIA_BUILD_STUDIO)
 		find_package(Qt5Widgets REQUIRED)
 		find_package(Qt5QuickWidgets REQUIRED)
-		set(CMAKE_AUTOMOC ON)
-		set(CMAKE_AUTORCC ON)
 	endif()
 endif()
 
@@ -15,6 +13,7 @@ endif()
 
 add_subdirectory(core)
 add_subdirectory(common)
+add_subdirectory(scene)
 add_subdirectory(world)
 
 if(NOSTALGIA_BUILD_PLAYER)

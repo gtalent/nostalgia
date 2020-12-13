@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gtalent2@gmail.com
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,7 +16,7 @@ namespace nostalgia::world {
 
 class WorldEditorPlugin: public QObject, public studio::Plugin {
 	Q_OBJECT
-	Q_PLUGIN_METADATA(IID "net.drinkingtea.nostalgia.studio.Plugin")
+	Q_PLUGIN_METADATA(IID "net.drinkingtea.nostalgia.world.studio.Plugin" FILE "world-studio.json")
 	Q_INTERFACES(nostalgia::studio::Plugin)
 
 	public:

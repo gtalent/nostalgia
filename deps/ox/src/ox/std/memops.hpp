@@ -40,3 +40,12 @@ constexpr void *ox_memset(void *ptr, int val, std::size_t size) noexcept {
 	}
 	return ptr;
 }
+
+namespace ox {
+
+template<typename T>
+void *memsetElements(T *ptr, T val, std::size_t elements) noexcept {
+	return memset(ptr, val, elements * sizeof(T));
+}
+
+}

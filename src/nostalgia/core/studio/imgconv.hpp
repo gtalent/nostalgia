@@ -6,6 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#pragma once
+
 #include <QString>
 
 #include <ox/std/error.hpp>
@@ -17,8 +19,18 @@
 
 namespace nostalgia::core {
 
+[[nodiscard]] constexpr int pointToIdx(int w, int x, int y) noexcept {
+	constexpr auto colLength = PixelsPerTile;
+	const auto rowLength = (w / TileWidth) * colLength;
+	const auto colStart = colLength * (x / TileWidth);
+	const auto rowStart = rowLength * (y / TileHeight);
+	const auto colOffset = x % TileWidth;
+	const auto rowOffset = (y % TileHeight) * TileHeight;
+	return colStart + colOffset + rowStart + rowOffset;
+}
+
 template<typename T>
-[[nodiscard]] ox::ValErr<std::vector<uint8_t>> toBuffer(T *data, std::size_t buffSize = ox::units::MB) {
+ox::Result<std::vector<uint8_t>> toBuffer(T *data, std::size_t buffSize = ox::units::MB) {
 	std::vector<uint8_t> buff(buffSize);
 	std::size_t sz = 0;
 	oxReturnError(ox::writeMC(buff.data(), buff.size(), data, &sz));

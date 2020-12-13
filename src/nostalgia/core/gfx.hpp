@@ -66,18 +66,18 @@ ox::Error model(T *io, NostalgiaGraphic *ng) {
 	return OxError(0);
 }
 
-[[nodiscard]] ox::Error initGfx(Context *ctx);
+ox::Error initGfx(Context *ctx);
 
-[[nodiscard]] ox::Error shutdownGfx(Context*);
+ox::Error shutdownGfx(Context*);
 
-[[nodiscard]] ox::Error initConsole(Context *ctx);
+ox::Error initConsole(Context *ctx);
 
 /**
  * @param section describes which section of the selected TileSheetSpace to use (e.g. MEM_PALLETE_BG[section])
  */
-[[nodiscard]] ox::Error loadBgTileSheet(Context *ctx, int section, ox::FileAddress tilesheet, ox::FileAddress palette = nullptr);
+ox::Error loadBgTileSheet(Context *ctx, int section, ox::FileAddress tilesheet, ox::FileAddress palette = nullptr);
 
-[[nodiscard]] ox::Error loadSpriteTileSheet(Context *ctx,
+ox::Error loadSpriteTileSheet(Context *ctx,
                                             int section,
                                             ox::FileAddress tilesheetAddr,
                                             ox::FileAddress paletteAddr);

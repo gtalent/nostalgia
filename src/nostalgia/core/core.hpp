@@ -18,9 +18,9 @@ namespace nostalgia::core {
 
 using event_handler = int(*)(Context*);
 
-[[nodiscard]] ox::Error init(Context *ctx);
+ox::Error init(Context *ctx);
 
-[[nodiscard]] ox::Error run(Context *ctx);
+ox::Error run(Context *ctx);
 
 // Sets event handler that sleeps for the time given in the return value. The
 // sleep time is a minimum of ~16 milliseconds.

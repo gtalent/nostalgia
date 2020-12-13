@@ -59,7 +59,7 @@ class PathIterator {
 		/**
 		 * @return 0 if no error
 		 */
-		ValErr<std::size_t> nextSize() const;
+		Result<std::size_t> nextSize() const;
 
 		bool hasNext() const;
 

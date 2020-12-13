@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - 2018 gtalent2@gmail.com
+ * Copyright 2015 - 2020 gtalent2@gmail.com
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -25,7 +25,13 @@
 #if __has_include(<new>)
 #include <new>
 #else
-void *operator new(std::size_t, void*) noexcept;
+constexpr void *operator new(std::size_t, void *addr) noexcept {
+	return addr;
+}
+
+constexpr void *operator new[](std::size_t, void *addr) noexcept {
+	return addr;
+}
 #endif
 
 

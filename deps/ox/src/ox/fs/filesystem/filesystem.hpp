@@ -21,48 +21,48 @@ class FileSystem {
 	public:
 		virtual ~FileSystem() = default;
 
-		[[nodiscard]] virtual ox::Error mkdir(const char *path, bool recursive = false) = 0;
+		virtual Error mkdir(const char *path, bool recursive = false) = 0;
 
 		/**
 		 * Moves an entry from one directory to another.
 		 * @param src the path to the file
 		 * @param dest the path of the destination directory
 		 */
-		[[nodiscard]] virtual ox::Error move(const char *src, const char *dest) = 0;
+		virtual Error move(const char *src, const char *dest) = 0;
 
-		[[nodiscard]] virtual ox::Error read(const char *path, void *buffer, std::size_t buffSize) = 0;
+		virtual Error read(const char *path, void *buffer, std::size_t buffSize) = 0;
 
-		[[nodiscard]] virtual ox::ValErr<uint8_t*> read(const char *path) = 0;
+		virtual Result<uint8_t*> read(const char *path) = 0;
 
-		[[nodiscard]] virtual ox::Error read(uint64_t inode, void *buffer, std::size_t size) = 0;
+		virtual Error read(uint64_t inode, void *buffer, std::size_t size) = 0;
 
-		[[nodiscard]] virtual ox::Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) = 0;
+		virtual Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) = 0;
 
-		[[nodiscard]] virtual ox::ValErr<uint8_t*> read(uint64_t inode) = 0;
+		virtual Result<uint8_t*> read(uint64_t inode) = 0;
 
-		[[nodiscard]] ox::Error read(FileAddress addr, void *buffer, std::size_t size);
+		Error read(FileAddress addr, void *buffer, std::size_t size);
 
-		[[nodiscard]] ox::Error read(FileAddress addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size);
+		Error read(FileAddress addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size);
 
-		[[nodiscard]] ox::ValErr<uint8_t*> read(FileAddress addr);
+		Result<uint8_t*> read(FileAddress addr);
 
-		[[nodiscard]] virtual ox::Error remove(const char *path, bool recursive = false) = 0;
+		virtual Error remove(const char *path, bool recursive = false) = 0;
 
-		[[nodiscard]] ox::Error remove(FileAddress addr, bool recursive = false);
+		Error remove(FileAddress addr, bool recursive = false);
 
-		[[nodiscard]] virtual ox::Error resize(uint64_t size, void *buffer = nullptr) = 0;
+		virtual Error resize(uint64_t size, void *buffer = nullptr) = 0;
 
-		[[nodiscard]] virtual ox::Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) = 0;
+		virtual Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) = 0;
 
-		[[nodiscard]] virtual ox::Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) = 0;
+		virtual Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) = 0;
 
-		[[nodiscard]] ox::Error write(FileAddress addr, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile);
+		Error write(FileAddress addr, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile);
 
-		[[nodiscard]] virtual ox::ValErr<FileStat> stat(uint64_t inode) = 0;
+		virtual Result<FileStat> stat(uint64_t inode) = 0;
 
-		[[nodiscard]] virtual ox::ValErr<FileStat> stat(const char *path) = 0;
+		virtual Result<FileStat> stat(const char *path) = 0;
 
-		[[nodiscard]] ox::ValErr<FileStat> stat(FileAddress addr);
+		Result<FileStat> stat(FileAddress addr);
 
 		[[nodiscard]] virtual uint64_t spaceNeeded(uint64_t size) = 0;
 
@@ -72,7 +72,7 @@ class FileSystem {
 
 		[[nodiscard]] virtual char *buff() = 0;
 
-		[[nodiscard]] virtual ox::Error walk(ox::Error(*cb)(uint8_t, uint64_t, uint64_t)) = 0;
+		virtual Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) = 0;
 
 		[[nodiscard]] virtual bool valid() const = 0;
 
@@ -105,41 +105,41 @@ class FileSystemTemplate: public FileSystem {
 
 		~FileSystemTemplate();
 
-		[[nodiscard]] static ox::Error format(void *buff, uint64_t buffSize);
+		static Error format(void *buff, uint64_t buffSize);
 
-		[[nodiscard]] ox::Error mkdir(const char *path, bool recursive = false) override;
+		Error mkdir(const char *path, bool recursive = false) override;
 
-		[[nodiscard]] ox::Error move(const char *src, const char *dest) override;
+		Error move(const char *src, const char *dest) override;
 
-		[[nodiscard]] ox::Error read(const char *path, void *buffer, std::size_t buffSize) override;
+		Error read(const char *path, void *buffer, std::size_t buffSize) override;
 
-		[[nodiscard]] ox::ValErr<uint8_t*> read(const char*) override;
+		Result<uint8_t*> read(const char*) override;
 
-		[[nodiscard]] ox::Error read(uint64_t inode, void *buffer, std::size_t size) override;
+		Error read(uint64_t inode, void *buffer, std::size_t size) override;
 
-		[[nodiscard]] ox::Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) override;
+		Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) override;
 
-		[[nodiscard]] ox::ValErr<uint8_t*> read(uint64_t) override;
+		Result<uint8_t*> read(uint64_t) override;
 
 		template<typename F>
-		[[nodiscard]] ox::Error ls(const char *dir, F cb);
+		Error ls(const char *dir, F cb);
 
-		[[nodiscard]] ox::Error remove(const char *path, bool recursive = false) override;
+		Error remove(const char *path, bool recursive = false) override;
 
 		/**
 		 * Resizes FileSystem to minimum possible size.
 		 */
-		[[nodiscard]] ox::Error resize();
+		Error resize();
 
-		[[nodiscard]] ox::Error resize(uint64_t size, void *buffer = nullptr) override;
+		Error resize(uint64_t size, void *buffer = nullptr) override;
 
-		[[nodiscard]] ox::Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
+		Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
 
-		[[nodiscard]] ox::Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
+		Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
 
-		[[nodiscard]] ox::ValErr<FileStat> stat(uint64_t inode) override;
+		Result<FileStat> stat(uint64_t inode) override;
 
-		[[nodiscard]] ox::ValErr<FileStat> stat(const char *path) override;
+		Result<FileStat> stat(const char *path) override;
 
 		uint64_t spaceNeeded(uint64_t size) override;
 
@@ -149,19 +149,19 @@ class FileSystemTemplate: public FileSystem {
 
 		char *buff() override;
 
-		[[nodiscard]] ox::Error walk(ox::Error(*cb)(uint8_t, uint64_t, uint64_t)) override;
+		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) override;
 
 		bool valid() const override;
 
 	private:
-		[[nodiscard]] ValErr<FileSystemData> fileSystemData() const noexcept;
+		Result<FileSystemData> fileSystemData() const noexcept;
 
 		/**
 		 * Finds the inode ID at the given path.
 		 */
-		[[nodiscard]] ValErr<uint64_t> find(const char *path) const noexcept;
+		Result<uint64_t> find(const char *path) const noexcept;
 
-		[[nodiscard]] ValErr<Directory> rootDir() const noexcept;
+		Result<Directory> rootDir() const noexcept;
 
 };
 
@@ -184,7 +184,7 @@ FileSystemTemplate<FileStore, Directory>::~FileSystemTemplate() {
 }
 
 template<typename FileStore, typename Directory>
-ox::Error FileSystemTemplate<FileStore, Directory>::format(void *buff, uint64_t buffSize) {
+Error FileSystemTemplate<FileStore, Directory>::format(void *buff, uint64_t buffSize) {
 	oxReturnError(FileStore::format(buff, buffSize));
 	FileStore fs(buff, buffSize);
 
@@ -206,7 +206,7 @@ ox::Error FileSystemTemplate<FileStore, Directory>::format(void *buff, uint64_t 
 }
 
 template<typename FileStore, typename Directory>
-ox::Error FileSystemTemplate<FileStore, Directory>::mkdir(const char *path, bool recursive) {
+Error FileSystemTemplate<FileStore, Directory>::mkdir(const char *path, bool recursive) {
 	oxTrace("ox::fs::FileSystemTemplate::mkdir") << "path:" << path << "recursive:" << recursive;
 	auto rootDir = this->rootDir();
 	oxReturnError(rootDir.error);
@@ -214,7 +214,7 @@ ox::Error FileSystemTemplate<FileStore, Directory>::mkdir(const char *path, bool
 }
 
 template<typename FileStore, typename Directory>
-ox::Error FileSystemTemplate<FileStore, Directory>::move(const char *src, const char *dest) {
+Error FileSystemTemplate<FileStore, Directory>::move(const char *src, const char *dest) {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
 	Directory rootDir(m_fs, fd.value.rootDirInode);
@@ -226,7 +226,7 @@ ox::Error FileSystemTemplate<FileStore, Directory>::move(const char *src, const 
 }
 
 template<typename FileStore, typename Directory>
-ox::Error FileSystemTemplate<FileStore, Directory>::read(const char *path, void *buffer, std::size_t buffSize) {
+Error FileSystemTemplate<FileStore, Directory>::read(const char *path, void *buffer, std::size_t buffSize) {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
 	Directory rootDir(m_fs, fd.value.rootDirInode);
@@ -236,7 +236,7 @@ ox::Error FileSystemTemplate<FileStore, Directory>::read(const char *path, void 
 }
 
 template<typename FileStore, typename Directory>
-[[nodiscard]] ox::ValErr<uint8_t*> FileSystemTemplate<FileStore, Directory>::read(const char *path) {
+Result<uint8_t*> FileSystemTemplate<FileStore, Directory>::read(const char *path) {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
 	Directory rootDir(m_fs, fd.value.rootDirInode);
@@ -246,17 +246,17 @@ template<typename FileStore, typename Directory>
 }
 
 template<typename FileStore, typename Directory>
-ox::Error FileSystemTemplate<FileStore, Directory>::read(uint64_t inode, void *buffer, std::size_t buffSize) {
+Error FileSystemTemplate<FileStore, Directory>::read(uint64_t inode, void *buffer, std::size_t buffSize) {
 	return m_fs.read(inode, buffer, buffSize);
 }
 
 template<typename FileStore, typename Directory>
-ox::Error FileSystemTemplate<FileStore, Directory>::read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) {
+Error FileSystemTemplate<FileStore, Directory>::read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) {
 	return m_fs.read(inode, readStart, readSize, reinterpret_cast<uint8_t*>(buffer), size);
 }
 
 template<typename FileStore, typename Directory>
-[[nodiscard]] ox::ValErr<uint8_t*> FileSystemTemplate<FileStore, Directory>::read(uint64_t inode) {
+Result<uint8_t*> FileSystemTemplate<FileStore, Directory>::read(uint64_t inode) {
 	auto data = m_fs.read(inode);
 	if (!data.valid()) {
 		return OxError(1);
@@ -266,7 +266,7 @@ template<typename FileStore, typename Directory>
 
 template<typename FileStore, typename Directory>
 template<typename F>
-ox::Error FileSystemTemplate<FileStore, Directory>::ls(const char *path, F cb) {
+Error FileSystemTemplate<FileStore, Directory>::ls(const char *path, F cb) {
 	oxTrace("ox::FileSystemTemplate::ls") << "path:" << path;
 	auto [s, err] = stat(path);
 	oxReturnError(err);
@@ -275,7 +275,7 @@ ox::Error FileSystemTemplate<FileStore, Directory>::ls(const char *path, F cb) {
 }
 
 template<typename FileStore, typename Directory>
-ox::Error FileSystemTemplate<FileStore, Directory>::remove(const char *path, bool recursive) {
+Error FileSystemTemplate<FileStore, Directory>::remove(const char *path, bool recursive) {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
 	Directory rootDir(m_fs, fd.value.rootDirInode);
@@ -297,18 +297,18 @@ ox::Error FileSystemTemplate<FileStore, Directory>::remove(const char *path, boo
 }
 
 template<typename FileStore, typename Directory>
-ox::Error FileSystemTemplate<FileStore, Directory>::resize() {
+Error FileSystemTemplate<FileStore, Directory>::resize() {
 	return m_fs.resize();
 }
 
 template<typename FileStore, typename Directory>
-ox::Error FileSystemTemplate<FileStore, Directory>::resize(uint64_t size, void *buffer) {
+Error FileSystemTemplate<FileStore, Directory>::resize(uint64_t size, void *buffer) {
 	oxReturnError(m_fs.resize(size, buffer));
 	return OxError(0);
 }
 
 template<typename FileStore, typename Directory>
-ox::Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void *buffer, uint64_t size, uint8_t fileType) {
+Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void *buffer, uint64_t size, uint8_t fileType) {
 	auto [inode, err] = find(path);
 	if (err) {
 		auto generated = m_fs.generateInodeId();
@@ -323,12 +323,12 @@ ox::Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void
 }
 
 template<typename FileStore, typename Directory>
-ox::Error FileSystemTemplate<FileStore, Directory>::write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType) {
+Error FileSystemTemplate<FileStore, Directory>::write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType) {
 	return m_fs.write(inode, buffer, size, fileType);
 }
 
 template<typename FileStore, typename Directory>
-ValErr<FileStat> FileSystemTemplate<FileStore, Directory>::stat(uint64_t inode) {
+Result<FileStat> FileSystemTemplate<FileStore, Directory>::stat(uint64_t inode) {
 	auto s = m_fs.stat(inode);
 	FileStat out;
 	out.inode = s.value.inode;
@@ -339,7 +339,7 @@ ValErr<FileStat> FileSystemTemplate<FileStore, Directory>::stat(uint64_t inode) 
 }
 
 template<typename FileStore, typename Directory>
-ValErr<FileStat> FileSystemTemplate<FileStore, Directory>::stat(const char *path) {
+Result<FileStat> FileSystemTemplate<FileStore, Directory>::stat(const char *path) {
 	auto inode = find(path);
 	if (inode.error) {
 		return {{}, inode.error};
@@ -368,7 +368,7 @@ char *FileSystemTemplate<FileStore, Directory>::buff() {
 }
 
 template<typename FileStore, typename Directory>
-ox::Error FileSystemTemplate<FileStore, Directory>::walk(ox::Error(*cb)(uint8_t, uint64_t, uint64_t)) {
+Error FileSystemTemplate<FileStore, Directory>::walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) {
 	return m_fs.walk(cb);
 }
 
@@ -378,7 +378,7 @@ bool FileSystemTemplate<FileStore, Directory>::valid() const {
 }
 
 template<typename FileStore, typename Directory>
-ValErr<typename FileSystemTemplate<FileStore, Directory>::FileSystemData> FileSystemTemplate<FileStore, Directory>::fileSystemData() const noexcept {
+Result<typename FileSystemTemplate<FileStore, Directory>::FileSystemData> FileSystemTemplate<FileStore, Directory>::fileSystemData() const noexcept {
 	FileSystemData fd;
 	auto err = m_fs.read(InodeFsData, &fd, sizeof(fd));
 	if (err != 0) {
@@ -388,7 +388,7 @@ ValErr<typename FileSystemTemplate<FileStore, Directory>::FileSystemData> FileSy
 }
 
 template<typename FileStore, typename Directory>
-ValErr<uint64_t> FileSystemTemplate<FileStore, Directory>::find(const char *path) const noexcept {
+Result<uint64_t> FileSystemTemplate<FileStore, Directory>::find(const char *path) const noexcept {
 	auto fd = fileSystemData();
 	if (fd.error) {
 		return {0, fd.error};
@@ -406,7 +406,7 @@ ValErr<uint64_t> FileSystemTemplate<FileStore, Directory>::find(const char *path
 }
 
 template<typename FileStore, typename Directory>
-ValErr<Directory> FileSystemTemplate<FileStore, Directory>::rootDir() const noexcept {
+Result<Directory> FileSystemTemplate<FileStore, Directory>::rootDir() const noexcept {
 	auto fd = fileSystemData();
 	if (fd.error) {
 		return {{}, fd.error};

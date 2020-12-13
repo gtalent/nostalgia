@@ -23,7 +23,7 @@ enum class FileAddressType: int8_t {
 class FileAddress {
 
 	template<typename T>
-	friend ox::Error model(T*, FileAddress*);
+	friend Error model(T*, FileAddress*);
 
 	public:
 		static constexpr auto TypeName = "net.drinkingtea.ox.FileAddress";
@@ -68,7 +68,7 @@ class FileAddress {
 			}
 		}
 
-		[[nodiscard]] constexpr ValErr<uint64_t> getInode() const noexcept {
+		Result<uint64_t> getInode() const noexcept {
 			switch (m_type) {
 				case FileAddressType::Inode:
 					return m_data.inode;
@@ -77,7 +77,7 @@ class FileAddress {
 			}
 		}
 
-		[[nodiscard]] constexpr ValErr<const char*> getPath() const noexcept {
+		Result<const char*> getPath() const noexcept {
 			switch (m_type) {
 				case FileAddressType::Path:
 					return m_data.path;
@@ -95,7 +95,7 @@ class FileAddress {
 };
 
 template<typename T>
-ox::Error model(T *io, FileAddress::Data *obj) {
+Error model(T *io, FileAddress::Data *obj) {
 	io->template setTypeInfo<FileAddress::Data>();
 	oxReturnError(io->field("path", SerStr(&obj->path)));
 	oxReturnError(io->field("constPath", SerStr(&obj->path)));
@@ -104,7 +104,7 @@ ox::Error model(T *io, FileAddress::Data *obj) {
 }
 
 template<typename T>
-ox::Error model(T *io, FileAddress *fa) {
+Error model(T *io, FileAddress *fa) {
 	io->template setTypeInfo<FileAddress>();
 	oxReturnError(io->field("type", bit_cast<int8_t*>(&fa->m_type)));
 	oxReturnError(io->field("data", UnionView(&fa->m_data, static_cast<int>(fa->m_type))));

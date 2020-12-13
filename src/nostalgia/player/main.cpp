@@ -269,7 +269,7 @@ ox::Error initArena(core::Context *ctx) {
 
 int gameOverLoop(core::Context *ctx) {
 	if (core::buttonDown(core::GamePad_Start)) {
-		initArena(ctx);
+		oxIgnoreError(initArena(ctx));
 	}
 	return 16;
 }
@@ -291,7 +291,7 @@ void initGameOverScreen(core::Context *ctx, Character *winner) {
 
 int mainScreenLoop(core::Context *ctx) {
 	if (core::buttonDown(core::GamePad_Start)) {
-		initArena(ctx);
+		oxIgnoreError(initArena(ctx));
 	}
 	return 16;
 }
@@ -306,7 +306,7 @@ ox::Error initMainScreen(core::Context *ctx) {
 	return OxError(0);
 }
 
-ox::Error run(ox::FileSystem *fs) {
+static ox::Error run(ox::FileSystem *fs) {
 	core::Context ctx;
 	ctx.rom = fs;
 	oxReturnError(core::init(&ctx));

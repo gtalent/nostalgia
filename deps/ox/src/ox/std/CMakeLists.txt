@@ -5,7 +5,6 @@ add_library(
 		byteswap.cpp
 		heapmgr.cpp
 		memops.cpp
-		new.cpp
 		random.cpp
 		substitutes.cpp
 		stacktrace.cpp
@@ -14,7 +13,9 @@ add_library(
 		trace.cpp
 )
 
-target_compile_options(OxStd PRIVATE -Wsign-conversion)
+if(NOT MSVC)
+	target_compile_options(OxStd PRIVATE -Wsign-conversion)
+endif()
 
 if(NOT OX_BARE_METAL)
 	set_property(

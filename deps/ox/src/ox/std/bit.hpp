@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - 2018 gtalent2@gmail.com
+ * Copyright 2015 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,7 +16,7 @@ namespace ox {
 
 template<typename To, typename From>
 typename enable_if<sizeof(To) == sizeof(From), To>::type bit_cast(From src) noexcept {
-	To dst = {};
+	To dst;
 	memcpy(&dst, &src, sizeof(src));
 	return dst;
 }

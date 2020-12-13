@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -69,4 +70,5 @@ if target != 'gba':
     cb.close()
 
 rm('compile_commands.json')
-os.symlink('build/{:s}/compile_commands.json'.format(build_config), 'compile_commands.json')
+if platform.system() != 'Windows':
+    os.symlink('build/{:s}/compile_commands.json'.format(build_config), 'compile_commands.json')

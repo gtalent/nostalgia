@@ -17,8 +17,8 @@ class Context {
 	public:
 		QString appName;
 		QString orgName;
-		QWidget* tabParent = nullptr;
-		const class Project* project = nullptr;
+		QWidget *tabParent = nullptr;
+		const class Project *project = nullptr;
 };
 
 }

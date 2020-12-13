@@ -77,21 +77,21 @@ class FileStoreTemplate {
 
 		FileStoreTemplate(void *buff, size_t buffSize);
 
-		[[nodiscard]] static Error format(void *buffer, size_t bufferSize);
+		static Error format(void *buffer, size_t bufferSize);
 
-		[[nodiscard]] Error setSize(InodeId_t buffSize);
+		Error setSize(InodeId_t buffSize);
 
-		[[nodiscard]] Error incLinks(InodeId_t id);
+		Error incLinks(InodeId_t id);
 
-		[[nodiscard]] Error decLinks(InodeId_t id);
+		Error decLinks(InodeId_t id);
 
-		[[nodiscard]] Error write(InodeId_t id, void *data, FsSize_t dataLen, uint8_t fileType = 0);
+		Error write(InodeId_t id, void *data, FsSize_t dataLen, uint8_t fileType = 0);
 
-		[[nodiscard]] Error remove(InodeId_t id);
+		Error remove(InodeId_t id);
 
-		[[nodiscard]] Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size = nullptr) const;
+		Error read(InodeId_t id, void *data, FsSize_t dataSize, FsSize_t *size = nullptr) const;
 
-		[[nodiscard]] Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size = nullptr) const;
+		Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size = nullptr) const;
 
 		const ptrarith::Ptr<uint8_t, std::size_t> read(InodeId_t id) const;
 
@@ -106,15 +106,15 @@ class FileStoreTemplate {
 		 * @return 0 if read is a success
 		 */
 		template<typename T>
-		[[nodiscard]] ox::Error read(InodeId_t id, FsSize_t readStart,
+		Error read(InodeId_t id, FsSize_t readStart,
 		           FsSize_t readSize, T *data,
 		           FsSize_t *size) const;
 
-		[[nodiscard]] ValErr<StatInfo> stat(InodeId_t id);
+		Result<StatInfo> stat(InodeId_t id);
 
-		[[nodiscard]] ox::Error resize();
+		Error resize();
 
-		[[nodiscard]] ox::Error resize(std::size_t size, void *newBuff = nullptr);
+		Error resize(std::size_t size, void *newBuff = nullptr);
 
 		[[nodiscard]] InodeId_t spaceNeeded(FsSize_t size);
 
@@ -124,13 +124,13 @@ class FileStoreTemplate {
 
 		[[nodiscard]] char *buff();
 
-		[[nodiscard]] Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t));
+		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t));
 
-		[[nodiscard]] ValErr<InodeId_t> generateInodeId();
+		Result<InodeId_t> generateInodeId();
 
 		bool valid() const;
 
-		[[nodiscard]] ox::Error compact();
+		Error compact();
 
 	private:
 		FileStoreData *fileStoreData() const;
@@ -235,7 +235,7 @@ Error FileStoreTemplate<size_t>::decLinks(InodeId_t id) {
 	if (item.valid()) {
 		item->links--;
 		if (item->links == 0) {
-			remove(item);
+			oxReturnError(remove(item));
 		}
 		return OxError(0);
 	}
@@ -412,7 +412,7 @@ const ptrarith::Ptr<uint8_t, std::size_t> FileStoreTemplate<size_t>::read(InodeI
 }
 
 template<typename size_t>
-ox::Error FileStoreTemplate<size_t>::resize() {
+Error FileStoreTemplate<size_t>::resize() {
 	oxReturnError(compact());
 	const auto newSize = size() - available();
 	oxTrace("ox::fs::FileStoreTemplate::resize") << "resize to:" << newSize;
@@ -435,17 +435,17 @@ Error FileStoreTemplate<size_t>::resize(std::size_t size, void *newBuff) {
 }
 
 template<typename size_t>
-ValErr<StatInfo> FileStoreTemplate<size_t>::stat(InodeId_t id) {
+Result<StatInfo> FileStoreTemplate<size_t>::stat(InodeId_t id) {
 	auto inode = find(id);
 	if (inode.valid()) {
-		return ValErr<StatInfo>({
+		return Result<StatInfo>({
 			id,
 			inode->links,
 			inode->size(),
 			inode->fileType,
 		});
 	}
-	return ValErr<StatInfo>({}, OxError(0));
+	return Result<StatInfo>({}, OxError(0));
 }
 
 template<typename size_t>
@@ -477,7 +477,7 @@ Error FileStoreTemplate<size_t>::walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) {
 }
 
 template<typename size_t>
-ValErr<typename FileStoreTemplate<size_t>::InodeId_t> FileStoreTemplate<size_t>::generateInodeId() {
+Result<typename FileStoreTemplate<size_t>::InodeId_t> FileStoreTemplate<size_t>::generateInodeId() {
 	auto fsData = fileStoreData();
 	if (fsData) {
 		for (auto i = 0; i < 100; i++) {
@@ -492,9 +492,9 @@ ValErr<typename FileStoreTemplate<size_t>::InodeId_t> FileStoreTemplate<size_t>:
 }
 
 template<typename size_t>
-ox::Error FileStoreTemplate<size_t>::compact() {
+Error FileStoreTemplate<size_t>::compact() {
 	auto isFirstItem = true;
-	return m_buffer->compact([this, &isFirstItem](uint64_t oldAddr, ItemPtr item) -> ox::Error {
+	return m_buffer->compact([this, &isFirstItem](uint64_t oldAddr, ItemPtr item) -> Error {
 		if (isFirstItem) {
 			isFirstItem = false;
 			return OxError(0);

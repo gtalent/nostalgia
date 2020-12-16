@@ -21,14 +21,16 @@ namespace ox {
 
 template<>
 void assertFunc<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]bool pass, [[maybe_unused]]const char *msg) {
-#if defined(OX_USE_STDLIB)
 	if (!pass) {
+#if defined(OX_USE_STDLIB)
 		std::cerr << "\033[31;1;1mASSERT FAILURE:\033[0m (" << file << ':' << line << "): " << msg << std::endl;
 		printStackTrace(2);
 		oxTrace("assert").del("") << "Failed assert: " << msg << " (" << file << ":" << line << ")";
 		std::abort();
-	}
+#else
+		panic(file, line, msg);
 #endif
+	}
 }
 
 template<>

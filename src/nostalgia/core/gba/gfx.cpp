@@ -235,6 +235,7 @@ void hideSprite(Context*, unsigned idx) {
 }
 
 void setSprite(Context*, unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape, unsigned spriteSize, unsigned flipX) {
+	oxAssert(g_spriteUpdates < config::GbaSpriteBufferLen, "Sprite update buffer overflow");
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = static_cast<uint16_t>(y & ox::onMask<uint8_t>(7))
 	         | (static_cast<uint16_t>(1) << 10) // enable alpha

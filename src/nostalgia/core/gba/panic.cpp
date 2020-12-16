@@ -30,7 +30,9 @@ void panic(const char*, int, const char *msg, ox::Error err) {
 	puts(nullptr, 32 + 1,  1, "SADNESS...");
 	puts(nullptr, 32 + 1,  4, "UNEXPECTED STATE:");
 	puts(nullptr, 32 + 2,  6, msg);
-	puts(nullptr, 32 + 2,  8, serr.c_str());
+	if (err) {
+		puts(nullptr, 32 + 2,  8, serr.c_str());
+	}
 	puts(nullptr, 32 + 1, 15, "PLEASE RESTART THE SYSTEM");
 	// disable all interrupt handling and IntrWait on no interrupts
 	REG_IE = 0;

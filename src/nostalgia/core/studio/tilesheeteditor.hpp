@@ -284,6 +284,8 @@ class TileSheetEditor: public studio::Editor {
 	protected:
 		void saveItem() override;
 
+		bool eventFilter(QObject *obj, QEvent *event);
+
 	private:
 		QWidget *setupColorPicker(QWidget *widget);
 

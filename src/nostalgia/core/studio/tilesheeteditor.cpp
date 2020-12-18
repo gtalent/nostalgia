@@ -876,6 +876,7 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 		setPasteEnabled(selected && !m_sheetData.clipboardEmpty());
 	});
 	setExportable(true);
+	installEventFilter(this);
 }
 
 TileSheetEditor::~TileSheetEditor() {
@@ -920,6 +921,20 @@ void TileSheetEditor::paste() {
 
 void TileSheetEditor::saveItem() {
 	m_sheetData.save(m_ctx, m_itemPath);
+}
+
+bool TileSheetEditor::eventFilter(QObject *o, QEvent *e) {
+	if (e->type() == QEvent::KeyPress) {
+		const auto k = static_cast<QKeyEvent*>(e)->key();
+		if (k >= Qt::Key_1 && k <= Qt::Key_9) {
+			m_colorPicker.colorTable->setCurrentCell(k - Qt::Key_1, 0);
+			return true;
+		} else if (k == Qt::Key_0) {
+			m_colorPicker.colorTable->setCurrentCell(k - Qt::Key_1 + 10, 0);
+			return true;
+		}
+	}
+	return QObject::eventFilter(o, e);
 }
 
 QWidget *TileSheetEditor::setupColorPicker(QWidget *parent) {

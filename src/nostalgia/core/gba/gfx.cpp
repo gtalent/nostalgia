@@ -205,6 +205,12 @@ ox::Error loadSpritePalette(Context *ctx, int section, ox::FileAddress paletteAd
 }
 
 // Do NOT use Context in the GBA version of this function.
+void puts(Context *ctx, int column, int row, const char *str) {
+	for (int i = 0; str[i]; i++) {
+		setTile(ctx, 0, column + i, row, static_cast<uint8_t>(charMap[static_cast<int>(str[i])]));
+	}
+}
+
 void setTile(Context*, int layer, int column, int row, uint8_t tile) {
 	MEM_BG_MAP[layer][row * GbaTileColumns + column] = tile;
 }

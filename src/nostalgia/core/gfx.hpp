@@ -14,6 +14,8 @@
 
 namespace nostalgia::core {
 
+extern char charMap[128];
+
 enum class TileSheetSpace {
 	Background,
 	Sprite

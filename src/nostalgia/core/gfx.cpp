@@ -11,7 +11,7 @@
 namespace nostalgia::core {
 
 // map ASCII values to the nostalgia charset
-static char charMap[128] = {
+char charMap[128] = {
 	0,
 	0,
 	0,
@@ -173,12 +173,6 @@ uint8_t green32(Color16 c) noexcept {
 
 uint8_t blue32(Color16 c) noexcept {
 	return blue16(c) * 8;
-}
-
-void puts(Context *ctx, int column, int row, const char *str) {
-	for (int i = 0; str[i]; i++) {
-		setTile(ctx, 0, column + i, row, static_cast<uint8_t>(charMap[static_cast<int>(str[i])]));
-	}
 }
 
 static_assert(color16(0, 31, 0, 0) == 992);

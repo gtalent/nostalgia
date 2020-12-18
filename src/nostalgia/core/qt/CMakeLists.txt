@@ -3,7 +3,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 add_library(
-	NostalgiaCore-Qt SHARED
+	NostalgiaCore-Qt OBJECT
 		gfx.cpp
 )
 

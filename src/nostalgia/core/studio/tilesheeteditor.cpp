@@ -966,7 +966,7 @@ void TileSheetEditor::setPalette() {
 }
 
 void TileSheetEditor::saveState() {
-	QSettings settings(m_ctx->orgName, PluginName);
+	QSettings settings(m_ctx->orgName, ModuleName);
 	settings.beginGroup("TileSheetEditor/" + m_itemName);
 	settings.setValue("m_splitter/state", m_splitter->saveState());
 	settings.setValue("m_sheetData/tileRows", m_sheetData.rows());
@@ -976,7 +976,7 @@ void TileSheetEditor::saveState() {
 }
 
 void TileSheetEditor::restoreState() {
-	QSettings settings(m_ctx->orgName, PluginName);
+	QSettings settings(m_ctx->orgName, ModuleName);
 	settings.beginGroup("TileSheetEditor/" + m_itemName);
 	m_splitter->restoreState(settings.value("m_splitter/state", m_splitter->saveState()).toByteArray());
 	m_colorPicker.colorTable->horizontalHeader()->restoreState(settings.value("m_colorPicker.colorTable/geometry", m_colorPicker.colorTable->horizontalHeader()->saveState()).toByteArray());

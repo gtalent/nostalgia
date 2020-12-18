@@ -10,7 +10,7 @@
 
 namespace nostalgia::core {
 
-constexpr auto PluginName = "NostalgiaCore";
+constexpr auto ModuleName = "NostalgiaCore";
 constexpr auto TileSheetDir = "/TileSheets/";
 constexpr auto PaletteDir = "/Palettes/";
 

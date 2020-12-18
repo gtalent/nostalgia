@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -22,10 +22,10 @@ struct EditorMaker {
 	std::function<class Editor*(QString)> make;
 };
 
-class Plugin {
+class Module {
 
 	public:
-		virtual ~Plugin() = default;
+		virtual ~Module() = default;
 
 		virtual QVector<WizardMaker> newWizards(const class Context *ctx);
 
@@ -39,6 +39,6 @@ class Plugin {
 
 }
 
-#define PluginInterface_iid "net.drinkingtea.nostalgia.studio.Plugin"
+#define PluginInterface_iid "net.drinkingtea.nostalgia.studio.Module"
 
-Q_DECLARE_INTERFACE(nostalgia::studio::Plugin, PluginInterface_iid)
+Q_DECLARE_INTERFACE(nostalgia::studio::Module, PluginInterface_iid)

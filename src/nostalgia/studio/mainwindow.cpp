@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -70,7 +70,7 @@ MainWindow::MainWindow(QString profilePath) {
 	setupProjectExplorer();
 	statusBar(); // setup status bar
 
-	loadPlugins();
+	loadModules();
 
 	readState();
 }
@@ -79,40 +79,47 @@ MainWindow::~MainWindow() {
 	closeProject();
 }
 
-void MainWindow::loadPlugins() {
-	for (auto dir : m_profile.pluginsPath) {
+void MainWindow::loadModules() {
+	for (auto p : BuiltinModules) {
+		loadModule(p());
+	}
+	for (auto dir : m_profile.modulesPath) {
 		QFileInfo dirInfo(m_profilePath);
 		dir = dirInfo.absolutePath() + "/" + dir;
 		if (dirInfo.exists()) {
-			qDebug() << "Checking plugin directory:" << dir;
-			loadPluginDir(dir);
+			qDebug() << "Checking module directory:" << dir;
+			loadModuleDir(dir);
 		}
 	}
 }
 
-void MainWindow::loadPluginDir(QString dir) {
-	for (auto pluginPath : QDir(dir).entryList()) {
-		pluginPath = dir + '/' + pluginPath;
-		if (QLibrary::isLibrary(pluginPath)) {
-			loadPlugin(pluginPath);
+void MainWindow::loadModuleDir(QString dir) {
+	for (auto modulePath : QDir(dir).entryList()) {
+		modulePath = dir + '/' + modulePath;
+		if (QLibrary::isLibrary(modulePath)) {
+			loadModule(modulePath);
 		}
 	}
 }
 
-void MainWindow::loadPlugin(QString pluginPath) {
-	qDebug() << "Loading plugin:" << pluginPath;
-	QPluginLoader loader(pluginPath);
-	auto plugin = qobject_cast<Plugin*>(loader.instance());
-	if (plugin) {
-		m_plugins.push_back(plugin);
-		auto editorMakers = plugin->editors(&m_ctx);
-		for (const auto &em : editorMakers) {
-			for (const auto &ext : em.fileTypes) {
-				m_editorMakers[ext] = em;
-			}
-		}
+void MainWindow::loadModule(QString modulePath) {
+	qDebug() << "Loading module:" << modulePath;
+	QPluginLoader loader(modulePath);
+	auto module = qobject_cast<Module*>(loader.instance());
+	if (module) {
+		loadModule(module);
 	} else {
 		qInfo() << loader.errorString();
+	}
+}
+
+void MainWindow::loadModule(Module *module) {
+	m_modules.push_back(module);
+	auto editorMakers = module->editors(&m_ctx);
+	for (const auto &em : editorMakers) {
+		for (const auto &ext : em.fileTypes) {
+			m_editorMakers[ext] = em;
+		}
 	}
 }
 
@@ -492,8 +499,8 @@ void MainWindow::showNewWizard() {
 		}
 	);
 
-	// add plugin options
-	for (auto p : m_plugins) {
+	// add module options
+	for (auto p : m_modules) {
 		for (auto w : p->newWizards(&m_ctx)) {
 			ws->addOption(w);
 		}
@@ -590,7 +597,7 @@ void MainWindow::showImportWizard() {
 	auto ws = new WizardSelect();
 	wizard.addPage(ws);
 
-	for (auto p : m_plugins) {
+	for (auto p : m_modules) {
 		for (auto w : p->importWizards(&m_ctx)) {
 			ws->addOption(w);
 		}

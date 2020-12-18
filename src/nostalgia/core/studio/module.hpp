@@ -14,10 +14,10 @@
 
 namespace nostalgia::core {
 
-class Plugin: public QObject, studio::Plugin {
+class Module: public QObject, public studio::Module {
 	Q_OBJECT
-	Q_PLUGIN_METADATA(IID "net.drinkingtea.nostalgia.core.studio.Plugin" FILE "core-studio.json")
-	Q_INTERFACES(nostalgia::studio::Plugin)
+	Q_PLUGIN_METADATA(IID "net.drinkingtea.nostalgia.core.studio.Module" FILE "core-studio.json")
+	Q_INTERFACES(nostalgia::studio::Module)
 
 	public:
 		QVector<studio::WizardMaker> newWizards(const studio::Context *ctx) override;

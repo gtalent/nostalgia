@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2020 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12,11 +12,11 @@
 #include "paletteeditor.hpp"
 #include "tilesheeteditor.hpp"
 
-#include "plugin.hpp"
+#include "module.hpp"
 
 namespace nostalgia::core {
 
-QVector<studio::WizardMaker> Plugin::newWizards(const studio::Context *ctx) {
+QVector<studio::WizardMaker> Module::newWizards(const studio::Context *ctx) {
 	return {
 		{
 			tr("Palette"),
@@ -37,7 +37,7 @@ QVector<studio::WizardMaker> Plugin::newWizards(const studio::Context *ctx) {
 	};
 }
 
-QVector<studio::WizardMaker> Plugin::importWizards(const studio::Context *ctx) {
+QVector<studio::WizardMaker> Module::importWizards(const studio::Context *ctx) {
 	return {
 		{
 			tr("Tile Sheet"),
@@ -51,7 +51,7 @@ QVector<studio::WizardMaker> Plugin::importWizards(const studio::Context *ctx) {
 	};
 }
 
-QVector<studio::EditorMaker> Plugin::editors(const studio::Context *ctx) {
+QVector<studio::EditorMaker> Module::editors(const studio::Context *ctx) {
 	return {
 		{
 			{"ng"},

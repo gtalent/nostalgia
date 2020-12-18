@@ -1,6 +1,6 @@
 
 add_library(
-	NostalgiaWorld-Studio SHARED
+	NostalgiaWorld-Studio OBJECT
 		consts.cpp
 		newworldwizard.cpp
 		worldstudioplugin.cpp

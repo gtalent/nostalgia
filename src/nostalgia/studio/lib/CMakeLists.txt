@@ -5,7 +5,7 @@ add_library(
 	NostalgiaStudio SHARED
 		editor.cpp
 		wizard.cpp
-		plugin.cpp
+		module.cpp
 		project.cpp
 )
 
@@ -26,7 +26,7 @@ install(
 	FILES
 		editor.hpp
 		wizard.hpp
-		plugin.hpp
+		module.hpp
 		project.hpp
 		${CMAKE_CURRENT_BINARY_DIR}/nostalgiastudio_export.h
 	DESTINATION

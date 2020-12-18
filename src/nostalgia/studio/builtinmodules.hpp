@@ -8,8 +8,15 @@
 
 #pragma once
 
-#include "lib/context.hpp"
-#include "lib/editor.hpp"
-#include "lib/module.hpp"
-#include "lib/project.hpp"
-#include "lib/wizard.hpp"
+#include <nostalgia/core/studio/module.hpp>
+
+namespace nostalgia::studio {
+
+[[maybe_unused]] // GCC warns about the existence of this "unused" constexpr list in a header file...
+constexpr auto BuiltinModules = {
+	[] {
+		return new core::Module();
+	},
+};
+
+}

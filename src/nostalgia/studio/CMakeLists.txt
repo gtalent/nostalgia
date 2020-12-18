@@ -15,6 +15,7 @@ add_executable(
 target_link_libraries(
 	nostalgia-studio
 		QDarkStyle
+		NostalgiaCore-Studio
 		NostalgiaStudio
 		NostalgiaPack
 )

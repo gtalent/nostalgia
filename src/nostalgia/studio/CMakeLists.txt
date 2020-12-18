@@ -20,6 +20,9 @@ target_link_libraries(
 		NostalgiaPack
 )
 
+# enable LTO
+set_property(TARGET nostalgia-studio PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+
 if(APPLE)
 	set_target_properties(nostalgia-studio PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
 endif()

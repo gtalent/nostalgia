@@ -24,7 +24,7 @@ class ClArgs {
 
 		bool getBool(const char *arg);
 
-		::std::string getString(const char *arg);
+		::std::string getString(const char *argName, const char *defaultArg = "");
 
 		int getInt(const char *arg);
 };

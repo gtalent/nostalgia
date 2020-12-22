@@ -42,8 +42,8 @@ bool ClArgs::getBool(const char *arg) {
 	return m_bools[arg];
 }
 
-string ClArgs::getString(const char *arg) {
-	return m_strings[arg];
+string ClArgs::getString(const char *argName, const char *defaultArg) {
+	return m_strings.count(argName) ? m_strings[argName] : defaultArg;
 }
 
 int ClArgs::getInt(const char *arg) {

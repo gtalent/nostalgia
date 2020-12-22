@@ -46,8 +46,8 @@ ox::Error model(T *io, NostalgiaStudioState *obj) {
 }
 
 struct NostalgiaStudioProfile {
-	QString appName = "Nostalgia Studio";
-	QString orgName = "Drinking Tea";
+	QString appName;
+	QString orgName;
 	QVector<QString> modulesPath;
 };
 

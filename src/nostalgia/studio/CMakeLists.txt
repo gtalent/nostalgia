@@ -10,6 +10,7 @@ add_executable(
 		main.cpp
 		mainwindow.cpp
 		oxfstreeview.cpp
+		studiorsrc.qrc
 )
 
 target_link_libraries(

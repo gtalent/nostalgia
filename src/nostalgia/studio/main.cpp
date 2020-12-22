@@ -16,7 +16,7 @@ using namespace nostalgia::studio;
 
 int main(int argc, char **args) {
 	ox::ClArgs clargs(argc, const_cast<const char**>(args));
-	QString argProfilePath = clargs.getString("profile").c_str();
+	QString argProfilePath = clargs.getString("profile", ":/profiles/nostalgia-studio.json").c_str();
 
 	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

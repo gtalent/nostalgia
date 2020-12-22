@@ -26,11 +26,9 @@ endif
 
 ifeq ($(OS),darwin)
 	NOSTALGIA_STUDIO=./dist/${CURRENT_BUILD}/nostalgia-studio.app/Contents/MacOS/nostalgia-studio
-	NOSTALGIA_STUDIO_PROFILE=dist/${CURRENT_BUILD}/nostalgia-studio.app/Contents/Resources/nostalgia-studio.json
 	MGBA=/Applications/mGBA.app/Contents/MacOS/mGBA
 else
 	NOSTALGIA_STUDIO=./dist/${CURRENT_BUILD}/bin/nostalgia-studio
-	NOSTALGIA_STUDIO_PROFILE=dist/${CURRENT_BUILD}/share/nostalgia-studio.json
 	MGBA=mgba-qt
 endif
 
@@ -59,7 +57,7 @@ run: install
 	${ENV_RUN} ./dist/${CURRENT_BUILD}/bin/nostalgia sample_project
 .PHONY: run-studio
 run-studio: install
-	${ENV_RUN} ${NOSTALGIA_STUDIO} -profile ${NOSTALGIA_STUDIO_PROFILE}
+	${ENV_RUN} ${NOSTALGIA_STUDIO}
 .PHONY: gba-run
 gba-run: pkg-gba
 	${MGBA} nostalgia.gba
@@ -68,7 +66,7 @@ gdb: install
 	${ENV_RUN} gdb --args ./dist/${CURRENT_BUILD}/bin/nostalgia sample_project
 .PHONY: gdb-studio
 gdb-studio: install
-	${ENV_RUN} gdb --args ${NOSTALGIA_STUDIO} -profile ${NOSTALGIA_STUDIO_PROFILE}
+	${ENV_RUN} gdb --args ${NOSTALGIA_STUDIO}
 
 .PHONY: devenv-image
 devenv-image:

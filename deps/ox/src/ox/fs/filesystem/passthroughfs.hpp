@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - 2018 gtalent2@gmail.com
+ * Copyright 2015 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -19,6 +19,7 @@
 
 #ifdef OX_HAS_PASSTHROUGHFS
 
+#include <ox/std/bit.hpp>
 #include "filesystem.hpp"
 
 namespace ox {
@@ -90,7 +91,7 @@ template<typename F>
 Error PassThroughFS::ls(const char *dir, F cb) {
 	for (auto &p : std::filesystem::directory_iterator(m_path / stripSlash(dir))) {
 		auto u8p = p.path().filename().u8string();
-		oxReturnError(cb(u8p.c_str(), 0));
+		oxReturnError(cb(ox::bit_cast<const char*>(u8p.c_str()), 0));
 	}
 	return OxError(0);
 }

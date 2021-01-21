@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gary@drinkingtea.net
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -93,11 +93,11 @@ class ModAfterDialog: public QDialog {
 			connect(okBtn, &QPushButton::clicked, this, &ModAfterDialog::accept);
 		}
 
-		int color() {
+		int color() const {
 			return m_afterColor->currentIndex() - 1;
 		}
 
-		int mod() {
+		int mod() const {
 			return m_mod->value();
 		}
 

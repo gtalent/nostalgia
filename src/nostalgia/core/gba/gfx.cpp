@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gary@drinkingtea.net
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,7 +8,6 @@
 
 #include <ox/fs/fs.hpp>
 #include <ox/mc/mc.hpp>
-#include <ox/std/std.hpp>
 
 #include <nostalgia/core/media.hpp>
 #include <nostalgia/core/gfx.hpp>
@@ -66,15 +65,15 @@ ox::Error modelRead(T *io, GbaTileMapTarget *t) {
 	constexpr auto Bpp8 = 1 << 7;
 	*t->bgCtl = (28 << 8) | 1;
 	if (bpp == 4) {
-		*t->bgCtl |= (*t->bgCtl | Bpp8) ^ Bpp8; // set to use 4 bits per pixel
+		*t->bgCtl = *t->bgCtl | ((*t->bgCtl | Bpp8) ^ Bpp8); // set to use 4 bits per pixel
 	} else {
-		*t->bgCtl |= Bpp8; // set to use 8 bits per pixel
+		*t->bgCtl = *t->bgCtl | Bpp8; // set to use 8 bits per pixel
 	}
 
 	oxReturnError(io->field("defaultPalette", &t->defaultPalette));
 	oxReturnError(io->field("pal", &t->pal));
 	uint16_t intermediate = 0;
-	auto handleTileMap = [t, &intermediate](std::size_t i, uint8_t *tile) {
+	const auto handleTileMap = [t, &intermediate](std::size_t i, uint8_t *tile) {
 		if (i & 1) { // i is odd
 			intermediate |= static_cast<uint16_t>(*tile) << 8;
 			t->tileMap[i / 2] = intermediate;
@@ -92,9 +91,9 @@ ox::Error initGfx(Context*) {
 	            | DispCtl_Bg0
 	            | DispCtl_Obj;
 	// tell display to trigger vblank interrupts
-	REG_DISPSTAT |= DispStat_irq_vblank;
+	REG_DISPSTAT = REG_DISPSTAT | DispStat_irq_vblank;
 	// enable vblank interrupt
-	REG_IE |= Int_vblank;
+	REG_IE = REG_IE | Int_vblank;
 	return OxError(0);
 }
 
@@ -138,9 +137,9 @@ ox::Error loadBgTileSheet(Context *ctx,
                           int section,
                           ox::FileAddress tilesheetAddr,
                           ox::FileAddress paletteAddr) {
-	auto [tsStat, tsStatErr] = ctx->rom->stat(tilesheetAddr);
+	const auto [tsStat, tsStatErr] = ctx->rom->stat(tilesheetAddr);
 	oxReturnError(tsStatErr);
-	auto [ts, tserr] = ctx->rom->read(tilesheetAddr);
+	const auto [ts, tserr] = ctx->rom->read(tilesheetAddr);
 	oxReturnError(tserr);
 	GbaTileMapTarget target;
 	target.pal.palette = &MEM_BG_PALETTE[section];
@@ -162,9 +161,9 @@ ox::Error loadSpriteTileSheet(Context *ctx,
                               int section,
                               ox::FileAddress tilesheetAddr,
                               ox::FileAddress paletteAddr) {
-	auto [tsStat, tsStatErr] = ctx->rom->stat(tilesheetAddr);
+	const auto [tsStat, tsStatErr] = ctx->rom->stat(tilesheetAddr);
 	oxReturnError(tsStatErr);
-	auto [ts, tserr] = ctx->rom->read(tilesheetAddr);
+	const auto [ts, tserr] = ctx->rom->read(tilesheetAddr);
 	oxReturnError(tserr);
 	GbaTileMapTarget target;
 	target.pal.palette = &MEM_SPRITE_PALETTE[section];
@@ -173,9 +172,9 @@ ox::Error loadSpriteTileSheet(Context *ctx,
 	oxReturnError(ox::readMC(ts, tsStat.size, &target));
 	// load external palette if available
 	if (paletteAddr) {
-		auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
+		const auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
 		oxReturnError(palStatErr);
-		auto [pal, palErr] = ctx->rom->read(paletteAddr);
+		const auto [pal, palErr] = ctx->rom->read(paletteAddr);
 		oxReturnError(palErr);
 		oxReturnError(ox::readMC(pal, palStat.size, &target.pal));
 	}
@@ -185,9 +184,9 @@ ox::Error loadSpriteTileSheet(Context *ctx,
 ox::Error loadBgPalette(Context *ctx, int section, ox::FileAddress paletteAddr) {
 	GbaPaletteTarget target;
 	target.palette = &MEM_BG_PALETTE[section];
-	auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
+	const auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
 	oxReturnError(palStatErr);
-	auto [pal, palErr] = ctx->rom->read(paletteAddr);
+	const auto [pal, palErr] = ctx->rom->read(paletteAddr);
 	oxReturnError(palErr);
 	oxReturnError(ox::readMC(pal, palStat.size, &target));
 	return OxError(0);
@@ -196,9 +195,9 @@ ox::Error loadBgPalette(Context *ctx, int section, ox::FileAddress paletteAddr) 
 ox::Error loadSpritePalette(Context *ctx, int section, ox::FileAddress paletteAddr) {
 	GbaPaletteTarget target;
 	target.palette = &MEM_SPRITE_PALETTE[section];
-	auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
+	const auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
 	oxReturnError(palStatErr);
-	auto [pal, palErr] = ctx->rom->read(paletteAddr);
+	const auto [pal, palErr] = ctx->rom->read(paletteAddr);
 	oxReturnError(palErr);
 	oxReturnError(ox::readMC(pal, palStat.size, &target));
 	return OxError(0);
@@ -221,6 +220,7 @@ void clearTileLayer(Context*, int layer) {
 }
 
 void hideSprite(Context*, unsigned idx) {
+	oxAssert(g_spriteUpdates < config::GbaSpriteBufferLen, "Sprite update buffer overflow");
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = 2 << 8;
 	oa.idx = idx;
@@ -229,18 +229,26 @@ void hideSprite(Context*, unsigned idx) {
 		nostalgia_core_vblankintrwait();
 	}
 	if constexpr(config::GbaEventLoopTimerBased) {
-		REG_IE &= ~Int_vblank; // disable vblank interrupt handler
-		g_spriteBuffer[g_spriteUpdates++] = oa;
-		REG_IE |= Int_vblank; // enable vblank interrupt handler
+		REG_IE = REG_IE & ~Int_vblank; // disable vblank interrupt handler
+		g_spriteBuffer[g_spriteUpdates] = oa;
+		REG_IE = REG_IE | Int_vblank; // enable vblank interrupt handler
 	} else {
-		auto ie = REG_IE; // disable vblank interrupt handler
-		REG_IE &= ~Int_vblank; // disable vblank interrupt handler
-		g_spriteBuffer[g_spriteUpdates++] = oa;
+		const auto ie = REG_IE; // disable vblank interrupt handler
+		REG_IE = REG_IE & ~Int_vblank; // disable vblank interrupt handler
+		g_spriteBuffer[g_spriteUpdates] = oa;
 		REG_IE = ie; // enable vblank interrupt handler
 	}
+	g_spriteUpdates = g_spriteUpdates + 1;
 }
 
-void setSprite(Context*, unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape, unsigned spriteSize, unsigned flipX) {
+void setSprite(Context*,
+               unsigned idx,
+               unsigned x,
+               unsigned y,
+               unsigned tileIdx,
+               unsigned spriteShape,
+               unsigned spriteSize,
+               unsigned flipX) {
 	oxAssert(g_spriteUpdates < config::GbaSpriteBufferLen, "Sprite update buffer overflow");
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = static_cast<uint16_t>(y & ox::onMask<uint8_t>(7))
@@ -256,15 +264,16 @@ void setSprite(Context*, unsigned idx, unsigned x, unsigned y, unsigned tileIdx,
 		nostalgia_core_vblankintrwait();
 	}
 	if constexpr(config::GbaEventLoopTimerBased) {
-		REG_IE &= ~Int_vblank; // disable vblank interrupt handler
-		g_spriteBuffer[g_spriteUpdates++] = oa;
-		REG_IE |= Int_vblank; // enable vblank interrupt handler
+		REG_IE = REG_IE & ~Int_vblank; // disable vblank interrupt handler
+		g_spriteBuffer[g_spriteUpdates] = oa;
+		REG_IE = REG_IE | Int_vblank; // enable vblank interrupt handler
 	} else {
-		auto ie = REG_IE; // disable vblank interrupt handler
-		REG_IE &= ~Int_vblank; // disable vblank interrupt handler
-		g_spriteBuffer[g_spriteUpdates++] = oa;
+		const auto ie = REG_IE; // disable vblank interrupt handler
+		REG_IE = REG_IE & ~Int_vblank; // disable vblank interrupt handler
+		g_spriteBuffer[g_spriteUpdates] = oa;
 		REG_IE = ie; // enable vblank interrupt handler
 	}
+	g_spriteUpdates = g_spriteUpdates + 1;
 }
 
 }

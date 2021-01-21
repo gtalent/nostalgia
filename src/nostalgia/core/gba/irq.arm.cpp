@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gary@drinkingtea.net
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,6 +8,8 @@
 
 // NOTE: this file is compiled as ARM and not THUMB, so don't but too much in
 // here
+
+#include <ox/std/bit.hpp>
 
 #include "addresses.hpp"
 #include "gfx.hpp"
@@ -32,18 +34,18 @@ void nostalgia_core_isr_vblank() {
 	// is volatile
 	const auto updates = g_spriteUpdates;
 	for (uint16_t i = 0; i < updates; ++i) {
-		auto &oa = g_spriteBuffer[i];
-		MEM_OAM[oa.idx] = *reinterpret_cast<uint64_t*>(&oa);
+		const auto &oa = g_spriteBuffer[i];
+		MEM_OAM[oa.idx] = *ox::bit_cast<const uint64_t*>(&oa);
 	}
 	g_spriteUpdates = 0;
 	if constexpr(config::GbaEventLoopTimerBased) {
 		// disable vblank interrupt until it is needed again
-		REG_IE &= ~Int_vblank;
+		REG_IE = REG_IE & ~Int_vblank;
 	}
 }
 
 void nostalgia_core_isr_timer0() {
-	++g_timerMs;
+	g_timerMs = g_timerMs + 1;
 }
 
 }

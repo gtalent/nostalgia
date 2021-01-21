@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gary@drinkingtea.net
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -37,7 +37,7 @@ static void initTimer() {
 	REG_TIMER0 = TicksMs59ns;
 	REG_TIMER0CTL = 0b11000000;
 	// enable interrupt for timer0
-	REG_IE |= Int_timer0;
+	REG_IE = REG_IE | Int_timer0;
 }
 
 ox::Error init(Context *ctx) {

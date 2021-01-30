@@ -3,6 +3,9 @@ add_executable(
 		main.cpp
 )
 
+# enable LTO
+set_property(TARGET nostalgia PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+
 if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 	set(NOSTALGIA_PLAYER_DEPS "NostalgiaCore-GBA")
 else()

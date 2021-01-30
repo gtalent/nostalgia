@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gary@drinkingtea.net
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,6 +13,8 @@
 #include "context.hpp"
 
 namespace nostalgia::core {
+
+extern char charMap[128];
 
 enum class TileSheetSpace {
 	Background,
@@ -48,14 +50,14 @@ struct NostalgiaGraphic {
 };
 
 template<typename T>
-ox::Error model(T *io, NostalgiaPalette *pal) {
+constexpr ox::Error model(T *io, NostalgiaPalette *pal) {
 	io->template setTypeInfo<NostalgiaPalette>();
 	oxReturnError(io->field("colors", &pal->colors));
 	return OxError(0);
 }
 
 template<typename T>
-ox::Error model(T *io, NostalgiaGraphic *ng) {
+constexpr ox::Error model(T *io, NostalgiaGraphic *ng) {
 	io->template setTypeInfo<NostalgiaGraphic>();
 	oxReturnError(io->field("bpp", &ng->bpp));
 	oxReturnError(io->field("rows", &ng->rows));
@@ -65,6 +67,16 @@ ox::Error model(T *io, NostalgiaGraphic *ng) {
 	oxReturnError(io->field("tiles", &ng->tiles));
 	return OxError(0);
 }
+
+struct Sprite {
+	unsigned idx = 0;
+	unsigned x = 0;
+	unsigned y = 0;
+	unsigned tileIdx = 0;
+	unsigned spriteShape = 0;
+	unsigned spriteSize = 0;
+	unsigned flipX = 0;
+};
 
 ox::Error initGfx(Context *ctx);
 
@@ -78,9 +90,9 @@ ox::Error initConsole(Context *ctx);
 ox::Error loadBgTileSheet(Context *ctx, int section, ox::FileAddress tilesheet, ox::FileAddress palette = nullptr);
 
 ox::Error loadSpriteTileSheet(Context *ctx,
-                                            int section,
-                                            ox::FileAddress tilesheetAddr,
-                                            ox::FileAddress paletteAddr);
+                              int section,
+                              ox::FileAddress tilesheetAddr,
+                              ox::FileAddress paletteAddr);
 
 [[nodiscard]] Color32 toColor32(Color16 nc) noexcept;
 
@@ -130,5 +142,9 @@ void clearTileLayer(Context*, int layer);
 void hideSprite(Context*, unsigned);
 
 void setSprite(Context*, unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape = 0, unsigned spriteSize = 0, unsigned flipX = 0);
+
+inline void setSprite(Context *c, const Sprite &s) {
+	setSprite(c, s.idx, s.x, s.y, s.tileIdx, s.spriteShape, s.spriteSize, s.flipX);
+}
 
 }

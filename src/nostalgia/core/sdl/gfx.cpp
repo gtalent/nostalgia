@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gary@drinkingtea.net
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -192,6 +192,12 @@ void draw(Context *ctx) {
 		drawBackground(ctx, tm, tex);
 	}
 	SDL_RenderPresent(id->renderer);
+}
+
+void puts(Context *ctx, int column, int row, const char *str) {
+	for (int i = 0; str[i]; i++) {
+		setTile(ctx, 0, column + i, row, static_cast<uint8_t>(charMap[static_cast<int>(str[i])]));
+	}
 }
 
 void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {

@@ -6,10 +6,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "scene.hpp"
+#pragma once
 
-namespace nostalgia::scene {
+#include <nostalgia/core/studio/module.hpp>
 
+namespace nostalgia::studio {
 
+[[maybe_unused]] // GCC warns about the existence of this "unused" constexpr list in a header file...
+constexpr auto BuiltinModules = {
+	[] {
+		return new core::Module();
+	},
+};
 
 }

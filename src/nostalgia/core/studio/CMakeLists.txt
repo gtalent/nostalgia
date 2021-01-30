@@ -3,13 +3,13 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 add_library(
-	NostalgiaCore-Studio SHARED
+	NostalgiaCore-Studio OBJECT
 		imgconv.cpp
 		import_tilesheet_wizard.cpp
+		module.cpp
 		new_tilesheet_wizard.cpp
 		newpalettewizard.cpp
 		paletteeditor.cpp
-		plugin.cpp
 		tilesheeteditor.cpp
 		util.cpp
 		rsrc.qrc
@@ -34,5 +34,5 @@ install(
 	TARGETS
 		NostalgiaCore-Studio
 	LIBRARY DESTINATION
-		${NOSTALGIA_DIST_PLUGIN}
+		${NOSTALGIA_DIST_MODULE}
 )

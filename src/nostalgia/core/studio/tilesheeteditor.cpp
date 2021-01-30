@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gary@drinkingtea.net
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -93,11 +93,11 @@ class ModAfterDialog: public QDialog {
 			connect(okBtn, &QPushButton::clicked, this, &ModAfterDialog::accept);
 		}
 
-		int color() {
+		int color() const {
 			return m_afterColor->currentIndex() - 1;
 		}
 
-		int mod() {
+		int mod() const {
 			return m_mod->value();
 		}
 
@@ -876,6 +876,7 @@ TileSheetEditor::TileSheetEditor(QString path, const studio::Context *ctx, QWidg
 		setPasteEnabled(selected && !m_sheetData.clipboardEmpty());
 	});
 	setExportable(true);
+	installEventFilter(this);
 }
 
 TileSheetEditor::~TileSheetEditor() {
@@ -922,6 +923,19 @@ void TileSheetEditor::saveItem() {
 	m_sheetData.save(m_ctx, m_itemPath);
 }
 
+bool TileSheetEditor::eventFilter(QObject *o, QEvent *e) {
+	if (e->type() == QEvent::KeyPress) {
+		const auto k = static_cast<QKeyEvent*>(e)->key();
+		const auto max = m_colorPicker.colorTable->rowCount() - 1;
+		if (k >= Qt::Key_0 && k <= Qt::Key_9) {
+			const auto val = k - Qt::Key_1 + (k == Qt::Key_0 ? 10 : 0);
+			m_colorPicker.colorTable->setCurrentCell(std::min(max, val), 0);
+			return true;
+		}
+	}
+	return QWidget::eventFilter(o, e);
+}
+
 QWidget *TileSheetEditor::setupColorPicker(QWidget *parent) {
 	auto colorPicker = new QWidget(parent);
 	auto lyt = new QVBoxLayout(colorPicker);
@@ -966,7 +980,7 @@ void TileSheetEditor::setPalette() {
 }
 
 void TileSheetEditor::saveState() {
-	QSettings settings(m_ctx->orgName, PluginName);
+	QSettings settings(m_ctx->orgName, ModuleName);
 	settings.beginGroup("TileSheetEditor/" + m_itemName);
 	settings.setValue("m_splitter/state", m_splitter->saveState());
 	settings.setValue("m_sheetData/tileRows", m_sheetData.rows());
@@ -976,7 +990,7 @@ void TileSheetEditor::saveState() {
 }
 
 void TileSheetEditor::restoreState() {
-	QSettings settings(m_ctx->orgName, PluginName);
+	QSettings settings(m_ctx->orgName, ModuleName);
 	settings.beginGroup("TileSheetEditor/" + m_itemName);
 	m_splitter->restoreState(settings.value("m_splitter/state", m_splitter->saveState()).toByteArray());
 	m_colorPicker.colorTable->horizontalHeader()->restoreState(settings.value("m_colorPicker.colorTable/geometry", m_colorPicker.colorTable->horizontalHeader()->saveState()).toByteArray());

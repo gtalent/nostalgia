@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gtalent2@gmail.com
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <ox/std/error.hpp>
 #include <ox/std/types.hpp>
 #include <ox/std/vector.hpp>
 
@@ -25,6 +26,14 @@ struct TileDoc {
 
 };
 
+template<typename T>
+constexpr ox::Error model(T *io, TileDoc *obj) {
+	io->template setTypeInfo<TileDoc>();
+	oxReturnError(io->field("sheetIdx", &obj->sheetIdx));
+	oxReturnError(io->field("type", &obj->type));
+	return OxError(0);
+}
+
 struct SceneDoc {
 
 	using TileMapRow = ox::Vector<TileDoc>;
@@ -39,6 +48,13 @@ struct SceneDoc {
 	TileMap tiles;
 
 };
+
+template<typename T>
+constexpr ox::Error model(T *io, SceneDoc *obj) {
+	io->template setTypeInfo<SceneDoc>();
+	oxReturnError(io->field("tiles", &obj->tiles));
+	return OxError(0);
+}
 
 struct SceneInstance {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - 2018 gtalent2@gmail.com
+ * Copyright 2015 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -42,8 +42,8 @@ bool ClArgs::getBool(const char *arg) {
 	return m_bools[arg];
 }
 
-string ClArgs::getString(const char *arg) {
-	return m_strings[arg];
+string ClArgs::getString(const char *argName, const char *defaultArg) {
+	return m_strings.count(argName) ? m_strings[argName] : defaultArg;
 }
 
 int ClArgs::getInt(const char *arg) {

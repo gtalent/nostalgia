@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/profiles">
+        <file>nostalgia-studio.json</file>
+        <file>nostalgia-studio-dev.json</file>
+    </qresource>
+</RCC>

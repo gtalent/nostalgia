@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - 2018 gtalent2@gmail.com
+ * Copyright 2015 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -24,7 +24,7 @@ class ClArgs {
 
 		bool getBool(const char *arg);
 
-		::std::string getString(const char *arg);
+		::std::string getString(const char *argName, const char *defaultArg = "");
 
 		int getInt(const char *arg);
 };

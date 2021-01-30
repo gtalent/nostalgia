@@ -1,6 +1,6 @@
 
 add_library(
-	NostalgiaWorld-Studio SHARED
+	NostalgiaWorld-Studio OBJECT
 		consts.cpp
 		newworldwizard.cpp
 		worldstudioplugin.cpp
@@ -18,5 +18,5 @@ install(
 	TARGETS
 		NostalgiaWorld-Studio
 	LIBRARY DESTINATION
-		${NOSTALGIA_DIST_PLUGIN}
+		${NOSTALGIA_DIST_MODULE}
 )

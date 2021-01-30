@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -29,7 +29,16 @@ ox::Error loadBgTileSheet(Context*,
 	return OxError(1);
 }
 
+void puts(Context *ctx, int column, int row, const char *str) {
+	for (int i = 0; str[i]; i++) {
+		setTile(ctx, 0, column + i, row, static_cast<uint8_t>(charMap[static_cast<int>(str[i])]));
+	}
+}
+
 void setTile(Context*, int, int, int, uint8_t) {
+}
+
+void setSprite(Context*, unsigned, unsigned, unsigned, unsigned, unsigned, unsigned, unsigned) {
 }
 
 }

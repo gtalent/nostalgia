@@ -1,8 +1,8 @@
 {
 	"app_name": "Nostalgia Studio",
 	"org_name": "Drinking Tea",
-	"plugins_path": [
-		"../lib/nostalgia/plugins",
+	"modules_path": [
+		"../lib/nostalgia/modules",
 		"../Plugins"
 	]
 }

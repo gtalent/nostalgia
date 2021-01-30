@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gary@drinkingtea.net
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,7 +16,7 @@ using namespace nostalgia::studio;
 
 int main(int argc, char **args) {
 	ox::ClArgs clargs(argc, const_cast<const char**>(args));
-	QString argProfilePath = clargs.getString("profile").c_str();
+	QString argProfilePath = clargs.getString("profile", ":/profiles/nostalgia-studio.json").c_str();
 
 	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

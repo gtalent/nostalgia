@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,7 +10,7 @@
 
 namespace nostalgia::core {
 
-constexpr auto PluginName = "NostalgiaCore";
+constexpr auto ModuleName = "NostalgiaCore";
 constexpr auto TileSheetDir = "/TileSheets/";
 constexpr auto PaletteDir = "/Palettes/";
 

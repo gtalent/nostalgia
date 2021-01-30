@@ -10,14 +10,19 @@ add_executable(
 		main.cpp
 		mainwindow.cpp
 		oxfstreeview.cpp
+		studiorsrc.qrc
 )
 
 target_link_libraries(
 	nostalgia-studio
 		QDarkStyle
+		NostalgiaCore-Studio
 		NostalgiaStudio
 		NostalgiaPack
 )
+
+# enable LTO
+set_property(TARGET nostalgia-studio PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 if(APPLE)
 	set_target_properties(nostalgia-studio PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)

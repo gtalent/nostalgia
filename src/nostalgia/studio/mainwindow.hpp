@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 gtalent2@gmail.com
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -25,9 +25,10 @@
 #include <ox/std/types.hpp>
 
 #include "lib/context.hpp"
-#include "lib/plugin.hpp"
+#include "lib/module.hpp"
 #include "lib/project.hpp"
 
+#include "builtinmodules.hpp"
 #include "oxfstreeview.hpp"
 
 namespace nostalgia::studio {
@@ -47,7 +48,7 @@ ox::Error model(T *io, NostalgiaStudioState *obj) {
 struct NostalgiaStudioProfile {
 	QString appName;
 	QString orgName;
-	QVector<QString> pluginsPath;
+	QVector<QString> modulesPath;
 };
 
 template<typename T>
@@ -56,7 +57,7 @@ ox::Error model(T *io, NostalgiaStudioProfile *obj) {
 	oxReturnError(io->setTypeInfo("NostalgiaStudioProfile", 3));
 	oxReturnError(io->field("app_name", &obj->appName));
 	oxReturnError(io->field("org_name", &obj->orgName));
-	oxReturnError(io->field("plugins_path", &obj->pluginsPath));
+	oxReturnError(io->field("modules_path", &obj->modulesPath));
 	return err;
 }
 
@@ -82,7 +83,7 @@ class MainWindow: public QMainWindow {
 		QPointer<QMenu> m_viewMenu;
 		QVector<QPointer<QDockWidget>> m_dockWidgets;
 		QTreeView *m_projectExplorer = nullptr;
-		QVector<Plugin*> m_plugins;
+		QVector<Module*> m_modules;
 		QHash<QString, EditorMaker> m_editorMakers;
 		QPointer<OxFSModel> m_oxfsView = nullptr;
 		QTabWidget *m_tabs = nullptr;
@@ -95,11 +96,13 @@ class MainWindow: public QMainWindow {
 		virtual ~MainWindow();
 
 	private:
-		void loadPlugins();
+		void loadModules();
 
-		void loadPluginDir(QString path);
+		void loadModuleDir(QString path);
 
-		void loadPlugin(QString path);
+		void loadModule(QString path);
+
+		void loadModule(Module *module);
 
 		void setupMenu();
 

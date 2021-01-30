@@ -2,10 +2,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 add_library(
-	NostalgiaStudio SHARED
+	NostalgiaStudio OBJECT
 		editor.cpp
 		wizard.cpp
-		plugin.cpp
+		module.cpp
 		project.cpp
 )
 
@@ -26,7 +26,7 @@ install(
 	FILES
 		editor.hpp
 		wizard.hpp
-		plugin.hpp
+		module.hpp
 		project.hpp
 		${CMAKE_CURRENT_BINARY_DIR}/nostalgiastudio_export.h
 	DESTINATION

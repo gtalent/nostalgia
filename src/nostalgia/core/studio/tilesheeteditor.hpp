@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gary@drinkingtea.net
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -283,6 +283,8 @@ class TileSheetEditor: public studio::Editor {
 
 	protected:
 		void saveItem() override;
+
+		bool eventFilter(QObject *obj, QEvent *event) override;
 
 	private:
 		QWidget *setupColorPicker(QWidget *widget);

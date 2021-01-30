@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2020 gtalent2@gmail.com
+ * Copyright 2016 - 2021 gary@drinkingtea.net
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -14,10 +14,10 @@
 
 namespace nostalgia::core {
 
-class Plugin: public QObject, studio::Plugin {
+class Module: public QObject, public studio::Module {
 	Q_OBJECT
-	Q_PLUGIN_METADATA(IID "net.drinkingtea.nostalgia.core.studio.Plugin" FILE "core-studio.json")
-	Q_INTERFACES(nostalgia::studio::Plugin)
+	Q_PLUGIN_METADATA(IID "net.drinkingtea.nostalgia.core.studio.Module" FILE "core-studio.json")
+	Q_INTERFACES(nostalgia::studio::Module)
 
 	public:
 		QVector<studio::WizardMaker> newWizards(const studio::Context *ctx) override;

@@ -119,32 +119,32 @@ configure-release:
 ifneq (,$(wildcard build/${HOST_ENV}-release))
 	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-release
 endif
-	${ENV_RUN} python ./scripts/setup-build.py ${HOST_ENV} release ${VCPKG_DIR}
+	${ENV_RUN} python3 ./scripts/setup-build.py ${HOST_ENV} release ${VCPKG_DIR}
 
 .PHONY: configure-debug
 configure-debug:
 ifneq (,$(wildcard build/${HOST_ENV}-debug))
 	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-debug
 endif
-	${ENV_RUN} python ./scripts/setup-build.py ${HOST_ENV} debug ${VCPKG_DIR}
+	${ENV_RUN} python3 ./scripts/setup-build.py ${HOST_ENV} debug ${VCPKG_DIR}
 
 .PHONY: configure-asan
 configure-asan:
 ifneq (,$(wildcard build/${HOST_ENV}-asan))
 	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-asan
 endif
-	${ENV_RUN} python ./scripts/setup-build.py ${HOST_ENV} asan ${VCPKG_DIR}
+	${ENV_RUN} python3 ./scripts/setup-build.py ${HOST_ENV} asan ${VCPKG_DIR}
 
 .PHONY: configure-gba
 configure-gba:
 ifneq (,$(wildcard build/gba-release))
 	${ENV_RUN} ${RM_RF} build/gba-release
 endif
-	${ENV_RUN} python ./scripts/setup-build.py gba release ${VCPKG_DIR}
+	${ENV_RUN} python3 ./scripts/setup-build.py gba release ${VCPKG_DIR}
 
 .PHONY: configure-gba-debug
 configure-gba-debug:
 ifneq (,$(wildcard build/gba-debug))
 	${ENV_RUN} ${RM_RF} build/gba-debug
 endif
-	${ENV_RUN} python ./scripts/setup-build.py gba debug ${VCPKG_DIR}
+	${ENV_RUN} python3 ./scripts/setup-build.py gba debug ${VCPKG_DIR}

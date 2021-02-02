@@ -46,7 +46,7 @@ struct GbaTileMapTarget {
 template<typename T>
 ox::Error modelRead(T *io, GbaPaletteTarget *t) {
 	io->template setTypeInfo<GbaPaletteTarget>();
-	auto colorHandler = [t](std::size_t i, Color16 *c) {
+	const auto colorHandler = [t](std::size_t i, Color16 *c) {
 		t->palette[i] = *c;
 		return OxError(0);
 	};
@@ -149,9 +149,9 @@ ox::Error loadBgTileSheet(Context *ctx,
 	oxReturnError(ox::readMC(ts, tsStat.size, &target));
 	// load external palette if available
 	if (paletteAddr) {
-		auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
+		const auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
 		oxReturnError(palStatErr);
-		auto [pal, palErr] = ctx->rom->read(paletteAddr);
+		const auto [pal, palErr] = ctx->rom->read(paletteAddr);
 		oxReturnError(palErr);
 		oxReturnError(ox::readMC(pal, palStat.size, &target.pal));
 	}

@@ -203,7 +203,7 @@ QWidget *PaletteEditorColorTableDelegate::createEditor(QWidget *parent, const QS
 }
 
 void PaletteEditorColorTableDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &idx) const {
-	if (idx.column() != 4) {
+	if (idx.column() != 3) {
 		QStyledItemDelegate::paint(painter, opt, idx);
 	} else {
 		auto color = idx.model()->data(idx, Qt::DisplayRole).toString();
@@ -250,10 +250,10 @@ PaletteEditor::PaletteEditor(QString path, const studio::Context *ctx, QWidget *
 
 	m_table = new QTableWidget(this);
 	m_table->setItemDelegate(&m_colorTableDelegate);
-	m_table->setColumnCount(5);
+	m_table->setColumnCount(4);
 	m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
 	m_table->setSelectionMode(QAbstractItemView::SingleSelection);
-	m_table->setHorizontalHeaderLabels(QStringList() << tr("Red") << tr("Green") << tr("Blue") << tr("Alpha") << tr("Color Preview"));
+	m_table->setHorizontalHeaderLabels(QStringList() << tr("Red") << tr("Green") << tr("Blue") << tr("Color Preview"));
 	m_table->horizontalHeader()->setStretchLastSection(true);
 	m_table->verticalHeader()->hide();
 	canvasLyt->addWidget(m_table);
@@ -277,8 +277,7 @@ void PaletteEditor::addTableRow(int i, Color16 c) {
 	m_table->setItem(i, 0, mkCell(red16(c)));
 	m_table->setItem(i, 1, mkCell(green16(c)));
 	m_table->setItem(i, 2, mkCell(blue16(c)));
-	m_table->setItem(i, 3, mkCell(alpha16(c)));
-	m_table->setItem(i, 4, mkCell(toQColor(m_pal->colors[static_cast<std::size_t>(i)]).name(QColor::HexArgb), false));
+	m_table->setItem(i, 3, mkCell(toQColor(m_pal->colors[static_cast<std::size_t>(i)]).name(QColor::HexArgb), false));
 	connect(m_table, &QTableWidget::cellChanged, this, &PaletteEditor::cellChanged);
 }
 
@@ -293,8 +292,7 @@ void PaletteEditor::setTableRow(int idx, Color16 c) {
 	m_table->item(idx, 0)->setText(QString::number(red16(c)));
 	m_table->item(idx, 1)->setText(QString::number(green16(c)));
 	m_table->item(idx, 2)->setText(QString::number(blue16(c)));
-	m_table->item(idx, 3)->setText(QString::number(alpha16(c)));
-	m_table->item(idx, 4)->setText(toQColor(m_pal->colors[static_cast<std::size_t>(idx)]).name(QColor::HexArgb));
+	m_table->item(idx, 3)->setText(toQColor(m_pal->colors[static_cast<std::size_t>(idx)]).name(QColor::HexArgb));
 	connect(m_table, &QTableWidget::cellChanged, this, &PaletteEditor::cellChanged);
 }
 
@@ -342,8 +340,7 @@ Color16 PaletteEditor::rowColor(int row) const {
 	auto r = static_cast<uint8_t>(m_table->item(row, 0)->text().toInt());
 	auto g = static_cast<uint8_t>(m_table->item(row, 1)->text().toInt());
 	auto b = static_cast<uint8_t>(m_table->item(row, 2)->text().toInt());
-	auto a = static_cast<uint8_t>(m_table->item(row, 3)->text().toInt());
-	return color16(r, g, b, a);
+	return color16(r, g, b);
 }
 
 void PaletteEditor::colorSelected() {

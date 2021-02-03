@@ -107,8 +107,8 @@ ox::Error loadSpriteTileSheet(Context *ctx,
 }
 
 
-[[nodiscard]] constexpr Color16 color16(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-	return r | (g << 5) | (b << 10) | (a << 15);
+[[nodiscard]] constexpr Color16 color16(uint8_t r, uint8_t g, uint8_t b) {
+	return r | (g << 5) | (b << 10);
 }
 
 [[nodiscard]] uint8_t red32(Color32 c) noexcept;

@@ -279,7 +279,7 @@ class UpdatePixelsCommand: public QUndoCommand {
 			m_cmdIdx = cmdIdx;
 			PixelUpdate pu;
 			pu.item = pixelItem;
-			pu.oldColorId = m_palette.indexOf(pixelItem->property("color").value<QColor>().name(QColor::HexArgb));
+			pu.oldColorId = m_palette.indexOf(pixelItem->property("color").value<QColor>().name(QColor::HexRgb));
 			m_pixelUpdates.insert(pu);
 			setObsolete(pu.oldColorId == newColorId);
 		}
@@ -585,7 +585,7 @@ void SheetData::setPalette(const NostalgiaPalette *npal) {
 	m_palette.clear();
 	for (std::size_t i = 0; i < npal->colors.size(); i++) {
 		const auto c = toQColor(npal->colors[i]);
-		const auto color = c.name(QColor::HexArgb);
+		const auto color = c.name(QColor::HexRgb);
 		m_palette.append(color);
 	}
 	emit paletteChanged();

@@ -175,9 +175,8 @@ uint8_t blue32(Color16 c) noexcept {
 	return blue16(c) * 8;
 }
 
-static_assert(color16(0, 31, 0, 0) == 992);
-static_assert(color16(16, 31, 0, 0) == 1008);
-static_assert(color16(16, 31, 8, 0) == 9200);
-static_assert(color16(16, 31, 8, 1) == 41968);
+static_assert(color16(0, 31, 0) == 992);
+static_assert(color16(16, 31, 0) == 1008);
+static_assert(color16(16, 31, 8) == 9200);
 
 }

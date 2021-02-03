@@ -277,7 +277,7 @@ void PaletteEditor::addTableRow(int i, Color16 c) {
 	m_table->setItem(i, 0, mkCell(red16(c)));
 	m_table->setItem(i, 1, mkCell(green16(c)));
 	m_table->setItem(i, 2, mkCell(blue16(c)));
-	m_table->setItem(i, 3, mkCell(toQColor(m_pal->colors[static_cast<std::size_t>(i)]).name(QColor::HexArgb), false));
+	m_table->setItem(i, 3, mkCell(toQColor(m_pal->colors[static_cast<std::size_t>(i)]).name(QColor::HexRgb), false));
 	connect(m_table, &QTableWidget::cellChanged, this, &PaletteEditor::cellChanged);
 }
 
@@ -292,7 +292,7 @@ void PaletteEditor::setTableRow(int idx, Color16 c) {
 	m_table->item(idx, 0)->setText(QString::number(red16(c)));
 	m_table->item(idx, 1)->setText(QString::number(green16(c)));
 	m_table->item(idx, 2)->setText(QString::number(blue16(c)));
-	m_table->item(idx, 3)->setText(toQColor(m_pal->colors[static_cast<std::size_t>(idx)]).name(QColor::HexArgb));
+	m_table->item(idx, 3)->setText(toQColor(m_pal->colors[static_cast<std::size_t>(idx)]).name(QColor::HexRgb));
 	connect(m_table, &QTableWidget::cellChanged, this, &PaletteEditor::cellChanged);
 }
 

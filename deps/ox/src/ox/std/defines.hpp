@@ -36,4 +36,41 @@ constexpr auto BigEndian = false;
 constexpr auto LittleEndian = true;
 #endif
 
+enum class OS {
+	BareMetal,
+	NetBSD,
+	OpenBSD,
+	FreeBSD,
+	DragonFlyBSD,
+	Linux,
+	Darwin,
+	Windows
+};
+
+#if defined(__FreeBSD__)
+constexpr OS OS = OS::FreeBSD;
+#define OX_OS_FreeBSD
+#elif defined(__NetBSD__)
+constexpr OS OS = OS::NetBSD;
+#define OX_OS_NetBSD
+#elif defined(__OpenBSD__)
+constexpr OS OS = OS::OpenBSD;
+#define OX_OS_OpenBSD
+#elif defined(__DragonFly__)
+constexpr OS OS = OS::DragonFlyBSD;
+#define OX_OS_DragonFlyBSD
+#elif defined(__gnu_linux__)
+constexpr OS OS = OS::Linux;
+#define OX_OS_Linux
+#elif defined(_WIN32)
+#define OX_OS_Windows
+constexpr OS OS = OS::Windows;
+#elif defined(__apple__)
+#define OX_OS_Darwin
+constexpr OS OS = OS::Darwin;
+#else
+#define OX_OS_BareMetal
+constexpr OS OS = OS::BareMetal;
+#endif
+
 }

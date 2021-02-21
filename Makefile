@@ -3,15 +3,14 @@ ifeq (${OS},Windows_NT)
 	.SHELLFLAGS := -NoProfile -Command
 	OS=windows
 	HOST_ENV=${OS}
-	RM_RF=Remove-Item -ErrorAction Ignore -Recurse -Path
 else
 	OS=$(shell uname | tr [:upper:] [:lower:])
 	HOST_ENV=${OS}-$(shell uname -m)
-	RM_RF=rm -rf
 endif
 
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=nostalgia-devenv
+RM_RF=python3 scripts/pybb rm
 ifndef VCPKG_DIR_BASE
 	VCPKG_DIR_BASE=.vcpkg
 endif
@@ -47,7 +46,9 @@ clean:
 	$(foreach file, $(wildcard build/*), ${ENV_RUN} cmake --build $(file) --target clean;)
 .PHONY: purge
 purge:
-	${ENV_RUN} ${RM_RF} build .current_build dist
+	${ENV_RUN} ${RM_RF} .current_build
+	${ENV_RUN} ${RM_RF} build
+	${ENV_RUN} ${RM_RF} dist
 .PHONY: test
 test: build
 	$(foreach file, $(wildcard build/*), ${ENV_RUN} cmake --build $(file) --target test;)

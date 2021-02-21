@@ -104,6 +104,11 @@ constexpr Error toError(const Result<T> &ve) noexcept {
 }
 
 inline void oxIgnoreError(ox::Error) noexcept {}
+#if __cplusplus >= 202002L
+#define oxReturnError(x) if (const auto _ox_error = ox::detail::toError(x)) [[unlikely]] return _ox_error
+#define oxThrowError(x) if (const auto _ox_error = ox::detail::toError(x)) [[unlikely]] throw _ox_error
+#else
 #define oxReturnError(x) if (const auto _ox_error = ox::detail::toError(x)) return _ox_error
 #define oxThrowError(x) if (const auto _ox_error = ox::detail::toError(x)) throw _ox_error
+#endif
 

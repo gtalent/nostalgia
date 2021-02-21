@@ -31,8 +31,6 @@
 
 namespace nostalgia::studio {
 
-const QString MainWindow::StateFilePath = "studio_state.json";
-
 MainWindow::MainWindow(QString profilePath) {
 	m_profilePath = profilePath;
 	// load in profile file

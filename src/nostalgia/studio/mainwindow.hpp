@@ -64,10 +64,6 @@ ox::Error model(T *io, NostalgiaStudioProfile *obj) {
 
 class MainWindow: public QMainWindow {
 	Q_OBJECT
-	public:
-		static const QString EditorSettings;
-		static const QString AppTitle;
-		static const QString StateFilePath;
 
 	private:
 		QString m_profilePath;

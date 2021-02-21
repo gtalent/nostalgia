@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 
 import os
+import shutil
+import stat
 import sys
 
 def mkdir(path):
@@ -8,8 +10,12 @@ def mkdir(path):
         os.mkdir(path)
 
 def rm(path):
-    if os.path.exists(path) or os.path.islink(path):
+    if (os.path.exists(path) or os.path.islink(path)) and not os.path.isdir(path):
+        os.chmod(path, stat.S_IWRITE)
         os.remove(path)
+    elif os.path.isdir(path):
+        os.chmod(path, stat.S_IWRITE)
+        shutil.rmtree(path)
 
 if sys.argv[1] == 'mkdir':
     mkdir(sys.argv[2])

@@ -11,10 +11,8 @@ def mkdir(path):
 
 def rm(path):
     if (os.path.exists(path) or os.path.islink(path)) and not os.path.isdir(path):
-        os.chmod(path, stat.S_IWRITE)
         os.remove(path)
     elif os.path.isdir(path):
-        os.chmod(path, stat.S_IWRITE)
         shutil.rmtree(path)
 
 if sys.argv[1] == 'mkdir':

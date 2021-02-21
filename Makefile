@@ -10,7 +10,9 @@ endif
 
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=nostalgia-devenv
-RM_RF=python3 scripts/pybb rm
+PYBB=python3 scripts/pybb
+CMAKE_BUILD=${PYBB} cmake-build
+RM_RF=${PYBB} rm
 ifndef VCPKG_DIR_BASE
 	VCPKG_DIR_BASE=.vcpkg
 endif
@@ -33,17 +35,17 @@ endif
 
 .PHONY: build
 build:
-	$(foreach file, $(wildcard build/*), ${ENV_RUN} cmake --build $(file) --target;)
+	${ENV_RUN} ${CMAKE_BUILD} build
 .PHONY: pkg-gba
 pkg-gba:
-	$(foreach file, $(wildcard build/*), ${ENV_RUN} cmake --build $(file) --target install;)
+	${ENV_RUN} ${CMAKE_BUILD} build install
 	${ENV_RUN} ./scripts/pkg-gba sample_project
 .PHONY: install
 install:
-	$(foreach file, $(wildcard build/*), ${ENV_RUN} cmake --build $(file) --target install;)
+	${ENV_RUN} ${CMAKE_BUILD} build install
 .PHONY: clean
 clean:
-	$(foreach file, $(wildcard build/*), ${ENV_RUN} cmake --build $(file) --target clean;)
+	${ENV_RUN} ${CMAKE_BUILD} build clean
 .PHONY: purge
 purge:
 	${ENV_RUN} ${RM_RF} .current_build

@@ -5,9 +5,9 @@
 
 import os
 import shutil
-import stat
 import subprocess
 import sys
+
 
 def mkdir(path):
     if not os.path.exists(path) and os.path.isdir(path):
@@ -29,7 +29,7 @@ def cmake_build(base_path, target):
         if err != 0:
             sys.exit(err)
 
-if __name__ == '__main__':
+def main():
     if sys.argv[1] == 'mkdir':
         mkdir(sys.argv[2])
     elif sys.argv[1] == 'rm':
@@ -37,3 +37,10 @@ if __name__ == '__main__':
             rm(sys.argv[i])
     elif sys.argv[1] == 'cmake-build':
         cmake_build(sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit(1)
+

@@ -39,7 +39,7 @@ struct NostalgiaStudioState {
 
 template<typename T>
 ox::Error model(T *io, NostalgiaStudioState *obj) {
-	oxReturnError(io->setTypeInfo("NostalgiaStudioState", 1));
+	oxReturnError(io->setTypeInfo("net.drinkingtea.nostalgia.studio.NostalgiaStudioState", 1));
 	oxReturnError(io->field("project_path", &obj->projectPath));
 	return OxError(0);
 }
@@ -52,7 +52,7 @@ struct NostalgiaStudioProfile {
 
 template<typename T>
 ox::Error model(T *io, NostalgiaStudioProfile *obj) {
-	oxReturnError(io->setTypeInfo("NostalgiaStudioProfile", 3));
+	oxReturnError(io->setTypeInfo("net.drinkingtea.nostalgia.studio.NostalgiaStudioProfile", 3));
 	oxReturnError(io->field("app_name", &obj->appName));
 	oxReturnError(io->field("org_name", &obj->orgName));
 	oxReturnError(io->field("modules_path", &obj->modulesPath));

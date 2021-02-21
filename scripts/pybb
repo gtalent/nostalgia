@@ -1,5 +1,8 @@
 #! /usr/bin/env python3
 
+# "Python Busy Box" - adds cross platform equivalents to Unix commands that
+#                     don't translate well to that other operating system
+
 import os
 import shutil
 import stat

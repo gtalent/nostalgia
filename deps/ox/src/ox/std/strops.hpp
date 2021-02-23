@@ -157,7 +157,7 @@ constexpr T ox_itoa(Integer v, T str) noexcept {
 					start = 'a';
 					digit -= 10;
 				}
-				str[it] = start + digit;
+				str[it] = static_cast<typename ox::remove_reference<decltype(str[0])>::type>(start + digit);
 				it++;
 			}
 		}

@@ -24,14 +24,14 @@ static constexpr auto Bits = sizeof(T) << 3;
  */
 template<typename I>
 [[nodiscard]] constexpr std::size_t highestBit(I val) noexcept {
-	auto shiftStart = sizeof(I) * 8 - 1;
+	int shiftStart = sizeof(I) * 8 - 1;
 	// find most significant non-sign indicator bit
 	std::size_t highestBit = 0;
 	// start at one bit lower if signed
 	if constexpr(ox::is_signed_v<I>) {
 		--shiftStart;
 	}
-	for (int i = shiftStart; i > -1; --i) {
+	for (auto i = shiftStart; i > -1; --i) {
 		const auto bitValue = (val >> i) & 1;
 		if (bitValue) {
 			highestBit = i;

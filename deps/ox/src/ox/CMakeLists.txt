@@ -1,4 +1,4 @@
-if(${OX_USE_STDLIB})
+if(OX_USE_STDLIB)
 	add_subdirectory(clargs)
 	add_subdirectory(claw)
 	add_subdirectory(oc)

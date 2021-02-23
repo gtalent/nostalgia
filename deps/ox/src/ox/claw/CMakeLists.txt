@@ -6,7 +6,7 @@ add_library(
 )
 
 target_link_libraries(
-	OxClaw
+	OxClaw PUBLIC
 		OxMetalClaw
 		OxOrganicClaw
 )

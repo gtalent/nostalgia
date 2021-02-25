@@ -10,7 +10,8 @@ endif
 
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=nostalgia-devenv
-PYBB=python3 scripts/pybb
+SETUP_BUILD=python3 ./scripts/setup-build.py
+PYBB=python3 scripts/pybb.py
 CMAKE_BUILD=${PYBB} cmake-build
 RM_RF=${PYBB} rm
 ifndef VCPKG_DIR_BASE
@@ -98,9 +99,7 @@ devenv-shell:
 vcpkg: ${VCPKG_DIR} vcpkg-install
 
 ${VCPKG_DIR}:
-ifneq (,$(wildcard ${VCPKG_DIR}))
 	${ENV_RUN} ${RM_RF} ${VCPKG_DIR}
-endif
 	${ENV_RUN} mkdir -p ${VCPKG_DIR_BASE}
 	${ENV_RUN} git clone -b release --depth 1 --branch ${VCPKG_VERSION} https://github.com/microsoft/vcpkg.git ${VCPKG_DIR}
 ifneq (${OS},windows)
@@ -117,37 +116,26 @@ else
 	${VCPKG_DIR}/vcpkg install --triplet x64-windows sdl2 jsoncpp
 endif
 
+.PHONY: configure-xcode
+configure-xcode:
+	${ENV_RUN} ${SETUP_BUILD} --vcpkg_dir ${VCPKG_DIR} --build_tool xcode
+
 .PHONY: configure-release
 configure-release:
-ifneq (,$(wildcard build/${HOST_ENV}-release))
-	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-release
-endif
-	${ENV_RUN} python3 ./scripts/setup-build.py ${HOST_ENV} release ${VCPKG_DIR}
+	${ENV_RUN} ${SETUP_BUILD} --vcpkg_dir ${VCPKG_DIR} --build_type release
 
 .PHONY: configure-debug
 configure-debug:
-ifneq (,$(wildcard build/${HOST_ENV}-debug))
-	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-debug
-endif
-	${ENV_RUN} python3 ./scripts/setup-build.py ${HOST_ENV} debug ${VCPKG_DIR}
+	${ENV_RUN} ${SETUP_BUILD} --vcpkg_dir ${VCPKG_DIR} --build_type debug
 
 .PHONY: configure-asan
 configure-asan:
-ifneq (,$(wildcard build/${HOST_ENV}-asan))
-	${ENV_RUN} ${RM_RF} build/${HOST_ENV}-asan
-endif
-	${ENV_RUN} python3 ./scripts/setup-build.py ${HOST_ENV} asan ${VCPKG_DIR}
+	${ENV_RUN} ${SETUP_BUILD} --vcpkg_dir ${VCPKG_DIR} --build_type asan
 
 .PHONY: configure-gba
 configure-gba:
-ifneq (,$(wildcard build/gba-release))
-	${ENV_RUN} ${RM_RF} build/gba-release
-endif
-	${ENV_RUN} python3 ./scripts/setup-build.py gba release ${VCPKG_DIR}
+	${ENV_RUN} ${SETUP_BUILD} --target gba --build_type release
 
 .PHONY: configure-gba-debug
 configure-gba-debug:
-ifneq (,$(wildcard build/gba-debug))
-	${ENV_RUN} ${RM_RF} build/gba-debug
-endif
-	${ENV_RUN} python3 ./scripts/setup-build.py gba debug ${VCPKG_DIR}
+	${ENV_RUN} ${SETUP_BUILD} --target gba --build_type debug

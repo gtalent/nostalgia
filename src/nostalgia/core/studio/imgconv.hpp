@@ -29,18 +29,6 @@ namespace nostalgia::core {
 	return colStart + colOffset + rowStart + rowOffset;
 }
 
-template<typename T>
-ox::Result<std::vector<uint8_t>> toBuffer(T *data, std::size_t buffSize = ox::units::MB) {
-	std::vector<uint8_t> buff(buffSize);
-	std::size_t sz = 0;
-	oxReturnError(ox::writeMC(buff.data(), buff.size(), data, &sz));
-	if (sz > buffSize) {
-		return OxError(1);
-	}
-	buff.resize(sz);
-	return buff;
-}
-
-[[nodiscard]] std::unique_ptr<core::NostalgiaGraphic> imgToNg(QString argInPath, int argBpp = -1);
+    [[nodiscard]] std::unique_ptr<core::NostalgiaGraphic> imgToNg(QString argInPath, int argBpp = -1);
 
 }

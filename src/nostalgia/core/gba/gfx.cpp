@@ -219,7 +219,7 @@ void clearTileLayer(Context*, int layer) {
 	memset(&MEM_BG_MAP[layer], 0, GbaTileRows * GbaTileColumns);
 }
 
-void hideSprite(Context*, unsigned idx) {
+    [[maybe_unused]] void hideSprite(Context*, unsigned idx) {
 	oxAssert(g_spriteUpdates < config::GbaSpriteBufferLen, "Sprite update buffer overflow");
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = 2 << 8;

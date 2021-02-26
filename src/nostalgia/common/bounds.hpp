@@ -22,17 +22,17 @@ class Bounds {
 
 		Bounds(int x, int y, int w, int h);
 
-		bool intersects(Bounds other) const;
+		[[nodiscard]] bool intersects(Bounds other) const;
 
-		bool contains(int x, int y) const;
+		[[nodiscard]] bool contains(int x, int y) const;
 
-		int x2() const;
+		[[nodiscard]] int x2() const;
 
-		int y2() const;
+		[[nodiscard]] int y2() const;
 
-		Point pt1();
+		[[nodiscard]] Point pt1();
 
-		Point pt2();
+		[[nodiscard]] Point pt2();
 };
 
 template<typename T>

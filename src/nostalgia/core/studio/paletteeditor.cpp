@@ -31,22 +31,22 @@ enum class PaletteEditorCommandId {
 class ColorChannelValidator: public QValidator {
 
 	public:
-		ColorChannelValidator(QLineEdit *parent);
+		explicit ColorChannelValidator(QLineEdit *parent);
 
 		QValidator::State validate(QString &input, int&) const override;
 
 	private:
-		QString convert(const QString &input) const;
+		[[nodiscard]] static QString convert(const QString &input);
 
 };
 
 ColorChannelValidator::ColorChannelValidator(QLineEdit *parent): QValidator(parent) {
-	connect(parent, &QLineEdit::editingFinished, [this, parent] {
+	connect(parent, &QLineEdit::editingFinished, [parent] {
 		parent->setText(convert(parent->text()));
 	});
 }
 
-QString ColorChannelValidator::convert(const QString &input) const {
+QString ColorChannelValidator::convert(const QString &input) {
 	int num = 0;
 	if (input[0] == '_') {
 		num = input.mid(1).toInt() >> 3;
@@ -86,9 +86,9 @@ class AddColorCommand: public QUndoCommand {
 			m_idx = idx;
 		}
 
-		virtual ~AddColorCommand() = default;
+		~AddColorCommand() override = default;
 
-		int id() const override {
+		[[nodiscard]] int id() const override {
 			return static_cast<int>(PaletteEditorCommandId::AddColor);
 		}
 
@@ -115,9 +115,9 @@ class RemoveColorCommand: public QUndoCommand {
 			m_idx = idx;
 		}
 
-		virtual ~RemoveColorCommand() = default;
+		~RemoveColorCommand() override = default;
 
-		int id() const override {
+		[[nodiscard]] int id() const override {
 			return static_cast<int>(PaletteEditorCommandId::RemoveColor);
 		}
 
@@ -147,9 +147,9 @@ class UpdateColorCommand: public QUndoCommand {
 			setObsolete(m_oldColor == m_newColor);
 		}
 
-		virtual ~UpdateColorCommand() = default;
+		~UpdateColorCommand() override = default;
 
-		int id() const override {
+		[[nodiscard]] int id() const override {
 			return static_cast<int>(PaletteEditorCommandId::UpdateColor);
 		}
 
@@ -176,9 +176,9 @@ class MoveColorCommand: public QUndoCommand {
 			m_offset = offset;
 		}
 
-		virtual ~MoveColorCommand() = default;
+		~MoveColorCommand() override = default;
 
-		int id() const override {
+		[[nodiscard]] int id() const override {
 			return static_cast<int>(PaletteEditorCommandId::MoveColor);
 		}
 
@@ -212,7 +212,7 @@ void PaletteEditorColorTableDelegate::paint(QPainter *painter, const QStyleOptio
 }
 
 
-static QTableWidgetItem *mkCell(QString v, bool editable = true) {
+static QTableWidgetItem *mkCell(const QString& v, bool editable = true) {
 	auto c = new QTableWidgetItem;
 	c->setText(v);
 	c->setFont(QFont("monospace"));
@@ -345,7 +345,7 @@ Color16 PaletteEditor::rowColor(int row) const {
 
 void PaletteEditor::colorSelected() {
 	auto selIdxs = m_table->selectionModel()->selectedIndexes();
-	auto row = selIdxs.size() ? selIdxs[0].row() : -1;
+	auto row = !selIdxs.empty() ? selIdxs[0].row() : -1;
 	if (row > -1) {
 		m_rmBtn->setEnabled(true);
 		m_moveUpBtn->setEnabled(row > 0);

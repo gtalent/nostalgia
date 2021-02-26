@@ -9,9 +9,11 @@ import sys
 
 from pybb import mkdir, rm
 
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--target', help='Platform target ({OS}-{Arch},gba)', default='{:s}-{:s}'.format(sys.platform, platform.machine()))
+    parser.add_argument('--target', help='Platform target ({OS}-{Arch},gba)',
+                        default='{:s}-{:s}'.format(sys.platform, platform.machine()))
     parser.add_argument('--build_type', help='Build type (asan,debug,release)', default='release')
     parser.add_argument('--build_tool', help='Build tool (default,xcode)', default='')
     parser.add_argument('--vcpkg_dir', help='Path to VCPKG')
@@ -33,6 +35,9 @@ def main():
     elif args.build_type == 'release':
         build_type_arg = 'Release'
         sanitizer_status = 'OFF'
+    else:
+        print('Error: Invalid build tool')
+        sys.exit(1)
 
     if args.build_tool == 'xcode':
         build_config = '{:s}-{:s}'.format(args.target, args.build_tool)
@@ -45,27 +50,30 @@ def main():
         qt_path = ''
 
     if args.build_tool == '' or args.build_tool == 'default':
-        if shutil.which('ninja') == None:
+        if shutil.which('ninja') is None:
             build_tool = ''
         else:
             build_tool = '-GNinja'
     elif args.build_tool == 'xcode':
         build_tool = '-GXcode'
+    else:
+        print('Error: Invalid build tool')
+        sys.exit(1)
 
     project_dir = os.getcwd()
     build_dir = '{:s}/build/{:s}'.format(project_dir, build_config)
     rm(build_dir)
     mkdir(build_dir)
     subprocess.run(['cmake', '-S', project_dir, '-B', build_dir, build_tool,
-            '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
-            '-DCMAKE_BUILD_TYPE={:s}'.format(build_type_arg),
-            '-DUSE_ASAN={:s}'.format(sanitizer_status),
-            '-DNOSTALGIA_IDE_BUILD=OFF',
-            '-DNOSTALGIA_BUILD_CONFIG={:s}'.format(build_config),
-            '-DNOSTALGIA_BUILD_TYPE={:s}'.format(nostalgia_build_type),
-            qt_path,
-            toolchain,
-        ])
+                    '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
+                    '-DCMAKE_BUILD_TYPE={:s}'.format(build_type_arg),
+                    '-DUSE_ASAN={:s}'.format(sanitizer_status),
+                    '-DNOSTALGIA_IDE_BUILD=OFF',
+                    '-DNOSTALGIA_BUILD_CONFIG={:s}'.format(build_config),
+                    '-DNOSTALGIA_BUILD_TYPE={:s}'.format(nostalgia_build_type),
+                    qt_path,
+                    toolchain,
+                    ])
 
     mkdir('dist')
     if args.target != 'gba':
@@ -77,9 +85,9 @@ def main():
     if platform.system() != 'Windows':
         os.symlink('build/{:s}/compile_commands.json'.format(build_config), 'compile_commands.json')
 
+
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
         sys.exit(1)
-

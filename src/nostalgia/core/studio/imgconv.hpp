@@ -29,6 +29,6 @@ namespace nostalgia::core {
 	return colStart + colOffset + rowStart + rowOffset;
 }
 
-    [[nodiscard]] std::unique_ptr<core::NostalgiaGraphic> imgToNg(QString argInPath, int argBpp = -1);
+[[nodiscard]] std::unique_ptr<core::NostalgiaGraphic> imgToNg(QString argInPath, int argBpp = -1);
 
 }

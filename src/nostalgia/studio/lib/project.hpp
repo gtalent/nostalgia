@@ -43,9 +43,9 @@ class NOSTALGIASTUDIO_EXPORT Project: public QObject {
 		mutable ox::PassThroughFS m_fs;
 
 	public:
-		Project(QString path);
+		explicit Project(QString path);
 
-		~Project();
+		~Project() override;
 
 		void create();
 

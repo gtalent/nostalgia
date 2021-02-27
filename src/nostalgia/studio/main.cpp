@@ -31,7 +31,7 @@ int main(int argc, char **args) {
 		w.show();
 		QObject::connect(&app, &QApplication::aboutToQuit, &w, &MainWindow::onExit);
 		return app.exec();
-	} catch (ox::Error err) {
+	} catch (const ox::Error &err) {
 		oxPanic(err, "Unhandled ox::Error");
 	}
 }

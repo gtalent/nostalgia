@@ -85,9 +85,9 @@ class MainWindow: public QMainWindow {
 		Editor *m_currentEditor = nullptr;
 
 	public:
-		MainWindow(QString profilePath);
+		explicit MainWindow(QString profilePath);
 
-		virtual ~MainWindow();
+		~MainWindow() override;
 
 	private:
 		void loadModules();
@@ -104,12 +104,12 @@ class MainWindow: public QMainWindow {
 
 		void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget);
 
-		QAction *addAction(QMenu *menu, QString text, QString toolTip, const QObject *tgt, const char *cb);
+		static QAction *addAction(QMenu *menu, QString text, QString toolTip, const QObject *tgt, const char *cb);
 
-		QAction *addAction(QMenu *menu, QString text, QString toolTip,
+		static QAction *addAction(QMenu *menu, QString text, QString toolTip,
 		                   QKeySequence::StandardKey key, const QObject *tgt, const char *cb);
 
-		QAction *addAction(QMenu *menu, QString text, QString toolTip,
+		static QAction *addAction(QMenu *menu, QString text, QString toolTip,
 		                   QKeySequence::StandardKey key, void (*cb)());
 
 		int readState();
@@ -119,12 +119,12 @@ class MainWindow: public QMainWindow {
 		/**
 		 * Read open editor tabs for current project.
 		 */
-		QStringList readTabs();
+		[[nodiscard]] QStringList readTabs() const;
 
 		/**
 		 * Write open editor tabs for current project.
 		 */
-		void writeTabs(QStringList tabs);
+		void writeTabs(QStringList tabs) const;
 
 		void openProject(QString);
 

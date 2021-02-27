@@ -22,8 +22,6 @@ class WorldEditorPlugin: public QObject, public studio::Module {
 	public:
 		QVector<studio::WizardMaker> newWizards(const studio::Context *ctx) override;
 
-		QWidget *makeEditor(QString path, const studio::Context *ctx) override;
-
 };
 
 }

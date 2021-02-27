@@ -19,10 +19,6 @@ QVector<WizardMaker> Module::importWizards(const Context*) {
 	return {};
 }
 
-QWidget *Module::makeEditor(QString, const Context*) {
-	return nullptr;
-}
-
 QVector<EditorMaker> Module::editors(const Context*) {
 	return {};
 }

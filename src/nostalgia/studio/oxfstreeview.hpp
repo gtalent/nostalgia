@@ -31,19 +31,19 @@ class OxFSFile {
 
 		OxFSFile *child(int row);
 
-		int childCount() const;
+		[[nodiscard]] int childCount() const;
 
-		int columnCount() const;
+		[[nodiscard]] int columnCount() const;
 
-		QVariant data(int column) const;
+		[[nodiscard]] QVariant data(int column) const;
 
-		int row() const;
+		[[nodiscard]] int row() const;
 
 		OxFSFile *parentItem();
 
-		QString name() const;
+		[[nodiscard]] QString name() const;
 
-		QString path() const;
+		[[nodiscard]] QString path() const;
 };
 
 class OxFSModel: public QAbstractItemModel {
@@ -55,31 +55,28 @@ class OxFSModel: public QAbstractItemModel {
 		OxFSFile *m_rootItem = nullptr;
 
 	public:
-		explicit OxFSModel(ox::PassThroughFS *fs, QObject *parent = 0);
+		explicit OxFSModel(ox::PassThroughFS *fs, QObject *parent = nullptr);
 
-		~OxFSModel();
+		~OxFSModel() override;
 
-		QVariant data(const QModelIndex &index, int role) const override;
+		[[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
 
-		Qt::ItemFlags flags(const QModelIndex &index) const override;
+		[[nodiscard]] Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-		QVariant headerData(int section, Qt::Orientation orientation,
-		                    int role = Qt::DisplayRole) const override;
+		[[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
-		QModelIndex index(int row, int column,
-		                  const QModelIndex &parent = QModelIndex()) const override;
+		[[nodiscard]] QModelIndex index(int row, int column,
+		                  const QModelIndex &parent) const override;
 
-		QModelIndex parent(const QModelIndex &index) const override;
+		[[nodiscard]] QModelIndex parent(const QModelIndex &index) const override;
 
-		int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+		[[nodiscard]] int rowCount(const QModelIndex &parent) const override;
 
-		int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+		[[nodiscard]] int columnCount(const QModelIndex &parent) const override;
 
 	public slots:
 		void updateFile(QString path);
 
-	private:
-		void setupModelData(const QStringList &lines, OxFSFile *parent);
 };
 
 }

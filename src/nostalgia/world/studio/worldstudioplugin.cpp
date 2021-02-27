@@ -39,12 +39,4 @@ QVector<WizardMaker> WorldEditorPlugin::newWizards(const Context *ctx) {
 	};
 }
 
-QWidget *WorldEditorPlugin::makeEditor(QString path, const Context *ctx) {
-	if (path.startsWith(PATH_ZONES)) {
-		return new WorldEditor(path, ctx);
-	} else {
-		return nullptr;
-	}
-}
-
 }

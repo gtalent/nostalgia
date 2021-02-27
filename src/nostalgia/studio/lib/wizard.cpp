@@ -58,7 +58,7 @@ void WizardSelect::initializePage() {
 	emit completeChanged();
 }
 
-void WizardSelect::addOption(WizardMaker wm) {
+void WizardSelect::addOption(const WizardMaker &wm) {
 	m_options[wm.name] = {wm.make, wm.onAccept};
 	m_listWidget->addItem(wm.name);
 }
@@ -82,7 +82,6 @@ void WizardSelect::itemSelected(int row) {
 				w->addPage(p);
 			}
 			w->setAccept(o.onAccept);
-
 			// for some reason the continue button only appears correctly after remove runs
 			w->removePage(w->addPage(new QWizardPage()));
 		}
@@ -94,9 +93,6 @@ WizardConclusionPage::WizardConclusionPage(QString msg, QVector<QString> fields)
 	m_baseMsg = msg;
 	m_fields = fields;
 	setLayout(new QVBoxLayout(this));
-}
-
-WizardConclusionPage::~WizardConclusionPage() {
 }
 
 void WizardConclusionPage::initializePage() {
@@ -126,7 +122,7 @@ void WizardFormPage::Field::setDisplayText(QString text) {
 	}
 }
 
-QString WizardFormPage::Field::getDisplayText() {
+QString WizardFormPage::Field::getDisplayText() const {
 	auto le = dynamic_cast<QLineEdit*>(this->valueControl);
 	auto cb = dynamic_cast<QComboBox*>(this->valueControl);
 	if (le) {

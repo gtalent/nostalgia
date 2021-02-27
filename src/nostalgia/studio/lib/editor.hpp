@@ -55,7 +55,7 @@ class NOSTALGIASTUDIO_EXPORT Editor: public QWidget {
 		 */
 		void setUnsavedChanges(bool);
 
-		[[nodiscard]] bool unsavedChanges() noexcept;
+		[[nodiscard]] bool unsavedChanges() const noexcept;
 
 		/**
 		 * Returns the undo stack holding changes to the item being edited.

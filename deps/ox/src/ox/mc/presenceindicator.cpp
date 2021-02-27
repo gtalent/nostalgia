@@ -7,7 +7,6 @@
  */
 
 #include <ox/std/byteswap.hpp>
-#include <ox/std/memops.hpp>
 #include "err.hpp"
 #include "presenceindicator.hpp"
 
@@ -44,11 +43,7 @@ void FieldPresenceIndicator::setFields(int fields) noexcept {
 	m_maskLen = (fields / 8 + 1) - (fields % 8 == 0);
 }
 
-int FieldPresenceIndicator::getFields() const noexcept {
-	return m_fields;
-}
-
-void FieldPresenceIndicator::setMaxLen(int maxLen) noexcept {
+	void FieldPresenceIndicator::setMaxLen(int maxLen) noexcept {
 	m_maskLen = maxLen;
 }
 

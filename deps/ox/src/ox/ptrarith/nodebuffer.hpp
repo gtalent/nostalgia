@@ -126,8 +126,6 @@ class OX_PACKED NodeBuffer {
 
 		[[nodiscard]] ItemPtr ptr(size_t offset);
 
-		[[nodiscard]] ItemPtr ptr(void *item);
-
 		[[nodiscard]] ItemPtr malloc(size_t size);
 
 		Error free(ItemPtr item);
@@ -159,9 +157,7 @@ class OX_PACKED NodeBuffer {
 		template<typename F>
 		Error compact(F cb = [](uint64_t, ItemPtr) {});
 
-		void truncate();
-
-	private:
+private:
 		uint8_t *data();
 
 };
@@ -268,7 +264,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 	size_t fullSize = size + sizeof(Item);
 	if (m_header.size - m_header.bytesUsed >= fullSize) {
 		auto last = lastItem();
-		size_t addr = 0;
+		size_t addr;
 		if (last.valid()) {
 			addr = last.offset() + last.size();
 		} else {
@@ -420,11 +416,6 @@ Error NodeBuffer<size_t, Item>::compact(F cb) {
 		dest = uninitializedPtr(dest.offset() + dest->fullSize());
 	}
 	return OxError(0);
-}
-
-template<typename size_t, typename Item>
-void NodeBuffer<size_t, Item>::truncate() {
-	m_header.size = m_header.bytesUsed;
 }
 
 template<typename size_t, typename Item>

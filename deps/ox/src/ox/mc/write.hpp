@@ -216,7 +216,6 @@ Error MetalClawWriter::appendInteger(I val) noexcept {
 	oxReturnError(m_fieldPresence.set(m_field, fieldSet));
 	m_field++;
 	return OxError(0);
-;
 }
 
 template<typename T>

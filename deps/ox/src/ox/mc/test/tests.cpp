@@ -13,7 +13,6 @@
 #include <iostream>
 #include <map>
 #include <memory>
-#include <string>
 #include <vector>
 #include <ox/mc/mc.hpp>
 #include <ox/model/model.hpp>

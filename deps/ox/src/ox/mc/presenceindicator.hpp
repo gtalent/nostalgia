@@ -28,9 +28,7 @@ class FieldPresenceIndicator {
 
 		void setFields(int) noexcept;
 
-		int getFields() const noexcept;
-
-		void setMaxLen(int) noexcept;
+	void setMaxLen(int) noexcept;
 
 		int getMaxLen() const noexcept;
 

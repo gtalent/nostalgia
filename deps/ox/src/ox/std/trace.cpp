@@ -9,7 +9,6 @@
 #if defined(OX_USE_STDLIB)
 #include <iomanip>
 #include <iostream>
-#include <stdio.h>
 #endif
 
 #include "trace.hpp"

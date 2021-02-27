@@ -9,18 +9,13 @@
 // make sure asserts are enabled for the test file
 #undef NDEBUG
 
-#include <iostream>
 #include <assert.h>
 #include <array>
 #include <map>
 #include <vector>
 #include <string>
 #include <ox/ptrarith/nodebuffer.hpp>
-#include <ox/fs/fs.hpp>
 #include <ox/std/std.hpp>
-#include <ox/fs/filestore/filestoretemplate.hpp>
-#include <ox/fs/filesystem/filesystem.hpp>
-
 
 using namespace std;
 using namespace ox;

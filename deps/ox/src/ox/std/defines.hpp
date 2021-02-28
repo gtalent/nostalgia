@@ -65,7 +65,7 @@ constexpr OS OS = OS::Linux;
 #elif defined(_WIN32)
 #define OX_OS_Windows
 constexpr OS OS = OS::Windows;
-#elif defined(__apple__)
+#elif defined(__APPLE__)
 #define OX_OS_Darwin
 constexpr OS OS = OS::Darwin;
 #else

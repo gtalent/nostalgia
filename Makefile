@@ -54,7 +54,7 @@ purge:
 	${ENV_RUN} ${RM_RF} dist
 .PHONY: test
 test: build
-	$(foreach file, $(wildcard build/*), ${ENV_RUN} cmake --build $(file) --target test;)
+	${ENV_RUN} ${CMAKE_BUILD} build test
 
 .PHONY: run
 run: install

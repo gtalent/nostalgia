@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "error.hpp"
 #include "math.hpp"
 #include "types.hpp"
 #include "typetraits.hpp"
@@ -125,15 +126,17 @@ template<typename T1, typename T2>
 	return retval;
 }
 
-[[nodiscard]] constexpr int ox_atoi(const char *str) noexcept {
+[[nodiscard]] constexpr ox::Result<int> ox_atoi(const char *str) noexcept {
 	int total = 0;
 	int multiplier = 1;
-
 	for (auto i = static_cast<int64_t>(ox_strlen(str)) - 1; i != -1; i--) {
-		total += (str[i] - '0') * multiplier;
-		multiplier *= 10;
+		if (str[i] >= '0' && str[i] <= '9') {
+			total += (str[i] - '0') * multiplier;
+			multiplier *= 10;
+		} else {
+			return OxError(1);
+		}
 	}
-
 	return total;
 }
 

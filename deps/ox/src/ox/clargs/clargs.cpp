@@ -28,7 +28,9 @@ ClArgs::ClArgs(int argc, const char **args) {
 						m_bools[arg] = false;
 					}
 					m_strings[arg] = val;
-					m_ints[arg] = ox_atoi(val.c_str());
+					if (auto r = ox_atoi(val.c_str()); r.error == 0) {
+						m_ints[arg] = r.value;
+					}
 					i++;
 				}
 			}

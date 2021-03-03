@@ -94,17 +94,17 @@ endif
 
 .PHONY: configure-xcode
 configure-xcode:
-	${ENV_RUN} ${SETUP_BUILD} --vcpkg_dir ${VCPKG_DIR} --build_tool xcode
+	${ENV_RUN} ${SETUP_BUILD} --toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake --build_tool=xcode
 
 .PHONY: configure-release
 configure-release:
-	${ENV_RUN} ${SETUP_BUILD} --vcpkg_dir ${VCPKG_DIR} --build_type release
+	${ENV_RUN} ${SETUP_BUILD} --toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake --build_type=release
 
 .PHONY: configure-debug
 configure-debug:
-	${ENV_RUN} ${SETUP_BUILD} --vcpkg_dir ${VCPKG_DIR} --build_type debug
+	${ENV_RUN} ${SETUP_BUILD} --toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake --build_type=debug
 
 .PHONY: configure-asan
 configure-asan:
-	${ENV_RUN} ${SETUP_BUILD} --vcpkg_dir ${VCPKG_DIR} --build_type asan
+	${ENV_RUN} ${SETUP_BUILD} --toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake --build_type=asan
 

@@ -12,19 +12,13 @@ from pybb import mkdir, rm
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--target', help='Platform target ({OS}-{Arch},gba)',
+    parser.add_argument('--target', help='Platform target',
                         default='{:s}-{:s}'.format(sys.platform, platform.machine()))
     parser.add_argument('--build_type', help='Build type (asan,debug,release)', default='release')
     parser.add_argument('--build_tool', help='Build tool (default,xcode)', default='')
-    parser.add_argument('--vcpkg_dir', help='Path to VCPKG')
+    parser.add_argument('--toolchain', help='Path to CMake toolchain file')
+    parser.add_argument('--current_build', help='Indicates whether or not to make this the active build', default=1)
     args = parser.parse_args()
-
-    if args.target == 'gba':
-        toolchain = '-DCMAKE_TOOLCHAIN_FILE=cmake/modules/GBA.cmake'
-        nostalgia_build_type = 'GBA'
-    else:
-        toolchain = '-DCMAKE_TOOLCHAIN_FILE={:s}/scripts/buildsystems/vcpkg.cmake'.format(args.vcpkg_dir)
-        nostalgia_build_type = 'Native'
 
     if args.build_type == 'asan':
         build_type_arg = 'Debug'
@@ -44,8 +38,8 @@ def main():
     else:
         build_config = '{:s}-{:s}'.format(args.target, args.build_type)
 
-    if 'NOSTALGIA_QT_PATH' in os.environ:
-        qt_path = '-DNOSTALGIA_QT_PATH={:s}'.format(os.environ['NOSTALGIA_QT_PATH'])
+    if 'QTDIR' in os.environ:
+        qt_path = '-DQTDIR={:s}'.format(os.environ['QTDIR'])
     else:
         qt_path = ''
 
@@ -66,17 +60,16 @@ def main():
     mkdir(build_dir)
     subprocess.run(['cmake', '-S', project_dir, '-B', build_dir, build_tool,
                     '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
+                    '-DCMAKE_TOOLCHAIN_FILE={:s}'.format(args.toolchain),
                     '-DCMAKE_BUILD_TYPE={:s}'.format(build_type_arg),
                     '-DUSE_ASAN={:s}'.format(sanitizer_status),
-                    '-DNOSTALGIA_IDE_BUILD=OFF',
-                    '-DNOSTALGIA_BUILD_CONFIG={:s}'.format(build_config),
-                    '-DNOSTALGIA_BUILD_TYPE={:s}'.format(nostalgia_build_type),
+                    '-DBUILDCORE_BUILD_CONFIG={:s}'.format(build_config),
+                    '-DBUILDCORE_TARGET={:s}'.format(args.target),
                     qt_path,
-                    toolchain,
                     ])
 
     mkdir('dist')
-    if args.target != 'gba':
+    if int(args.current_build) != 0:
         cb = open('.current_build', 'w')
         cb.write(args.build_type)
         cb.close()

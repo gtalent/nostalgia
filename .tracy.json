@@ -1,0 +1,9 @@
+{
+	"log_functions": [
+		{
+			"bin_path": "/home/gary/projects/nostalgia/dist/linux-x86_64-debug/lib/ox/libOxTraceHook.so",
+			"function": "oxTraceHook",
+			"ignore_frames": 3
+		}
+	]
+}

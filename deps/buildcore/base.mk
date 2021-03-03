@@ -20,6 +20,9 @@ RM_RF=${PYBB} rm
 ifndef VCPKG_DIR_BASE
 	VCPKG_DIR_BASE=.vcpkg
 endif
+ifndef VCPKG_VERSION
+	VCPKG_VERSION=2020.06
+endif
 VCPKG_DIR=$(VCPKG_DIR_BASE)/$(VCPKG_VERSION)-$(HOST_ENV)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=${PROJECT_NAME}-devenv
@@ -87,9 +90,9 @@ endif
 .PHONY: vcpkg-install
 vcpkg-install:
 ifneq (${OS},windows)
-	${VCPKG_DIR}/vcpkg install sdl2 jsoncpp
+	${VCPKG_DIR}/vcpkg install ${VCPKG_PKGS}
 else
-	${VCPKG_DIR}/vcpkg install --triplet x64-windows sdl2 jsoncpp
+	${VCPKG_DIR}/vcpkg install --triplet x64-windows ${VCPKG_PKGS}
 endif
 
 .PHONY: configure-xcode

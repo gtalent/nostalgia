@@ -1,6 +1,6 @@
 PROJECT_NAME=nostalgia
-VCPKG_VERSION=2020.06
 BUILDCORE_PATH=deps/buildcore
+VCPKG_PKGS=sdl2 jsoncpp
 include ${BUILDCORE_PATH}/base.mk
 
 ifeq ($(OS),darwin)
@@ -25,10 +25,10 @@ run-studio: install
 .PHONY: gba-run
 gba-run: pkg-gba
 	${MGBA} nostalgia.gba
-.PHONY: gdb
+.PHONY: debug
 debug: install
 	${ENV_RUN} gdb --args ./dist/${CURRENT_BUILD}/bin/nostalgia sample_project
-.PHONY: gdb-studio
+.PHONY: debug-studio
 debug-studio: install
 	${ENV_RUN} gdb --args ${NOSTALGIA_STUDIO}
 

@@ -8,23 +8,24 @@
 
 #pragma once
 
-#include <map>
-#include <string>
+#include <ox/std/hashmap.hpp>
 
 namespace ox {
 
+class String;
+
 class ClArgs {
 	private:
-		::std::map<::std::string, bool> m_bools;
-		::std::map<::std::string, ::std::string> m_strings;
-		::std::map<::std::string, int> m_ints;
+		HashMap<String, bool> m_bools;
+		HashMap<String, String> m_strings;
+		HashMap<String, int> m_ints;
 
 	public:
 		ClArgs(int argc, const char **args);
 
 		bool getBool(const char *arg);
 
-		::std::string getString(const char *argName, const char *defaultArg = "");
+		String getString(const char *argName, const char *defaultArg = "");
 
 		int getInt(const char *arg);
 };

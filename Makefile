@@ -1,6 +1,7 @@
 PROJECT_NAME=nostalgia
 VCPKG_VERSION=2020.06
-include deps/buildcore/base.mk
+BUILDCORE_PATH=deps/buildcore
+include ${BUILDCORE_PATH}/base.mk
 
 ifeq ($(OS),darwin)
 	NOSTALGIA_STUDIO=./dist/${CURRENT_BUILD}/nostalgia-studio.app/Contents/MacOS/nostalgia-studio

@@ -63,14 +63,14 @@ constexpr OS OS = OS::DragonFlyBSD;
 constexpr OS OS = OS::Linux;
 #define OX_OS_Linux
 #elif defined(_WIN32)
-#define OX_OS_Windows
 constexpr OS OS = OS::Windows;
+#define OX_OS_Windows
 #elif defined(__APPLE__)
-#define OX_OS_Darwin
 constexpr OS OS = OS::Darwin;
+#define OX_OS_Darwin
 #else
-#define OX_OS_BareMetal
 constexpr OS OS = OS::BareMetal;
+#define OX_OS_BareMetal
 #endif
 
 }

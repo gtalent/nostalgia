@@ -14,9 +14,7 @@
 #include "trace.hpp"
 
 extern "C"
-void oxTraceHook([[maybe_unused]] const char *file, [[maybe_unused]] int line,
-                 [[maybe_unused]] const char *ch, [[maybe_unused]] const char *msg) {
-}
+void oxTraceHook(const char *file, int line, const char *ch, const char *msg); 
 
 namespace ox::trace {
 

@@ -1,3 +1,15 @@
+if(OX_USE_STDLIB AND OX_ENABLE_TRACEHOOK)
+	add_library(
+		OxTraceHook SHARED
+			tracehook.cpp
+	)
+else()
+	add_library(
+		OxTraceHook
+			tracehook.cpp
+	)
+endif()
+
 add_library(
 	OxStd
 		assert.cpp
@@ -26,7 +38,7 @@ if(NOT OX_BARE_METAL)
 	)
 endif()
 
-if(${OX_USE_STDLIB})
+if(OX_USE_STDLIB)
 	target_compile_definitions(
 		OxStd PUBLIC
 			OX_USE_STDLIB
@@ -36,6 +48,7 @@ endif()
 target_link_libraries(
 	OxStd PUBLIC
 		$<$<CXX_COMPILER_ID:GNU>:gcc>
+		OxTraceHook
 )
 
 install(
@@ -70,7 +83,7 @@ install(
 		include/ox/std
 )
 
-install(TARGETS OxStd
+install(TARGETS OxStd OxTraceHook
         LIBRARY DESTINATION lib/ox
         ARCHIVE DESTINATION lib/ox
 )

@@ -177,7 +177,7 @@ std::size_t String::len() const noexcept {
 }
 
 std::size_t String::bytes() const noexcept {
-	std::size_t i = 0;
+	std::size_t i;
 	for (i = 0; i < m_buff.size() && m_buff[i]; i++);
 	return i + 1; // add one for null terminator
 }

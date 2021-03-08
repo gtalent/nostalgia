@@ -24,7 +24,7 @@ class JsonWriter {
 		QJsonObject &m_dest;
 
 	public:
-		JsonWriter(QJsonObject &obj);
+		explicit JsonWriter(QJsonObject &obj);
 
 		ox::Error setTypeInfo(const char*, int) { return OxError(0); };
 

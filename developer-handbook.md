@@ -112,13 +112,13 @@ int main() {
 ```
 
 The code base where this was observed actually got away with this for the most
-part, as the std::vector implementation used evidentally waited until the
+part, as the std::vector implementation used evidently waited until the
 internal array was needed before initializing and the memory was zeroed out
 because the allocation occurred early in the program's execution. While the
-std::vector implementation in queston worked with this code and the memory leak
-is not noticable because the std::vector was meant to exist for the entire life
+std::vector implementation in question worked with this code and the memory leak
+is not noticeable because the std::vector was meant to exist for the entire life
 of the process, other classes likely will not get away with it due to more
-substantial constructors and more frequent instatiations of the classes in
+substantial constructors and more frequent instantiations of the classes in
 question.
 
 ### Pointers vs References
@@ -140,7 +140,7 @@ one of the main reasons why many embedded developers prefer C to C++.
 Instead throwing exceptions, all engine code must return error codes. Nostalgia
 and Ox both use ```ox::Error``` to report errors. ```ox::Error``` is a struct
 that has overloaded operators to behave like an integer error code, plus some
-extra fields to enhance debugability. If instantiated through the ```OxError(x)```
+extra fields to enhance debuggability. If instantiated through the ```OxError(x)```
 macro, it will also include the file and line of the error. The ```OxError(x)```
 macro should only be used for the initial instantiation of an ```ox::Error```.
 
@@ -186,7 +186,7 @@ back up the call stack, ```oxReturnError``` and ```oxThrowError```.
 will return an ```ox::Error``` if it is not 0 and ```oxThrowError``` will throw
 an ```ox::Error``` if it is not 0. Because exceptions are disabled for GBA
 builds and thus cannot be used in the engine, ```oxThrowError``` is  only really
-useful at the boundry between engine libraries and Nostalgia Studio.
+useful at the boundary between engine libraries and Nostalgia Studio.
 
 ```cpp
 void studioCode() {
@@ -223,7 +223,7 @@ ox::Error engineCode() {
 ### File I/O
 
 All engine file I/O should go through nostalgia::core::Context, which should go
-through ox::FileSystem. Similarly, all studio file I/O should go throuh
+through ox::FileSystem. Similarly, all studio file I/O should go thorough
 nostalgia::studio::Project, which should go through ox::FileSystem.
 
 ox::FileSystem abstracts away differences between conventional storage devices

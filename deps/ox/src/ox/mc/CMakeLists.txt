@@ -38,6 +38,6 @@ install(TARGETS OxMetalClaw
         ARCHIVE DESTINATION lib/ox
 )
 
-if(OX_RUN_TESTS STREQUAL "ON")
+if(OX_RUN_TESTS)
 	add_subdirectory(test)
 endif()

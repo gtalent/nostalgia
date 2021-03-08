@@ -8,7 +8,6 @@
 
 #include <QBuffer>
 #include <QDebug>
-#include <QFile>
 
 #include <nostalgia/core/consts.hpp>
 #include <nostalgia/core/gfx.hpp>

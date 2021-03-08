@@ -25,25 +25,25 @@ std::map<std::string, std::function<int()>> tests = {
 	{
 		"ABCDEFG != HIJKLMN",
 		[]() {
-			return !(ox_memcmp("ABCDEFG", "HIJKLMN", 7) < 0);
+			return ox_memcmp("ABCDEFG", "HIJKLMN", 7) >= 0;
 		}
 	},
 	{
 		"HIJKLMN != ABCDEFG",
 		[]() {
-			return !(ox_memcmp("HIJKLMN", "ABCDEFG", 7) > 0);
+			return ox_memcmp("HIJKLMN", "ABCDEFG", 7) <= 0;
 		}
 	},
 	{
 		"ABCDEFG == ABCDEFG",
 		[]() {
-			return !(ox_memcmp("ABCDEFG", "ABCDEFG", 7) == 0);
+			return ox_memcmp("ABCDEFG", "ABCDEFG", 7) != 0;
 		}
 	},
 	{
 		"ABCDEFGHI == ABCDEFG",
 		[]() {
-			return !(ox_memcmp("ABCDEFGHI", "ABCDEFG", 7) == 0);
+			return ox_memcmp("ABCDEFGHI", "ABCDEFG", 7) != 0;
 		}
 	},
 	{

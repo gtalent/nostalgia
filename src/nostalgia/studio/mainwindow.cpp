@@ -26,12 +26,11 @@
 #include "lib/project.hpp"
 #include "lib/wizard.hpp"
 
-#include "json.hpp"
+#include "json_read.hpp"
+#include "json_write.hpp"
 #include "mainwindow.hpp"
 
 namespace nostalgia::studio {
-
-const QString MainWindow::StateFilePath = "studio_state.json";
 
 MainWindow::MainWindow(QString profilePath) {
 	m_profilePath = profilePath;
@@ -48,9 +47,9 @@ MainWindow::MainWindow(QString profilePath) {
 
 	// set window to 75% of screen width, and center NostalgiaStudioProfile
 	constexpr auto sizePct = 0.75;
-	resize(screenSize.width() * sizePct, screenSize.height() * sizePct);
+	resize(static_cast<int>(screenSize.width() * sizePct), static_cast<int>(screenSize.height() * sizePct));
 	move(-x(), -y());
-	move(screenSize.width() * (1 - sizePct) / 2, screenSize.height() * (1 - sizePct) / 2);
+	move(static_cast<int>(screenSize.width() * (1 - sizePct) / 2), static_cast<int>(screenSize.height() * (1 - sizePct) / 2));
 
 	setWindowTitle(m_profile.appName);
 	m_ctx.appName = m_profile.appName;
@@ -314,7 +313,7 @@ void MainWindow::writeState() {
 /**
  * Read open editor tabs for current project.
  */
-QStringList MainWindow::readTabs() {
+QStringList MainWindow::readTabs() const {
 	QStringList tabs;
 	QSettings settings(m_profile.orgName, m_profile.appName);
 	settings.beginReadArray("MainWindow/Project:" + m_state.projectPath);
@@ -330,7 +329,7 @@ QStringList MainWindow::readTabs() {
 /**
  * Write open editor tabs for current project.
  */
-void MainWindow::writeTabs(QStringList tabs) {
+void MainWindow::writeTabs(QStringList tabs) const {
 	QSettings settings(m_profile.orgName, m_profile.appName);
 	settings.beginWriteArray("MainWindow/Project:" + m_state.projectPath + "/openEditors");
 	for (int i = 0; i < tabs.size(); i++) {
@@ -360,7 +359,7 @@ void MainWindow::openProject(QString projectPath) {
 	for (auto t : openTabs) {
 		try {
 			openFile(t, true);
-		} catch (ox::Error err) {
+		} catch (const ox::Error &err) {
 			qInfo().nospace() << "Error opening tab: " << t << ", " << static_cast<int>(err) << ", " << err.file << ":" << err.line;
 			oxTrace("nostalgia::studio::MainWindow::openProject") << "Error opening tab:" << static_cast<int>(err)
 			                                                      << ", " << static_cast<int>(err) << ", " << err.file << ":" << err.line;
@@ -375,7 +374,7 @@ void MainWindow::openProject(QString projectPath) {
 void MainWindow::closeProject() {
 	// delete tabs
 	while (m_tabs->count()) {
-		auto tab = static_cast<studio::Editor*>(m_tabs->widget(0));
+		auto tab = dynamic_cast<studio::Editor*>(m_tabs->widget(0));
 		m_undoGroup.removeStack(tab->undoStack());
 		m_tabs->removeTab(0);
 		delete tab;
@@ -531,7 +530,7 @@ void MainWindow::pasteAction() {
 }
 
 void MainWindow::closeTab(int idx) {
-	auto tab = static_cast<studio::Editor*>(m_tabs->widget(idx));
+	auto tab = dynamic_cast<studio::Editor*>(m_tabs->widget(idx));
 	m_undoGroup.removeStack(tab->undoStack());
 	m_tabs->removeTab(idx);
 	delete tab;
@@ -590,8 +589,6 @@ void MainWindow::markUnsavedChanges(bool unsavedChanges) {
 }
 
 void MainWindow::showImportWizard() {
-	const QString TILESHEET_NAME = "projectName";
-	const QString IMPORT_PATH = "projectPath";
 	const QString BPP = "bpp";
 	Wizard wizard(tr("Import..."));
 	auto ws = new WizardSelect();

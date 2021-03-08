@@ -39,10 +39,9 @@ struct NostalgiaStudioState {
 
 template<typename T>
 ox::Error model(T *io, NostalgiaStudioState *obj) {
-	auto err = OxError(0);
-	oxReturnError(io->setTypeInfo("NostalgiaStudioState", 1));
+	oxReturnError(io->setTypeInfo("net.drinkingtea.nostalgia.studio.NostalgiaStudioState", 1));
 	oxReturnError(io->field("project_path", &obj->projectPath));
-	return err;
+	return OxError(0);
 }
 
 struct NostalgiaStudioProfile {
@@ -53,21 +52,16 @@ struct NostalgiaStudioProfile {
 
 template<typename T>
 ox::Error model(T *io, NostalgiaStudioProfile *obj) {
-	auto err = OxError(0);
-	oxReturnError(io->setTypeInfo("NostalgiaStudioProfile", 3));
+	oxReturnError(io->setTypeInfo("net.drinkingtea.nostalgia.studio.NostalgiaStudioProfile", 3));
 	oxReturnError(io->field("app_name", &obj->appName));
 	oxReturnError(io->field("org_name", &obj->orgName));
 	oxReturnError(io->field("modules_path", &obj->modulesPath));
-	return err;
+	return OxError(0);
 }
 
 
 class MainWindow: public QMainWindow {
 	Q_OBJECT
-	public:
-		static const QString EditorSettings;
-		static const QString AppTitle;
-		static const QString StateFilePath;
 
 	private:
 		QString m_profilePath;
@@ -91,9 +85,9 @@ class MainWindow: public QMainWindow {
 		Editor *m_currentEditor = nullptr;
 
 	public:
-		MainWindow(QString profilePath);
+		explicit MainWindow(QString profilePath);
 
-		virtual ~MainWindow();
+		~MainWindow() override;
 
 	private:
 		void loadModules();
@@ -110,12 +104,12 @@ class MainWindow: public QMainWindow {
 
 		void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget);
 
-		QAction *addAction(QMenu *menu, QString text, QString toolTip, const QObject *tgt, const char *cb);
+		static QAction *addAction(QMenu *menu, QString text, QString toolTip, const QObject *tgt, const char *cb);
 
-		QAction *addAction(QMenu *menu, QString text, QString toolTip,
+		static QAction *addAction(QMenu *menu, QString text, QString toolTip,
 		                   QKeySequence::StandardKey key, const QObject *tgt, const char *cb);
 
-		QAction *addAction(QMenu *menu, QString text, QString toolTip,
+		static QAction *addAction(QMenu *menu, QString text, QString toolTip,
 		                   QKeySequence::StandardKey key, void (*cb)());
 
 		int readState();
@@ -125,12 +119,12 @@ class MainWindow: public QMainWindow {
 		/**
 		 * Read open editor tabs for current project.
 		 */
-		QStringList readTabs();
+		[[nodiscard]] QStringList readTabs() const;
 
 		/**
 		 * Write open editor tabs for current project.
 		 */
-		void writeTabs(QStringList tabs);
+		void writeTabs(QStringList tabs) const;
 
 		void openProject(QString);
 

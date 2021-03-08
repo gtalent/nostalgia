@@ -12,7 +12,10 @@ set_property(
 		POSITION_INDEPENDENT_CODE ON
 )
 
-target_link_libraries(OxClArgs OxStd)
+target_link_libraries(
+	OxClArgs PUBLIC
+		OxStd
+)
 
 install(
 	FILES

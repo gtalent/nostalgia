@@ -54,13 +54,13 @@ class SerStr {
 			if (m_tgt && sz) {
 				*m_tgt = new char[sz];
 				m_str = *m_tgt;
-				m_cap = sz;
+				m_cap = static_cast<int>(sz);
 			}
 			return m_str;
 		}
 
 		constexpr int len() noexcept {
-			return m_str ? ox_strlen(m_str) : 0;
+			return static_cast<int>(m_str ? ox_strlen(m_str) : 0);
 		}
 
 		constexpr int cap() noexcept {

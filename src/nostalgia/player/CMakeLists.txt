@@ -6,12 +6,6 @@ add_executable(
 # enable LTO
 set_property(TARGET nostalgia PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 
-if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
-	set(NOSTALGIA_PLAYER_DEPS "NostalgiaCore-GBA")
-else()
-	set(NOSTALGIA_PLAYER_DEPS "NostalgiaCore-SDL")
-endif()
-
 if(COMMAND OBJCOPY_FILE)
 	set_target_properties(nostalgia
 		PROPERTIES
@@ -26,7 +20,8 @@ endif()
 target_link_libraries(
 	nostalgia
 		NostalgiaWorld
-		${NOSTALGIA_PLAYER_DEPS}
+		$<$<STREQUAL:${NOSTALGIA_BUILD_TYPE},GBA>:NostalgiaCore-GBA>
+		$<$<STREQUAL:${NOSTALGIA_BUILD_TYPE},Native>:NostalgiaCore-SDL>
 )
 
 install(

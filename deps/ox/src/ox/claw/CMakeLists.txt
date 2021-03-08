@@ -6,9 +6,11 @@ add_library(
 )
 
 target_link_libraries(
-	OxClaw
+	OxClaw PUBLIC
 		OxMetalClaw
-		OxOrganicClaw
+		$<$<BOOL:OX_USE_STDLIB>:OxOrganicClaw>
 )
 
-add_subdirectory(test)
+if(OX_RUN_TESTS)
+	add_subdirectory(test)
+endif()

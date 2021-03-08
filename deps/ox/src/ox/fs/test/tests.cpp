@@ -9,12 +9,10 @@
 // make sure asserts are enabled for the test file
 #undef NDEBUG
 
-#include <iostream>
 #include <assert.h>
 #include <map>
 #include <vector>
 #include <string>
-#include <ox/fs/fs.hpp>
 #include <ox/std/std.hpp>
 #include <ox/fs/filestore/filestoretemplate.hpp>
 #include <ox/fs/filesystem/filesystem.hpp>

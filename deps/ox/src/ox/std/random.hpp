@@ -22,7 +22,7 @@ class OX_PACKED Random {
 	public:
 		Random();
 
-		Random(RandomSeed seed);
+		explicit Random(RandomSeed seed);
 
 		uint64_t gen();
 };

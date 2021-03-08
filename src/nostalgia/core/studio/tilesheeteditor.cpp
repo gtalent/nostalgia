@@ -10,7 +10,6 @@
 
 #include <QDialog>
 #include <QFormLayout>
-#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QPainter>
 #include <QPointer>
@@ -18,15 +17,12 @@
 #include <QQmlContext>
 #include <QQuickItem>
 #include <QQuickWidget>
-#include <QSet>
 #include <QSettings>
 #include <QSpinBox>
 #include <QSplitter>
 #include <QTableWidget>
 #include <QToolBar>
 #include <QUndoCommand>
-#include <QVBoxLayout>
-#include <qnamespace.h>
 
 #include <nostalgia/core/consts.hpp>
 #include <nostalgia/common/point.hpp>

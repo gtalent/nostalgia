@@ -31,9 +31,7 @@ class Module {
 
 		virtual QVector<WizardMaker> importWizards(const Context *ctx);
 
-		virtual QWidget *makeEditor(QString path, const class Context *ctx);
-
-		virtual QVector<EditorMaker> editors(const class Context *ctx);
+	virtual QVector<EditorMaker> editors(const class Context *ctx);
 
 };
 

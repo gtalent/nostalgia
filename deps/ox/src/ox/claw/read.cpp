@@ -49,7 +49,9 @@ Result<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept {
 		return OxError(1);
 	}
 	hdr.typeName = typeName;
-	hdr.typeVersion = ox_atoi(versionStr.c_str());
+	if (auto r = ox_atoi(versionStr.c_str()); r.error == 0) {
+		hdr.typeVersion = r.value;
+	}
 	hdr.data = buff;
 	hdr.dataSize = buffLen;
 	return hdr;

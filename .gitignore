@@ -1,6 +1,7 @@
 .clangd
 .current_build
 .vcpkg
+scripts/__pycache__
 compile_commands.json
 build
 conanbuild

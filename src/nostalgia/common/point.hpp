@@ -183,11 +183,10 @@ constexpr bool Point::operator!=(const Point &p) const {
 
 template<typename T>
 ox::Error model(T *io, Point *obj) {
-	auto err = OxError(0);
 	io->setTypeInfo("nostalgia::common::Bounds", 2);
-	err |= io->field("x", &obj->x);
-	err |= io->field("y", &obj->y);
-	return err;
+	oxReturnError(io->field("x", &obj->x));
+	oxReturnError(io->field("y", &obj->y));
+	return OxError(0);
 }
 
 }

@@ -25,8 +25,7 @@ Project::Project(QString path): m_fs(path.toUtf8()) {
 	m_path = path;
 }
 
-Project::~Project() {
-}
+Project::~Project() = default;
 
 void Project::create() {
 	QDir().mkpath(m_path);

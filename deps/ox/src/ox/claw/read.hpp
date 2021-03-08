@@ -9,7 +9,9 @@
 #pragma once
 
 #include <ox/mc/read.hpp>
+#ifdef OX_USE_STDLIB
 #include <ox/oc/read.hpp>
+#endif
 #include <ox/std/string.hpp>
 #include <ox/std/vector.hpp>
 
@@ -43,11 +45,13 @@ Error readClaw(char *buff, std::size_t buffLen, T *val) {
 			MetalClawReader reader(bit_cast<uint8_t*>(header.value.data), buffLen);
 			return model(&reader, val);
 		}
+#ifdef OX_USE_STDLIB
 		case ClawFormat::Organic:
 		{
 			OrganicClawReader reader(bit_cast<uint8_t*>(header.value.data), buffLen);
 			return model(&reader, val);
 		}
+#endif
 		case ClawFormat::None:
 			return OxError(1);
 	}

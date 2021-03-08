@@ -8,7 +8,8 @@
 
 #include <iostream>
 #include <ox/std/assert.hpp>
-#include "json.hpp"
+#include "json_read.hpp"
+#include "json_write.hpp"
 
 using namespace std;
 using namespace ox;

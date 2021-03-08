@@ -11,7 +11,6 @@
 #include <ox/std/units.hpp>
 #include <nostalgia/core/core.hpp>
 #include <nostalgia/core/input.hpp>
-#include <nostalgia/world/world.hpp>
 
 using namespace nostalgia;
 

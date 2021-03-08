@@ -61,7 +61,7 @@ class NOSTALGIASTUDIO_EXPORT WizardSelect: public QWizardPage {
 	public:
 		WizardSelect();
 
-		void addOption(WizardMaker wm);
+		void addOption(const WizardMaker &wm);
 
 		void initializePage() override;
 
@@ -84,7 +84,7 @@ class NOSTALGIASTUDIO_EXPORT WizardFormPage: public QWizardPage {
 
 			void setDisplayText(QString text);
 
-			QString getDisplayText();
+			QString getDisplayText() const;
 		};
 		QLabel *m_errorMsg = nullptr;
 		QGridLayout *m_layout = nullptr;
@@ -129,7 +129,7 @@ class NOSTALGIASTUDIO_EXPORT WizardConclusionPage: public QWizardPage {
 	public:
 		WizardConclusionPage(QString msg, QVector<QString> field);
 
-		virtual ~WizardConclusionPage();
+		~WizardConclusionPage() override = default;
 
 		void initializePage() override;
 };

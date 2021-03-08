@@ -50,7 +50,7 @@ void setEventHandler(event_handler h) {
 }
 
 uint64_t ticksMs() {
-	return SDL_GetTicks();;
+	return SDL_GetTicks();
 }
 
 bool buttonDown(Key) {

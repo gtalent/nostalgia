@@ -7,11 +7,9 @@
  */
 
 #if defined(OX_USE_STDLIB)
-#include <bitset>
 #include <iostream>
 #endif
 
-#include "defines.hpp"
 #include "stacktrace.hpp"
 #include "trace.hpp"
 

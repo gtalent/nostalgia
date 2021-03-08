@@ -10,7 +10,6 @@
 
 #include <iostream>
 #include <map>
-#include <string>
 
 #include <ox/model/model.hpp>
 #include <ox/oc/oc.hpp>

@@ -58,8 +58,8 @@ OxFSFile::~OxFSFile() {
 }
 
 void OxFSFile::appendChild(OxFSModel *model, QStringList pathItems, QString currentPath) {
-	if (pathItems.size()) {
-		auto target = pathItems[0];
+	if (!pathItems.empty()) {
+		const auto &target = pathItems[0];
 		currentPath += "/" + target;
 		int index = m_childItems.size();
 		for (int i = 0; i < m_childItems.size(); i++) {
@@ -138,7 +138,7 @@ QVariant OxFSModel::data(const QModelIndex &index, int role) const {
 	if (!index.isValid() || role != Qt::DisplayRole) {
 		return QVariant();
 	} else {
-		OxFSFile *item = static_cast<OxFSFile*>(index.internalPointer());
+		auto item = static_cast<OxFSFile*>(index.internalPointer());
 		return item->data(index.column());
 	}
 }
@@ -184,8 +184,8 @@ QModelIndex OxFSModel::parent(const QModelIndex &index) const {
 		return QModelIndex();
 	}
 
-	OxFSFile *childItem = static_cast<OxFSFile*>(index.internalPointer());
-	OxFSFile *parentItem = childItem->parentItem();
+	auto childItem = static_cast<OxFSFile*>(index.internalPointer());
+	auto parentItem = childItem->parentItem();
 	if (parentItem == m_rootItem) {
 		return QModelIndex();
 	}
@@ -221,9 +221,6 @@ void OxFSModel::updateFile(QString path) {
 		auto pathItems = path.split("/").mid(1);
 		m_rootItem->appendChild(this, pathItems, "");
 	}
-}
-
-void OxFSModel::setupModelData(const QStringList&, OxFSFile*) {
 }
 
 }

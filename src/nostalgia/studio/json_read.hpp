@@ -25,7 +25,7 @@ class JsonReader {
 		QJsonObject &m_src;
 
 	public:
-		JsonReader(QJsonObject &obj);
+		explicit JsonReader(QJsonObject &obj);
 
 		ox::Error setTypeInfo(const char*, int) { return OxError(0); };
 
@@ -44,16 +44,16 @@ class JsonReader {
 		ox::Error field(QString fieldName, QVector<T> *dest);
 
 	private:
-		ox::Error field(QJsonValueRef src, int *dest);
+		static ox::Error field(QJsonValueRef src, int *dest);
 
-		ox::Error field(QJsonValueRef src, bool *dest);
+		static ox::Error field(QJsonValueRef src, bool *dest);
 
-		ox::Error field(QJsonValueRef src, double *dest);
+		static ox::Error field(QJsonValueRef src, double *dest);
 
-		ox::Error field(QJsonValueRef src, QString *dest);
+		static ox::Error field(QJsonValueRef src, QString *dest);
 
 		template<typename T>
-		ox::Error field(QJsonValueRef src, T *dest);
+		static ox::Error field(QJsonValueRef src, T *dest);
 
 };
 

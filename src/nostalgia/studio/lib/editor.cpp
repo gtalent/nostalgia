@@ -35,7 +35,7 @@ void Editor::setUnsavedChanges(bool uc) {
     emit unsavedChangesChanged(uc);
 }
 
-bool Editor::unsavedChanges() noexcept {
+bool Editor::unsavedChanges() const noexcept {
 	return m_unsavedChanges;
 }
 

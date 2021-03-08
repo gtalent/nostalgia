@@ -9,7 +9,9 @@
 #pragma once
 
 #include <ox/mc/write.hpp>
+#ifdef OX_USE_STDLIB
 #include <ox/oc/write.hpp>
+#endif
 #include <ox/std/string.hpp>
 #include <ox/std/vector.hpp>
 

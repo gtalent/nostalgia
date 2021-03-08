@@ -7,7 +7,6 @@
  */
 
 #include <array>
-#include <vector>
 #ifdef NOST_FPS_PRINT
 #include <iostream>
 #endif
@@ -196,7 +195,7 @@ void draw(Context *ctx) {
 
 void puts(Context *ctx, int column, int row, const char *str) {
 	for (int i = 0; str[i]; i++) {
-		setTile(ctx, 0, column + i, row, static_cast<uint8_t>(charMap[static_cast<int>(str[i])]));
+		setTile(ctx, 0, column + i, row, static_cast<uint8_t>(charMap[static_cast<uint8_t>(str[i])]));
 	}
 }
 
@@ -211,6 +210,7 @@ void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
 void clearTileLayer(Context*, int) {
 }
 
+[[maybe_unused]]
 void hideSprite(Context*, unsigned) {
 }
 

@@ -11,6 +11,7 @@
 #include <vector>
 #include <ox/clargs/clargs.hpp>
 #include <ox/fs/fs.hpp>
+#include <ox/std/trace.hpp>
 
 #include "pack/pack.hpp"
 
@@ -48,6 +49,7 @@ void run(ox::ClArgs args) {
 }
 
 int main(int argc, const char **args) {
+	ox::trace::init();
 	try {
 		run(ox::ClArgs(argc, args));
 	} catch (const ox::Error &err) {

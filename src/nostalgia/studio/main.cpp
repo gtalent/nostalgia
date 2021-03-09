@@ -9,12 +9,14 @@
 #include <QApplication>
 #include <QDebug>
 #include <ox/clargs/clargs.hpp>
+#include <ox/std/trace.hpp>
 #include <qdark/theme.hpp>
 #include "mainwindow.hpp"
 
 using namespace nostalgia::studio;
 
 int main(int argc, char **args) {
+	ox::trace::init();
 	ox::ClArgs clargs(argc, const_cast<const char**>(args));
 	QString argProfilePath = clargs.getString("profile", ":/profiles/nostalgia-studio.json").c_str();
 

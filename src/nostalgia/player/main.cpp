@@ -7,6 +7,7 @@
  */
 
 #include <ox/fs/fs.hpp>
+#include <ox/std/trace.hpp>
 #include <nostalgia/core/core.hpp>
 #include <nostalgia/core/input.hpp>
 
@@ -54,6 +55,7 @@ static ox::Error run(ox::FileSystem *fs) {
 
 int main(int argc, const char **argv) {
 	if (argc > 1) {
+		ox::trace::init();
 		auto path = argv[1];
 		auto fs = core::loadRomFs(path);
 		auto err = run(fs);

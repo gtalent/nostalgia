@@ -6,8 +6,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-extern "C"
+extern "C" {
+
+void oxTraceInitHook() {
+}
+
 void oxTraceHook([[maybe_unused]] const char *file, [[maybe_unused]] int line,
                  [[maybe_unused]] const char *ch, [[maybe_unused]] const char *msg) {
+}
+
 }
 

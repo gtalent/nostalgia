@@ -13,8 +13,13 @@
 
 #include "trace.hpp"
 
-extern "C"
+extern "C" {
+
+void oxTraceInitHook(); 
+
 void oxTraceHook(const char *file, int line, const char *ch, const char *msg); 
+
+}
 
 namespace ox::trace {
 
@@ -63,6 +68,10 @@ void logError(const char *file, int line, Error err) {
 			trc << "(" << reinterpret_cast<const char*>(err.file) << ":" << err.line << ")";
 		}
 	}
+}
+
+void init() {
+	oxTraceInitHook();
 }
 
 }

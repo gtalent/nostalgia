@@ -128,6 +128,8 @@ using TraceStream = NullStream;
 
 void logError(const char *file, int line, Error err);
 
+void init();
+
 }
 
 #define oxLogError(err) ox::trace::logError(__FILE__, __LINE__, err)

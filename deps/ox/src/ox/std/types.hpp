@@ -128,6 +128,24 @@ using Signed = Int<sizeof(T) * 8>;
 template<typename T>
 using Unsigned = Uint<sizeof(T) * 8>;
 
+// ResizedInt retains the sign while granting a new size
+template<typename T,  std::size_t bits, bool si = T(-1) < T(0)>
+struct ResizedInt {
+};
+
+template<typename T,  std::size_t bits>
+struct ResizedInt<T, bits, true> {
+	using type = typename SignedType<bits>::type;
+};
+
+template<typename T,  std::size_t bits>
+struct ResizedInt<T, bits, false> {
+	using type = typename UnsignedType<bits>::type;
+};
+
+template<typename T,  std::size_t bits>
+using ResizedInt_t = typename ResizedInt<T, bits>::type;
+
 }
 
 

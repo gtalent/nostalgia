@@ -143,7 +143,7 @@ template<typename T1, typename T2>
 template<typename Integer, typename T>
 constexpr T ox_itoa(Integer v, T str) noexcept {
 	if (v) {
-		auto mod = 1000000000000000000;
+		ox::ResizedInt_t<Integer, 64> mod = 1000000000000000000;
 		constexpr auto base = 10;
 		auto it = 0;
 		if (v < 0) {
@@ -155,7 +155,7 @@ constexpr T ox_itoa(Integer v, T str) noexcept {
 			v %= mod;
 			mod /= base;
 			if (it || digit) {
-				int start = '0';
+				ox::ResizedInt_t<Integer, 64> start = '0';
 				if (digit >= 10) {
 					start = 'a';
 					digit -= 10;

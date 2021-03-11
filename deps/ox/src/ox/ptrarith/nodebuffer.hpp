@@ -278,9 +278,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 				return nullptr;
 			}
 		}
-		oxTrace("ox::ptrarith::NodeBuffer::malloc") << "buffer size:" << m_header.size
-		                                            << ";addr:" << addr
-																  << ";fullSize:" << fullSize;
+		oxTracef("ox::ptrarith::NodeBuffer::malloc", "buffer size: {}; addr: {}; fullSize: {}", m_header.size.get(), addr, fullSize);
 		auto out = ItemPtr(this, m_header.size, addr, fullSize);
 		if (!out.valid()) {
 			oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "Unknown";
@@ -352,10 +350,10 @@ Error NodeBuffer<size_t, Item>::free(ItemPtr item) {
 
 template<typename size_t, typename Item>
 Error NodeBuffer<size_t, Item>::setSize(size_t size) {
-	oxTrace("ox::ptrarith::NodeBuffer::setSize") << m_header.size << "to" << size;
+	oxTracef("ox::ptrarith::NodeBuffer::setSize", "{} to {}", m_header.size.get(), size);
 	auto last = lastItem();
 	auto end = last.valid() ? last.end() : sizeof(m_header);
-	oxTrace("ox::ptrarith::NodeBuffer::setSize") << "end:" << end;
+	oxTracef("ox::ptrarith::NodeBuffer::setSize", "end: {}", end);
 	if (end > size) {
 		// resizing to less than buffer size
 		return OxError(1);

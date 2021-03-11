@@ -122,10 +122,10 @@ Result<FileStat> PassThroughFS::stat(const char *path) {
 	const auto p = m_path / stripSlash(path);
 	uint8_t type = std::filesystem::is_directory(p, ec) ?
 		FileType_Directory : FileType_NormalFile;
-	oxTrace("PassThroughFS::stat") << ec.message().c_str() << path;
+	oxTrace("ox::fs::PassThroughFS::stat") << ec.message().c_str() << path;
 	uint64_t size = type == FileType_Directory ? 0 : std::filesystem::file_size(p, ec);
-	oxTrace("PassThroughFS::stat") << ec.message().c_str() << path;
-	oxTrace("PassThroughFS::stat::size") << path << size;
+	oxTrace("ox::fs::PassThroughFS::stat") << ec.message().c_str() << path;
+	oxTrace("ox::fs::PassThroughFS::stat::size") << path << size;
 	return {{0, 0, size, type}, OxError(ec.value())};
 }
 

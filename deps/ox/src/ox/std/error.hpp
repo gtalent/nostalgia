@@ -23,7 +23,7 @@ struct [[nodiscard]] Error {
 	uint16_t line = 0;
 	uint64_t errCode = 0;
 
-	constexpr Error(uint64_t ec = 0) noexcept: errCode(ec) {
+	explicit constexpr Error(uint64_t ec = 0) noexcept: errCode(ec) {
 	}
 
 	explicit constexpr Error(const char *file, uint32_t line, uint64_t errCode, const char *msg = nullptr) noexcept {

@@ -12,6 +12,8 @@
 #include <nostalgia/core/input.hpp>
 #include <nostalgia/core/core.hpp>
 
+#include "core.hpp"
+
 namespace nostalgia::core {
 
 static event_handler g_eventHandler = nullptr;
@@ -24,6 +26,7 @@ ox::Error init(Context *ctx) {
 }
 
 ox::Error run(Context *ctx) {
+	auto id = ctx->windowerData<SdlImplData>();
 	for (auto running = true; running;) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
@@ -40,6 +43,7 @@ ox::Error run(Context *ctx) {
 			}
 		}
 		draw(ctx);
+		SDL_GL_SwapWindow(id->window);
 		SDL_Delay(1);
 	}
 	return OxError(0);

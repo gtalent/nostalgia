@@ -46,7 +46,7 @@ struct NostalgiaGraphic {
 	int columns = 1;
 	ox::FileAddress defaultPalette;
 	NostalgiaPalette pal;
-	ox::Vector<uint8_t> tiles;
+	ox::Vector<uint8_t> pixels;
 };
 
 template<typename T>
@@ -64,7 +64,7 @@ constexpr ox::Error model(T *io, NostalgiaGraphic *ng) {
 	oxReturnError(io->field("columns", &ng->columns));
 	oxReturnError(io->field("defaultPalette", &ng->defaultPalette));
 	oxReturnError(io->field("pal", &ng->pal));
-	oxReturnError(io->field("tiles", &ng->tiles));
+	oxReturnError(io->field("pixels", &ng->pixels));
 	return OxError(0);
 }
 

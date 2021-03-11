@@ -663,18 +663,18 @@ std::unique_ptr<NostalgiaGraphic> SheetData::toNostalgiaGraphic() const {
 	ng->rows = m_rows;
 	auto pixelCount = static_cast<std::size_t>(ng->rows * ng->columns * PixelsPerTile);
 	if (ng->bpp == 4) {
-		ng->tiles.resize(pixelCount / 2);
+		ng->pixels.resize(pixelCount / 2);
 		for (std::size_t i = 0; i < pixelCount && i < static_cast<std::size_t>(m_pixels.size()); ++i) {
 			if (i & 1) {
-				ng->tiles[i / 2] |= static_cast<uint8_t>(m_pixels[i]) << 4;
+				ng->pixels[i / 2] |= static_cast<uint8_t>(m_pixels[i]) << 4;
 			} else {
-				ng->tiles[i / 2] = static_cast<uint8_t>(m_pixels[i]);
+				ng->pixels[i / 2] = static_cast<uint8_t>(m_pixels[i]);
 			}
 		}
 	} else {
-		ng->tiles.resize(pixelCount);
-		for (std::size_t i = 0; i < ng->tiles.size(); ++i) {
-			ng->tiles[i] = static_cast<uint8_t>(m_pixels[i]);
+		ng->pixels.resize(pixelCount);
+		for (std::size_t i = 0; i < ng->pixels.size(); ++i) {
+			ng->pixels[i] = static_cast<uint8_t>(m_pixels[i]);
 		}
 	}
 	return ng;
@@ -788,17 +788,17 @@ void SheetData::updatePixels(const NostalgiaGraphic *ng) {
 	m_pixels.clear();
 	m_pixelSelected.clear();
 	if (ng->bpp == 8) {
-		for (std::size_t i = 0; i < ng->tiles.size(); i++) {
-			m_pixels.push_back(ng->tiles[i]);
+		for (std::size_t i = 0; i < ng->pixels.size(); i++) {
+			m_pixels.push_back(ng->pixels[i]);
 			m_pixelSelected.push_back(0);
 		}
 	} else {
-		for (std::size_t i = 0; i < ng->tiles.size() * 2; i++) {
+		for (std::size_t i = 0; i < ng->pixels.size() * 2; i++) {
 			uint8_t p;
 			if (i & 1) {
-				p = ng->tiles[i / 2] >> 4;
+				p = ng->pixels[i / 2] >> 4;
 			} else {
-				p = ng->tiles[i / 2] & 0xF;
+				p = ng->pixels[i / 2] & 0xF;
 			}
 			m_pixels.push_back(p);
 			m_pixelSelected.push_back(0);
@@ -1011,15 +1011,15 @@ QImage TileSheetEditor::toQImage(NostalgiaGraphic *ng, NostalgiaPalette *npal) c
 		dst.setPixel(pt.x, pt.y, color);
 	};
 	if (ng->bpp == 4) {
-		for (std::size_t i = 0; i < ng->tiles.size(); ++i) {
-			auto p1 = ng->tiles[i] & 0xF;
-			auto p2 = ng->tiles[i] >> 4;
+		for (std::size_t i = 0; i < ng->pixels.size(); ++i) {
+			auto p1 = ng->pixels[i] & 0xF;
+			auto p2 = ng->pixels[i] >> 4;
 			setPixel(i * 2 + 0, p1);
 			setPixel(i * 2 + 1, p2);
 		}
 	} else {
-		for (std::size_t i = 0; i < ng->tiles.size(); i++) {
-			const auto p = ng->tiles[i];
+		for (std::size_t i = 0; i < ng->pixels.size(); i++) {
+			const auto p = ng->pixels[i];
 			setPixel(i, p);
 		}
 	}

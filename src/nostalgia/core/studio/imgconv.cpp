@@ -64,9 +64,9 @@ namespace {
 	auto ng = std::make_unique<core::NostalgiaGraphic>();
 	ng->pal.colors.resize(static_cast<std::size_t>(countColors(src, Tiles)));
 	if (argBpp == 4) {
-		ng->tiles.resize(static_cast<std::size_t>(Pixels / 2));
+		ng->pixels.resize(static_cast<std::size_t>(Pixels / 2));
 	} else {
-		ng->tiles.resize(static_cast<std::size_t>(Pixels));
+		ng->pixels.resize(static_cast<std::size_t>(Pixels));
 	}
 	ng->bpp = argBpp;
 	ng->columns = src.width() / TileWidth;
@@ -87,12 +87,12 @@ namespace {
 				// set pixel color
 				if (argBpp == 4) {
 					if (destI % 2) { // is odd number pixel
-						ng->tiles[static_cast<std::size_t>(destI / 2)] |= colors[c] << 4;
+						ng->pixels[static_cast<std::size_t>(destI / 2)] |= colors[c] << 4;
 					} else {
-						ng->tiles[static_cast<std::size_t>(destI / 2)] |= colors[c];
+						ng->pixels[static_cast<std::size_t>(destI / 2)] |= colors[c];
 					}
 				} else {
-					ng->tiles[static_cast<std::size_t>(destI)] = static_cast<std::size_t>(colors[c]);
+					ng->pixels[static_cast<std::size_t>(destI)] = static_cast<std::size_t>(colors[c]);
 				}
 			}
 		}

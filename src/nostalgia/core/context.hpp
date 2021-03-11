@@ -17,16 +17,26 @@ class Context {
 	public:
 		ox::FileSystem *rom = nullptr;
 	private:
-		void *m_implData = nullptr;
+		void *m_windowerData = nullptr;
+		void *m_rendererData = nullptr;
 
 	public:
-		constexpr void setImplData(void *implData) noexcept {
-			m_implData = implData;
+		constexpr void setWindowerData(void *windowerData) noexcept {
+			m_windowerData = windowerData;
 		}
 
 		template<typename T>
-		constexpr T *implData() noexcept {
-			return static_cast<T*>(m_implData);
+		constexpr T *windowerData() noexcept {
+			return static_cast<T*>(m_windowerData);
+		}
+
+		constexpr void setRendererData(void *rendererData) noexcept {
+			m_rendererData = rendererData;
+		}
+
+		template<typename T>
+		constexpr T *rendererData() noexcept {
+			return static_cast<T*>(m_rendererData);
 		}
 
 };

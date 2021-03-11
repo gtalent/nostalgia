@@ -146,7 +146,7 @@ Color32 toColor32(Color16 nc) noexcept {
 	Color32 g = static_cast<Color32>(((nc & 0b0000001111100000) >> 5) * 8);
 	Color32 b = static_cast<Color32>(((nc & 0b0111110000000000) >> 10) * 8);
 	Color32 a = 255;
-	return a | (b << 8) | (g << 16) | (r << 24);
+	return r | (g << 8) | (b << 16) | (a << 24);
 }
 
 

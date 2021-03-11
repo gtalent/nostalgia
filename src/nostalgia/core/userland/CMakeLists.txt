@@ -1,5 +1,6 @@
 add_library(
-	NostalgiaCore-Userspace
+	NostalgiaCore-Userspace OBJECT
+		gfx_opengl.cpp
 		media.cpp
 )
 
@@ -7,10 +8,19 @@ if(NOT MSVC)
 	target_compile_options(NostalgiaCore-Userspace PRIVATE -Wsign-conversion)
 endif()
 
+if(APPLE)
+	find_package(OpenGL REQUIRED)
+else()
+	set(OPENGL_gl_LIBRARY GL)
+endif()
+
 target_link_libraries(
 	NostalgiaCore-Userspace PUBLIC
 		OxFS
 		OxStd
+		NostalgiaCore
+		#GLESv2
+		${OPENGL_gl_LIBRARY}
 )
 
 install(

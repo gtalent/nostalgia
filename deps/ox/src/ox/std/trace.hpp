@@ -141,3 +141,6 @@ void init();
 #define oxTrace(ch) ox::trace::TraceStream(__FILE__, __LINE__, ch)
 
 #define oxTracef(ch, fmt, ...) ox::trace::TraceStream(__FILE__, __LINE__, ch, ox::detail::fmtSegments<ox::detail::argCount(fmt)+1>(fmt), ##__VA_ARGS__)
+
+#define oxDebug() ox::trace::TraceStream(__FILE__, __LINE__, "debug")
+#define oxDebugf(fmt, ...) ox::trace::TraceStream(__FILE__, __LINE__, "debug", ox::detail::fmtSegments<ox::detail::argCount(fmt)+1>(fmt), ##__VA_ARGS__)

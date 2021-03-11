@@ -175,12 +175,16 @@ class OX_PACKED ByteSwapInteger {
 			return newVal;
 		}
 
+		[[nodiscard]] constexpr auto get() const noexcept -> T {
+			return static_cast<T>(*this);
+		}
+
 		/**
 		 * Returns the integer as it is stored. If it is stored as little endian,
 		 * a little endian integer is returned regardless of the endianness of
 		 * the system.
 		 */
-		constexpr auto raw() noexcept -> T {
+		[[nodiscard]] constexpr auto raw() const noexcept -> T {
 			return m_value;
 		}
 

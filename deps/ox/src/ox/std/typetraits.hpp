@@ -63,6 +63,15 @@ template<> struct is_integral<uint32_t>: ox::true_type {};
 template<> struct is_integral<int64_t> : ox::true_type {};
 template<> struct is_integral<uint64_t>: ox::true_type {};
 
+template<typename T>
+constexpr bool is_integral_v = ox::is_integral<T>::value;
+
+template<typename T> struct is_bool: ox::false_type {};
+template<> struct is_bool<bool>    : ox::true_type {};
+
+template<typename T>
+constexpr bool is_bool_v = ox::is_bool<T>::value;
+
 template<typename T> struct is_union: ox::integral_constant<bool, std::is_union_v<T>> {};
 
 template<typename T>

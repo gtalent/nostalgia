@@ -14,6 +14,7 @@
 #include "byteswap.hpp"
 #include "defines.hpp"
 #include "error.hpp"
+#include "fmt.hpp"
 #include "hardware.hpp"
 #include "hashmap.hpp"
 #include "heapmgr.hpp"

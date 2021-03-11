@@ -8,15 +8,25 @@
 
 #pragma once
 
-#include <ox/std/std.hpp>
+#include "bstring.hpp"
+#include "fmt.hpp"
+#include "hashmap.hpp"
+
+extern "C" {
+
+void oxTraceInitHook();
+
+void oxTraceHook(const char *file, int line, const char *ch, const char *msg);
+
+}
 
 namespace ox::trace {
 
 struct TraceMsg {
-	ox::BString<255> file = "";
+	const char *file = "";
 	int line = 0;
 	uint64_t time = 0;
-	ox::BString<75> ch = "";
+	const char *ch = "";
 	ox::BString<100> msg;
 };
 
@@ -33,26 +43,51 @@ Error model(T *io, ox::trace::TraceMsg *obj) {
 
 class OutStream {
 
-	private:
+	protected:
 		const char *m_delimiter = " ";
 		TraceMsg m_msg;
 
 	public:
-		OutStream() = default;
+		constexpr OutStream(const char *file, int line, const char *ch, const char *msg = "") {
+			m_msg.file = file;
+			m_msg.line = line;
+			m_msg.ch = ch;
+			m_msg.msg = msg;
+		}
 
-		OutStream(const char *file, int line, const char *ch, const char *msg = "");
+		template<std::size_t fmtSegmentCnt, typename ...Args>
+		constexpr OutStream(const char *file, int line, const char *ch, detail::Fmt<fmtSegmentCnt> fmtSegments, Args... args) {
+			static_assert(sizeof...(args) == fmtSegmentCnt - 1, "Wrong number of trace arguments for format.");
+			m_msg.file = file;
+			m_msg.line = line;
+			m_msg.ch = ch;
+			const auto &firstSegment = fmtSegments.segments[0];
+			m_msg.msg.append(firstSegment.str, firstSegment.length);
+			const detail::FmtArg elements[sizeof...(args)] = {args...};
+			for (auto i = 0u; i < fmtSegments.size - 1; ++i) {
+				m_msg.msg += elements[i].out;
+				const auto &s = fmtSegments.segments[i + 1];
+				m_msg.msg.append(s.str, s.length);
+			}
+		}
 
-		~OutStream();
+		inline ~OutStream() {
+			oxTraceHook(m_msg.file, m_msg.line, m_msg.ch, m_msg.msg.c_str());
+		}
 
 		template<typename T>
-		inline OutStream &operator<<(const T &v) {
-			m_msg.msg += m_delimiter;
+		constexpr OutStream &operator<<(const T &v) {
+			if (m_msg.msg.len()) {
+				m_msg.msg += m_delimiter;
+			}
 			m_msg.msg += v;
 			return *this;
 		}
 
-		inline OutStream &operator<<(Error err) {
-			m_msg.msg += m_delimiter;
+		constexpr OutStream &operator<<(Error err) {
+			if (m_msg.msg.len()) {
+				m_msg.msg += m_delimiter;
+			}
 			m_msg.msg += static_cast<int64_t>(err);
 			return *this;
 		}
@@ -60,38 +95,7 @@ class OutStream {
 		/**
 		 * del sets the delimiter between log segments.
 		 */
-		inline OutStream &del(const char *delimiter) {
-			m_delimiter = delimiter;
-			return *this;
-		}
-
-};
-
-
-class StdOutStream {
-
-	private:
-		const char *m_delimiter = " ";
-		TraceMsg m_msg;
-
-	public:
-		StdOutStream() = default;
-
-		StdOutStream(const char *file, int line, const char *ch, const char *msg = "");
-
-		~StdOutStream();
-
-		template<typename T>
-		constexpr inline StdOutStream &operator<<(const T &v) {
-			m_msg.msg += m_delimiter;
-			m_msg.msg += v;
-			return *this;
-		}
-
-		/**
-		 * del sets the delimiter between log segments.
-		 */
-		inline StdOutStream &del(const char *delimiter) {
+		constexpr OutStream &del(const char *delimiter) {
 			m_delimiter = delimiter;
 			return *this;
 		}
@@ -102,19 +106,19 @@ class StdOutStream {
 class NullStream {
 
 	public:
-		constexpr NullStream() = default;
-
 		constexpr NullStream(const char*, int, const char*, const char* = "") {
 		}
 
-		~NullStream() = default;
+		template<std::size_t fmtSegmentCnt, typename ...Args>
+		constexpr NullStream(const char*, int, const char*, detail::Fmt<fmtSegmentCnt>, Args...) {
+		}
 
 		template<typename T>
-		constexpr inline NullStream &operator<<(const T&) {
+		constexpr NullStream &operator<<(const T&) {
 			return *this;
 		}
 
-		inline NullStream &del(const char*) {
+		constexpr NullStream &del(const char*) {
 			return *this;
 		}
 
@@ -135,3 +139,5 @@ void init();
 #define oxLogError(err) ox::trace::logError(__FILE__, __LINE__, err)
 
 #define oxTrace(ch) ox::trace::TraceStream(__FILE__, __LINE__, ch)
+
+#define oxTracef(ch, fmt, ...) ox::trace::TraceStream(__FILE__, __LINE__, ch, ox::detail::fmtSegments<ox::detail::argCount(fmt)+1>(fmt), ##__VA_ARGS__)

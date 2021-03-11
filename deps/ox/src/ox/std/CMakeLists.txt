@@ -60,6 +60,7 @@ install(
 		byteswap.hpp
 		defines.hpp
 		error.hpp
+		fmt.hpp
 		hardware.hpp
 		hashmap.hpp
 		heapmgr.hpp

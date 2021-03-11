@@ -45,6 +45,8 @@ class BString {
 
 		constexpr char &operator[](std::size_t i) noexcept;
 
+		void append(const char *str, std::size_t sz) noexcept;
+
 		constexpr char *data() noexcept;
 
 		constexpr const char *c_str() const noexcept;
@@ -151,6 +153,17 @@ constexpr char BString<buffLen>::operator[](std::size_t i) const noexcept {
 template<std::size_t buffLen>
 constexpr char &BString<buffLen>::operator[](std::size_t i) noexcept {
 	return m_buff[i];
+}
+
+template<std::size_t buffLen>
+void BString<buffLen>::append(const char *str, std::size_t strLen) noexcept {
+	auto currentLen = len();
+	if (cap() < currentLen + strLen + 1) {
+		strLen = cap() - currentLen;
+	}
+	ox_memcpy(m_buff + currentLen, str, strLen);
+	// make sure last element is a null terminator
+	m_buff[currentLen + strLen] = 0;
 }
 
 template<std::size_t buffLen>

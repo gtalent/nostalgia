@@ -158,7 +158,7 @@ using TraceStream = OutStream;
 using TraceStream = NullStream;
 #endif
 
-void logError(const char *file, int line, Error err);
+void logError(const char *file, int line, const Error &err);
 
 void init();
 

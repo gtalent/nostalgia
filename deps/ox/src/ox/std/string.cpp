@@ -47,7 +47,7 @@ String::String(String &&other) noexcept {
 	m_buff = ox::move(other.m_buff);
 }
 
-const String &String::operator=(const char *str) noexcept {
+String &String::operator=(const char *str) noexcept {
 	std::size_t strLen = ox_strlen(str) + 1;
 	m_buff.resize(strLen + 1);
 	memcpy(m_buff.data(), str, strLen);
@@ -56,26 +56,26 @@ const String &String::operator=(const char *str) noexcept {
 	return *this;
 }
 
-const String &String::operator=(char *str) noexcept {
+String &String::operator=(char *str) noexcept {
 	return *this = static_cast<const char*>(str);
 }
 
-const String &String::operator=(int64_t i) noexcept {
+String &String::operator=(int64_t i) noexcept {
 	char str[65] = {};
 	ox_itoa(i, str);
 	return this->operator=(str);
 }
 
-const String &String::operator=(const String &src) noexcept {
+String &String::operator=(const String &src) noexcept {
 	return *this = src.c_str();
 }
 
-const String &String::operator=(const String &&src) noexcept {
+String &String::operator=(String &&src) noexcept {
 	m_buff = ox::move(src.m_buff);
 	return *this;
 }
 
-const String &String::operator+=(const char *str) noexcept {
+String &String::operator+=(const char *str) noexcept {
 	std::size_t strLen = ox_strlen(str);
 	auto currentLen = len();
 	m_buff.resize(m_buff.size() + strLen);
@@ -85,21 +85,21 @@ const String &String::operator+=(const char *str) noexcept {
 	return *this;
 }
 
-const String &String::operator+=(char *str) noexcept {
+String &String::operator+=(char *str) noexcept {
 	return *this += static_cast<const char*>(str);
 }
 
-const String &String::operator+=(int64_t i) noexcept {
+String &String::operator+=(int64_t i) noexcept {
 	char str[65] = {};
 	ox_itoa(i, str);
 	return this->operator+=(str);
 }
 
-const String &String::operator+=(const String &src) noexcept {
+String &String::operator+=(const String &src) noexcept {
 	return *this += src.c_str();
 }
 
-const String String::operator+(const char *str) const noexcept {
+String String::operator+(const char *str) const noexcept {
 	std::size_t strLen = ox_strlen(str);
 	auto currentLen = len();
 	String cpy(currentLen + strLen);
@@ -111,17 +111,17 @@ const String String::operator+(const char *str) const noexcept {
 	return cpy;
 }
 
-const String String::operator+(char *str) const noexcept {
+String String::operator+(char *str) const noexcept {
 	return *this + static_cast<const char*>(str);
 }
 
-const String String::operator+(int64_t i) const noexcept {
+String String::operator+(int64_t i) const noexcept {
 	char str[65] = {};
 	ox_itoa(i, str);
 	return *this + str;
 }
 
-const String String::operator+(const String &src) const noexcept {
+String String::operator+(const String &src) const noexcept {
 	return *this + src.c_str();
 }
 

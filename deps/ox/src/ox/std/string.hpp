@@ -8,6 +8,10 @@
 
 #pragma once
 
+#if defined(OX_USE_STDLIB)
+#include <string>
+#endif
+
 #include "memops.hpp"
 #include "strops.hpp"
 #include "typetraits.hpp"
@@ -22,7 +26,7 @@ class String {
 	public:
 		String() noexcept;
 
-		String(std::size_t cap) noexcept;
+		explicit String(std::size_t cap) noexcept;
 
 		String(const char *str) noexcept;
 
@@ -32,31 +36,31 @@ class String {
 
 		String(String&&) noexcept;
 
-		const String &operator=(const char *str) noexcept;
+		String &operator=(const char *str) noexcept;
 
-		const String &operator=(char *str) noexcept;
+		String &operator=(char *str) noexcept;
 
-		const String &operator=(int64_t i) noexcept;
+		String &operator=(int64_t i) noexcept;
 
-		const String &operator=(const String &src) noexcept;
+		String &operator=(const String &src) noexcept;
 
-		const String &operator=(const String &&src) noexcept;
+		String &operator=(String &&src) noexcept;
 
-		const String &operator+=(const char *str) noexcept;
+		String &operator+=(const char *str) noexcept;
 
-		const String &operator+=(char *str) noexcept;
+		String &operator+=(char *str) noexcept;
 
-		const String &operator+=(int64_t i) noexcept;
+		String &operator+=(int64_t i) noexcept;
 
-		const String &operator+=(const String &src) noexcept;
+		String &operator+=(const String &src) noexcept;
 
-		const String operator+(const char *str) const noexcept;
+		String operator+(const char *str) const noexcept;
 
-		const String operator+(char *str) const noexcept;
+		String operator+(char *str) const noexcept;
 
-		const String operator+(int64_t i) const noexcept;
+		String operator+(int64_t i) const noexcept;
 
-		const String operator+(const String &src) const noexcept;
+		String operator+(const String &src) const noexcept;
 
 		bool operator==(const String &other) const noexcept;
 
@@ -66,19 +70,25 @@ class String {
 
 		char &operator[](std::size_t i) noexcept;
 
-		char *data() noexcept;
+		[[nodiscard]] char *data() noexcept;
 
-		const char *c_str() const noexcept;
+		[[nodiscard]] const char *c_str() const noexcept;
+
+#ifdef OX_USE_STDLIB
+		[[nodiscard]] inline std::string toStdString() const {
+			return c_str();
+		}
+#endif
 
 		/**
 		 * Returns the number of characters in this string.
 		 */
-		std::size_t len() const noexcept;
+		[[nodiscard]] std::size_t len() const noexcept;
 
 		/**
 		 * Returns the number of bytes used for this string.
 		 */
-		std::size_t bytes() const noexcept;
+		[[nodiscard]] std::size_t bytes() const noexcept;
 
 };
 

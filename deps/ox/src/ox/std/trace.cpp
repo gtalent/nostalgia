@@ -10,7 +10,7 @@
 
 namespace ox::trace {
 
-void logError(const char *file, int line, Error err) {
+void logError(const char *file, int line, const Error &err) {
 	if (err) {
 		TraceStream trc(file, line, "ox::error");
 		trc <<  "Error:" << err;

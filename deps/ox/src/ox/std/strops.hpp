@@ -126,7 +126,7 @@ template<typename T1, typename T2>
 	return retval;
 }
 
-[[nodiscard]] constexpr ox::Result<int> ox_atoi(const char *str) noexcept {
+constexpr ox::Result<int> ox_atoi(const char *str) noexcept {
 	int total = 0;
 	int multiplier = 1;
 	for (auto i = static_cast<int64_t>(ox_strlen(str)) - 1; i != -1; i--) {

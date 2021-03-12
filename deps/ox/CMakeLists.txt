@@ -24,6 +24,10 @@ set(OX_BUILD_EXEC ${OX_BUILD_EXEC} CACHE BOOL "Build executables (ON/OFF)")
 set(OX_USE_STDLIB ${OX_USE_STDLIB} CACHE BOOL "Build libraries that need the std lib (ON/OFF)")
 set(OX_BARE_METAL ${OX_BARE_METAL} CACHE BOOL "Bare metal build (TRUE/FALSE)")
 
+if(DEFINED ENV{OX_NODEBUG})
+	set(OX_NODEBUG ON)
+endif()
+
 # can't run tests without building them
 if(NOT OX_BUILD_EXEC OR NOT OX_USE_STDLIB)
 	set(OX_BUILD_EXEC OFF)

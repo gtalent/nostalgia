@@ -41,7 +41,7 @@ endif()
 target_compile_definitions(
 	OxStd PUBLIC
 		$<$<BOOL:${OX_USE_STDLIB}>:OX_USE_STDLIB>
-		$<$<BOOL:$ENV{OX_NODEBUG}>:OX_NODEBUG>
+		$<$<BOOL:${OX_NODEBUG}>:OX_NODEBUG>
 )
 
 target_link_libraries(

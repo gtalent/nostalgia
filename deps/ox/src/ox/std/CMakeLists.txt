@@ -38,12 +38,11 @@ if(NOT OX_BARE_METAL)
 	)
 endif()
 
-if(OX_USE_STDLIB)
-	target_compile_definitions(
-		OxStd PUBLIC
-			OX_USE_STDLIB
-	)
-endif()
+target_compile_definitions(
+	OxStd PUBLIC
+		$<$<BOOL:${OX_USE_STDLIB}>:OX_USE_STDLIB>
+		$<$<BOOL:$ENV{OX_NODEBUG}>:OX_NODEBUG>
+)
 
 target_link_libraries(
 	OxStd PUBLIC

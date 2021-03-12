@@ -10,6 +10,12 @@
 
 namespace ox::defines {
 
+#if defined(OX_NODEBUG)
+constexpr bool NoDebug = true;
+#else
+constexpr bool NoDebug = false;
+#endif
+
 #if defined(OX_USE_STDLIB)
 constexpr auto UseStdLib = true;
 #else

@@ -60,8 +60,13 @@ template<> struct is_integral<int16_t> : ox::true_type {};
 template<> struct is_integral<uint16_t>: ox::true_type {};
 template<> struct is_integral<int32_t> : ox::true_type {};
 template<> struct is_integral<uint32_t>: ox::true_type {};
-template<> struct is_integral<int64_t> : ox::true_type {};
-template<> struct is_integral<uint64_t>: ox::true_type {};
+
+// some of these need to be done with the actual language syntax because no one
+// can agree on what an (u)int64_t is...
+template<> struct is_integral<long>: ox::true_type {};
+template<> struct is_integral<long long>: ox::true_type {};
+template<> struct is_integral<unsigned long>: ox::true_type {};
+template<> struct is_integral<unsigned long long>: ox::true_type {};
 
 template<typename T>
 constexpr bool is_integral_v = ox::is_integral<T>::value;

@@ -105,7 +105,7 @@ endif
 
 .PHONY: configure-xcode
 configure-xcode:
-	${ENV_RUN} ${SETUP_BUILD} --toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake --build_tool=xcode
+	${ENV_RUN} ${SETUP_BUILD} --toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake --build_tool=xcode --current_build=0
 
 .PHONY: configure-release
 configure-release:

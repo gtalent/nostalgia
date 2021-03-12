@@ -5,6 +5,7 @@ pipeline {
 	stages {
 		stage('Environment') {
 			steps {
+				load 'jenkins/shared/env.gy'
 				sh 'make vcpkg'
 			}
 		}

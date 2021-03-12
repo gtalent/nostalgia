@@ -60,6 +60,7 @@ constexpr uint64_t argCount(const char *str) noexcept {
 	return cnt;
 }
 
+static_assert(argCount("sadf asdf") == 0);
 static_assert(argCount("{}") == 1);
 static_assert(argCount("{}{}") == 2);
 static_assert(argCount("thing1: {}, thing2: {}") == 2);

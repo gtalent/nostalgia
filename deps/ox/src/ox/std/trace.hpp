@@ -8,6 +8,10 @@
 
 #pragma once
 
+#ifdef OX_USE_STDLIB
+#include <array>
+#endif
+
 #include "bstring.hpp"
 #include "fmt.hpp"
 #include "hashmap.hpp"
@@ -55,9 +59,26 @@ class OutStream {
 			m_msg.msg = msg;
 		}
 
+#ifdef OX_USE_STDLIB
+		template<std::size_t fmtSegmentCnt, typename ...Args>
+		constexpr OutStream(const char *file, int line, const char *ch, detail::Fmt<fmtSegmentCnt> fmtSegments, std::array<detail::FmtArg, fmtSegmentCnt - 1> elements) {
+			//static_assert(sizeof...(args) == fmtSegmentCnt - 1, "Wrong number of trace arguments for format.");
+			m_msg.file = file;
+			m_msg.line = line;
+			m_msg.ch = ch;
+			const auto &firstSegment = fmtSegments.segments[0];
+			m_msg.msg.append(firstSegment.str, firstSegment.length);
+			//const detail::FmtArg elements[sizeof...(args)] = {args...};
+			for (auto i = 0u; i < fmtSegments.size - 1; ++i) {
+				m_msg.msg += elements[i].out;
+				const auto &s = fmtSegments.segments[i + 1];
+				m_msg.msg.append(s.str, s.length);
+			}
+		}
+#else
 		template<std::size_t fmtSegmentCnt, typename ...Args>
 		constexpr OutStream(const char *file, int line, const char *ch, detail::Fmt<fmtSegmentCnt> fmtSegments, Args... args) {
-			static_assert(sizeof...(args) == fmtSegmentCnt - 1, "Wrong number of trace arguments for format.");
+			//static_assert(sizeof...(args) == fmtSegmentCnt - 1, "Wrong number of trace arguments for format.");
 			m_msg.file = file;
 			m_msg.line = line;
 			m_msg.ch = ch;
@@ -70,6 +91,7 @@ class OutStream {
 				m_msg.msg.append(s.str, s.length);
 			}
 		}
+#endif
 
 		inline ~OutStream() {
 			oxTraceHook(m_msg.file, m_msg.line, m_msg.ch, m_msg.msg.c_str());
@@ -109,9 +131,15 @@ class NullStream {
 		constexpr NullStream(const char*, int, const char*, const char* = "") {
 		}
 
+#ifdef OX_USE_STDLIB
+		template<std::size_t fmtSegmentCnt, typename ...Args>
+		constexpr NullStream(const char*, int, const char*, detail::Fmt<fmtSegmentCnt>, std::array<detail::FmtArg, fmtSegmentCnt - 1>) {
+		}
+#else
 		template<std::size_t fmtSegmentCnt, typename ...Args>
 		constexpr NullStream(const char*, int, const char*, detail::Fmt<fmtSegmentCnt>, Args...) {
 		}
+#endif
 
 		template<typename T>
 		constexpr NullStream &operator<<(const T&) {
@@ -140,7 +168,12 @@ void init();
 
 #define oxTrace(ch) ox::trace::TraceStream(__FILE__, __LINE__, ch)
 
+#ifdef OX_USE_STDLIB
+// Non-GCC compilers don't like ##__VA_ARGS__, so use initializer list, which relies on std lib
+#define oxTracef(ch, fmt, ...) ox::trace::TraceStream(__FILE__, __LINE__, ch, ox::detail::fmtSegments<ox::detail::argCount(fmt)+1>(fmt), {__VA_ARGS__})
+#else
 #define oxTracef(ch, fmt, ...) ox::trace::TraceStream(__FILE__, __LINE__, ch, ox::detail::fmtSegments<ox::detail::argCount(fmt)+1>(fmt), ##__VA_ARGS__)
+#endif
 
-#define oxDebug() ox::trace::TraceStream(__FILE__, __LINE__, "debug")
-#define oxDebugf(fmt, ...) ox::trace::TraceStream(__FILE__, __LINE__, "debug", ox::detail::fmtSegments<ox::detail::argCount(fmt)+1>(fmt), ##__VA_ARGS__)
+#define oxDebug() oxTrace("debug")
+#define oxDebugf(...) oxTracef("debug", __VA_ARGS__)

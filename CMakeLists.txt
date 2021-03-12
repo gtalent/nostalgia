@@ -74,6 +74,9 @@ if(NOT MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-variable")
 
+	# disable warnings
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments")
+
 	if(NOSTALGIA_BUILD_TYPE STREQUAL "GBA")
 		include(GBA)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nostdlib")

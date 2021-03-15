@@ -1,6 +1,7 @@
 add_library(
 	NostalgiaCore-Userspace OBJECT
 		gfx_opengl.cpp
+		glutils.cpp
 		media.cpp
 )
 
@@ -19,7 +20,6 @@ target_link_libraries(
 		OxFS
 		OxStd
 		NostalgiaCore
-		#GLESv2
 		${OPENGL_gl_LIBRARY}
 )
 

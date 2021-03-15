@@ -18,6 +18,6 @@ ox::Error init(Context *ctx);
 
 ox::Error shutdown(Context *ctx);
 
-ox::Error loadTexture(Context *ctx, int section, void *bytes, int w, int h);
+ox::Error loadBgTexture(Context *ctx, int section, void *bytes, int w, int h);
 
 }

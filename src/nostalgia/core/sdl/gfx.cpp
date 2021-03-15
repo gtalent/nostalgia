@@ -111,13 +111,10 @@ ox::Error loadBgTileSheet(Context *ctx,
 		palettePath = tilesheet.defaultPalette;
 	}
 	oxReturnError(readObj<NostalgiaPalette>(ctx, palettePath).get(&palette));
-
 	const unsigned bytesPerTile = tilesheet.bpp == 8 ? 64 : 32;
 	const auto tiles = tilesheet.pixels.size() / bytesPerTile;
 	const int width = 8;
 	const int height = 8 * tiles;
-	//const auto format = SDL_PIXELFORMAT_INDEX8;
-	//const auto sdlPalette = createSDL_Palette(palette);
 	std::vector<uint32_t> pixels;
 	if (bytesPerTile == 64) { // 8 BPP
 		pixels.resize(tilesheet.pixels.size());
@@ -131,20 +128,7 @@ ox::Error loadBgTileSheet(Context *ctx,
 			pixels[i * 2 + 1] = toColor32(palette.colors[tilesheet.pixels[i] >> 4]);
 		}
 	}
-
-	oxReturnError(renderer::loadTexture(ctx, section, pixels.data(), width, height));
-
-	//auto texture = SDL_CreateTextureFromSurface(nullptr, surface);
-	//SDL_FreeSurface(surface);
-	//SDL_FreePalette(sdlPalette);
-
-	//auto sectionIdx = static_cast<unsigned>(section);
-	//if (id->bgTextures[sectionIdx]) {
-	//	SDL_DestroyTexture(id->bgTextures[sectionIdx]);
-	//}
-	//id->bgTextures[sectionIdx] = texture;
-
-	return OxError(0);
+	return renderer::loadBgTexture(ctx, section, pixels.data(), width, height);
 }
 
 ox::Error loadSpriteTileSheet(Context*,
@@ -156,8 +140,8 @@ ox::Error loadSpriteTileSheet(Context*,
 
 void drawBackground(Context*, const TileMap &tm, SDL_Texture *tex) {
 	if (tex) {
+		oxTrace("nostalgia::core::sdl::drawBackground", "Drawing background");
 		constexpr auto DstSize = 8 * Scale;
-		oxTracef("nostalgia::core::sdl::drawBackground", "Drawing background");
 		SDL_Rect src = {}, dst = {};
 		src.x = 0;
 		src.w = 8;

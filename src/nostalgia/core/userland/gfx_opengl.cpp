@@ -6,58 +6,154 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <ox/std/fmt.hpp>
-#define GL_SILENCE_DEPRECATION
-
 #include <array>
 
+#include <ox/std/bit.hpp>
 #include <ox/std/defines.hpp>
-#include <ox/std/defines.hpp>
-
-#define GL_GLEXT_PROTOTYPES 1
-//#include <GLES2/gl2.h>
-#ifdef OX_OS_Darwin
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+#include <ox/std/fmt.hpp>
 
 #include <nostalgia/core/gfx.hpp>
+
+#include "glutils.hpp"
 
 namespace nostalgia::core {
 
 using TileMap = std::array<std::array<int, 128>, 128>;
 
-struct GlImplData {
-	std::array<TileMap, 4> bgTileMaps{};
-	std::array<GLuint, 4> bgTextures{};
-	int64_t prevFpsCheckTime = 0;
-	uint64_t draws = 0;
+namespace renderer {
+
+constexpr auto TileRows = 16;
+constexpr auto TileColumns = 16;
+constexpr auto TileCount = TileRows * TileColumns;
+constexpr auto BgVertexVboRowLength = 6;
+constexpr auto BgVertexVboLength = 16;
+constexpr auto BgVertexEboLength = 6;
+
+struct BackgroundBufferset: public Bufferset {
+	std::array<float, TileCount * BgVertexVboLength * 4> bgVertices;
+	std::array<GLuint, TileCount * BgVertexEboLength * 4> bgEbos;
 };
 
+struct GlImplData {
+	std::array<TileMap, 4> bgTileMaps{};
+	int64_t prevFpsCheckTime = 0;
+	uint64_t draws = 0;
+	std::array<BackgroundBufferset, 1> backgrounds;
+	GLuint bgShader = 0;
+};
 
-namespace renderer {
+constexpr const GLchar *bgvshad = R"(
+	#version 150
+	in vec2 vTexCoord;
+	in vec2 position;
+	out vec2 fTexCoord;
+	void main() {
+	    gl_Position = vec4(position, 0.0, 1.0);
+	    fTexCoord = vTexCoord;
+	})";
+
+constexpr const GLchar *bgfshad = R"(
+	#version 150
+	out vec4 outColor;
+	in vec2 fTexCoord;
+	uniform sampler2D image;
+	void main() {
+	    //outColor = vec4(0.0, 0.7, 1.0, 1.0);
+	    outColor = texture(image, fTexCoord) * vec4(1.0, 1.0, 1.0, 1.0);
+	})";
+
+void initTileBufferObjects(unsigned vi, float x, float y, float *vbo, GLuint *ebo) {
+	// don't worry, this gets optimized to something much more ideal
+	constexpr float xmod = 0.06f;
+	x *= xmod;
+	y *= 0.1f;
+	const float vertices[BgVertexVboLength] = {
+		       x,        y, 0, 0.04, // bottom left
+		x + xmod,        y, 1, 0.04, // bottom right
+		x + xmod, y + 0.1f, 1,    0, // top right
+		       x, y + 0.1f, 0,    0, // top left
+	};
+	memcpy(vbo, vertices, sizeof(vertices));
+	const GLuint elms[BgVertexEboLength] = {
+		vi + 0, vi + 1, vi + 2,
+		vi + 2, vi + 3, vi + 0,
+	};
+	memcpy(ebo, elms, sizeof(elms));
+}
+
+void initBackgroundBufferObjects(GLuint shader, BackgroundBufferset *bs) {
+	auto i = 0u;
+	for (auto x = 0u; x < TileColumns; ++x) {
+		for (auto y = 0u; y < TileRows; ++y) {
+			const auto vi = i * BgVertexVboLength;
+			auto vbo = &bs->bgVertices[vi];
+			auto ebo = &bs->bgEbos[i * BgVertexEboLength];
+			initTileBufferObjects(vi, x, y, vbo, ebo);
+			++i;
+		}
+	}
+	// vbo
+	glBindBuffer(GL_ARRAY_BUFFER, bs->vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(bs->bgVertices), &bs->bgVertices, GL_DYNAMIC_DRAW);
+	// ebo
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bs->ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(bs->bgEbos), &bs->bgEbos, GL_STATIC_DRAW);
+	// vbo layout
+	auto posAttr = static_cast<GLuint>(glGetAttribLocation(shader, "position"));
+	glEnableVertexAttribArray(posAttr);
+	glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+	auto texCoordAttr = static_cast<GLuint>(glGetAttribLocation(shader, "vTexCoord"));
+	glEnableVertexAttribArray(texCoordAttr);
+	glVertexAttribPointer(texCoordAttr, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
+	                      ox::bit_cast<void*>((2 * sizeof(float))));
+}
+
+void initBackgroundBufferset(GLuint shader, BackgroundBufferset *bufferset) {
+	// vao
+	glGenVertexArrays(1, &bufferset->vao);
+	glBindVertexArray(bufferset->vao);
+	// vbo & ebo
+	glGenBuffers(1, &bufferset->vbo);
+	glGenBuffers(1, &bufferset->ebo);
+	initBackgroundBufferObjects(shader, bufferset);
+
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	//auto texAttr = static_cast<GLuint>(glGetUniformLocation(shaderPrgm, "image"));
+	//glUniform1i(static_cast<int>(texAttr), static_cast<int>(texture));
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
 
 ox::Error init(Context *ctx) {
 	const auto id = new GlImplData;
 	ctx->setRendererData(id);
+	id->bgShader = buildShaderProgram(bgvshad, bgfshad);
+	for (auto &bg : id->backgrounds) {
+		initBackgroundBufferset(id->bgShader, &bg);
+	}
 	return OxError(0);
 }
 
 ox::Error shutdown(Context *ctx) {
 	const auto id = ctx->rendererData<GlImplData>();
+	for (auto &bg : id->backgrounds) {
+		destroy(bg);
+	}
 	ctx->setRendererData(nullptr);
 	delete id;
 	return OxError(0);
 }
 
-ox::Error loadTexture(Context *ctx, int section, void *pixels, int w, int h) {
-	oxTracef("nostalgia::core::gfx::gl", "loadTexture: { section: {}, w: {}, h: {} }", section, w, h);
-	const auto &id = ctx->rendererData<GlImplData>();
-	auto &texId = id->bgTextures[static_cast<std::size_t>(section)];
-	glGenTextures(1, &texId);
+ox::Error loadTexture(GLuint *texId, void *pixels, int w, int h) {
+	if (*texId == 0) {
+		glGenTextures(1, texId);
+	}
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texId);
+	glBindTexture(GL_TEXTURE_2D, *texId);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,  GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -66,11 +162,18 @@ ox::Error loadTexture(Context *ctx, int section, void *pixels, int w, int h) {
 	return OxError(0);
 }
 
+ox::Error loadBgTexture(Context *ctx, int section, void *pixels, int w, int h) {
+	oxTracef("nostalgia::core::gfx::gl", "loadBgTexture: { section: {}, w: {}, h: {} }", section, w, h);
+	const auto &id = ctx->rendererData<GlImplData>();
+	const auto texId = &id->backgrounds[static_cast<std::size_t>(section)].tex;
+	return loadTexture(texId, pixels, w, h);
+}
+
 }
 
 
 void draw(Context *ctx) {
-	const auto id = ctx->rendererData<GlImplData>();
+	const auto id = ctx->rendererData<renderer::GlImplData>();
 	++id->draws;
 	if (id->draws >= 5000) {
 		using namespace std::chrono;
@@ -86,23 +189,16 @@ void draw(Context *ctx) {
 	}
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
-	auto &texId = id->bgTextures[0];
 
-	glEnable(GL_TEXTURE_2D);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glBindTexture(GL_TEXTURE_2D, texId);
+	//glEnable(GL_TEXTURE_2D);
+	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-	// Draw a textured quad
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0); glVertex2f(-0.01,  1);
-	glTexCoord2f(0, 1); glVertex2f(-0.01, -1);
-	glTexCoord2f(1, 1); glVertex2f( 0.01, -1);
-	glTexCoord2f(1, 0); glVertex2f( 0.01,  1);
-	glEnd();
-
-	glDisable(GL_TEXTURE_2D);
-
-	for (std::size_t i = 0; i < id->bgTileMaps.size(); i++) {
+	for (std::size_t i = 0; i < id->backgrounds.size(); i++) {
+		const auto &bg = id->backgrounds[i];
+		glUseProgram(id->bgShader);
+		glBindTexture(GL_TEXTURE_2D, bg.tex);
+		glBindVertexArray(bg.vao);
+		glDrawElements(GL_TRIANGLES, bg.bgEbos.size(), GL_UNSIGNED_INT, 0);
 	}
 }
 
@@ -129,7 +225,7 @@ void setSprite(Context*,
 }
 
 void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
-	const auto id = ctx->rendererData<GlImplData>();
+	const auto id = ctx->rendererData<renderer::GlImplData>();
 	const auto z = static_cast<unsigned>(layer);
 	const auto y = static_cast<unsigned>(row);
 	const auto x = static_cast<unsigned>(column);

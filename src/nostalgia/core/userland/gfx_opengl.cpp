@@ -25,7 +25,6 @@ namespace renderer {
 constexpr auto TileRows = 16;
 constexpr auto TileColumns = 16;
 constexpr auto TileCount = TileRows * TileColumns;
-constexpr auto BgVertexVboRowLength = 6;
 constexpr auto BgVertexVboLength = 16;
 constexpr auto BgVertexEboLength = 6;
 
@@ -105,7 +104,7 @@ void initBackgroundBufferObjects(GLuint shader, BackgroundBufferset *bs) {
 	auto texCoordAttr = static_cast<GLuint>(glGetAttribLocation(shader, "vTexCoord"));
 	glEnableVertexAttribArray(texCoordAttr);
 	glVertexAttribPointer(texCoordAttr, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
-	                      ox::bit_cast<void*>((2 * sizeof(float))));
+	                      ox::bit_cast<void*>(2 * sizeof(float)));
 }
 
 void initBackgroundBufferset(GLuint shader, BackgroundBufferset *bufferset) {

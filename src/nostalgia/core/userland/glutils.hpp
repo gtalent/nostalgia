@@ -9,7 +9,7 @@
 #define GL_GLEXT_PROTOTYPES 1
 #ifdef OX_OS_Darwin
 #define GL_SILENCE_DEPRECATION
-#include <OpenGL/gl.h>
+#include <OpenGL/gl3.h>
 #else
 #include <GLES3/gl3.h>
 #endif

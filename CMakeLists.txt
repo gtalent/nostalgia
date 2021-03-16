@@ -42,9 +42,11 @@ if(NOT OX_BARE_METAL)
 endif()
 
 # enable ccache
-find_program(CCACHE_PROGRAM ccache)
-if(CCACHE_PROGRAM)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+if(NOT DEFINED ENV{NOSTALGIA_SUPPRESS_CCACHE})
+	find_program(CCACHE_PROGRAM ccache)
+	if(CCACHE_PROGRAM)
+		 set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+	endif()
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

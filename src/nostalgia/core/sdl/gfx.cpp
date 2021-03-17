@@ -28,8 +28,7 @@ using TileMap = std::array<std::array<int, 128>, 128>;
 constexpr auto Scale = 5;
 
 static ox::Result<ox::Vector<char>> readFile(Context *ctx, const ox::FileAddress &file) {
-	auto [stat, err] = ctx->rom->stat(file);
-	oxReturnError(err);
+	oxRequire(stat, ctx->rom->stat(file));
 	ox::Vector<char> buff(stat.size);
 	oxReturnError(ctx->rom->read(file, buff.data(), buff.size()));
 	return buff;
@@ -37,8 +36,7 @@ static ox::Result<ox::Vector<char>> readFile(Context *ctx, const ox::FileAddress
 
 template<typename T>
 ox::Result<T> readObj(Context *ctx, const ox::FileAddress &file) {
-	auto [buff, err] = readFile(ctx, file);
-	oxReturnError(err);
+	oxRequire(buff, readFile(ctx, file));
 	T t;
 	oxReturnError(ox::readClaw(buff.data(), buff.size(), &t));
 	return t;
@@ -103,17 +101,14 @@ ox::Error loadBgTileSheet(Context *ctx,
                           int section,
                           ox::FileAddress tilesheetPath,
                           ox::FileAddress palettePath) {
-	//auto id = ctx->windowerData<SdlImplData>();
-	const auto [tilesheet, tserr] = readObj<NostalgiaGraphic>(ctx, tilesheetPath);
-	oxReturnError(tserr);
-	NostalgiaPalette palette;
+	oxRequire(tilesheet, readObj<NostalgiaGraphic>(ctx, tilesheetPath));
 	if (!palettePath) {
 		palettePath = tilesheet.defaultPalette;
 	}
-	oxReturnError(readObj<NostalgiaPalette>(ctx, palettePath).get(&palette));
+	oxRequire(palette, readObj<NostalgiaPalette>(ctx, palettePath));
 	const unsigned bytesPerTile = tilesheet.bpp == 8 ? 64 : 32;
 	const auto tiles = tilesheet.pixels.size() / bytesPerTile;
-	const int width = 8;
+	constexpr int width = 8;
 	const int height = 8 * tiles;
 	std::vector<uint32_t> pixels;
 	if (bytesPerTile == 64) { // 8 BPP

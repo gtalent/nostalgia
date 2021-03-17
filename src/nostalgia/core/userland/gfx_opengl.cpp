@@ -68,14 +68,14 @@ void initTileBufferObjects(unsigned vi, float x, float y, float *vbo, GLuint *eb
 	constexpr float ymod = 0.1f;
 	x *= xmod;
 	y *= ymod;
-	const float vertices[] = {
+	const float vertices[BgVertexVboLength] = {
 		       x,        y, 0, 0.04, // bottom left
 		x + xmod,        y, 1, 0.04, // bottom right
 		x + xmod, y + ymod, 1, 0.02, // top right
 		       x, y + ymod, 0, 0.02, // top left
 	};
 	memcpy(vbo, vertices, sizeof(vertices));
-	const GLuint elms[] = {
+	const GLuint elms[BgVertexEboLength] = {
 		vi + 0, vi + 1, vi + 2,
 		vi + 2, vi + 3, vi + 0,
 	};

@@ -54,7 +54,8 @@ All components have a platform indicator next to them:
 * No space between function parentheses and arguments.
 * Spaces between arithmetic/bitwise/logical/assignment operands and operators.
 * Pointer and reference designators should be bound to the identifier name and
-  not the type, unless there is not identifier name.
+  not the type, unless there is not identifier name, in which case it should be
+  bound to the type.
 
 ### Write C++, Not C
 
@@ -126,7 +127,9 @@ question.
 Pointers are generally preferred to references. References should be used for
 optimizing the passing in of parameters and for returning from accessor
 operators (e.g. ```T &Vector::operator[](size_t)```). As parameters, references
-should always be const.
+should always be const. A non-const reference is generally used because the parameter
+value is changed in the function, but it will look like it was passed in by value
+where it is called, making that code less readable.
 
 ### Error Handling
 
@@ -144,19 +147,19 @@ extra fields to enhance debuggability. If instantiated through the ```OxError(x)
 macro, it will also include the file and line of the error. The ```OxError(x)```
 macro should only be used for the initial instantiation of an ```ox::Error```.
 
-In addition to ```ox::Error``` there is also the template ```ox::ValErr<T>```.
-```ox::ValErr``` simply wraps the type T value in a struct that also includes
+In addition to ```ox::Error``` there is also the template ```ox::Result<T>```.
+```ox::Result``` simply wraps the type T value in a struct that also includes
 error information, which allows the returning of a value and an error without
 resorting to output parameters.
 
-```ox::ValErr``` can be used as follows:
+```ox::Result``` can be used as follows:
 
 ```cpp
-ox::ValErr<int> foo(int i) {
+ox::Result<int> foo(int i) {
 	if (i < 10) {
-		return i + 1; // implicitly calls ox::ValErr<T>::ValErr(T)
+		return i + 1; // implicitly calls ox::Result<T>::Result(T)
 	}
-	return OxError(1); // implicitly calls ox::ValErr<T>::ValErr(ox::Error)
+	return OxError(1); // implicitly calls ox::Result<T>::Result(ox::Error)
 }
 
 int caller1() {
@@ -179,14 +182,22 @@ int caller2() {
 }
 ```
 
-Lastly, there are two macros available to help in passing ```ox::Error```s
-back up the call stack, ```oxReturnError``` and ```oxThrowError```.
+Lastly, there are three macros available to help in passing ```ox::Error```s
+back up the call stack, ```oxReturnError```, ```oxThrowError```, and ```oxIgnoreError```.
 
 ```oxReturnError``` is by far the more helpful of the two. ```oxReturnError```
 will return an ```ox::Error``` if it is not 0 and ```oxThrowError``` will throw
 an ```ox::Error``` if it is not 0. Because exceptions are disabled for GBA
 builds and thus cannot be used in the engine, ```oxThrowError``` is  only really
 useful at the boundary between engine libraries and Nostalgia Studio.
+
+```oxIgnoreError``` does what it says, it ignores the error. Since
+```ox::Error```s always nodiscard, you must do something with them.
+In extremely rare cases, you may not have anything you can do with them or you
+may know the code will never fail in that particular instance.
+This should be used very sparingly. At the time of this writing, it has only
+been used 4 times in 20,000 lines of code.
+
 
 ```cpp
 void studioCode() {
@@ -201,9 +212,15 @@ ox::Error engineCode() {
 	doStuff(val);
 	return OxError(0);
 }
+
+void anyCode() {
+    auto [val, err] = foo(1);
+    oxIgnoreError(err);
+    doStuff(val);
+}
 ```
 
-Both macros will also take the ```ox::ValErr``` directly:
+Both macros will also take the ```ox::Result``` directly:
 
 ```cpp
 void studioCode() {
@@ -217,6 +234,64 @@ ox::Error engineCode() {
 	oxReturnError(valerr);
 	doStuff(valerr.value);
 	return OxError(0);
+}
+```
+Ox also has the ```oxRequire``` macro, which will initialize a value if there is no error, and return if there is.
+It aims to somewhat emulate the ```?``` operator in Rust and Swift.
+
+Rust ```?``` operator:
+```rust
+fn f() -> Result<i32, i32> {
+  // do stuff
+}
+
+fn f2() -> Result<i32, i32> {
+  let i = f()?;
+  Ok(i + 4)
+}
+```
+
+```oxRequire```:
+```cpp
+ox::Result<int> f() {
+	// do stuff
+}
+
+ox::Result<int> f2() {
+	oxRequire(i, f()); // creates i and assigns it the value returned by f, returns if there was an error
+	return i + 4;
+}
+```
+```oxRequire``` is not quite as versatile, but it should still cleanup a lot of otherwise less ideal code.
+
+### Logging
+
+Ox provides for logging and debug prints via the ```oxTrace``` and ```oxDebug``` macros.
+
+Tracing functions do not go to stdout unless the OXTRACE environment variable is set.
+They also print with the channel that they are on, along with file and line.
+
+Debug statements go to stdout and go to the logger on the "debug" channel.
+Where trace statements are intended to be written with thoughtfulness,
+debug statements are intended to be quick and temporary insertions.
+Debug statements trigger compilation failures if OX_NODEBUG is enabled when CMake is run,
+as it is on Jenkins builds, so ```oxDebug``` statements should never be checked in.
+This makes oxDebug preferable to other from of logging, as temporary prints should
+never be checked in anyway.
+
+```oxTrace``` and ```oxTracef```:
+```cpp
+void f(int x, int y) { // x = 9, y = 4
+	oxTrace("nostalgia::core::sdl::gfx") << "f:" << x << y; // Output: "f: 9 4"
+	oxTracef("nostalgia::core::sdl::gfx", "f: {}, {}", x, y); // Output: "f: 9, 4"
+}
+```
+
+```oxDebug``` and ```oxDebugf```:
+```cpp
+void f(int x, int y) { // x = 9, y = 4
+	oxDebug() << "f:" << x << y; // Output: "f: 9 4"
+	oxDebugf("f: {}, {}", x, y); // Output: "f: 9, 4"
 }
 ```
 

@@ -1,5 +1,6 @@
 add_library(
 	NostalgiaCore-Userspace OBJECT
+		gfx.cpp
 		gfx_opengl.cpp
 		glutils.cpp
 		media.cpp

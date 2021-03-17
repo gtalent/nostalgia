@@ -22,15 +22,16 @@ using TileMap = std::array<std::array<int, 128>, 128>;
 
 namespace renderer {
 
-constexpr auto TileRows = 16;
-constexpr auto TileColumns = 16;
+constexpr auto TileRows = 128;
+constexpr auto TileColumns = 128;
 constexpr auto TileCount = TileRows * TileColumns;
+constexpr auto BgVertexVboRows = 4;
 constexpr auto BgVertexVboLength = 16;
 constexpr auto BgVertexEboLength = 6;
 
 struct BackgroundBufferset: public Bufferset {
-	std::array<float, TileCount * BgVertexVboLength * 4> bgVertices;
-	std::array<GLuint, TileCount * BgVertexEboLength * 4> bgEbos;
+	std::array<float, TileCount * BgVertexVboLength> bgVertices;
+	std::array<GLuint, TileCount * BgVertexEboLength> bgEbos;
 };
 
 struct GlImplData {
@@ -64,16 +65,17 @@ constexpr const GLchar *bgfshad = R"(
 void initTileBufferObjects(unsigned vi, float x, float y, float *vbo, GLuint *ebo) {
 	// don't worry, this gets optimized to something much more ideal
 	constexpr float xmod = 0.06f;
+	constexpr float ymod = 0.1f;
 	x *= xmod;
-	y *= 0.1f;
-	const float vertices[BgVertexVboLength] = {
+	y *= ymod;
+	const float vertices[] = {
 		       x,        y, 0, 0.04, // bottom left
 		x + xmod,        y, 1, 0.04, // bottom right
-		x + xmod, y + 0.1f, 1,    0, // top right
-		       x, y + 0.1f, 0,    0, // top left
+		x + xmod, y + ymod, 1, 0.02, // top right
+		       x, y + ymod, 0, 0.02, // top left
 	};
 	memcpy(vbo, vertices, sizeof(vertices));
-	const GLuint elms[BgVertexEboLength] = {
+	const GLuint elms[] = {
 		vi + 0, vi + 1, vi + 2,
 		vi + 2, vi + 3, vi + 0,
 	};
@@ -84,10 +86,9 @@ void initBackgroundBufferObjects(GLuint shader, BackgroundBufferset *bs) {
 	auto i = 0u;
 	for (auto x = 0u; x < TileColumns; ++x) {
 		for (auto y = 0u; y < TileRows; ++y) {
-			const auto vi = i * BgVertexVboLength;
-			auto vbo = &bs->bgVertices[vi];
+			auto vbo = &bs->bgVertices[i * BgVertexVboLength];
 			auto ebo = &bs->bgEbos[i * BgVertexEboLength];
-			initTileBufferObjects(vi, x, y, vbo, ebo);
+			initTileBufferObjects(i * BgVertexVboRows, x, y, vbo, ebo);
 			++i;
 		}
 	}

@@ -18,6 +18,7 @@ endif()
 
 target_link_libraries(
 	NostalgiaCore-Userspace PUBLIC
+		OxClaw
 		OxFS
 		OxStd
 		NostalgiaCore

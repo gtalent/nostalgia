@@ -10,9 +10,6 @@ target_link_libraries(
 	NostalgiaCore-SDL PUBLIC
 		SDL2::SDL2main
 		SDL2::SDL2-static
-		OxClaw
-		OxFS
-		OxStd
 		NostalgiaCore-Userspace
 )
 

@@ -9,6 +9,7 @@
 #pragma once
 
 #include <ox/std/types.hpp>
+#include <nostalgia/common/point.hpp>
 
 #include "context.hpp"
 
@@ -80,7 +81,13 @@ struct Sprite {
 
 ox::Error initGfx(Context *ctx);
 
-ox::Error shutdownGfx(Context*);
+ox::Error shutdownGfx(Context *ctx);
+
+int getScreenWidth(Context *ctx);
+
+int getScreenHeight(Context *ctx);
+
+common::Point getScreenSize(Context *ctx);
 
 ox::Error initConsole(Context *ctx);
 

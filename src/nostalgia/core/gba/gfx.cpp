@@ -101,6 +101,18 @@ ox::Error shutdownGfx(Context*) {
 	return OxError(0);
 }
 
+int getScreenWidth(Context*) {
+	return 240;
+}
+
+int getScreenHeight(Context*) {
+	return 160;
+}
+
+common::Point getScreenSize(Context*) {
+	return {240, 160};
+}
+
 [[nodiscard]] constexpr volatile uint32_t &bgCtl(int bg) noexcept {
 	switch (bg) {
 		case 0:

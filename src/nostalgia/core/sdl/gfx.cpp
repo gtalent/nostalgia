@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include "nostalgia/common/point.hpp"
 #include <array>
 #ifdef NOST_FPS_PRINT
 #include <iostream>
@@ -55,6 +56,27 @@ ox::Error shutdownGfx(Context *ctx) {
 	ctx->setWindowerData(nullptr);
 	delete id;
 	return OxError(0);
+}
+
+int getScreenWidth(Context *ctx) {
+	auto id = ctx->windowerData<SdlImplData>();
+	int x = 0, y = 0;
+	SDL_GetWindowSize(id->window, &x, &y);
+	return x;
+}
+
+int getScreenHeight(Context *ctx) {
+	auto id = ctx->windowerData<SdlImplData>();
+	int x = 0, y = 0;
+	SDL_GetWindowSize(id->window, &x, &y);
+	return y;
+}
+
+common::Point getScreenSize(Context *ctx) {
+	auto id = ctx->windowerData<SdlImplData>();
+	int x = 0, y = 0;
+	SDL_GetWindowSize(id->window, &x, &y);
+	return {x, y};
 }
 
 }

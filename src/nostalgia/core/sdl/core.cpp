@@ -28,7 +28,10 @@ ox::Error init(Context *ctx) {
 
 ox::Error run(Context *ctx) {
 	auto id = ctx->windowerData<SdlImplData>();
-	SDL_GL_SetSwapInterval(1);
+	// try adaptive vsync
+	if (SDL_GL_SetSwapInterval(-1) < 0) {
+		SDL_GL_SetSwapInterval(1); // fallback on normal vsync
+	}
 	for (auto running = true; running;) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {

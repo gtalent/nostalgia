@@ -182,8 +182,9 @@ int caller2() {
 }
 ```
 
-Lastly, there are three macros available to help in passing ```ox::Error```s
-back up the call stack, ```oxReturnError```, ```oxThrowError```, and ```oxIgnoreError```.
+Lastly, there are a few macros available to help in passing ```ox::Error```s
+back up the call stack, ```oxReturnError```, ```oxThrowError```,
+```oxIgnoreError```, and ```oxRequire```.
 
 ```oxReturnError``` is by far the more helpful of the two. ```oxReturnError```
 will return an ```ox::Error``` if it is not 0 and ```oxThrowError``` will throw
@@ -266,7 +267,8 @@ ox::Result<int> f2() {
 
 ### Logging
 
-Ox provides for logging and debug prints via the ```oxTrace``` and ```oxDebug``` macros.
+Ox provides for logging and debug prints via the ```oxTrace```, ```oxDebug```, and ```oxError``` macros.
+Each of these also provides a format variation.
 
 Tracing functions do not go to stdout unless the OXTRACE environment variable is set.
 They also print with the channel that they are on, along with file and line.
@@ -278,6 +280,12 @@ Debug statements trigger compilation failures if OX_NODEBUG is enabled when CMak
 as it is on Jenkins builds, so ```oxDebug``` statements should never be checked in.
 This makes oxDebug preferable to other from of logging, as temporary prints should
 never be checked in anyway.
+
+```oxError``` always prints.
+It includes file and line, and is prefixed with a red "ERROR:".
+It should generally be used conservatively.
+It shuld be used only when there is an error that is not technically fatal, but
+the user almost certainly wants to know about it.
 
 ```oxTrace``` and ```oxTracef```:
 ```cpp
@@ -292,6 +300,14 @@ void f(int x, int y) { // x = 9, y = 4
 void f(int x, int y) { // x = 9, y = 4
 	oxDebug() << "f:" << x << y; // Output: "f: 9 4"
 	oxDebugf("f: {}, {}", x, y); // Output: "f: 9, 4"
+}
+```
+
+```oxError``` and ```oxErrorf```:
+```cpp
+void f(int x, int y) { // x = 9, y = 4
+	oxError() << "f:" << x << y; // Output: "ERROR: (<file>:<line>): f: 9 4"
+	oxErrorf("f: {}, {}", x, y); // Output: "ERROR: (<file>:<line>): f: 9, 4"
 }
 ```
 

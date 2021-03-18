@@ -15,6 +15,8 @@ static const auto OxPrintTrace = std::getenv("OXTRACE") != nullptr;
 constexpr auto OxPrintTrace = false;
 #endif
 
+#include "strops.hpp"
+
 extern "C" {
 
 void oxTraceInitHook() {
@@ -27,6 +29,10 @@ void oxTraceHook([[maybe_unused]] const char *file, [[maybe_unused]] int line,
 		std::cout << std::setw(53) << std::left << ch << "| ";
 		std::cout << std::setw(65) << std::left << msg << '|';
 		std::cout << " " << file << ':' << line << "\n";
+	} else if (ox_strcmp(ch, "debug") == 0) {
+		std::cout << msg << '\n';
+	} else if (ox_strcmp(ch, "error") == 0) {
+		std::cerr << "\033[31;1;1mERROR:\033[0m (" << file << ':' << line << "): " << msg << '\n';
 	}
 #endif
 }

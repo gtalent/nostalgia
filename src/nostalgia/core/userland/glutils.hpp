@@ -16,11 +16,22 @@
 
 namespace nostalgia::core::renderer {
 
+struct Texture {
+	GLuint texId = 0;
+	GLuint width = 0;
+	GLuint height = 0;
+
+	constexpr operator GLuint() const noexcept {
+		return texId;
+	}
+
+};
+
 struct Bufferset {
 	GLuint vao = 0;
 	GLuint vbo = 0;
 	GLuint ebo = 0;
-	GLuint tex = 0;
+	Texture tex;
 	GLsizei eboElements = 0;
 };
 

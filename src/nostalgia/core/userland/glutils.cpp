@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <ox/std/assert.hpp>
 #include <ox/std/trace.hpp>
 
 #include "glutils.hpp"
@@ -23,6 +24,7 @@ namespace nostalgia::core::renderer {
 		char errMsg[errMsgSize];
 		glGetShaderInfoLog(shader, errMsgSize, nullptr, errMsg);
 		oxTracef("nostalgia::core::gfx::gl", "shader compile error in {}: {}", shaderName, errMsg);
+		oxPanic(OxError(1), "shader compile error");
 		glDeleteShader(shader);
 		shader = 0;
 	}

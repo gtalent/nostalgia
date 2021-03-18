@@ -7,6 +7,9 @@
  */
 
 #include <array>
+#ifdef NOST_FPS_PRINT
+#include <iostream>
+#endif
 
 #include <ox/std/bit.hpp>
 #include <ox/std/defines.hpp>
@@ -18,7 +21,6 @@
 
 namespace nostalgia::core {
 
-using TileMap = std::array<std::array<int, 128>, 128>;
 
 namespace renderer {
 
@@ -38,7 +40,6 @@ struct Background: public Bufferset {
 
 struct GlImplData {
 	GLuint bgShader = 0;
-	std::array<TileMap, 4> bgTileMaps; // old, replaced by backgrounds
 	int64_t prevFpsCheckTime = 0;
 	uint64_t draws = 0;
 	std::array<Background, 1> backgrounds;
@@ -114,18 +115,18 @@ static void initBackgroundBufferObjects(Context *ctx, Background *bg) noexcept {
 			setTileBufferObject(ctx, i * BgVertexVboRows, x, y, 0, vbo, ebo);
 		}
 	}
-	sendVbo(*bg);
-	sendEbo(*bg);
 }
 
-static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bufferset) {
+static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg) {
 	// vao
-	glGenVertexArrays(1, &bufferset->vao);
-	glBindVertexArray(bufferset->vao);
+	glGenVertexArrays(1, &bg->vao);
+	glBindVertexArray(bg->vao);
 	// vbo & ebo
-	glGenBuffers(1, &bufferset->vbo);
-	glGenBuffers(1, &bufferset->ebo);
-	initBackgroundBufferObjects(ctx, bufferset);
+	glGenBuffers(1, &bg->vbo);
+	glGenBuffers(1, &bg->ebo);
+	initBackgroundBufferObjects(ctx, bg);
+	sendVbo(*bg);
+	sendEbo(*bg);
 	// vbo layout
 	auto posAttr = static_cast<GLuint>(glGetAttribLocation(shader, "position"));
 	glEnableVertexAttribArray(posAttr);
@@ -186,7 +187,7 @@ ox::Error loadBgTexture(Context *ctx, int section, void *pixels, int w, int h) {
 void draw(Context *ctx) {
 	const auto id = ctx->rendererData<renderer::GlImplData>();
 	++id->draws;
-	if (id->draws >= 5000) {
+	if (id->draws >= 500) {
 		using namespace std::chrono;
 		const auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 		const auto duration = static_cast<double>(now - id->prevFpsCheckTime) / 1000.0;
@@ -220,6 +221,7 @@ void clearTileLayer(Context *ctx, int layer) {
 	const auto id = ctx->rendererData<renderer::GlImplData>();
 	auto bg = id->backgrounds[static_cast<std::size_t>(layer)];
 	initBackgroundBufferObjects(ctx, &bg);
+	bg.updated = true;
 }
 
 void hideSprite(Context*, unsigned) {

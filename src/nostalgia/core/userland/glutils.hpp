@@ -21,7 +21,11 @@ struct Texture {
 	GLuint width = 0;
 	GLuint height = 0;
 
-	constexpr operator GLuint() const noexcept {
+	constexpr operator GLuint&() noexcept {
+		return texId;
+	}
+
+	constexpr operator const GLuint&() const noexcept {
 		return texId;
 	}
 

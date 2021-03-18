@@ -216,12 +216,6 @@ void draw(Context *ctx) {
 	}
 }
 
-void puts(Context *ctx, int column, int row, const char *str) {
-	for (int i = 0; str[i]; ++i) {
-		setTile(ctx, 0, column + i, row, static_cast<uint8_t>(charMap[static_cast<int>(str[i])]));
-	}
-}
-
 void clearTileLayer(Context *ctx, int layer) {
 	const auto id = ctx->rendererData<renderer::GlImplData>();
 	auto bg = id->backgrounds[static_cast<std::size_t>(layer)];

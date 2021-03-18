@@ -13,7 +13,8 @@
 
 namespace nostalgia::core::renderer {
 
-[[nodiscard]] GLuint buildShader(GLuint shaderType, const GLchar *src, const char *shaderName) {
+[[nodiscard]]
+ox::Result<GLuint> buildShader(GLuint shaderType, const GLchar *src, const char *shaderName) {
 	auto shader = glCreateShader(shaderType);
 	glShaderSource(shader, 1, &src, nullptr);
 	glCompileShader(shader);
@@ -23,29 +24,31 @@ namespace nostalgia::core::renderer {
 		static const auto errMsgSize = 1000;
 		char errMsg[errMsgSize];
 		glGetShaderInfoLog(shader, errMsgSize, nullptr, errMsg);
-		oxTracef("nostalgia::core::gfx::gl", "shader compile error in {}: {}", shaderName, errMsg);
-		oxPanic(OxError(1), "shader compile error");
+		oxErrorf("shader compile error in {}: {}", shaderName, errMsg);
 		glDeleteShader(shader);
-		shader = 0;
+		return OxError(1, "shader compile error");
 	}
 	return shader;
 }
 
-[[nodiscard]] GLuint buildVertShader(const GLchar *src, const char *shaderName) {
+[[nodiscard]]
+ox::Result<GLuint> buildVertShader(const GLchar *src, const char *shaderName) {
 	return buildShader(GL_VERTEX_SHADER, src, shaderName);
 }
 
-[[nodiscard]] GLuint buildFragShader(const GLchar *src, const char *shaderName) {
+[[nodiscard]]
+ox::Result<GLuint> buildFragShader(const GLchar *src, const char *shaderName) {
 	return buildShader(GL_FRAGMENT_SHADER, src, shaderName);
 }
 
-[[nodiscard]] GLuint buildShaderProgram(const GLchar *vert, const GLchar *frag) {
+[[nodiscard]]
+ox::Result<GLuint> buildShaderProgram(const GLchar *vert, const GLchar *frag) {
 	GLuint prgm = 0;
-	const auto vs = buildVertShader(vert, "vshad");
+	oxRequire(vs, buildVertShader(vert, "vshad"));
 	if (!vs) {
 		glDeleteShader(vs);
 	} else {
-		const auto fs = buildFragShader(frag, "fshad");
+		oxRequire(fs, buildFragShader(frag, "fshad"));
 		if (!fs) {
 			// cleanup shaders that were created
 			glDeleteShader(fs);

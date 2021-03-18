@@ -139,7 +139,7 @@ static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *buf
 ox::Error init(Context *ctx) {
 	const auto id = new GlImplData;
 	ctx->setRendererData(id);
-	id->bgShader = buildShaderProgram(bgvshad, bgfshad);
+	oxReturnError(buildShaderProgram(bgvshad, bgfshad).get(&id->bgShader));
 	for (auto &bg : id->backgrounds) {
 		initBackgroundBufferset(ctx, id->bgShader, &bg);
 	}

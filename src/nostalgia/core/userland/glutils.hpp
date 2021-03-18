@@ -14,6 +14,8 @@
 #include <GLES3/gl3.h>
 #endif
 
+#include <ox/std/error.hpp>
+
 namespace nostalgia::core::renderer {
 
 struct Texture {
@@ -39,7 +41,8 @@ struct Bufferset {
 	GLsizei eboElements = 0;
 };
 
-[[nodiscard]] GLuint buildShaderProgram(const GLchar *vert, const GLchar *frag);
+[[nodiscard]]
+ox::Result<GLuint> buildShaderProgram(const GLchar *vert, const GLchar *frag);
 
 void destroy(const Bufferset &bufferset);
 

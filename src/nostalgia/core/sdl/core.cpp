@@ -17,6 +17,7 @@
 namespace nostalgia::core {
 
 static event_handler g_eventHandler = nullptr;
+static uint64_t g_wakeupTime;
 
 void draw(Context *ctx);
 
@@ -27,6 +28,7 @@ ox::Error init(Context *ctx) {
 
 ox::Error run(Context *ctx) {
 	auto id = ctx->windowerData<SdlImplData>();
+	SDL_GL_SetSwapInterval(1);
 	for (auto running = true; running;) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
@@ -42,9 +44,17 @@ ox::Error run(Context *ctx) {
 				}
 			}
 		}
+		const auto ticks = ticksMs();
+		if (g_wakeupTime <= ticks && g_eventHandler) {
+			auto sleepTime = g_eventHandler(ctx);
+			if (sleepTime >= 0) {
+				g_wakeupTime = ticks + static_cast<unsigned>(sleepTime);
+			} else {
+				g_wakeupTime = ~uint64_t(0);
+			}
+		}
 		draw(ctx);
 		SDL_GL_SwapWindow(id->window);
-		SDL_Delay(1);
 	}
 	return OxError(0);
 }

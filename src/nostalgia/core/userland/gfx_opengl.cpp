@@ -149,6 +149,8 @@ ox::Error init(Context *ctx) {
 
 ox::Error shutdown(Context *ctx) {
 	const auto id = ctx->rendererData<GlImplData>();
+	glDeleteProgram(id->bgShader);
+	id->bgShader = 0;
 	for (auto &bg : id->backgrounds) {
 		destroy(bg);
 	}

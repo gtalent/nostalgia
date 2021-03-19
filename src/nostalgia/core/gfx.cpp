@@ -141,4 +141,8 @@ char charMap[128] = {
 	0,  // ~
 };
 
+void setSprite(Context *c, const Sprite &s) {
+	setSprite(c, s.idx, s.x, s.y, s.tileIdx, s.spriteShape, s.spriteSize, s.flipX);
+}
+
 }

@@ -107,14 +107,12 @@ void puts(Context *ctx, int column, int row, const char *str);
 
 void setTile(Context *ctx, int layer, int column, int row, uint8_t tile);
 
-void clearTileLayer(Context*, int layer);
+void clearTileLayer(Context *ctx, int layer);
 
-void hideSprite(Context*, unsigned);
+void hideSprite(Context *ctx, unsigned);
 
-void setSprite(Context*, unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape = 0, unsigned spriteSize = 0, unsigned flipX = 0);
+void setSprite(Context *ctx, unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape = 0, unsigned spriteSize = 0, unsigned flipX = 0);
 
-inline void setSprite(Context *c, const Sprite &s) {
-	setSprite(c, s.idx, s.x, s.y, s.tileIdx, s.spriteShape, s.spriteSize, s.flipX);
-}
+void setSprite(Context *ctx, const Sprite &s);
 
 }

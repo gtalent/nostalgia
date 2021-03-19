@@ -31,6 +31,7 @@ ox::Result<T> readObj(Context *ctx, const ox::FileAddress &file) {
 
 ox::Error initConsole(Context *ctx) {
 	constexpr auto TilesheetAddr = "/TileSheets/Charset.ng";
+	setBgStatus(ctx, 0b0001);
 	return loadBgTileSheet(ctx, 0, TilesheetAddr);
 }
 

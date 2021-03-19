@@ -33,6 +33,7 @@ constexpr auto BgVertexVboLength = BgVertexVboRows * BgVertexVboRowLength;
 constexpr auto BgVertexEboLength = 6;
 
 struct Background: public Bufferset {
+	bool enabled = false;
 	bool updated = false;
 	std::array<float, TileCount * BgVertexVboLength> bgVertices;
 	std::array<GLuint, TileCount * BgVertexEboLength> bgEbos;
@@ -185,6 +186,32 @@ ox::Error loadBgTexture(Context *ctx, int section, void *pixels, int w, int h) {
 
 }
 
+uint8_t bgStatus(Context *ctx) {
+	const auto &id = ctx->rendererData<renderer::GlImplData>();
+	uint8_t out = 0;
+	for (unsigned i = 0; i < id->backgrounds.size(); ++i) {
+		out |= id->backgrounds[i].enabled << i;
+	}
+	return out;
+}
+
+void setBgStatus(Context *ctx, uint32_t status) {
+	const auto &id = ctx->rendererData<renderer::GlImplData>();
+	for (unsigned i = 0; i < id->backgrounds.size(); ++i) {
+		id->backgrounds[i].enabled = (status >> i) & 1;
+	}
+}
+
+bool bgStatus(Context *ctx, unsigned bg) {
+	const auto &id = ctx->rendererData<renderer::GlImplData>();
+	return id->backgrounds[bg].enabled;
+}
+
+void setBgStatus(Context *ctx, unsigned bg, bool status) {
+	const auto &id = ctx->rendererData<renderer::GlImplData>();
+	id->backgrounds[bg].enabled = status;
+}
+
 
 void draw(Context *ctx) {
 	const auto id = ctx->rendererData<renderer::GlImplData>();
@@ -208,14 +235,16 @@ void draw(Context *ctx) {
 	glUseProgram(id->bgShader);
 	const auto uniformTileHeight = static_cast<GLint>(glGetUniformLocation(id->bgShader, "vTileHeight"));
 	for (auto &bg : id->backgrounds) {
-		glBindVertexArray(bg.vao);
-		if (bg.updated) {
-			bg.updated = false;
-			renderer::sendVbo(bg);
+		if (bg.enabled) {
+			glBindVertexArray(bg.vao);
+			if (bg.updated) {
+				bg.updated = false;
+				renderer::sendVbo(bg);
+			}
+			glBindTexture(GL_TEXTURE_2D, bg.tex);
+			glUniform1f(uniformTileHeight, 1.0f / static_cast<float>(bg.tex.height / 8));
+			glDrawElements(GL_TRIANGLES, bg.bgEbos.size(), GL_UNSIGNED_INT, 0);
 		}
-		glBindTexture(GL_TEXTURE_2D, bg.tex);
-		glUniform1f(uniformTileHeight, 1.0f / static_cast<float>(bg.tex.height / 8));
-		glDrawElements(GL_TRIANGLES, bg.bgEbos.size(), GL_UNSIGNED_INT, 0);
 	}
 }
 

@@ -141,42 +141,4 @@ char charMap[128] = {
 	0,  // ~
 };
 
-Color32 toColor32(Color16 nc) noexcept {
-	Color32 r = static_cast<Color32>(((nc & 0b0000000000011111) >> 0) * 8);
-	Color32 g = static_cast<Color32>(((nc & 0b0000001111100000) >> 5) * 8);
-	Color32 b = static_cast<Color32>(((nc & 0b0111110000000000) >> 10) * 8);
-	Color32 a = 255;
-	return r | (g << 8) | (b << 16) | (a << 24);
-}
-
-
-uint8_t red32(Color32 c) noexcept {
-	return (c & 0x000000ff) >> 0;
-}
-
-uint8_t green32(Color32 c) noexcept {
-	return (c & 0x0000ff00) >> 8;
-}
-
-uint8_t blue32(Color32 c) noexcept {
-	return (c & 0x00ff0000) >> 16;
-}
-
-
-uint8_t red32(Color16 c) noexcept {
-	return red16(c) * 8;
-}
-
-uint8_t green32(Color16 c) noexcept {
-	return green16(c) * 8;
-}
-
-uint8_t blue32(Color16 c) noexcept {
-	return blue16(c) * 8;
-}
-
-static_assert(color16(0, 31, 0) == 992);
-static_assert(color16(16, 31, 0) == 1008);
-static_assert(color16(16, 31, 8) == 9200);
-
 }

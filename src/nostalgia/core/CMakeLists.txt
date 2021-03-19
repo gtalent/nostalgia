@@ -25,6 +25,7 @@ endif()
 
 install(
 	FILES
+		color.hpp
 		config.hpp
 		consts.hpp
 		context.hpp

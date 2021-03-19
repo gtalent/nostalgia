@@ -11,6 +11,7 @@
 #include <ox/std/types.hpp>
 #include <nostalgia/common/point.hpp>
 
+#include "color.hpp"
 #include "context.hpp"
 
 namespace nostalgia::core {
@@ -21,14 +22,6 @@ enum class TileSheetSpace {
 	Background,
 	Sprite
 };
-
-using Color16 = uint16_t;
-
-/**
- * Nostalgia Core logically uses 16 bit colors, but must translate that to 32
- * bit colors in some implementations.
- */
-using Color32 = uint32_t;
 
 struct NostalgiaPalette {
 	static constexpr auto TypeName = "net.drinkingtea.nostalgia.core.NostalgiaPalette";
@@ -109,45 +102,6 @@ ox::Error loadSpriteTileSheet(Context *ctx,
                               int section,
                               ox::FileAddress tilesheetAddr,
                               ox::FileAddress paletteAddr);
-
-[[nodiscard]] Color32 toColor32(Color16 nc) noexcept;
-
-[[nodiscard]] uint8_t red32(Color16 c) noexcept;
-
-[[nodiscard]] uint8_t green32(Color16 c) noexcept;
-
-[[nodiscard]] uint8_t blue32(Color16 c) noexcept;
-
-[[nodiscard]] constexpr uint8_t alpha32(Color16 c) noexcept {
-	return (c >> 15) * 255;
-}
-
-
-[[nodiscard]] constexpr Color16 color16(uint8_t r, uint8_t g, uint8_t b) {
-	return r | (g << 5) | (b << 10);
-}
-
-[[nodiscard]] uint8_t red32(Color32 c) noexcept;
-
-[[nodiscard]] uint8_t green32(Color32 c) noexcept;
-
-[[nodiscard]] uint8_t blue32(Color32 c) noexcept;
-
-[[nodiscard]] constexpr uint8_t red16(Color16 c) noexcept {
-	return c & 0b0000000000011111;
-}
-
-[[nodiscard]] constexpr uint8_t green16(Color16 c) noexcept {
-	return (c & 0b0000001111100000) >> 5;
-}
-
-[[nodiscard]] constexpr uint8_t blue16(Color16 c) noexcept {
-	return (c & 0b0111110000000000) >> 10;
-}
-
-[[nodiscard]] constexpr uint8_t alpha16(Color16 c) noexcept {
-	return c >> 15;
-}
 
 void puts(Context *ctx, int column, int row, const char *str);
 

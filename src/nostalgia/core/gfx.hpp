@@ -89,6 +89,15 @@ int getScreenHeight(Context *ctx);
 
 common::Point getScreenSize(Context *ctx);
 
+[[nodiscard]]
+uint8_t bgStatus(Context *ctx);
+
+void setBgStatus(Context *ctx, uint32_t status);
+
+bool bgStatus(Context *ctx, unsigned bg);
+
+void setBgStatus(Context *ctx, unsigned bg, bool status);
+
 ox::Error initConsole(Context *ctx);
 
 /**

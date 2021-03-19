@@ -63,13 +63,14 @@ ox::Error modelRead(T *io, GbaTileMapTarget *t) {
 	oxReturnError(io->field("rows", &dummy));
 	oxReturnError(io->field("columns", &dummy));
 	constexpr auto Bpp8 = 1 << 7;
-	*t->bgCtl = (28 << 8) | 1;
-	if (bpp == 4) {
-		*t->bgCtl = *t->bgCtl | ((*t->bgCtl | Bpp8) ^ Bpp8); // set to use 4 bits per pixel
-	} else {
-		*t->bgCtl = *t->bgCtl | Bpp8; // set to use 8 bits per pixel
+	if (t->bgCtl) {
+		*t->bgCtl = (28 << 8) | 1;
+		if (bpp == 4) {
+			*t->bgCtl = *t->bgCtl | ((*t->bgCtl | Bpp8) ^ Bpp8); // set to use 4 bits per pixel
+		} else {
+			*t->bgCtl = *t->bgCtl | Bpp8; // set to use 8 bits per pixel
+		}
 	}
-
 	oxReturnError(io->field("defaultPalette", &t->defaultPalette));
 	oxReturnError(io->field("pal", &t->pal));
 	uint16_t intermediate = 0;
@@ -88,7 +89,6 @@ ox::Error modelRead(T *io, GbaTileMapTarget *t) {
 ox::Error initGfx(Context*) {
 	REG_DISPCTL = DispCtl_Mode0
 	            | DispCtl_SpriteMap1D
-	            | DispCtl_Bg0
 	            | DispCtl_Obj;
 	// tell display to trigger vblank interrupts
 	REG_DISPSTAT = REG_DISPSTAT | DispStat_irq_vblank;
@@ -113,6 +113,25 @@ common::Point getScreenSize(Context*) {
 	return {240, 160};
 }
 
+uint8_t bgStatus(Context*) {
+	return (REG_DISPCTL >> 8) & 0b1111;
+}
+
+void setBgStatus(Context*, uint32_t status) {
+	constexpr auto Bg0Status = 8;
+	REG_DISPCTL = (REG_DISPCTL & ~0b111100000000u) | status << Bg0Status;
+}
+
+bool bgStatus(Context*, unsigned bg) {
+	return (REG_DISPCTL >> (8 + bg)) & 1;
+}
+
+void setBgStatus(Context*, unsigned bg, bool status) {
+	constexpr auto Bg0Status = 8;
+	const auto mask = static_cast<uint32_t>(status) << (Bg0Status + bg);
+	REG_DISPCTL = REG_DISPCTL | ((REG_DISPCTL & ~mask) | mask);
+}
+
 [[nodiscard]] constexpr volatile uint32_t &bgCtl(int bg) noexcept {
 	switch (bg) {
 		case 0:
@@ -133,6 +152,7 @@ common::Point getScreenSize(Context*) {
 ox::Error initConsole(Context *ctx) {
 	constexpr auto TilesheetAddr = "/TileSheets/Charset.ng";
 	constexpr auto PaletteAddr = "/Palettes/Charset.npal";
+	setBgStatus(ctx, 0b0001);
 	if (!ctx) {
 		ctx = new (ox_alloca(sizeof(Context))) Context();
 		auto rom = loadRom();
@@ -179,7 +199,8 @@ ox::Error loadSpriteTileSheet(Context *ctx,
 	oxReturnError(tserr);
 	GbaTileMapTarget target;
 	target.pal.palette = &MEM_SPRITE_PALETTE[section];
-	target.bgCtl = &bgCtl(section);
+	// Is this needed? Should this be written to an equivalent sprite value?
+	// target.bgCtl = &bgCtl(section);
 	target.tileMap = &ox::bit_cast<uint16_t*>(MEM_SPRITE_TILES)[section * 512];
 	oxReturnError(ox::readMC(ts, tsStat.size, &target));
 	// load external palette if available
@@ -231,7 +252,8 @@ void clearTileLayer(Context*, int layer) {
 	memset(&MEM_BG_MAP[layer], 0, GbaTileRows * GbaTileColumns);
 }
 
-    [[maybe_unused]] void hideSprite(Context*, unsigned idx) {
+ [[maybe_unused]]
+ void hideSprite(Context*, unsigned idx) {
 	oxAssert(g_spriteUpdates < config::GbaSpriteBufferLen, "Sprite update buffer overflow");
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = 2 << 8;

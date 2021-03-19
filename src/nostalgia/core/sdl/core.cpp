@@ -27,7 +27,7 @@ ox::Error init(Context *ctx) {
 }
 
 ox::Error run(Context *ctx) {
-	auto id = ctx->windowerData<SdlImplData>();
+	const auto id = ctx->windowerData<SdlImplData>();
 	// try adaptive vsync
 	if (SDL_GL_SetSwapInterval(-1) < 0) {
 		oxTrace("nostalgia::core::sdl", "Could not enable adaptive vsync, falling back on vsync");

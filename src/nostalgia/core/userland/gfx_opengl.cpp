@@ -7,6 +7,7 @@
  */
 
 #include <array>
+#define NOST_FPS_PRINT
 #ifdef NOST_FPS_PRINT
 #include <iostream>
 #endif
@@ -43,7 +44,7 @@ struct GlImplData {
 	GLuint bgShader = 0;
 	int64_t prevFpsCheckTime = 0;
 	uint64_t draws = 0;
-	std::array<Background, 1> backgrounds;
+	std::array<Background, 4> backgrounds;
 };
 
 constexpr const GLchar *bgvshad = R"(

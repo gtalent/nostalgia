@@ -89,6 +89,11 @@ struct [[nodiscard]] Result {
 		return error;
 	}
 
+	constexpr Error moveTo(T *val) noexcept {
+		*val = ox::move(value);
+		return error;
+	}
+
 };
 
 namespace detail {

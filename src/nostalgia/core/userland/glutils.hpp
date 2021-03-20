@@ -36,7 +36,6 @@ struct GLobject {
 	}
 
 	~GLobject() {
-		oxDebugf("Deleting {}", id);
 		del(id);
 	}
 

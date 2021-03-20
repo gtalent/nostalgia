@@ -111,7 +111,6 @@ struct Bufferset {
 	Buffer vbo;
 	Buffer ebo;
 	Texture tex;
-	GLsizei eboElements = 0;
 };
 
 [[nodiscard]]

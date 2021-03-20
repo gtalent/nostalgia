@@ -19,9 +19,10 @@
 namespace nostalgia::core::renderer {
 
 struct Texture {
+
 	GLuint texId = 0;
-	GLuint width = 0;
-	GLuint height = 0;
+	GLsizei width = 0;
+	GLsizei height = 0;
 
 	constexpr operator GLuint&() noexcept {
 		return texId;

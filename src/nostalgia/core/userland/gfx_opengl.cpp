@@ -7,15 +7,12 @@
  */
 
 #include <array>
-#define NOST_FPS_PRINT
-#ifdef NOST_FPS_PRINT
-#include <iostream>
-#endif
 
 #include <ox/std/bit.hpp>
 #include <ox/std/defines.hpp>
 #include <ox/std/fmt.hpp>
 
+#include <nostalgia/core/config.hpp>
 #include <nostalgia/core/gfx.hpp>
 
 #include "glutils.hpp"
@@ -139,6 +136,58 @@ static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg)
 	                      ox::bit_cast<void*>(2 * sizeof(float)));
 }
 
+static ox::Error loadTexture(Texture *tex, void *pixels) {
+	if (tex->texId == 0) {
+		glGenTextures(1, &tex->texId);
+	}
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, tex->texId);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->width, tex->height, 0,  GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	return OxError(0);
+}
+
+static void tickFps(GlImplData *id) {
+	++id->draws;
+	if (id->draws >= 500) {
+		using namespace std::chrono;
+		const auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+		const auto duration = static_cast<double>(now - id->prevFpsCheckTime) / 1000.0;
+		const auto fps = static_cast<int>(static_cast<double>(id->draws) / duration);
+		if constexpr(config::UserlandFpsPrint) {
+			oxDebugf("FPS: {}", fps);
+		}
+		oxTracef("nostalgia::core::gfx::gl::fps", "FPS: {}", fps);
+		id->prevFpsCheckTime = now;
+		id->draws = 0;
+	}
+}
+
+static void drawBackground(Background *bg) {
+	if (bg->enabled) {
+		glBindVertexArray(bg->vao);
+		if (bg->updated) {
+			bg->updated = false;
+			renderer::sendVbo(*bg);
+		}
+		glBindTexture(GL_TEXTURE_2D, bg->tex);
+		glDrawElements(GL_TRIANGLES, bg->bgEbos.size(), GL_UNSIGNED_INT, 0);
+	}
+}
+
+static void drawBackgrounds(GlImplData *id) {
+	// load background shader and its uniforms
+	glUseProgram(id->bgShader);
+	const auto uniformTileHeight = static_cast<GLint>(glGetUniformLocation(id->bgShader, "vTileHeight"));
+	for (auto &bg : id->backgrounds) {
+		glUniform1f(uniformTileHeight, 1.0f / static_cast<float>(bg.tex.height / 8));
+		drawBackground(&bg);
+	}
+}
+
 ox::Error init(Context *ctx) {
 	const auto id = new GlImplData;
 	ctx->setRendererData(id);
@@ -161,28 +210,13 @@ ox::Error shutdown(Context *ctx) {
 	return OxError(0);
 }
 
-static ox::Error loadTexture(GLuint *texId, void *pixels, int w, int h) {
-	if (*texId == 0) {
-		glGenTextures(1, texId);
-	}
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, *texId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,  GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	return OxError(0);
-}
-
 ox::Error loadBgTexture(Context *ctx, int section, void *pixels, int w, int h) {
 	oxTracef("nostalgia::core::gfx::gl", "loadBgTexture: { section: {}, w: {}, h: {} }", section, w, h);
 	const auto &id = ctx->rendererData<GlImplData>();
 	auto &tex = id->backgrounds[static_cast<std::size_t>(section)].tex;
-	tex.width = static_cast<GLuint>(w);
-	tex.height = static_cast<GLuint>(h);
-	const auto texId = &tex.texId;
-	return loadTexture(texId, pixels, w, h);
+	tex.width = w;
+	tex.height = h;
+	return loadTexture(&tex, pixels);
 }
 
 }
@@ -216,37 +250,12 @@ void setBgStatus(Context *ctx, unsigned bg, bool status) {
 
 void draw(Context *ctx) {
 	const auto id = ctx->rendererData<renderer::GlImplData>();
-	++id->draws;
-	if (id->draws >= 500) {
-		using namespace std::chrono;
-		const auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-		const auto duration = static_cast<double>(now - id->prevFpsCheckTime) / 1000.0;
-		const auto fps = static_cast<int>(static_cast<double>(id->draws) / duration);
-#ifdef NOST_FPS_PRINT
-		std::cout << "FPS: " << fps << '\n';
-#endif
-		oxTracef("nostalgia::core::gfx::gl::fps", "FPS: {}", fps);
-		id->prevFpsCheckTime = now;
-		id->draws = 0;
-	}
+	renderer::tickFps(id);
 	// clear screen
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
-	// load background shader and its uniforms
-	glUseProgram(id->bgShader);
-	const auto uniformTileHeight = static_cast<GLint>(glGetUniformLocation(id->bgShader, "vTileHeight"));
-	for (auto &bg : id->backgrounds) {
-		if (bg.enabled) {
-			glBindVertexArray(bg.vao);
-			if (bg.updated) {
-				bg.updated = false;
-				renderer::sendVbo(bg);
-			}
-			glBindTexture(GL_TEXTURE_2D, bg.tex);
-			glUniform1f(uniformTileHeight, 1.0f / static_cast<float>(bg.tex.height / 8));
-			glDrawElements(GL_TRIANGLES, bg.bgEbos.size(), GL_UNSIGNED_INT, 0);
-		}
-	}
+	// render
+	renderer::drawBackgrounds(id);
 }
 
 void clearTileLayer(Context *ctx, int layer) {

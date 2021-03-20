@@ -16,6 +16,7 @@ namespace config {
 
 constexpr auto GbaSpriteBufferLen = 128;
 constexpr auto GbaEventLoopTimerBased = false;
+constexpr auto UserlandFpsPrint = false;
 
 }
 

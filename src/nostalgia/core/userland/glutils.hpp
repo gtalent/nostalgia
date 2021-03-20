@@ -50,6 +50,7 @@ struct GLobject: public Base {
 	}
 
 	GLobject &operator=(GLobject &&o) {
+		this->~GLobject();
 		id = o.id;
 		o.id = 0;
 		return *this;

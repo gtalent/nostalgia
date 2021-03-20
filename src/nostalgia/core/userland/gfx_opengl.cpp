@@ -158,7 +158,7 @@ static void tickFps(GlImplData *id) {
 		const auto duration = static_cast<double>(now - id->prevFpsCheckTime) / 1000.0;
 		const auto fps = static_cast<int>(static_cast<double>(id->draws) / duration);
 		if constexpr(config::UserlandFpsPrint) {
-			oxDebugf("FPS: {}", fps);
+			oxInfof("FPS: {}", fps);
 		}
 		oxTracef("nostalgia::core::gfx::gl::fps", "FPS: {}", fps);
 		id->prevFpsCheckTime = now;

@@ -19,8 +19,18 @@
 
 namespace nostalgia::core::renderer {
 
-template<auto del>
-struct GLobject {
+struct Empty {};
+
+struct TextureBase {
+
+	GLsizei width = 0;
+	GLsizei height = 0;
+
+};
+
+
+template<auto del, typename Base = Empty>
+struct GLobject: public Base {
 
 	GLuint id = 0;
 
@@ -61,26 +71,14 @@ struct GLobject {
 
 };
 
+void deleteTexture(GLuint t);
+
 extern template struct GLobject<glDeleteProgram>;
 extern template struct GLobject<glDeleteShader>;
+extern template struct GLobject<deleteTexture, TextureBase>;
 using Shader = GLobject<glDeleteShader>;
 using Program = GLobject<glDeleteProgram>;
-
-struct Texture {
-
-	GLuint texId = 0;
-	GLsizei width = 0;
-	GLsizei height = 0;
-
-	constexpr operator GLuint&() noexcept {
-		return texId;
-	}
-
-	constexpr operator const GLuint&() const noexcept {
-		return texId;
-	}
-
-};
+using Texture = GLobject<deleteTexture, TextureBase>;
 
 struct Bufferset {
 	GLuint vao = 0;

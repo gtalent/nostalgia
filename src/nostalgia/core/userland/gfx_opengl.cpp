@@ -137,11 +137,11 @@ static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg)
 }
 
 static ox::Error loadTexture(Texture *tex, void *pixels) {
-	if (tex->texId == 0) {
-		glGenTextures(1, &tex->texId);
+	if (tex->id == 0) {
+		glGenTextures(1, &tex->id);
 	}
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, tex->texId);
+	glBindTexture(GL_TEXTURE_2D, tex->id);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->width, tex->height, 0,  GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -258,7 +258,7 @@ void draw(Context *ctx) {
 
 void clearTileLayer(Context *ctx, int layer) {
 	const auto id = ctx->rendererData<renderer::GlImplData>();
-	auto bg = id->backgrounds[static_cast<std::size_t>(layer)];
+	auto &bg = id->backgrounds[static_cast<std::size_t>(layer)];
 	initBackgroundBufferObjects(ctx, &bg);
 	bg.updated = true;
 }

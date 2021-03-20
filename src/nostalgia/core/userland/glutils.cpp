@@ -15,12 +15,17 @@
 
 namespace nostalgia::core::renderer {
 
+void deleteTexture(GLuint t) {
+	glDeleteTextures(1, &t);
+}
+
 template struct GLobject<glDeleteProgram>;
 template struct GLobject<glDeleteShader>;
+template struct GLobject<deleteTexture, TextureBase>;
 
 [[nodiscard]]
 static ox::Result<Shader> buildShader(GLuint shaderType, const GLchar *src, const char *shaderName) {
-	const auto shader = glCreateShader(shaderType);
+	Shader shader(glCreateShader(shaderType));
 	glShaderSource(shader, 1, &src, nullptr);
 	glCompileShader(shader);
 	GLint status;
@@ -29,10 +34,9 @@ static ox::Result<Shader> buildShader(GLuint shaderType, const GLchar *src, cons
 		std::array<char, 1000> errMsg;
 		glGetShaderInfoLog(shader, errMsg.size(), nullptr, errMsg.data());
 		oxErrorf("shader compile error in {}: {}", shaderName, errMsg.data());
-		glDeleteShader(shader);
 		return OxError(1, "shader compile error");
 	}
-	return Shader(shader);
+	return ox::move(shader);
 }
 
 [[nodiscard]]

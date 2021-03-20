@@ -118,11 +118,11 @@ static void initBackgroundBufferObjects(Context *ctx, Background *bg) noexcept {
 
 static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg) {
 	// vao
-	glGenVertexArrays(1, &bg->vao);
+	glGenVertexArrays(1, &bg->vao.id);
 	glBindVertexArray(bg->vao);
 	// vbo & ebo
-	glGenBuffers(1, &bg->vbo);
-	glGenBuffers(1, &bg->ebo);
+	glGenBuffers(1, &bg->vbo.id);
+	glGenBuffers(1, &bg->ebo.id);
 	initBackgroundBufferObjects(ctx, bg);
 	sendVbo(*bg);
 	sendEbo(*bg);
@@ -200,9 +200,6 @@ ox::Error init(Context *ctx) {
 
 ox::Error shutdown(Context *ctx) {
 	const auto id = ctx->rendererData<GlImplData>();
-	for (auto &bg : id->backgrounds) {
-		destroy(bg);
-	}
 	ctx->setRendererData(nullptr);
 	delete id;
 	return OxError(0);

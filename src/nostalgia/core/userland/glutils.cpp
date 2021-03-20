@@ -15,13 +15,23 @@
 
 namespace nostalgia::core::renderer {
 
-void deleteTexture(GLuint t) {
+void deleteBuffer(GLuint b) noexcept {
+	glDeleteBuffers(1, &b);
+}
+
+void deleteTexture(GLuint t) noexcept {
 	glDeleteTextures(1, &t);
 }
 
+void deleteVertexArray(GLuint v) noexcept {
+	glDeleteVertexArrays(1, &v);
+}
+
+template struct GLobject<deleteBuffer>;
+template struct GLobject<deleteTexture, TextureBase>;
+template struct GLobject<deleteVertexArray>;
 template struct GLobject<glDeleteProgram>;
 template struct GLobject<glDeleteShader>;
-template struct GLobject<deleteTexture, TextureBase>;
 
 [[nodiscard]]
 static ox::Result<Shader> buildShader(GLuint shaderType, const GLchar *src, const char *shaderName) {
@@ -48,12 +58,6 @@ ox::Result<Program> buildShaderProgram(const GLchar *vert, const GLchar *frag) {
 	glAttachShader(prgm, fs);
 	glLinkProgram(prgm);
 	return ox::move(prgm);
-}
-
-void destroy(const Bufferset &bufferset) {
-	glDeleteVertexArrays(1, &bufferset.vao);
-	glDeleteBuffers(1, &bufferset.ebo);
-	glDeleteBuffers(1, &bufferset.vbo);
 }
 
 }

@@ -90,26 +90,31 @@ struct GLobject: public Base {
 
 };
 
-void deleteTexture(GLuint t);
+void deleteBuffer(GLuint b) noexcept;
+void deleteTexture(GLuint t) noexcept;
+void deleteVertexArray(GLuint v) noexcept;
 
+extern template struct GLobject<deleteBuffer>;
+extern template struct GLobject<deleteTexture, TextureBase>;
+extern template struct GLobject<deleteVertexArray>;
 extern template struct GLobject<glDeleteProgram>;
 extern template struct GLobject<glDeleteShader>;
-extern template struct GLobject<deleteTexture, TextureBase>;
+
+using Buffer = GLobject<deleteBuffer>;
 using Shader = GLobject<glDeleteShader>;
 using Program = GLobject<glDeleteProgram>;
 using Texture = GLobject<deleteTexture, TextureBase>;
+using VertexArray = GLobject<deleteVertexArray>;
 
 struct Bufferset {
-	GLuint vao = 0;
-	GLuint vbo = 0;
-	GLuint ebo = 0;
+	VertexArray vao;
+	Buffer vbo;
+	Buffer ebo;
 	Texture tex;
 	GLsizei eboElements = 0;
 };
 
 [[nodiscard]]
 ox::Result<Program> buildShaderProgram(const GLchar *vert, const GLchar *frag);
-
-void destroy(const Bufferset &bufferset);
 
 }

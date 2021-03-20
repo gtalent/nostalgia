@@ -38,7 +38,7 @@ struct Background: public Bufferset {
 };
 
 struct GlImplData {
-	GLuint bgShader = 0;
+	Program bgShader;
 	int64_t prevFpsCheckTime = 0;
 	uint64_t draws = 0;
 	std::array<Background, 4> backgrounds;
@@ -191,7 +191,7 @@ static void drawBackgrounds(GlImplData *id) {
 ox::Error init(Context *ctx) {
 	const auto id = new GlImplData;
 	ctx->setRendererData(id);
-	oxReturnError(buildShaderProgram(bgvshad, bgfshad).get(&id->bgShader));
+	oxReturnError(buildShaderProgram(bgvshad, bgfshad).moveTo(&id->bgShader));
 	for (auto &bg : id->backgrounds) {
 		initBackgroundBufferset(ctx, id->bgShader, &bg);
 	}
@@ -200,8 +200,6 @@ ox::Error init(Context *ctx) {
 
 ox::Error shutdown(Context *ctx) {
 	const auto id = ctx->rendererData<GlImplData>();
-	glDeleteProgram(id->bgShader);
-	id->bgShader = 0;
 	for (auto &bg : id->backgrounds) {
 		destroy(bg);
 	}

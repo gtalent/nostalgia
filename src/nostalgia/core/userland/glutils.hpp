@@ -15,8 +15,57 @@
 #endif
 
 #include <ox/std/error.hpp>
+#include <ox/std/trace.hpp>
 
 namespace nostalgia::core::renderer {
+
+template<auto del>
+struct GLobject {
+
+	GLuint id = 0;
+
+	constexpr GLobject() = default;
+
+	explicit constexpr GLobject(GLuint id) {
+		this->id = id;
+	}
+
+	constexpr GLobject(GLobject &&o) {
+		id = o.id;
+		o.id = 0;
+	}
+
+	~GLobject() {
+		oxDebugf("Deleting {}", id);
+		del(id);
+	}
+
+	GLobject &operator=(GLobject &&o) {
+		id = o.id;
+		o.id = 0;
+		return *this;
+	}
+
+	constexpr GLuint release() noexcept {
+		auto out = id;
+		id = 0;
+		return out;
+	}
+
+	constexpr operator GLuint&() noexcept {
+		return id;
+	}
+
+	constexpr operator const GLuint&() const noexcept {
+		return id;
+	}
+
+};
+
+extern template struct GLobject<glDeleteProgram>;
+extern template struct GLobject<glDeleteShader>;
+using Shader = GLobject<glDeleteShader>;
+using Program = GLobject<glDeleteProgram>;
 
 struct Texture {
 
@@ -43,7 +92,7 @@ struct Bufferset {
 };
 
 [[nodiscard]]
-ox::Result<GLuint> buildShaderProgram(const GLchar *vert, const GLchar *frag);
+ox::Result<Program> buildShaderProgram(const GLchar *vert, const GLchar *frag);
 
 void destroy(const Bufferset &bufferset);
 

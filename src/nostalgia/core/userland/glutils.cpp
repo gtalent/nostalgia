@@ -15,8 +15,11 @@
 
 namespace nostalgia::core::renderer {
 
+template struct GLobject<glDeleteProgram>;
+template struct GLobject<glDeleteShader>;
+
 [[nodiscard]]
-static ox::Result<GLuint> buildShader(GLuint shaderType, const GLchar *src, const char *shaderName) {
+static ox::Result<Shader> buildShader(GLuint shaderType, const GLchar *src, const char *shaderName) {
 	const auto shader = glCreateShader(shaderType);
 	glShaderSource(shader, 1, &src, nullptr);
 	glCompileShader(shader);
@@ -29,26 +32,18 @@ static ox::Result<GLuint> buildShader(GLuint shaderType, const GLchar *src, cons
 		glDeleteShader(shader);
 		return OxError(1, "shader compile error");
 	}
-	return shader;
+	return Shader(shader);
 }
 
 [[nodiscard]]
-ox::Result<GLuint> buildShaderProgram(const GLchar *vert, const GLchar *frag) {
-	ox::Result<GLuint> out;
+ox::Result<Program> buildShaderProgram(const GLchar *vert, const GLchar *frag) {
 	oxRequire(vs, buildShader(GL_VERTEX_SHADER, vert, "vshad"));
-	auto [fs, fserr] = buildShader(GL_FRAGMENT_SHADER, frag, "fshad");
-	if (!fserr) {
-		auto prgm = glCreateProgram();
-		glAttachShader(prgm, vs);
-		glAttachShader(prgm, fs);
-		glLinkProgram(prgm);
-		out = prgm;
-	} else {
-		out = fserr;
-	}
-	glDeleteShader(fs);
-	glDeleteShader(vs);
-	return out;
+	oxRequire(fs, buildShader(GL_FRAGMENT_SHADER, frag, "fshad"));
+	Program prgm(glCreateProgram());
+	glAttachShader(prgm, vs);
+	glAttachShader(prgm, fs);
+	glLinkProgram(prgm);
+	return ox::move(prgm);
 }
 
 void destroy(const Bufferset &bufferset) {

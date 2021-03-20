@@ -175,6 +175,8 @@ void init();
 #define oxTracef(ch, fmt, ...) ox::trace::TraceStream(__FILE__, __LINE__, ch, ox::detail::fmtSegments<ox::detail::argCount(fmt)+1>(fmt), ##__VA_ARGS__)
 #endif
 
+#define oxInfo(...) oxTrace("info", __VA_ARGS__)
+#define oxInfof(...) oxTracef("info", __VA_ARGS__)
 #define oxError(...) oxTrace("error", __VA_ARGS__)
 #define oxErrorf(...) oxTracef("error", __VA_ARGS__)
 

@@ -26,6 +26,23 @@ struct TextureBase {
 	GLsizei width = 0;
 	GLsizei height = 0;
 
+	constexpr TextureBase() = default;
+
+	constexpr TextureBase(TextureBase &&tb) noexcept {
+		width = tb.width;
+		height = tb.height;
+		tb.width = 0;
+		tb.height = 0;
+	}
+
+	constexpr TextureBase &operator=(TextureBase &&tb) noexcept {
+		width = tb.width;
+		height = tb.height;
+		tb.width = 0;
+		tb.height = 0;
+		return *this;
+	}
+
 };
 
 
@@ -51,6 +68,7 @@ struct GLobject: public Base {
 
 	GLobject &operator=(GLobject &&o) {
 		this->~GLobject();
+		Base::operator=(ox::move(o));
 		id = o.id;
 		o.id = 0;
 		return *this;

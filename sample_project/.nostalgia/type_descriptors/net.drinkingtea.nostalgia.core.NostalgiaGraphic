@@ -94,7 +94,7 @@ O1;net.drinkingtea.ox.DescriptorType;1;{
 			}
 		},
 		{
-			"fieldName" : "tiles",
+			"fieldName" : "pixels",
 			"type" : 
 			{
 				"fieldList" : [],

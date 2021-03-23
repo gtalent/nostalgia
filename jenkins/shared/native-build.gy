@@ -1,0 +1,39 @@
+stage('Environment') {
+	steps {
+		load 'jenkins/shared/env.gy'
+		sh 'make vcpkg'
+	}
+}
+stage('Build Asan') {
+	steps {
+		sh 'make purge configure-asan'
+		sh 'make'
+	}
+}
+stage('Test Asan') {
+	steps {
+		sh 'make test'
+	}
+}
+stage('Build Debug') {
+	steps {
+		sh 'make purge configure-debug'
+		sh 'make'
+	}
+}
+stage('Test Debug') {
+	steps {
+		sh 'make test'
+	}
+}
+stage('Build Release') {
+	steps {
+		sh 'make purge configure-release'
+		sh 'make'
+	}
+}
+stage('Test Release') {
+	steps {
+		sh 'make test'
+	}
+}

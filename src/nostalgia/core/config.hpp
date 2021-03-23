@@ -14,9 +14,16 @@ namespace nostalgia::core {
 
 namespace config {
 
+enum class SdlVsync {
+	Adaptive = -1,
+	Off = 0,
+	On = 1,
+};
+
 constexpr auto GbaSpriteBufferLen = 128;
 constexpr auto GbaEventLoopTimerBased = false;
 constexpr auto UserlandFpsPrint = false;
+constexpr auto SdlVsyncOption = static_cast<int>(SdlVsync::Adaptive);
 
 }
 

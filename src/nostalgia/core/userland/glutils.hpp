@@ -57,7 +57,7 @@ struct GLobject: public Base {
 		this->id = id;
 	}
 
-	constexpr GLobject(GLobject &&o) {
+	constexpr GLobject(GLobject &&o): Base(ox::move(o)) {
 		id = o.id;
 		o.id = 0;
 	}
@@ -106,14 +106,7 @@ using Program = GLobject<glDeleteProgram>;
 using Texture = GLobject<deleteTexture, TextureBase>;
 using VertexArray = GLobject<deleteVertexArray>;
 
-struct Bufferset {
-	VertexArray vao;
-	Buffer vbo;
-	Buffer ebo;
-	Texture tex;
-};
-
 [[nodiscard]]
-ox::Result<Program> buildShaderProgram(const GLchar *vert, const GLchar *frag);
+ox::Result<Program> buildShaderProgram(const GLchar *vert, const GLchar *frag) noexcept;
 
 }

@@ -34,7 +34,7 @@ template struct GLobject<glDeleteProgram>;
 template struct GLobject<glDeleteShader>;
 
 [[nodiscard]]
-static ox::Result<Shader> buildShader(GLuint shaderType, const GLchar *src, const char *shaderName) {
+static ox::Result<Shader> buildShader(GLuint shaderType, const GLchar *src, const char *shaderName) noexcept {
 	Shader shader(glCreateShader(shaderType));
 	glShaderSource(shader, 1, &src, nullptr);
 	glCompileShader(shader);
@@ -50,7 +50,7 @@ static ox::Result<Shader> buildShader(GLuint shaderType, const GLchar *src, cons
 }
 
 [[nodiscard]]
-ox::Result<Program> buildShaderProgram(const GLchar *vert, const GLchar *frag) {
+ox::Result<Program> buildShaderProgram(const GLchar *vert, const GLchar *frag) noexcept {
 	oxRequire(vs, buildShader(GL_VERTEX_SHADER, vert, "vshad"));
 	oxRequire(fs, buildShader(GL_FRAGMENT_SHADER, frag, "fshad"));
 	Program prgm(glCreateProgram());

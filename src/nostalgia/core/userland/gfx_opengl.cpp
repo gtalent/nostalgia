@@ -30,11 +30,15 @@ constexpr auto BgVertexVboRowLength = 4;
 constexpr auto BgVertexVboLength = BgVertexVboRows * BgVertexVboRowLength;
 constexpr auto BgVertexEboLength = 6;
 
-struct Background: public Bufferset {
+struct Background {
+	VertexArray vao;
+	Buffer vbo;
+	Buffer ebo;
+	Texture tex;
 	bool enabled = false;
 	bool updated = false;
 	std::array<float, TileCount * BgVertexVboLength> bgVertices;
-	std::array<GLuint, TileCount * BgVertexEboLength> bgEbos;
+	std::array<GLuint, TileCount * BgVertexEboLength> bgElements;
 };
 
 struct GlImplData {
@@ -102,7 +106,7 @@ static void sendVbo(const Background &bg) noexcept {
 static void sendEbo(const Background &bg) noexcept {
 	// ebo
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bg.ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(bg.bgEbos), &bg.bgEbos, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(bg.bgElements), &bg.bgElements, GL_STATIC_DRAW);
 }
 
 static void initBackgroundBufferObjects(Context *ctx, Background *bg) noexcept {
@@ -110,19 +114,31 @@ static void initBackgroundBufferObjects(Context *ctx, Background *bg) noexcept {
 		for (auto y = 0u; y < TileRows; ++y) {
 			const auto i = bgVertexRow(x, y);
 			auto vbo = &bg->bgVertices[i * BgVertexVboLength];
-			auto ebo = &bg->bgEbos[i * BgVertexEboLength];
+			auto ebo = &bg->bgElements[i * BgVertexEboLength];
 			setTileBufferObject(ctx, i * BgVertexVboRows, x, y, 0, vbo, ebo);
 		}
 	}
 }
 
+static VertexArray genVertexArrayObject() noexcept {
+	GLuint vao = 0;
+	glGenVertexArrays(1, &vao);
+	return VertexArray(vao);
+}
+
+static Buffer genBuffer() noexcept {
+	GLuint buff = 0;
+	glGenBuffers(1, &buff);
+	return Buffer(buff);
+}
+
 static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg) {
 	// vao
-	glGenVertexArrays(1, &bg->vao.id);
+	bg->vao = genVertexArrayObject();
 	glBindVertexArray(bg->vao);
 	// vbo & ebo
-	glGenBuffers(1, &bg->vbo.id);
-	glGenBuffers(1, &bg->ebo.id);
+	bg->vbo = genBuffer();
+	bg->ebo = genBuffer();
 	initBackgroundBufferObjects(ctx, bg);
 	sendVbo(*bg);
 	sendEbo(*bg);
@@ -136,18 +152,20 @@ static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg)
 	                      ox::bit_cast<void*>(2 * sizeof(float)));
 }
 
-static ox::Error loadTexture(Texture *tex, void *pixels) {
-	if (tex->id == 0) {
-		glGenTextures(1, &tex->id);
-	}
+static Texture loadTexture(GLsizei w, GLsizei h, void *pixels) {
+	GLuint texId = 0;
+	glGenTextures(1, &texId);
+	Texture tex(texId);
+	tex.width = w;
+	tex.height = h;
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, tex->id);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->width, tex->height, 0,  GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	glBindTexture(GL_TEXTURE_2D, tex.id);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex.width, tex.height, 0,  GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	return OxError(0);
+	return ox::move(tex);
 }
 
 static void tickFps(GlImplData *id) {
@@ -174,7 +192,7 @@ static void drawBackground(Background *bg) {
 			renderer::sendVbo(*bg);
 		}
 		glBindTexture(GL_TEXTURE_2D, bg->tex);
-		glDrawElements(GL_TRIANGLES, bg->bgEbos.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, bg->bgElements.size(), GL_UNSIGNED_INT, 0);
 	}
 }
 
@@ -209,9 +227,8 @@ ox::Error loadBgTexture(Context *ctx, int section, void *pixels, int w, int h) {
 	oxTracef("nostalgia::core::gfx::gl", "loadBgTexture: { section: {}, w: {}, h: {} }", section, w, h);
 	const auto &id = ctx->rendererData<GlImplData>();
 	auto &tex = id->backgrounds[static_cast<std::size_t>(section)].tex;
-	tex.width = w;
-	tex.height = h;
-	return loadTexture(&tex, pixels);
+	tex = loadTexture(w, h, pixels);
+	return OxError(0);
 }
 
 }
@@ -281,7 +298,7 @@ void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
 	const auto i = renderer::bgVertexRow(x, y);
 	auto &bg = id->backgrounds[z];
 	auto vbo = &bg.bgVertices[i * renderer::BgVertexVboLength];
-	auto ebo = &bg.bgEbos[i * renderer::BgVertexEboLength];
+	auto ebo = &bg.bgElements[i * renderer::BgVertexEboLength];
 	renderer::setTileBufferObject(ctx, i * renderer::BgVertexVboRows, x, y, tile, vbo, ebo);
 	bg.updated = true;
 }

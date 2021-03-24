@@ -13,7 +13,6 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <vector>
 #include <ox/claw/format.hpp>
 #include <ox/claw/read.hpp>
 #include <ox/claw/write.hpp>
@@ -103,7 +102,7 @@ ox::Error model(T *io, TestStruct *obj) {
 	return OxError(0);
 }
 
-std::map<std::string, ox::Error(*)()> tests = {
+std::map<std::string_view, ox::Error(*)()> tests = {
 	{
 		{
 			"ClawHeaderReader",

@@ -6,12 +6,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#undef NDEBUG
+
 #include <iostream>
 #include <map>
 #include <functional>
 #include <ox/std/std.hpp>
 
-std::map<std::string, std::function<int()>> tests = {
+std::map<std::string, std::function<ox::Error()>> tests = {
 	{
 		"malloc",
 		[] {
@@ -19,31 +21,31 @@ std::map<std::string, std::function<int()>> tests = {
 			ox::heapmgr::initHeap(&buff.front(), &buff.back());
 			oxAssert(ox::heapmgr::malloc(5) != nullptr, "malloc is broken");
 			oxAssert(ox::heapmgr::malloc(5) != nullptr, "malloc is broken");
-			return 0;
+			return OxError(0);
 		}
 	},
 	{
 		"ABCDEFG != HIJKLMN",
 		[]() {
-			return ox_memcmp("ABCDEFG", "HIJKLMN", 7) >= 0;
+			return OxError(ox_memcmp("ABCDEFG", "HIJKLMN", 7) >= 0);
 		}
 	},
 	{
 		"HIJKLMN != ABCDEFG",
 		[]() {
-			return ox_memcmp("HIJKLMN", "ABCDEFG", 7) <= 0;
+			return OxError(ox_memcmp("HIJKLMN", "ABCDEFG", 7) <= 0);
 		}
 	},
 	{
 		"ABCDEFG == ABCDEFG",
 		[]() {
-			return ox_memcmp("ABCDEFG", "ABCDEFG", 7) != 0;
+			return OxError(ox_memcmp("ABCDEFG", "ABCDEFG", 7) != 0);
 		}
 	},
 	{
 		"ABCDEFGHI == ABCDEFG",
 		[]() {
-			return ox_memcmp("ABCDEFGHI", "ABCDEFG", 7) != 0;
+			return OxError(ox_memcmp("ABCDEFGHI", "ABCDEFG", 7) != 0);
 		}
 	},
 	{
@@ -89,7 +91,7 @@ std::map<std::string, std::function<int()>> tests = {
 			insertTest(42, 1);
 			insertTest(100, 2);
 			insertTest(102, 3);
-			return 0;
+			return OxError(0);
 		}
 	},
 	{
@@ -100,7 +102,7 @@ std::map<std::string, std::function<int()>> tests = {
 			v["aoeu"] = 100;
 			oxAssert(v["asdf"] == 42, "asdf != 42");
 			oxAssert(v["aoeu"] == 100, "aoeu != 100");
-			return 0;
+			return OxError(0);
 		}
 	},
 };
@@ -109,7 +111,8 @@ int main(int argc, const char **args) {
 	if (argc > 1) {
 		auto testName = args[1];
 		if (tests.find(testName) != tests.end()) {
-			return tests[testName]();
+			oxAssert(tests[testName](), "Test returned Error");
+			return 0;
 		}
 	}
 	return -1;

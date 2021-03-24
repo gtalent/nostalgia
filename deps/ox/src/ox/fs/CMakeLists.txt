@@ -60,6 +60,14 @@ install(
 )
 
 install(
+	FILES
+		ptrarith/nodebuffer.hpp
+		ptrarith/ptr.hpp
+	DESTINATION
+		include/ox/fs/ptrarith
+)
+
+install(
 	TARGETS
 		OxFS
 	LIBRARY DESTINATION lib/ox
@@ -68,4 +76,5 @@ install(
 
 if(OX_RUN_TESTS)
 	add_subdirectory(test)
+	add_subdirectory(ptrarith/test)
 endif()

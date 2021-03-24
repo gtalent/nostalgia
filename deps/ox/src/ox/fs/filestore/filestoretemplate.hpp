@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <ox/ptrarith/nodebuffer.hpp>
+#include <ox/fs/ptrarith/nodebuffer.hpp>
 
 namespace ox {
 

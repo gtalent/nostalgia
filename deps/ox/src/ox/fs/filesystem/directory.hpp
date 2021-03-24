@@ -10,7 +10,7 @@
 
 #include <ox/fs/filesystem/pathiterator.hpp>
 #include <ox/fs/filestore/filestoretemplate.hpp>
-#include <ox/ptrarith/nodebuffer.hpp>
+#include <ox/fs/ptrarith/nodebuffer.hpp>
 #include <ox/std/byteswap.hpp>
 
 #include "types.hpp"

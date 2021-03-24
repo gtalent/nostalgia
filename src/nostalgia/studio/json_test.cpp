@@ -11,8 +11,6 @@
 #include "json_read.hpp"
 #include "json_write.hpp"
 
-using namespace std;
-using namespace ox;
 using namespace nostalgia::studio;
 
 struct TestStructNest {
@@ -23,14 +21,13 @@ struct TestStructNest {
 };
 
 template<typename T>
-Error model(T *io, TestStructNest *obj) {
-	auto err = OxError(0);
+ox::Error model(T *io, TestStructNest *obj) {
 	oxReturnError(io->setTypeInfo("TestStructNest", 4));
 	oxReturnError(io->field("Bool", &obj->Bool));
 	oxReturnError(io->field("Int", &obj->Int));
 	oxReturnError(io->field("Double", &obj->Double));
 	oxReturnError(io->field("String", &obj->String));
-	return err;
+	return OxError(0);
 }
 
 struct TestStruct {
@@ -42,15 +39,14 @@ struct TestStruct {
 };
 
 template<typename T>
-Error model(T *io, TestStruct *obj) {
-	auto err = OxError(0);
+ox::Error model(T *io, TestStruct *obj) {
 	oxReturnError(io->setTypeInfo("TestStruct", 5));
 	oxReturnError(io->field("Bool", &obj->Bool));
 	oxReturnError(io->field("Int", &obj->Int));
 	oxReturnError(io->field("Double", &obj->Double));
 	oxReturnError(io->field("String", &obj->String));
 	oxReturnError(io->field("Struct", &obj->Struct));
-	return err;
+	return OxError(0);
 }
 
 int main() {
@@ -72,10 +68,10 @@ int main() {
 	oxReturnError(writeJson(&json, &ts));
 	oxReturnError(readJson(json, &tsOut));
 
-	cout << tsOut.Bool << endl;
-	cout << tsOut.Int << endl;
-	cout << tsOut.Double << endl;
-	cout << tsOut.String.toStdString() << endl;
+	std::cout << tsOut.Bool << '\n';
+	std::cout << tsOut.Int << '\n';
+	std::cout << tsOut.Double << '\n';
+	std::cout << tsOut.String.toStdString() << '\n';
 
 	oxAssert(tsOut.Bool, "Arg 1 failed");
 	oxAssert(tsOut.Int == 42, "Arg 2 failed");

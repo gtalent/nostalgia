@@ -6,17 +6,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "nostalgia/common/point.hpp"
 #include <array>
-#ifdef NOST_FPS_PRINT
-#include <iostream>
-#endif
-#include <iostream>
 
 #include <SDL.h>
 
 #include <ox/claw/read.hpp>
 
+#include <nostalgia/common/point.hpp>
 #include <nostalgia/core/gfx.hpp>
 #include <nostalgia/core/userland/gfx.hpp>
 
@@ -49,11 +45,6 @@ ox::Error initGfx(Context *ctx) {
 ox::Error shutdownGfx(Context *ctx) {
 	oxReturnError(renderer::shutdown(ctx));
 	auto id = ctx->windowerData<SdlImplData>();
-	for (auto tex : id->bgTextures) {
-		if (tex) {
-			SDL_DestroyTexture(tex);
-		}
-	}
 	SDL_GL_DeleteContext(id->renderer);
 	SDL_DestroyWindow(id->window);
 	ctx->setWindowerData(nullptr);

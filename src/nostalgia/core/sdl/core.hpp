@@ -17,7 +17,6 @@ namespace nostalgia::core {
 struct SdlImplData {
 	SDL_Window *window = nullptr;
 	SDL_GLContext renderer = nullptr;
-	std::array<SDL_Texture*, 4> bgTextures{};
 };
 
 }

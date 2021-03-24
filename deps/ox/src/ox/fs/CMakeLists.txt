@@ -76,5 +76,4 @@ install(
 
 if(OX_RUN_TESTS)
 	add_subdirectory(test)
-	add_subdirectory(ptrarith/test)
 endif()

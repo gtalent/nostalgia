@@ -9,130 +9,149 @@
 // make sure asserts are enabled for the test file
 #undef NDEBUG
 
-#include <assert.h>
 #include <map>
-#include <vector>
 #include <string>
 #include <ox/std/std.hpp>
+#include <ox/fs/ptrarith/nodebuffer.hpp>
 #include <ox/fs/filestore/filestoretemplate.hpp>
 #include <ox/fs/filesystem/filesystem.hpp>
 
-
-using namespace std;
 using namespace ox;
 
-map<string, int(*)(string)> tests = {
+template<typename T>
+struct OX_PACKED NodeType: public ox::ptrarith::Item<T> {
+	public:
+		size_t fullSize() const {
+			return this->size() + sizeof(*this);
+		}
+};
+
+std::map<std::string_view, Error(*)(std::string_view)> tests = {
 	{
 		{
+			"PtrArith::setSize",
+			[](std::string_view) {
+				using BuffPtr_t = uint32_t;
+				Vector<char> buff(5 * ox::units::MB);
+				auto buffer = new (buff.data()) ox::ptrarith::NodeBuffer<BuffPtr_t, NodeType<BuffPtr_t>>(buff.size());
+				using String = BString<6>;
+				auto a1 = buffer->malloc(sizeof(String));
+				auto a2 = buffer->malloc(sizeof(String));
+				oxAssert(a1.valid(), "Allocation 1 failed.");
+				oxAssert(a2.valid(), "Allocation 2 failed.");
+				auto &s1 = *new (buffer->dataOf<String>(a1)) String("asdf");
+				auto &s2 = *new (buffer->dataOf<String>(a2)) String("aoeu");
+				oxTrace("test") << "s1: " << s1.c_str();
+				oxTrace("test") << "s2: " << s2.c_str();
+				oxAssert(s1 == "asdf", "Allocation 1 not as expected.");
+				oxAssert(s2 == "aoeu", "Allocation 2 not as expected.");
+				oxAssert(buffer->free(a1), "Free failed.");
+				oxAssert(buffer->free(a2), "Free failed.");
+				oxAssert(buffer->setSize(buffer->size() - buffer->available()), "Resize failed.");
+				return OxError(0);
+			}
+		},
+		{
 			"PathIterator::next1",
-			[](string) {
-				int retval = 0;
-				string path = "/usr/share/charset.gbag";
+			[](std::string_view) {
+				std::string path = "/usr/share/charset.gbag";
 				PathIterator it(path.c_str(), path.size());
 				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
-				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "usr") == 0);
-				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "share") == 0);
-				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "charset.gbag") == 0);
-				return retval;
+				oxAssert(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "usr") == 0, "PathIterator shows wrong next");
+				oxAssert(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "share") == 0, "PathIterator shows wrong next");
+				oxAssert(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "charset.gbag") == 0, "PathIterator shows wrong next");
+				return OxError(0);
 			}
 		},
 		{
 			"PathIterator::next2",
-			[](string) {
-				int retval = 0;
-				string path = "/usr/share/";
+			[](std::string_view) {
+				std::string path = "/usr/share/";
 				PathIterator it(path.c_str(), path.size());
 				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
-				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "usr") == 0);
-				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "share") == 0);
-				return retval;
+				oxAssert(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "usr") == 0, "PathIterator shows wrong next");
+				oxAssert(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "share") == 0, "PathIterator shows wrong next");
+				return OxError(0);
 			}
 		},
 		{
 			"PathIterator::next3",
-			[](string) {
-				int retval = 0;
-				string path = "/";
+			[](std::string_view) {
+				std::string path = "/";
 				PathIterator it(path.c_str(), path.size());
 				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
-				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "\0") == 0);
-				return retval;
+				oxAssert(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "\0") == 0, "PathIterator shows wrong next");
+				return OxError(0);
 			}
 		},
 		{
 			"PathIterator::next4",
-			[](string) {
-				int retval = 0;
-				string path = "usr/share/charset.gbag";
+			[](std::string_view) {
+				std::string path = "usr/share/charset.gbag";
 				PathIterator it(path.c_str(), path.size());
 				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
-				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "usr") == 0);
-				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "share") == 0);
-				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "charset.gbag") == 0);
-				return retval;
+				oxAssert(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "usr") == 0, "PathIterator shows wrong next");
+				oxAssert(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "share") == 0, "PathIterator shows wrong next");
+				oxAssert(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "charset.gbag") == 0, "PathIterator shows wrong next");
+				return OxError(0);
 			}
 		},
 		{
 			"PathIterator::next5",
-			[](string) {
-				int retval = 0;
-				string path = "usr/share/";
+			[](std::string_view) {
+				std::string path = "usr/share/";
 				PathIterator it(path.c_str(), path.size());
 				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
-				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "usr") == 0);
-				retval |= !(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "share") == 0);
-				return retval;
+				oxAssert(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "usr") == 0, "PathIterator shows wrong next");
+				oxAssert(it.next(buff, path.size()) == 0 && ox_strcmp(buff, "share") == 0, "PathIterator shows wrong next");
+				return OxError(0);
 			}
 		},
 		{
 			"PathIterator::dirPath",
-			[] (string) {
-				int retval = 0;
-				string path = "/usr/share/charset.gbag";
+			[] (std::string_view) {
+				std::string path = "/usr/share/charset.gbag";
 				PathIterator it(path.c_str(), path.size());
 				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
-				retval |= !(it.dirPath(buff, path.size()) == 0 && ox_strcmp(buff, "/usr/share/") == 0);
-				return retval;
+				oxAssert(it.dirPath(buff, path.size()) == 0 && ox_strcmp(buff, "/usr/share/") == 0, "PathIterator shows incorrect dir path");
+				return OxError(0);
 			}
 		},
 		{
 			"PathIterator::fileName",
-			[](string) {
-				int retval = 0;
-				string path = "/usr/share/charset.gbag";
+			[](std::string_view) {
+				std::string path = "/usr/share/charset.gbag";
 				PathIterator it(path.c_str(), path.size());
 				auto buff = static_cast<char*>(ox_alloca(path.size() + 1));
-				retval |= !(it.fileName(buff, path.size()) == 0 && ox_strcmp(buff, "charset.gbag") == 0);
-				return retval;
+				oxAssert(it.fileName(buff, path.size()) == 0 && ox_strcmp(buff, "charset.gbag") == 0, "PathIterator shows incorrect file name");
+				return OxError(0);
 			}
 		},
 		{
 			"PathIterator::hasNext",
-			[](string) {
-				int retval = 0;
+			[](std::string_view) {
 				const auto path = "/file1";
 				PathIterator it(path, ox_strlen(path));
 				oxAssert(it.hasNext(), "PathIterator shows incorrect hasNext");
 				oxAssert(!it.next().hasNext(), "PathIterator shows incorrect hasNext");
-				return retval;
+				return OxError(0);
 			}
 		},
 		{
 			"Ptr::subPtr",
-			[](string) {
+			[](std::string_view) {
 				constexpr auto buffLen = 5000;
 				ox::ptrarith::Ptr<uint8_t, uint32_t> p(ox_alloca(buffLen), buffLen, 500, 500);
 				oxAssert(p.valid(), "Ptr::subPtr: Ptr p is invalid.");
 
 				auto subPtr = p.subPtr<uint64_t>(50);
 				oxAssert(subPtr.valid(), "Ptr::subPtr: Ptr subPtr is invalid.");
-				return 0;
+				return OxError(0);
 			}
 		},
 		{
 			"NodeBuffer::insert",
-			[](string) {
-				int err = 0;
+			[](std::string_view) {
 				constexpr auto buffLen = 5000;
 				auto list = new (ox_alloca(buffLen)) ox::ptrarith::NodeBuffer<uint32_t, ox::FileStoreItem<uint32_t>>(buffLen);
 				oxAssert(list->malloc(50).valid(), "NodeBuffer::insert: malloc 1 failed");
@@ -140,12 +159,12 @@ map<string, int(*)(string)> tests = {
 				auto first = list->firstItem();
 				oxAssert(first.valid(), "NodeBuffer::insert: Could not access first item");
 				oxAssert(first->size() == 50, "NodeBuffer::insert: First item size invalid");
-				return err;
+				return OxError(0);
 			}
 		},
 		{
 			"FileStore::readWrite",
-			[](string) {
+			[](std::string_view) {
 				constexpr auto buffLen = 5000;
 				constexpr auto str1 = "Hello, World!";
 				constexpr auto str1Len = ox_strlen(str1) + 1;
@@ -161,13 +180,13 @@ map<string, int(*)(string)> tests = {
 				size_t str1ReadSize = 0;
 				oxAssert(fileStore.read(4, reinterpret_cast<void*>(str1Read), str1Len, &str1ReadSize), "FileStore::read 1 failed.");
 
-				return 0;
+				return OxError(0);
 			}
 		},
 		{
 			"Directory",
-			[](string) {
-				std::vector<uint8_t> fsBuff(5000);
+			[](std::string_view) {
+				Vector<uint8_t> fsBuff(5000);
 				oxAssert(ox::FileStore32::format(fsBuff.data(), fsBuff.size()), "FS format failed");
 				ox::FileStore32 fileStore(fsBuff.data(), fsBuff.size());
 				ox::Directory32 dir(fileStore, 105);
@@ -188,13 +207,13 @@ map<string, int(*)(string)> tests = {
 				oxTrace("ox::fs::test::Directory") << "write 3";
 				oxAssert(dir.write("/file2", 2), "Directory write of file2 failed");
 
-				return 0;
+				return OxError(0);
 			}
 		},
 		{
 			"FileSystem",
-			[](string) {
-				std::vector<uint8_t> fsBuff(5000);
+			[](std::string_view) {
+				Vector<uint8_t> fsBuff(5000);
 				oxTrace("ox::fs::test::FileSystem") << "format";
 				oxAssert(ox::FileSystem32::format(fsBuff.data(), fsBuff.size()), "FileSystem format failed");
 				ox::FileSystem32 fs(ox::FileStore32(fsBuff.data(), fsBuff.size()));
@@ -207,7 +226,7 @@ map<string, int(*)(string)> tests = {
 				oxAssert(fs.mkdir("/l1d1/l2d2", true), "mkdir failed");
 				oxAssert(fs.stat("/l1d1/l2d2").error, "mkdir failed");
 
-				return 0;
+				return OxError(0);
 			}
 		},
 	},
@@ -217,7 +236,7 @@ int main(int argc, const char **args) {
 	int retval = -1;
 	if (argc > 1) {
 		auto testName = args[1];
-		string testArg = "";
+		std::string_view testArg = "";
 		if (args[2]) {
 			testArg = args[2];
 		}

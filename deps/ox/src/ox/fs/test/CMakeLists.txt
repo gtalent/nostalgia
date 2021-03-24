@@ -10,6 +10,8 @@ target_link_libraries(
 		OxMetalClaw
 )
 
+add_test("[ox/fs] PtrArith::setSize" FSTests PtrArith::setSize)
+
 add_test("[ox/fs] PathIterator::next1" FSTests PathIterator::next1)
 add_test("[ox/fs] PathIterator::next2" FSTests PathIterator::next2)
 add_test("[ox/fs] PathIterator::next3" FSTests PathIterator::next3)

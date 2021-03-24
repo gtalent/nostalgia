@@ -56,6 +56,6 @@ target_link_libraries(
 		Qt5::Widgets
 )
 
-add_test("Test NostalgiaStudioJson" NostalgiaStudioJsonTest)
+add_test("[nostalgia/studio] NostalgiaStudioJson" NostalgiaStudioJsonTest)
 
 add_subdirectory(lib)

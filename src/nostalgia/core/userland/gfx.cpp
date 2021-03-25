@@ -18,7 +18,7 @@ static ox::Result<ox::Vector<char>> readFile(Context *ctx, const ox::FileAddress
 	oxRequire(stat, ctx->rom->stat(file));
 	ox::Vector<char> buff(stat.size);
 	oxReturnError(ctx->rom->read(file, buff.data(), buff.size()));
-	return buff;
+	return ox::move(buff);
 }
 
 template<typename T>
@@ -26,13 +26,14 @@ ox::Result<T> readObj(Context *ctx, const ox::FileAddress &file) {
 	oxRequire(buff, readFile(ctx, file));
 	T t;
 	oxReturnError(ox::readClaw(buff.data(), buff.size(), &t));
-	return t;
+	return ox::move(t);
 }
 
 ox::Error initConsole(Context *ctx) {
 	constexpr auto TilesheetAddr = "/TileSheets/Charset.ng";
+	constexpr auto PaletteAddr = "/Palettes/Charset.npal";
 	setBgStatus(ctx, 0b0001);
-	return loadBgTileSheet(ctx, 0, TilesheetAddr);
+	return loadBgTileSheet(ctx, 0, TilesheetAddr, PaletteAddr);
 }
 
 ox::Error loadSpriteTileSheet(Context*,

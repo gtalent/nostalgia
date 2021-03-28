@@ -25,7 +25,9 @@ int main(int argc, char **args) {
 	QApplication app(argc, args);
 
 	// load theme
-	qdark::load(&app);
+	if constexpr(ox::defines::OS != ox::defines::OS::Darwin) {
+		qdark::load(&app);
+	}
 
 	try {
 		MainWindow w(argProfilePath);

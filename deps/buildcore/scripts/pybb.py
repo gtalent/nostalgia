@@ -33,9 +33,9 @@ def cmake_build(base_path, target):
         # nothing to build
         return 0
     for d in os.listdir(base_path):
-        args = ['cmake', '--build', os.path.join(base_path, d), '--target']
+        args = ['cmake', '--build', os.path.join(base_path, d)]
         if target is not None:
-            args.append(target)
+            args.extend(['--target', target])
         err = subprocess.run(args).returncode
         if err != 0:
             return err

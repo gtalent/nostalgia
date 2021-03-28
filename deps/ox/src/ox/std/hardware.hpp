@@ -12,7 +12,7 @@
 #define OX_ARCH_x86_64
 #elif defined(__i386__) || defined(_M_IX86)
 #define OX_ARCH_x86_32
-#elif defined(_M_AMD64)
+#elif defined(__arm64__)
 #define OX_ARCH_ARM64
 #elif defined(__arm__)
 #define OX_ARCH_ARM

@@ -6,7 +6,8 @@ pipeline {
 		stage('Environment') {
 			steps {
 				load 'jenkins/shared/env.gy'
-				sh 'make vcpkg'
+				sh 'make conan-config'
+				sh 'make conan'
 			}
 		}
 		stage('Build Asan') {

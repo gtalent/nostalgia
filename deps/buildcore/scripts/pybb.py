@@ -29,13 +29,16 @@ def rm(path):
         shutil.rmtree(path)
 
 def cmake_build(base_path, target):
+    if not os.path.isdir(base_path):
+        # nothing to build
+        return 0
     for d in os.listdir(base_path):
         args = ['cmake', '--build', os.path.join(base_path, d), '--target']
         if target is not None:
             args.append(target)
         err = subprocess.run(args).returncode
         if err != 0:
-            sys.exit(err)
+            return err
 
 def main():
     if sys.argv[1] == 'mkdir':
@@ -44,7 +47,8 @@ def main():
         for i in range(2, len(sys.argv)):
             rm(sys.argv[i])
     elif sys.argv[1] == 'cmake-build':
-        cmake_build(sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
+        err = cmake_build(sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
+        sys.exit(err)
 
 if __name__ == '__main__':
     try:

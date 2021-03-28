@@ -109,14 +109,15 @@ endif
 endif # USE_VCPKG
 
 .PHONY: setup-conan
-setup-conan:
+conan-config:
+	conan profile new nostalgia --detect --force
 ifeq ($(OS),linux)
 	conan profile update settings.compiler.libcxx=libstdc++11 ${PROJECT_NAME}
 endif
-	conan remote add -f bincrafters https://api.bintray.com/conan/bincrafters/public-conan -pr=${PROJECT_NAME}
+	conan remote add -f bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 .PHONY: conan
 conan:
-	@mkdir -p .conanbuild && cd .conanbuild && conan install ../ --build=missing
+	@mkdir -p .conanbuild && cd .conanbuild && conan install ../ --build=missing -pr=${PROJECT_NAME}
 
 .PHONY: configure-xcode
 configure-xcode:

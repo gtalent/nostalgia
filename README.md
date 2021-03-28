@@ -19,8 +19,8 @@ Install and use gmake instead of the make that comes with the system.
 
 Build options: release, debug, asan, gba, gba-debug
 
-	make vcpkg
-	make purge configure-{gba,release,debug} install
+	make setup-conan
+	make purge conan configure-{gba,release,debug} install
 
 ## Run
 

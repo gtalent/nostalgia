@@ -13,7 +13,7 @@ endif()
 target_link_libraries(
 	OxOrganicClaw PUBLIC
 		OxModel
-		jsoncpp_lib
+		jsoncpp::jsoncpp
 )
 
 set_property(

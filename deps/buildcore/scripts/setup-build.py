@@ -24,7 +24,7 @@ def main():
                         default='{:s}-{:s}'.format(sys.platform, platform.machine()))
     parser.add_argument('--build_type', help='Build type (asan,debug,release)', default='release')
     parser.add_argument('--build_tool', help='Build tool (default,xcode)', default='')
-    parser.add_argument('--toolchain', help='Path to CMake toolchain file')
+    parser.add_argument('--toolchain', help='Path to CMake toolchain file', default='')
     parser.add_argument('--current_build', help='Indicates whether or not to make this the active build', default=1)
     args = parser.parse_args()
 

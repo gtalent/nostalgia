@@ -25,11 +25,14 @@ SETUP_BUILD=python3 ${SCRIPTS}/setup-build.py
 PYBB=python3 ${SCRIPTS}/pybb.py
 CMAKE_BUILD=${PYBB} cmake-build
 RM_RF=${PYBB} rm
-ifndef VCPKG_DIR_BASE
-	VCPKG_DIR_BASE=.vcpkg
-endif
-ifndef VCPKG_VERSION
-	VCPKG_VERSION=2020.06
+ifdef USE_VCPKG
+	ifndef VCPKG_DIR_BASE
+		VCPKG_DIR_BASE=.vcpkg
+	endif
+	ifndef VCPKG_VERSION
+		VCPKG_VERSION=2020.06
+	endif
+	VCPKG_TOOLCHAIN=--toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake 
 endif
 VCPKG_DIR=$(VCPKG_DIR_BASE)/$(VCPKG_VERSION)-$(HOST_ENV)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
@@ -82,6 +85,7 @@ devenv-destroy:
 devenv-shell:
 	${ENV_RUN} bash
 
+ifdef USE_VCPKG
 .PHONY: vcpkg
 vcpkg: ${VCPKG_DIR} vcpkg-install
 
@@ -102,20 +106,31 @@ ifneq (${OS},windows)
 else
 	${VCPKG_DIR}/vcpkg install --triplet x64-windows ${VCPKG_PKGS}
 endif
+endif # USE_VCPKG
+
+.PHONY: setup-conan
+setup-conan:
+ifeq ($(OS),linux)
+	conan profile update settings.compiler.libcxx=libstdc++11 ${PROJECT_NAME}
+endif
+	conan remote add -f bincrafters https://api.bintray.com/conan/bincrafters/public-conan -pr=${PROJECT_NAME}
+.PHONY: conan
+conan:
+	@mkdir -p .conanbuild && cd .conanbuild && conan install ../ --build=missing
 
 .PHONY: configure-xcode
 configure-xcode:
-	${ENV_RUN} ${SETUP_BUILD} --toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake --build_tool=xcode --current_build=0
+	${ENV_RUN} ${SETUP_BUILD} ${VCPKG_TOOLCHAIN} --build_tool=xcode --current_build=0
 
 .PHONY: configure-release
 configure-release:
-	${ENV_RUN} ${SETUP_BUILD} --toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake --build_type=release
+	${ENV_RUN} ${SETUP_BUILD} ${VCPKG_TOOLCHAIN} --build_type=release
 
 .PHONY: configure-debug
 configure-debug:
-	${ENV_RUN} ${SETUP_BUILD} --toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake --build_type=debug
+	${ENV_RUN} ${SETUP_BUILD} ${VCPKG_TOOLCHAIN} --build_type=debug
 
 .PHONY: configure-asan
 configure-asan:
-	${ENV_RUN} ${SETUP_BUILD} --toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake --build_type=asan
+	${ENV_RUN} ${SETUP_BUILD} ${VCPKG_TOOLCHAIN} --build_type=asan
 

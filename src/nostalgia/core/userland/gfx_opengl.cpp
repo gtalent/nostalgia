@@ -9,7 +9,6 @@
 #include <array>
 
 #include <ox/std/bit.hpp>
-#include <ox/std/defines.hpp>
 #include <ox/std/fmt.hpp>
 
 #include <nostalgia/core/config.hpp>
@@ -37,8 +36,8 @@ struct Background {
 	Texture tex;
 	bool enabled = false;
 	bool updated = false;
-	std::array<float, TileCount * BgVertexVboLength> bgVertices;
-	std::array<GLuint, TileCount * BgVertexEboLength> bgElements;
+	std::array<float, TileCount * BgVertexVboLength> bgVertices = {};
+	std::array<GLuint, TileCount * BgVertexEboLength> bgElements = {};
 };
 
 struct GlImplData {
@@ -145,7 +144,7 @@ static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg)
 	// vbo layout
 	auto posAttr = static_cast<GLuint>(glGetAttribLocation(shader, "position"));
 	glEnableVertexAttribArray(posAttr);
-	glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, BgVertexVboRowLength * sizeof(float), 0);
+	glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, BgVertexVboRowLength * sizeof(float), nullptr);
 	auto texCoordAttr = static_cast<GLuint>(glGetAttribLocation(shader, "vTexCoord"));
 	glEnableVertexAttribArray(texCoordAttr);
 	glVertexAttribPointer(texCoordAttr, 2, GL_FLOAT, GL_FALSE, BgVertexVboRowLength * sizeof(float),

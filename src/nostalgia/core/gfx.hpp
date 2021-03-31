@@ -9,7 +9,7 @@
 #pragma once
 
 #include <ox/std/types.hpp>
-#include <nostalgia/common/point.hpp>
+#include <nostalgia/common/size.hpp>
 
 #include "color.hpp"
 #include "context.hpp"
@@ -80,7 +80,7 @@ int getScreenWidth(Context *ctx);
 
 int getScreenHeight(Context *ctx);
 
-common::Point getScreenSize(Context *ctx);
+common::Size getScreenSize(Context *ctx);
 
 [[nodiscard]]
 uint8_t bgStatus(Context *ctx);

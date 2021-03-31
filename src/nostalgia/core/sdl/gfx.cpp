@@ -66,7 +66,7 @@ int getScreenHeight(Context *ctx) {
 	return y;
 }
 
-common::Point getScreenSize(Context *ctx) {
+common::Size getScreenSize(Context *ctx) {
 	auto id = ctx->windowerData<SdlImplData>();
 	int x = 0, y = 0;
 	SDL_GetWindowSize(id->window, &x, &y);

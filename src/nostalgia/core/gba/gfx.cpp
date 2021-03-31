@@ -108,7 +108,7 @@ int getScreenHeight(Context*) {
 	return 160;
 }
 
-common::Point getScreenSize(Context*) {
+common::Size getScreenSize(Context*) {
 	return {240, 160};
 }
 

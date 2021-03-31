@@ -10,6 +10,7 @@ install(
 		bounds.hpp
 		common.hpp
 		point.hpp
+		size.hpp
 	DESTINATION
 		include/nostalgia/common
 )

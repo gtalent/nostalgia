@@ -12,6 +12,7 @@
 
 #include "consts.hpp"
 #include "gfx.hpp"
+#include "input.hpp"
 #include "media.hpp"
 
 namespace nostalgia::core {

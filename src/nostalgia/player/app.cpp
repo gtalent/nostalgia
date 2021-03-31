@@ -7,7 +7,6 @@
  */
 
 #include <nostalgia/core/core.hpp>
-#include <nostalgia/core/input.hpp>
 
 using namespace nostalgia;
 

@@ -1,5 +1,6 @@
 add_executable(
 	nostalgia
+		app.cpp
 		main.cpp
 )
 

@@ -14,6 +14,9 @@ namespace nostalgia::common {
 
 class Size {
 	public:
+		static constexpr auto TypeName = "net.drinkingtea.nostalgia.common.Size";
+		static constexpr auto Fields = 2;
+		static constexpr auto TypeVersion = 1;
 		int width = 0;
 		int height = 0;
 
@@ -183,7 +186,7 @@ constexpr bool Size::operator!=(const Size &p) const {
 
 template<typename T>
 ox::Error model(T *io, Size *obj) {
-	io->setTypeInfo("nostalgia::common::Bounds", 2);
+	io->template setTypeInfo<Size>();
 	oxReturnError(io->field("width", &obj->width));
 	oxReturnError(io->field("height", &obj->height));
 	return OxError(0);

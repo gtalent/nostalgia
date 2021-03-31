@@ -14,6 +14,9 @@ namespace nostalgia::common {
 
 class Point {
 	public:
+		static constexpr auto TypeName = "net.drinkingtea.nostalgia.common.Point";
+		static constexpr auto Fields = 2;
+		static constexpr auto TypeVersion = 1;
 		int x = 0;
 		int y = 0;
 
@@ -183,7 +186,7 @@ constexpr bool Point::operator!=(const Point &p) const {
 
 template<typename T>
 ox::Error model(T *io, Point *obj) {
-	io->setTypeInfo("nostalgia::common::Bounds", 2);
+	io->template setTypeInfo<Point>();
 	oxReturnError(io->field("x", &obj->x));
 	oxReturnError(io->field("y", &obj->y));
 	return OxError(0);

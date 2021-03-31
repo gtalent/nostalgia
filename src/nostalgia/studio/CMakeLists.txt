@@ -53,7 +53,7 @@ add_executable(
 target_link_libraries(
 	NostalgiaStudioJsonTest
 		OxStd
-		Qt6::Widgets
+		Qt${QT_VERSION_MAJOR}::Widgets
 )
 
 add_test("[nostalgia/studio] NostalgiaStudioJson" NostalgiaStudioJsonTest)

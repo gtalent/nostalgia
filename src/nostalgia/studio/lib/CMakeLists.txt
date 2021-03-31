@@ -17,7 +17,7 @@ target_include_directories(NostalgiaStudio PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(
 	NostalgiaStudio PUBLIC
-		Qt6::Widgets
+		Qt${QT_VERSION_MAJOR}::Widgets
 		OxFS
 		OxClaw
 )

@@ -9,8 +9,8 @@ add_library(
 
 target_link_libraries(
 	NostalgiaWorld-Studio
-		Qt6::Core
-		Qt6::Widgets
+		Qt${QT_VERSION_MAJOR}::Core
+		Qt${QT_VERSION_MAJOR}::Widgets
 		NostalgiaStudio
 )
 

@@ -21,8 +21,8 @@ endif()
 
 target_link_libraries(
 	NostalgiaCore-Studio
-		Qt6::Core
-		Qt6::QuickWidgets
+		Qt${QT_VERSION_MAJOR}::Core
+		Qt${QT_VERSION_MAJOR}::QuickWidgets
 		NostalgiaStudio
 		NostalgiaCore-Qt
 		NostalgiaCore

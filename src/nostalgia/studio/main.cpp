@@ -27,7 +27,9 @@ int main(int argc, char **args) {
 		qdark::load(&app);
 	}
 	// force QtQuick to use OpenGL (https://doc.qt.io/qt-6/quick-changes-qt6.html#changes-to-qquickwidget)
+#if QT_VERSION >= 0x060000
 	QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGLRhi);
+#endif
 	// open window
 	try {
 		MainWindow w(argProfilePath);

@@ -1,5 +1,6 @@
 
-find_package(Qt6Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
@@ -17,6 +18,6 @@ target_include_directories(
 
 target_link_libraries(
 	QDarkStyle
-		Qt6::Widgets
+		Qt${QT_VERSION_MAJOR}::Widgets
 )
 

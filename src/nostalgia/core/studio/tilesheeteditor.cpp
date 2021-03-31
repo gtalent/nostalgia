@@ -630,7 +630,7 @@ void SheetData::modGteCmd(int color, int mod) {
 	for (int i = 0; i < m_pixels.size(); ++i) {
 		const auto p = m_pixels[i];
 		if (p >= color) {
-			const auto mx = (m_palette.size() - p) - 1;
+			const int mx = (m_palette.size() - p) - 1;
 			cmd->addPixel(i, std::clamp(mod, -p, mx));
 		}
 	}
@@ -666,15 +666,15 @@ std::unique_ptr<NostalgiaGraphic> SheetData::toNostalgiaGraphic() const {
 		ng->pixels.resize(pixelCount / 2);
 		for (std::size_t i = 0; i < pixelCount && i < static_cast<std::size_t>(m_pixels.size()); ++i) {
 			if (i & 1) {
-				ng->pixels[i / 2] |= static_cast<uint8_t>(m_pixels[i]) << 4;
+				ng->pixels[i / 2] |= static_cast<uint8_t>(m_pixels[static_cast<std::intptr_t>(i)]) << 4;
 			} else {
-				ng->pixels[i / 2] = static_cast<uint8_t>(m_pixels[i]);
+				ng->pixels[i / 2] = static_cast<uint8_t>(m_pixels[static_cast<std::intptr_t>(i)]);
 			}
 		}
 	} else {
 		ng->pixels.resize(pixelCount);
 		for (std::size_t i = 0; i < ng->pixels.size(); ++i) {
-			ng->pixels[i] = static_cast<uint8_t>(m_pixels[i]);
+			ng->pixels[i] = static_cast<uint8_t>(m_pixels[static_cast<std::intptr_t>(i)]);
 		}
 	}
 	return ng;

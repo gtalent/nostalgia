@@ -3,8 +3,8 @@
 
 if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
 	if(NOSTALGIA_BUILD_STUDIO)
-		find_package(Qt5Widgets REQUIRED)
-		find_package(Qt5QuickWidgets REQUIRED)
+		find_package(Qt6Widgets REQUIRED)
+		find_package(Qt6QuickWidgets REQUIRED)
 	endif()
 endif()
 

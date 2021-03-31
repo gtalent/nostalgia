@@ -56,7 +56,6 @@ ox::Error modelRead(T *io, GbaPaletteTarget *t) {
 template<typename T>
 ox::Error modelRead(T *io, GbaTileMapTarget *t) {
 	io->template setTypeInfo<GbaTileMapTarget>();
-
 	uint8_t bpp;
 	int dummy;
 	oxReturnError(io->field("bpp", &bpp));

@@ -8,6 +8,7 @@
 
 #include <QApplication>
 #include <QDebug>
+#include <QQuickWindow>
 #include <ox/clargs/clargs.hpp>
 #include <ox/std/trace.hpp>
 #include <qdark/theme.hpp>
@@ -17,18 +18,17 @@ using namespace nostalgia::studio;
 
 int main(int argc, char **args) {
 	ox::trace::init();
+	// get profile path from command args
 	ox::ClArgs clargs(argc, const_cast<const char**>(args));
 	QString argProfilePath = clargs.getString("profile", ":/profiles/nostalgia-studio.json").c_str();
-
-	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	QApplication app(argc, args);
-
 	// load theme
 	if constexpr(ox::defines::OS != ox::defines::OS::Darwin) {
 		qdark::load(&app);
 	}
-
+	// force QtQuick to use OpenGL (https://doc.qt.io/qt-6/quick-changes-qt6.html#changes-to-qquickwidget)
+	QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGLRhi);
+	// open window
 	try {
 		MainWindow w(argProfilePath);
 		app.setApplicationName(w.windowTitle());

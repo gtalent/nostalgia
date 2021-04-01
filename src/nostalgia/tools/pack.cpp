@@ -24,7 +24,7 @@ static void writeFileBuff(const std::string &path, std::vector<char> &buff) {
 	}
 }
 
-void run(ox::ClArgs args) {
+static void run(const ox::ClArgs &args) {
 	std::string argSrc = args.getString("src").c_str();
 	std::string argDst = args.getString("dst").c_str();
 	if (argSrc == "") {

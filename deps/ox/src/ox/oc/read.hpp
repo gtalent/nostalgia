@@ -171,7 +171,7 @@ Error OrganicClawReader::field(const char *key, HashMap<String, T> *val) {
 	OrganicClawReader r(srcVal);
 	for (decltype(srcSize) i = 0; i < srcSize; ++i) {
 		auto k = keys[i].c_str();
-		oxReturnError(r.field(k, &val->at(k)));
+		oxReturnError(r.field(k, &val->operator[](k)));
 	}
 	return OxError(0);
 }

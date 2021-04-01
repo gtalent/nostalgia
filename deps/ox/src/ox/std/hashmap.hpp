@@ -46,7 +46,7 @@ class HashMap {
 		/**
 		 * K is assumed to be a null terminated string.
 		 */
-		T &at(K key);
+		Result<T*> at(K key);
 
 		/**
 		 * K is assumed to be a null terminated string.
@@ -132,8 +132,8 @@ T &HashMap<K, T>::operator[](K k) {
 }
 
 template<typename K, typename T>
-T &HashMap<K, T>::at(K k) {
-	return operator[](k);
+Result<T*> HashMap<K, T>::at(K k) {
+	return &operator[](k);
 }
 
 template<typename K, typename T>

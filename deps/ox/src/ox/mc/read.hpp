@@ -215,7 +215,7 @@ Error MetalClawReader::field(const char*, HashMap<String, T> *val) {
 				auto keyLen = reader.stringLength(nullptr);
 				auto wkey = ox_malloca(keyLen + 1, char, 0);
 				oxReturnError(reader.field("", SerStr(wkey.get(), keyLen)));
-				oxReturnError(reader.field("", &val->at(wkey.get())));
+				oxReturnError(reader.field("", &val->operator[](wkey.get())));
 			}
 		}
 	}

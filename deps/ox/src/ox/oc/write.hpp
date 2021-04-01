@@ -140,7 +140,7 @@ Error OrganicClawWriter::field(const char *key, ox::HashMap<String, T> *val) {
 		OrganicClawWriter w;
 		for (std::size_t i = 0; i < keys.size(); ++i) {
 			auto k = keys[i].c_str();
-			oxReturnError(w.field(k, &val->at(k)));
+			oxReturnError(w.field(k, &val->operator[](k)));
 		}
 		value(key) = w.m_json;
 	}

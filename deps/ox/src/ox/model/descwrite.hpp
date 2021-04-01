@@ -193,7 +193,7 @@ DescriptorType *TypeDescWriter::type(T *val, bool *alreadyExisted) {
 	oxLogError(model(&nc, val));
 	if (m_typeStore->contains(nc.name)) {
 		*alreadyExisted = true;
-		return m_typeStore->at(nc.name);
+		return m_typeStore->operator[](nc.name);
 	} else {
 		TypeDescWriter dw(m_typeStore);
 		oxLogError(model(&dw, val));
@@ -219,7 +219,7 @@ DescriptorType *TypeDescWriter::type(UnionView<U> val, bool *alreadyExisted) {
 
 template<typename T>
 void TypeDescWriter::setTypeInfo(const char *name, int) {
-	auto &t = m_typeStore->at(name);
+	auto &t = m_typeStore->operator[](name);
 	if (!t) {
 		t = new DescriptorType;
 	}

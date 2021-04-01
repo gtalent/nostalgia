@@ -144,12 +144,12 @@ DescriptorType *TypeDescWriter::type(bool*, bool *alreadyExisted) {
 DescriptorType *TypeDescWriter::getType(TypeName tn, PrimitiveType pt, int b, bool *alreadyExisted) {
 	if (m_typeStore->contains(tn)) {
 		*alreadyExisted = true;
-		auto type = m_typeStore->at(tn);
+		auto type = m_typeStore->operator[](tn);
 		oxAssert(type != nullptr, "TypeDescWriter::getType returning null DescriptorType");
 		return type;
 	} else {
 		*alreadyExisted = false;
-		auto &t = m_typeStore->at(tn);
+		auto &t = m_typeStore->operator[](tn);
 		if (!t) {
 			t = new DescriptorType;
 		}

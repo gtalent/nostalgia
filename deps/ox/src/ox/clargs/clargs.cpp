@@ -38,15 +38,15 @@ ClArgs::ClArgs(int argc, const char **args) {
 	}
 }
 
-bool ClArgs::getBool(const char *arg) {
+bool ClArgs::getBool(const char *arg) const {
 	return m_bools[arg];
 }
 
-String ClArgs::getString(const char *argName, const char *defaultArg) {
+String ClArgs::getString(const char *argName, const char *defaultArg) const {
 	return m_strings.contains(argName) ? m_strings[argName].c_str() : defaultArg;
 }
 
-int ClArgs::getInt(const char *arg) {
+int ClArgs::getInt(const char *arg) const {
 	return m_ints[arg];
 }
 

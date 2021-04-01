@@ -23,11 +23,11 @@ class ClArgs {
 	public:
 		ClArgs(int argc, const char **args);
 
-		bool getBool(const char *arg);
+		bool getBool(const char *arg) const;
 
-		String getString(const char *argName, const char *defaultArg = "");
+		String getString(const char *argName, const char *defaultArg = "") const;
 
-		int getInt(const char *arg);
+		int getInt(const char *arg) const;
 };
 
 }

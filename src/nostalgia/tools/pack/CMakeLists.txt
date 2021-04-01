@@ -18,5 +18,5 @@ install(
 	TARGETS
 		NostalgiaPack
 	ARCHIVE DESTINATION
-		${NOSTALGIA_DIST_LIB}/nostalgia
+		lib/nostalgia
 )

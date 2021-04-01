@@ -24,8 +24,8 @@ class HashMap {
 			K key = {};
 			T value = {};
 		};
-		mutable Vector<K> m_keys;
-		mutable Vector<Pair*> m_pairs;
+		Vector<K> m_keys;
+		Vector<Pair*> m_pairs;
 
 	public:
 		explicit HashMap(std::size_t size = 100);
@@ -41,17 +41,17 @@ class HashMap {
 		/**
 		 * K is assumed to be a null terminated string.
 		 */
-		const T &operator[](K key) const;
-
-		/**
-		 * K is assumed to be a null terminated string.
-		 */
 		T &operator[](K key);
 
 		/**
 		 * K is assumed to be a null terminated string.
 		 */
 		T &at(K key);
+
+		/**
+		 * K is assumed to be a null terminated string.
+		 */
+		Result<const T*> at(K key) const;
 
 		bool contains(K key) const;
 
@@ -60,7 +60,7 @@ class HashMap {
 		const Vector<K> &keys() const noexcept;
 
 	private:
-		void expand() const;
+		void expand();
 
 		/**
 		 * K is assumed to be a null terminated string.
@@ -70,7 +70,12 @@ class HashMap {
 		/**
 		 * K is assumed to be a null terminated string.
 		 */
-		Pair *&access(Vector<Pair*> &pairs, K key) const;
+		Pair *const&access(const Vector<Pair*> &pairs, K key) const;
+
+		/**
+		 * K is assumed to be a null terminated string.
+		 */
+		Pair *&access(Vector<Pair*> &pairs, K key);
 
 };
 
@@ -113,20 +118,6 @@ HashMap<K, T> &HashMap<K, T>::operator=(HashMap<K, T> &other) {
 }
 
 template<typename K, typename T>
-const T &HashMap<K, T>::operator[](K k) const {
-	auto &p = access(m_pairs, k);
-	if (p == nullptr) {
-		if (m_pairs.size() * 0.7 < m_keys.size()) {
-			expand();
-		}
-		p = new Pair;
-		p->key = k;
-		m_keys.push_back(k);
-	}
-	return p->value;
-}
-
-template<typename K, typename T>
 T &HashMap<K, T>::operator[](K k) {
 	auto &p = access(m_pairs, k);
 	if (p == nullptr) {
@@ -146,6 +137,15 @@ T &HashMap<K, T>::at(K k) {
 }
 
 template<typename K, typename T>
+Result<const T*> HashMap<K, T>::at(K k) const {
+	auto p = access(m_pairs, k);
+	if (!p) {
+		return {nullptr, OxError(1)};
+	}
+	return &p->value;
+}
+
+template<typename K, typename T>
 bool HashMap<K, T>::contains(K k) const {
 	return access(m_pairs, k) != nullptr;
 }
@@ -161,7 +161,7 @@ const Vector<K> &HashMap<K, T>::keys() const noexcept {
 }
 
 template<typename K, typename T>
-void HashMap<K, T>::expand() const {
+void HashMap<K, T>::expand() {
 	Vector<Pair*> r;
 	for (std::size_t i = 0; i < m_keys.size(); i++) {
 		auto k = m_keys[i];
@@ -180,7 +180,21 @@ uint64_t HashMap<K, T>::hash(K k, int len) noexcept {
 }
 
 template<typename K, typename T>
-typename HashMap<K, T>::Pair *&HashMap<K, T>::access(Vector<Pair*> &pairs, K k) const {
+typename HashMap<K, T>::Pair *const&HashMap<K, T>::access(const Vector<Pair*> &pairs, K k) const {
+	auto h = hash(k) % pairs.size();
+	auto hashStr = reinterpret_cast<char*>(&h);
+	while (1) {
+		const auto &p = pairs[h];
+		if (p == nullptr || ox_strcmp(p->key, k) == 0) {
+			return p;
+		} else {
+			h = hash(hashStr, 8) % pairs.size();
+		}
+	}
+}
+
+template<typename K, typename T>
+typename HashMap<K, T>::Pair *&HashMap<K, T>::access(Vector<Pair*> &pairs, K k) {
 	auto h = hash(k) % pairs.size();
 	auto hashStr = reinterpret_cast<char*>(&h);
 	while (1) {

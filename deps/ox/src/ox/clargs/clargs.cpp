@@ -39,15 +39,17 @@ ClArgs::ClArgs(int argc, const char **args) {
 }
 
 bool ClArgs::getBool(const char *arg) const {
-	return m_bools[arg];
+	auto out = m_ints.at(arg);
+	return out.value ? *out.value : false;
 }
 
 String ClArgs::getString(const char *argName, const char *defaultArg) const {
-	return m_strings.contains(argName) ? m_strings[argName].c_str() : defaultArg;
+	return m_strings.contains(argName) ? m_strings.at(argName).value->c_str() : defaultArg;
 }
 
 int ClArgs::getInt(const char *arg) const {
-	return m_ints[arg];
+	auto out = m_ints.at(arg);
+	return out.value ? *out.value : 0;
 }
 
 }

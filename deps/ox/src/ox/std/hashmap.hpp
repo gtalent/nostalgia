@@ -133,14 +133,18 @@ T &HashMap<K, T>::operator[](K k) {
 
 template<typename K, typename T>
 Result<T*> HashMap<K, T>::at(K k) {
-	return &operator[](k);
+	auto p = access(m_pairs, k);
+	if (!p) {
+		return {nullptr, OxError(1, "Value not found for key")};
+	}
+	return &p->value;
 }
 
 template<typename K, typename T>
 Result<const T*> HashMap<K, T>::at(K k) const {
 	auto p = access(m_pairs, k);
 	if (!p) {
-		return {nullptr, OxError(1)};
+		return {nullptr, OxError(1, "Value not found for key")};
 	}
 	return &p->value;
 }

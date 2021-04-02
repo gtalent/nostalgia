@@ -15,47 +15,44 @@
 
 #include "pack/pack.hpp"
 
-static void writeFileBuff(const std::string &path, std::vector<char> &buff) {
+static ox::Error writeFileBuff(const std::string &path, std::vector<char> &buff) {
 	try {
 		std::ofstream f(path, std::ios::binary);
 		f.write(buff.data(), static_cast<intptr_t>(buff.size()));
 	} catch (const std::fstream::failure&) {
-		throw OxError(2);
+		return OxError(2, "failed to write file");
 	}
+	return OxError(0);
 }
 
-static void run(const ox::ClArgs &args) {
-	std::string argSrc = args.getString("src").c_str();
-	std::string argDst = args.getString("dst").c_str();
+static ox::Error run(const ox::ClArgs &args) {
+	auto argSrc = args.getString("src", "");
+	auto argDst = args.getString("dst", "");
 	if (argSrc == "") {
 		std::cerr << "error: must specify a source directory\n";
-		throw OxError(1);
+		return OxError(1, "must specify a source directory");
 	}
 	if (argDst == "") {
 		std::cerr << "error: must specify a destination ROM file\n";
-		throw OxError(1);
+		return OxError(1, "must specify a destination ROM file");
 	}
 	std::vector<char> buff(32 * ox::units::MB);
-	oxThrowError(ox::FileSystem32::format(buff.data(), buff.size()));
+	oxReturnError(ox::FileSystem32::format(buff.data(), buff.size()));
 	ox::PassThroughFS src(argSrc.c_str());
 	ox::FileSystem32 dst(ox::FileStore32(buff.data(), buff.size()));
-	oxThrowError(nostalgia::pack(&src, &dst));
+	oxReturnError(nostalgia::pack(&src, &dst));
 
-	oxThrowError(dst.resize());
+	oxReturnError(dst.resize());
 	std::cout << "new size: " << dst.size() << '\n';
 	buff.resize(dst.size());
 
-	writeFileBuff(argDst, buff);
+	oxReturnError(writeFileBuff(argDst.c_str(), buff));
+	return OxError(0);
 }
 
 int main(int argc, const char **args) {
 	ox::trace::init();
-	try {
-		run(ox::ClArgs(argc, args));
-	} catch (const ox::Error &err) {
-		oxPanic(err, "pack failed");
-		std::cerr << "pack failed...\n";
-		return static_cast<int>(err);
-	}
-	return 0;
+	auto err = run(ox::ClArgs(argc, args));
+	oxAssert(err, "pack failed");
+	return static_cast<int>(err);
 }

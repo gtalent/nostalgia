@@ -76,10 +76,13 @@ ox::Error initGfx(Context *ctx);
 
 ox::Error shutdownGfx(Context *ctx);
 
+[[nodiscard]]
 int getScreenWidth(Context *ctx);
 
+[[nodiscard]]
 int getScreenHeight(Context *ctx);
 
+[[nodiscard]]
 common::Size getScreenSize(Context *ctx);
 
 [[nodiscard]]

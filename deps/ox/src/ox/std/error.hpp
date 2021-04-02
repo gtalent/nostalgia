@@ -122,4 +122,5 @@ inline void oxIgnoreError(ox::Error) noexcept {}
 #define oxConcatImpl(a, b) a##b
 #define oxConcat(a, b) oxConcatImpl(a, b)
 #define oxRequire(out, x) auto [out, oxConcat(oxRequire_err_, __LINE__)] = x; oxReturnError(oxConcat(oxRequire_err_, __LINE__))
+#define oxRequireT(out, x) auto [out, oxConcat(oxRequire_err_, __LINE__)] = x; oxThrowError(oxConcat(oxRequire_err_, __LINE__))
 

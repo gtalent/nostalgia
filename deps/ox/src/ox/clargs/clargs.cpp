@@ -11,7 +11,7 @@
 
 namespace ox {
 
-ClArgs::ClArgs(int argc, const char **args) {
+ClArgs::ClArgs(int argc, const char **args) noexcept {
 	for (int i = 0; i < argc; i++) {
 		String arg = args[i];
 		if (arg[0] == '-') {
@@ -19,7 +19,6 @@ ClArgs::ClArgs(int argc, const char **args) {
 				arg = arg.c_str() + 1;
 			}
 			m_bools[arg] = true;
-
 			// parse additional arguments
 			if (i < argc && args[i + 1]) {
 				String val = args[i + 1];
@@ -38,18 +37,34 @@ ClArgs::ClArgs(int argc, const char **args) {
 	}
 }
 
-bool ClArgs::getBool(const char *arg) const {
-	auto out = m_ints.at(arg);
-	return out.value ? *out.value : false;
+bool ClArgs::getBool(const char *arg, bool defaultValue) const noexcept {
+	auto [value, err] = m_ints.at(arg);
+	return !err ? *value : defaultValue;
 }
 
-String ClArgs::getString(const char *argName, const char *defaultArg) const {
-	return m_strings.contains(argName) ? m_strings.at(argName).value->c_str() : defaultArg;
+String ClArgs::getString(const char *arg, const char *defaultValue) const noexcept {
+	auto [value, err] = m_strings.at(arg);
+	return !err ? *value : defaultValue;
 }
 
-int ClArgs::getInt(const char *arg) const {
-	auto out = m_ints.at(arg);
-	return out.value ? *out.value : 0;
+int ClArgs::getInt(const char *arg, int defaultValue) const noexcept {
+	auto [value, err] = m_ints.at(arg);
+	return !err ? *value : defaultValue;
+}
+
+Result<bool> ClArgs::getBool(const char *arg) const noexcept {
+	oxRequire(out, m_bools.at(arg));
+	return *out;
+}
+
+Result<String> ClArgs::getString(const char *argName) const noexcept {
+	oxRequire(out, m_strings.at(argName));
+	return *out;
+}
+
+Result<int> ClArgs::getInt(const char *arg) const noexcept {
+	oxRequire(out, m_ints.at(arg));
+	return *out;
 }
 
 }

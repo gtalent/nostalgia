@@ -21,13 +21,20 @@ class ClArgs {
 		HashMap<String, int> m_ints;
 
 	public:
-		ClArgs(int argc, const char **args);
+		ClArgs(int argc, const char **args) noexcept;
 
-		bool getBool(const char *arg) const;
+		bool getBool(const char *arg, bool defaultValue) const noexcept;
 
-		String getString(const char *argName, const char *defaultArg = "") const;
+		String getString(const char *argName, const char *defaultArg) const noexcept;
 
-		int getInt(const char *arg) const;
+		int getInt(const char *arg, int defaultValue) const noexcept;
+
+		Result<bool> getBool(const char *arg) const noexcept;
+
+		Result<String> getString(const char *argName) const noexcept;
+
+		Result<int> getInt(const char *arg) const noexcept;
+
 };
 
 }

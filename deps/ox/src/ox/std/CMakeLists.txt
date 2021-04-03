@@ -10,6 +10,12 @@ else()
 	)
 endif()
 
+target_compile_definitions(
+	OxTraceHook PUBLIC
+		$<$<BOOL:${OX_USE_STDLIB}>:OX_USE_STDLIB>
+		$<$<BOOL:${OX_NODEBUG}>:OX_NODEBUG>
+)
+
 add_library(
 	OxStd
 		assert.cpp

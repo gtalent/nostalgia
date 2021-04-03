@@ -34,8 +34,8 @@ debug-studio: install
 
 .PHONY: configure-gba
 configure-gba:
-	${ENV_RUN} ${SETUP_BUILD} --toolchain=cmake/modules/GBA.cmake --target=gba --current_build=0 --build_type=release
+	${ENV_RUN} ${SETUP_BUILD} --toolchain=deps/gbabuildcore/cmake/modules/GBA.cmake --target=gba --current_build=0 --build_type=release
 
 .PHONY: configure-gba-debug
 configure-gba-debug:
-	${ENV_RUN} ${SETUP_BUILD} --toolchain=cmake/modules/GBA.cmake --target=gba --current_build=0 --build_type=debug
+	${ENV_RUN} ${SETUP_BUILD} --toolchain=deps/gbabuildcore/cmake/modules/GBA.cmake --target=gba --current_build=0 --build_type=debug

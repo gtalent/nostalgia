@@ -17,16 +17,18 @@
 
 namespace ox {
 
+using ErrorCode = uint16_t;
+
 struct [[nodiscard]] Error {
+	ErrorCode errCode = 0;
 	const char *msg = nullptr;
 	const char *file = nullptr;
 	uint16_t line = 0;
-	uint64_t errCode = 0;
 
-	explicit constexpr Error(uint64_t ec = 0) noexcept: errCode(ec) {
+	explicit constexpr Error(ErrorCode ec = 0) noexcept: errCode(ec) {
 	}
 
-	explicit constexpr Error(const char *file, uint32_t line, uint64_t errCode, const char *msg = nullptr) noexcept {
+	explicit constexpr Error(const char *file, uint32_t line, ErrorCode errCode, const char *msg = nullptr) noexcept {
 		this->file = file;
 		this->line = line;
 		this->msg = msg;
@@ -65,8 +67,7 @@ struct [[nodiscard]] Result {
 	constexpr Result() noexcept: error(0) {
 	}
 
-	constexpr Result(Error error) noexcept: value(ox::move(value)), error(error) {
-		this->error = error;
+	constexpr Result(Error error) noexcept: error(error) {
 	}
 
 	constexpr Result(T value, Error error = OxError(0)) noexcept: value(ox::move(value)), error(error) {
@@ -98,7 +99,7 @@ struct [[nodiscard]] Result {
 
 namespace detail {
 
-constexpr Error toError(Error e) noexcept {
+constexpr Error toError(const Error &e) noexcept {
 	return e;
 }
 

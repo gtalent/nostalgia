@@ -19,6 +19,39 @@ if(NOT MSVC)
 	target_compile_options(NostalgiaCore-Studio PRIVATE -Wsign-conversion)
 endif()
 
+target_precompile_headers(
+	NostalgiaCore-Studio PRIVATE
+		<QBuffer>
+		<QButtonGroup>
+		<QColor>
+		<QDebug>
+		<QDialog>
+		<QFile>
+		<QFormLayout>
+		<QHeaderView>
+		<QImage>
+		<QItemDelegate>
+		<QMap>
+		<QPainter>
+		<QPluginLoader>
+		<QPointer>
+		<QPushButton>
+		<QQmlContext>
+		<QQuickItem>
+		<QQuickWidget>
+		<QSettings>
+		<QSpinBox>
+		<QSplitter>
+		<QString>
+		<QStringList>
+		<QStyledItemDelegate>
+		<QTableWidget>
+		<QToolBar>
+		<QUndoCommand>
+		<QUndoStack>
+		<QVariant>
+)
+
 target_link_libraries(
 	NostalgiaCore-Studio
 		Qt${QT_VERSION_MAJOR}::QuickWidgets

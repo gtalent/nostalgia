@@ -34,6 +34,8 @@ class Vector {
 
 		~Vector();
 
+		bool operator==(const Vector &other) const;
+
 		Vector &operator=(const Vector &other);
 
 		Vector &operator=(Vector &&other);
@@ -130,6 +132,16 @@ Vector<T>::~Vector() {
 	}
 	delete[] bit_cast<AllocAlias<T>*>(m_items);
 	m_items = nullptr;
+}
+
+template<typename T>
+bool Vector<T>::operator==(const Vector<T> &other) const {
+	for (std::size_t i = 0; i < m_size; i++) {
+		if (!(m_items[i] == other.m_items[i])) {
+			return false;
+		}
+	}
+	return true;
 }
 
 template<typename T>

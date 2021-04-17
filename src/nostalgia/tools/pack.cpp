@@ -7,7 +7,6 @@
  */
 
 #include <fstream>
-#include <iostream>
 #include <vector>
 #include <ox/clargs/clargs.hpp>
 #include <ox/fs/fs.hpp>
@@ -29,11 +28,11 @@ static ox::Error run(const ox::ClArgs &args) {
 	auto argSrc = args.getString("src", "");
 	auto argDst = args.getString("dst", "");
 	if (argSrc == "") {
-		std::cerr << "error: must specify a source directory\n";
+		oxErr("\033[31;1;1merror:\033[0m must specify a source directory\n");
 		return OxError(1, "must specify a source directory");
 	}
 	if (argDst == "") {
-		std::cerr << "error: must specify a destination ROM file\n";
+		oxErr("\033[31;1;1merror:\033[0m must specify a destination ROM file\n");
 		return OxError(1, "must specify a destination ROM file");
 	}
 	ox::Vector<char> buff(32 * ox::units::MB);
@@ -44,7 +43,7 @@ static ox::Error run(const ox::ClArgs &args) {
 
 	oxReturnError(dst.resize());
 	oxRequire(dstSize, dst.size());
-	std::cout << "new size: " << dstSize << '\n';
+	oxOutf("new size: {}\n", dstSize);
 	buff.resize(dstSize);
 
 	oxReturnError(writeFileBuff(argDst.c_str(), buff));

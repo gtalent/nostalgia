@@ -6,7 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <iostream>
 #include <string_view>
 
 #include <ox/claw/read.hpp>
@@ -86,7 +85,7 @@ struct VerificationPair {
 };
 
 ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, ox::String path) {
-	std::cout << "copying directory: " << path.c_str() << '\n';
+	oxOutf("copying directory: {}\n", path);
 	ox::Vector<VerificationPair> verificationPairs;
 	// copy
 	oxReturnError(src->ls(path.c_str(), [&verificationPairs, src, dest, path](ox::String name, ox::InodeId_t) {
@@ -94,7 +93,7 @@ ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, ox::String path) 
 		if (currentFile == "/.nostalgia") {
 			return OxError(0);
 		}
-		std::cout << "reading " << name.c_str() << '\n';
+		oxOutf("reading {}\n", name);
 		auto [stat, err] = src->stat((currentFile).c_str());
 		oxReturnError(err);
 		if (stat.fileType == ox::FileType_Directory) {
@@ -106,7 +105,7 @@ ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, ox::String path) 
 			buff.resize(stat.size);
 			oxReturnError(src->read(currentFile.c_str(), buff.data(), buff.size()));
 			// write file to dest
-			std::cout << "writing " << currentFile.c_str() << '\n';
+			oxOutf("writing {}\n", currentFile);
 			oxReturnError(dest->write(currentFile.c_str(), buff.data(), buff.size()));
 			oxReturnError(verifyFile(dest, currentFile, buff));
 			verificationPairs.push_back({currentFile, buff});

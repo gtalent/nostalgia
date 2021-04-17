@@ -43,13 +43,15 @@ class PassThroughFS: public FileSystem {
 
 		Error read(const char *path, void *buffer, std::size_t buffSize) noexcept override;
 
-		Result<uint8_t*> read(const char*) noexcept override;
+		Result<const uint8_t*> read(const char*) noexcept override;
 
 		Error read(uint64_t inode, void *buffer, std::size_t size) noexcept override;
 
 		Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept override;
 
-		Result<uint8_t*> read(uint64_t) noexcept override;
+		Result<const uint8_t*> read(uint64_t) noexcept override;
+
+		Result<Vector<String>> ls(const char *dir) noexcept override;
 
 		template<typename F>
 		Error ls(const char *dir, F cb) noexcept;

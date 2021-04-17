@@ -74,7 +74,7 @@ Error PassThroughFS::read(const char *path, void *buffer, std::size_t buffSize) 
 	return OxError(0);
 }
 
-Result<uint8_t*> PassThroughFS::read(const char*) noexcept {
+Result<const uint8_t*> PassThroughFS::read(const char*) noexcept {
 	return OxError(1);
 }
 
@@ -88,8 +88,20 @@ Error PassThroughFS::read(uint64_t, std::size_t, std::size_t, void*, std::size_t
 	return OxError(1);
 }
 
-Result<uint8_t*> PassThroughFS::read(uint64_t) noexcept {
+Result<const uint8_t*> PassThroughFS::read(uint64_t) noexcept {
 	return OxError(1);
+}
+
+Result<Vector<String>> PassThroughFS::ls(const char *dir) noexcept {
+	Vector<String> out;
+	std::error_code ec;
+	const auto di = std::filesystem::directory_iterator(m_path / stripSlash(dir), ec);
+	oxReturnError(OxError(ec.value(), "PassThroughFS: ls failed"));
+	for (auto &p : di) {
+		auto u8p = p.path().filename().u8string();
+		out.emplace_back(ox::bit_cast<const char*>(u8p.c_str()));
+	}
+	return ox::move(out);
 }
 
 Error PassThroughFS::remove(const char *path, bool recursive) noexcept {

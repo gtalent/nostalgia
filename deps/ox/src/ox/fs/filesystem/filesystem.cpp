@@ -10,7 +10,7 @@
 
 namespace ox {
 
-Result<uint8_t*> FileSystem::read(FileAddress addr) noexcept {
+Result<const uint8_t*> FileSystem::read(FileAddress addr) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return read(addr.getInode().value);

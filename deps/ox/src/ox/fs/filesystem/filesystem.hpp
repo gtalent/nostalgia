@@ -46,6 +46,8 @@ class FileSystem {
 
 		Result<const uint8_t*> read(FileAddress addr) noexcept;
 
+		Result<Vector<String>> ls(const ox::String &dir) noexcept;
+
 		virtual Result<Vector<String>> ls(const char *dir) noexcept = 0;
 
 		virtual Error remove(const char *path, bool recursive = false) noexcept = 0;

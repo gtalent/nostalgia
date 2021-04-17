@@ -46,6 +46,10 @@ Error FileSystem::read(FileAddress addr, std::size_t readStart, std::size_t read
 	}
 }
 
+Result<Vector<String>> FileSystem::ls(const ox::String &dir) noexcept {
+	return ls(dir.c_str());
+}
+
 Error FileSystem::remove(FileAddress addr, bool recursive) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:

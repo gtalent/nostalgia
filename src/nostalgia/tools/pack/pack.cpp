@@ -88,7 +88,7 @@ ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, ox::String path) 
 	oxOutf("copying directory: {}\n", path);
 	ox::Vector<VerificationPair> verificationPairs;
 	// copy
-	oxReturnError(src->ls(path.c_str(), [&verificationPairs, src, dest, path](ox::String name, ox::InodeId_t) {
+	oxReturnError(src->ls(path.c_str(), [&verificationPairs, src, dest, path](const char *name, ox::InodeId_t) {
 		auto currentFile = path + name;
 		if (currentFile == "/.nostalgia") {
 			return OxError(0);

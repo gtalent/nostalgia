@@ -13,9 +13,9 @@
 
 #include "pack/pack.hpp"
 
-static ox::Error writeFileBuff(const std::string_view path, ox::Vector<char> &buff) {
+static ox::Error writeFileBuff(const ox::String &path, ox::Vector<char> &buff) {
 	try {
-		std::ofstream f(path, std::ios::binary);
+		std::ofstream f(path.c_str(), std::ios::binary);
 		f.write(buff.data(), static_cast<intptr_t>(buff.size()));
 	} catch (const std::fstream::failure&) {
 		return OxError(2, "failed to write file");
@@ -45,7 +45,7 @@ static ox::Error run(const ox::ClArgs &args) {
 	oxOutf("new size: {}\n", dstSize);
 	buff.resize(dstSize);
 
-	oxReturnError(writeFileBuff(argDst.c_str(), buff));
+	oxReturnError(writeFileBuff(argDst, buff));
 	return OxError(0);
 }
 

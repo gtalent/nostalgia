@@ -167,8 +167,8 @@ void init();
 #define oxLogError(err) ox::trace::logError(__FILE__, __LINE__, err)
 
 #define oxTrace(...) ox::trace::TraceStream(__FILE__, __LINE__, __VA_ARGS__)
-#define oxOut(...) ox::trace::TraceStream(__FILE__, __LINE__, "stdout", __VA_ARGS__)
-#define oxErr(...) ox::trace::TraceStream(__FILE__, __LINE__, "stderr", __VA_ARGS__)
+#define oxOut(...) ox::trace::OutStream(__FILE__, __LINE__, "stdout", __VA_ARGS__)
+#define oxErr(...) ox::trace::OutStream(__FILE__, __LINE__, "stderr", __VA_ARGS__)
 
 #ifdef OX_USE_STDLIB
 // Non-GCC compilers don't like ##__VA_ARGS__, so use initializer list, which relies on std lib

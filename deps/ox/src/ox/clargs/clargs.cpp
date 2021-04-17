@@ -39,32 +39,32 @@ ClArgs::ClArgs(int argc, const char **args) noexcept {
 
 bool ClArgs::getBool(const char *arg, bool defaultValue) const noexcept {
 	auto [value, err] = m_ints.at(arg);
-	return !err ? *value : defaultValue;
+	return !err ? value : defaultValue;
 }
 
 String ClArgs::getString(const char *arg, const char *defaultValue) const noexcept {
 	auto [value, err] = m_strings.at(arg);
-	return !err ? *value : defaultValue;
+	return !err ? value : defaultValue;
 }
 
 int ClArgs::getInt(const char *arg, int defaultValue) const noexcept {
 	auto [value, err] = m_ints.at(arg);
-	return !err ? *value : defaultValue;
+	return !err ? value : defaultValue;
 }
 
 Result<bool> ClArgs::getBool(const char *arg) const noexcept {
 	oxRequire(out, m_bools.at(arg));
-	return *out;
+	return out;
 }
 
 Result<String> ClArgs::getString(const char *argName) const noexcept {
 	oxRequire(out, m_strings.at(argName));
-	return *out;
+	return out;
 }
 
 Result<int> ClArgs::getInt(const char *arg) const noexcept {
 	oxRequire(out, m_ints.at(arg));
-	return *out;
+	return out;
 }
 
 }

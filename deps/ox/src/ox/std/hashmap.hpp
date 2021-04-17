@@ -46,12 +46,12 @@ class HashMap {
 		/**
 		 * K is assumed to be a null terminated string.
 		 */
-		Result<T*> at(K key);
+		Result<T&> at(K key);
 
 		/**
 		 * K is assumed to be a null terminated string.
 		 */
-		Result<const T*> at(K key) const;
+		Result<const T&> at(K key) const;
 
 		bool contains(K key) const;
 
@@ -132,21 +132,23 @@ T &HashMap<K, T>::operator[](K k) {
 }
 
 template<typename K, typename T>
-Result<T*> HashMap<K, T>::at(K k) {
+Result<T&> HashMap<K, T>::at(K k) {
 	auto p = access(m_pairs, k);
 	if (!p) {
-		return {nullptr, OxError(1, "Value not found for key")};
+		AllocAlias<T> v;
+		return {*bit_cast<T*>(&v), OxError(1)};
 	}
-	return &p->value;
+	return p->value;
 }
 
 template<typename K, typename T>
-Result<const T*> HashMap<K, T>::at(K k) const {
+Result<const T&> HashMap<K, T>::at(K k) const {
 	auto p = access(m_pairs, k);
 	if (!p) {
-		return OxError(1, "Value not found for key");
+		AllocAlias<T> v;
+		return {*bit_cast<T*>(&v), OxError(1)};
 	}
-	return &p->value;
+	return p->value;
 }
 
 template<typename K, typename T>

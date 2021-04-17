@@ -304,7 +304,7 @@ void PaletteEditor::addColor(int idx, Color16 c) {
 
 void PaletteEditor::rmColor(int idx) {
 	rmTableRow(idx);
-	m_pal->colors.erase(static_cast<std::size_t>(idx));
+	oxIgnoreError(m_pal->colors.erase(static_cast<std::size_t>(idx)));
 	setUnsavedChanges(true);
 }
 
@@ -316,7 +316,7 @@ void PaletteEditor::updateColor(int idx, Color16 c) {
 
 void PaletteEditor::moveColor(int idx, int offset) {
 	auto c = m_pal->colors[static_cast<std::size_t>(idx)];
-	m_pal->colors.erase(static_cast<std::size_t>(idx));
+	oxIgnoreError(m_pal->colors.erase(static_cast<std::size_t>(idx)));
 	m_pal->colors.insert(static_cast<std::size_t>(idx + offset), c);
 	rmTableRow(idx);
 	addTableRow(idx + offset, c);

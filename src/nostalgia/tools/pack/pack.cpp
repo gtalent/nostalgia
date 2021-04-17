@@ -12,8 +12,6 @@
 
 namespace nostalgia {
 
-namespace {
-
 /**
  * Convert path references to inodes to save space
  * @param buff buffer holding file
@@ -26,8 +24,7 @@ static ox::Error pathToInode(ox::Vector<uint8_t>*) noexcept {
 
 // just strip header for now...
 static ox::Error toMetalClaw(ox::Vector<uint8_t> *buff) noexcept {
-	auto [mc, err] = ox::stripClawHeader(ox::bit_cast<char*>(buff->data()), buff->size());
-	oxReturnError(err);
+	oxRequire(mc, ox::stripClawHeader(ox::bit_cast<char*>(buff->data()), buff->size()));
 	buff->resize(mc.size());
 	ox_memcpy(buff->data(), mc.data(), mc.size());
 	return OxError(0);
@@ -42,8 +39,7 @@ static ox::Error transformClaw(ox::FileSystem *dest, const ox::String &path) noe
 	for (auto i = 0u; i < fileList.size(); ++i) {
 		auto &name = fileList[i];
 		auto filePath = path + name;
-		auto [stat, err] = dest->stat(filePath.c_str());
-		oxReturnError(err);
+		oxRequire(stat, dest->stat(filePath.c_str()));
 		if (stat.fileType == ox::FileType_Directory) {
 			const auto dir = path + name + '/';
 			oxReturnError(transformClaw(dest, dir));
@@ -87,8 +83,7 @@ static ox::Error copy(ox::FileSystem *src, ox::FileSystem *dest, const ox::Strin
 			continue;
 		}
 		oxOutf("reading {}\n", name);
-		auto [stat, err] = src->stat((currentFile).c_str());
-		oxReturnError(err);
+		oxRequire(stat, src->stat(currentFile.c_str()));
 		if (stat.fileType == ox::FileType_Directory) {
 			oxReturnError(dest->mkdir(currentFile.c_str(), true));
 			oxReturnError(copy(src, dest, currentFile + '/'));
@@ -110,8 +105,6 @@ static ox::Error copy(ox::FileSystem *src, ox::FileSystem *dest, const ox::Strin
 		oxReturnError(verifyFile(dest, v.path, v.buff));
 	}
 	return OxError(0);
-}
-
 }
 
 ox::Error pack(ox::FileSystem *src, ox::FileSystem *dest) noexcept {

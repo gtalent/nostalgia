@@ -319,7 +319,7 @@ Result<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::findEntry
 	auto buff = m_fs.read(m_inodeId).template to<Buffer>();
 	if (!buff.valid()) {
 		oxTrace("ox::fs::Directory::findEntry::fail") << "Could not findEntry directory buffer";
-		return {0, OxError(2)};
+		return OxError(2);
 	}
 	oxTrace("ox::fs::Directory::findEntry") << "Found directory buffer, size:" << buff.size();
 	for (auto i = buff->iterator(); i.valid(); i.next()) {
@@ -335,7 +335,7 @@ Result<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::findEntry
 		}
 	}
 	oxTrace("ox::fs::Directory::findEntry::fail") << "Entry not present";
-	return {0, OxError(1)};
+	return OxError(1);
 }
 
 template<typename FileStore, typename InodeId_t>

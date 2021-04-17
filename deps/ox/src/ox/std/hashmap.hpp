@@ -144,7 +144,7 @@ template<typename K, typename T>
 Result<const T*> HashMap<K, T>::at(K k) const {
 	auto p = access(m_pairs, k);
 	if (!p) {
-		return {nullptr, OxError(1, "Value not found for key")};
+		return OxError(1, "Value not found for key");
 	}
 	return &p->value;
 }

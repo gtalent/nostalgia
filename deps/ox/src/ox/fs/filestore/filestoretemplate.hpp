@@ -445,7 +445,7 @@ Result<StatInfo> FileStoreTemplate<size_t>::stat(InodeId_t id) {
 			inode->fileType,
 		});
 	}
-	return Result<StatInfo>({}, OxError(0));
+	return {};
 }
 
 template<typename size_t>
@@ -486,9 +486,9 @@ Result<typename FileStoreTemplate<size_t>::InodeId_t> FileStoreTemplate<size_t>:
 				return inode;
 			}
 		}
-		return {0, OxError(2)};
+		return OxError(2);
 	}
-	return {0, OxError(1)};
+	return OxError(1);
 }
 
 template<typename size_t>

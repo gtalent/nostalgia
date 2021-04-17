@@ -59,7 +59,7 @@ struct [[nodiscard]] Error {
 template<typename T>
 struct [[nodiscard]] Result {
 
-	using type = T;
+	using type = typename ox::remove_reference<T>::type;
 
 	T value;
 	Error error;
@@ -70,14 +70,17 @@ struct [[nodiscard]] Result {
 	constexpr Result(const Error &error) noexcept: error(error) {
 	}
 
-	constexpr Result(T value, const Error &error = OxError(0)) noexcept: value(ox::move(value)), error(error) {
+	constexpr Result(const type &value, const Error &error = OxError(0)) noexcept: value(const_cast<type&>(value)), error(error) {
 	}
 
-	explicit constexpr operator const T&() const noexcept {
+	constexpr Result(type &&value, const Error &error = OxError(0)) noexcept: value(ox::move(value)), error(error) {
+	}
+
+	explicit constexpr operator const type&() const noexcept {
 		return value;
 	}
 
-	explicit constexpr operator T&() noexcept {
+	explicit constexpr operator type&() noexcept {
 		return value;
 	}
 
@@ -86,12 +89,12 @@ struct [[nodiscard]] Result {
 		return error == 0;
 	}
 
-	constexpr Error get(T *val) noexcept {
+	constexpr Error get(type *val) noexcept {
 		*val = value;
 		return error;
 	}
 
-	constexpr Error moveTo(T *val) noexcept {
+	constexpr Error moveTo(type *val) noexcept {
 		*val = ox::move(value);
 		return error;
 	}

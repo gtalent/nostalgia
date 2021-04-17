@@ -21,7 +21,7 @@ Result<bool> FieldPresenceIndicator::get(std::size_t i) const {
 	if (i / 8 < m_maskLen) {
 		return (m_mask[i / 8] >> (i % 8)) & 1;
 	} else {
-		return {false, OxError(MC_PRESENCEMASKOUTBOUNDS)};
+		return OxError(MC_PRESENCEMASKOUTBOUNDS);
 	}
 }
 

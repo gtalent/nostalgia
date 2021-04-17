@@ -236,8 +236,8 @@ void TypeDescWriter::setTypeInfo(const char *name, int) {
 template<typename T>
 Result<DescriptorType*> buildTypeDef(T *val) {
 	TypeDescWriter writer;
-	Error err = model(&writer, val);
-	return {writer.definition(), err};
+	oxReturnError(model(&writer, val));
+	return writer.definition();
 }
 
 template<typename T>

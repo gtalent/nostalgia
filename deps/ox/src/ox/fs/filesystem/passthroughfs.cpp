@@ -136,7 +136,8 @@ Result<FileStat> PassThroughFS::stat(const char *path) noexcept {
 	uint64_t size = type == FileType_Directory ? 0 : std::filesystem::file_size(p, ec);
 	oxTrace("ox::fs::PassThroughFS::stat") << ec.message().c_str() << path;
 	oxTrace("ox::fs::PassThroughFS::stat::size") << path << size;
-	return {{0, 0, size, type}, OxError(ec.value())};
+	oxReturnError(OxError(ec.value()));
+	return FileStat{0, 0, size, type};
 }
 
 uint64_t PassThroughFS::spaceNeeded(uint64_t size) noexcept {

@@ -316,9 +316,8 @@ template<typename FileStore, typename Directory>
 Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void *buffer, uint64_t size, uint8_t fileType) noexcept {
 	auto [inode, err] = find(path);
 	if (err) {
-		auto generated = m_fs.generateInodeId();
-		oxReturnError(generated.error);
-		inode = generated.value;
+		oxRequire(generatedId, m_fs.generateInodeId());
+		inode = generatedId;
 	}
 	auto rootDir = this->rootDir();
 	oxReturnError(rootDir.error);
@@ -334,22 +333,19 @@ Error FileSystemTemplate<FileStore, Directory>::write(uint64_t inode, void *buff
 
 template<typename FileStore, typename Directory>
 Result<FileStat> FileSystemTemplate<FileStore, Directory>::stat(uint64_t inode) noexcept {
-	auto s = m_fs.stat(inode);
+	oxRequire(s, m_fs.stat(inode));
 	FileStat out;
-	out.inode = s.value.inode;
-	out.links = s.value.links;
-	out.size = s.value.size;
-	out.fileType = s.value.fileType;
-	return {out, s.error};
+	out.inode = s.inode;
+	out.links = s.links;
+	out.size = s.size;
+	out.fileType = s.fileType;
+	return out;
 }
 
 template<typename FileStore, typename Directory>
 Result<FileStat> FileSystemTemplate<FileStore, Directory>::stat(const char *path) noexcept {
-	auto inode = find(path);
-	if (inode.error) {
-		return {{}, inode.error};
-	}
-	return stat(inode.value);
+	oxRequire(inode, find(path));
+	return stat(inode);
 }
 
 template<typename FileStore, typename Directory>
@@ -385,38 +381,26 @@ bool FileSystemTemplate<FileStore, Directory>::valid() const noexcept {
 template<typename FileStore, typename Directory>
 Result<typename FileSystemTemplate<FileStore, Directory>::FileSystemData> FileSystemTemplate<FileStore, Directory>::fileSystemData() const noexcept {
 	FileSystemData fd;
-	auto err = m_fs.read(InodeFsData, &fd, sizeof(fd));
-	if (err != 0) {
-		return {fd, err};
-	}
+	oxReturnError(m_fs.read(InodeFsData, &fd, sizeof(fd)));
 	return fd;
 }
 
 template<typename FileStore, typename Directory>
 Result<uint64_t> FileSystemTemplate<FileStore, Directory>::find(const char *path) const noexcept {
-	auto fd = fileSystemData();
-	if (fd.error) {
-		return {0, fd.error};
-	}
+	oxRequire(fd, fileSystemData());
 	// return root as a special case
 	if (ox_strcmp(path, "/") == 0) {
-		return static_cast<uint64_t>(fd.value.rootDirInode);
+		return static_cast<uint64_t>(fd.rootDirInode);
 	}
-	Directory rootDir(m_fs, fd.value.rootDirInode);
-	auto inode = rootDir.find(path);
-	if (inode.error) {
-		return {0, inode.error};
-	}
-	return inode.value;
+	Directory rootDir(m_fs, fd.rootDirInode);
+	oxRequire(out, rootDir.find(path));
+	return static_cast<uint64_t>(out);
 }
 
 template<typename FileStore, typename Directory>
 Result<Directory> FileSystemTemplate<FileStore, Directory>::rootDir() const noexcept {
-	auto fd = fileSystemData();
-	if (fd.error) {
-		return {{}, fd.error};
-	}
-	return Directory(m_fs, fd.value.rootDirInode);
+	oxRequire(fd, fileSystemData());
+	return Directory(m_fs, fd.rootDirInode);
 }
 
 extern template class FileSystemTemplate<FileStore16, Directory16>;

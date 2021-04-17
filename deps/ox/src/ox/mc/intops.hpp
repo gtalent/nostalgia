@@ -120,7 +120,7 @@ Result<I> decodeInteger(uint8_t buff[9], std::size_t buffLen, std::size_t *bytes
 		*bytesRead = bytes;
 		I out = 0;
 		memcpy(&out, &buff[1], sizeof(I));
-		return {LittleEndian<I>(out), OxError(0)};
+		return static_cast<I>(LittleEndian<I>(out));
 	} else if (buffLen >= bytes) {
 		*bytesRead = bytes;
 		uint64_t decoded = 0;
@@ -138,9 +138,9 @@ Result<I> decodeInteger(uint8_t buff[9], std::size_t buffLen, std::size_t *bytes
 			decoded |= sign << (Bits<I> - 1);
 			memcpy(&out, &decoded, sizeof(out));
 		}
-		return {out, OxError(0)};
+		return out;
 	}
-	return {0, OxError(1)};
+	return OxError(1);
 }
 
 template<typename I>

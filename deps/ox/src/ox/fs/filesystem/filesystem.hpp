@@ -19,62 +19,67 @@ namespace ox {
 class FileSystem {
 
 	public:
-		virtual ~FileSystem() = default;
+		virtual ~FileSystem() noexcept = default;
 
-		virtual Error mkdir(const char *path, bool recursive = false) = 0;
+		virtual Error mkdir(const char *path, bool recursive = false) noexcept = 0;
 
 		/**
 		 * Moves an entry from one directory to another.
 		 * @param src the path to the file
 		 * @param dest the path of the destination directory
 		 */
-		virtual Error move(const char *src, const char *dest) = 0;
+		virtual Error move(const char *src, const char *dest) noexcept = 0;
 
-		virtual Error read(const char *path, void *buffer, std::size_t buffSize) = 0;
+		virtual Error read(const char *path, void *buffer, std::size_t buffSize) noexcept = 0;
 
-		virtual Result<uint8_t*> read(const char *path) = 0;
+		virtual Result<uint8_t*> read(const char *path) noexcept = 0;
 
-		virtual Error read(uint64_t inode, void *buffer, std::size_t size) = 0;
+		virtual Error read(uint64_t inode, void *buffer, std::size_t size) noexcept = 0;
 
-		virtual Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) = 0;
+		virtual Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept = 0;
 
-		virtual Result<uint8_t*> read(uint64_t inode) = 0;
+		virtual Result<uint8_t*> read(uint64_t inode) noexcept = 0;
 
-		Error read(FileAddress addr, void *buffer, std::size_t size);
+		Error read(FileAddress addr, void *buffer, std::size_t size) noexcept;
 
-		Error read(FileAddress addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size);
+		Error read(FileAddress addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept;
 
-		Result<uint8_t*> read(FileAddress addr);
+		Result<uint8_t*> read(FileAddress addr) noexcept;
 
-		virtual Error remove(const char *path, bool recursive = false) = 0;
+		virtual Error remove(const char *path, bool recursive = false) noexcept = 0;
 
-		Error remove(FileAddress addr, bool recursive = false);
+		Error remove(FileAddress addr, bool recursive = false) noexcept;
 
-		virtual Error resize(uint64_t size, void *buffer = nullptr) = 0;
+		virtual Error resize(uint64_t size, void *buffer = nullptr) noexcept = 0;
 
-		virtual Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) = 0;
+		virtual Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept = 0;
 
-		virtual Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) = 0;
+		virtual Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept = 0;
 
-		Error write(FileAddress addr, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile);
+		Error write(FileAddress addr, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept;
 
-		virtual Result<FileStat> stat(uint64_t inode) = 0;
+		virtual Result<FileStat> stat(uint64_t inode) noexcept = 0;
 
-		virtual Result<FileStat> stat(const char *path) = 0;
+		virtual Result<FileStat> stat(const char *path) noexcept = 0;
 
-		Result<FileStat> stat(FileAddress addr);
+		Result<FileStat> stat(FileAddress addr) noexcept;
 
-		[[nodiscard]] virtual uint64_t spaceNeeded(uint64_t size) = 0;
+		[[nodiscard]]
+		virtual uint64_t spaceNeeded(uint64_t size) noexcept = 0;
 
-		[[nodiscard]] virtual Result<uint64_t> available() = 0;
+		[[nodiscard]]
+		virtual Result<uint64_t> available() noexcept = 0;
 
-		[[nodiscard]] virtual Result<uint64_t> size() const = 0;
+		[[nodiscard]]
+		virtual Result<uint64_t> size() const noexcept = 0;
 
-		[[nodiscard]] virtual char *buff() = 0;
+		[[nodiscard]]
+		virtual char *buff() noexcept = 0;
 
-		virtual Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) = 0;
+		virtual Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) noexcept = 0;
 
-		[[nodiscard]] virtual bool valid() const = 0;
+		[[nodiscard]]
+		virtual bool valid() const noexcept = 0;
 
 };
 
@@ -107,51 +112,51 @@ class FileSystemTemplate: public FileSystem {
 
 		static Error format(void *buff, uint64_t buffSize);
 
-		Error mkdir(const char *path, bool recursive = false) override;
+		Error mkdir(const char *path, bool recursive = false) noexcept override;
 
-		Error move(const char *src, const char *dest) override;
+		Error move(const char *src, const char *dest) noexcept override;
 
-		Error read(const char *path, void *buffer, std::size_t buffSize) override;
+		Error read(const char *path, void *buffer, std::size_t buffSize) noexcept override;
 
-		Result<uint8_t*> read(const char*) override;
+		Result<uint8_t*> read(const char*) noexcept override;
 
-		Error read(uint64_t inode, void *buffer, std::size_t size) override;
+		Error read(uint64_t inode, void *buffer, std::size_t size) noexcept override;
 
-		Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) override;
+		Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept override;
 
-		Result<uint8_t*> read(uint64_t) override;
+		Result<uint8_t*> read(uint64_t) noexcept override;
 
 		template<typename F>
-		Error ls(const char *dir, F cb);
+		Error ls(const char *dir, F cb) noexcept;
 
-		Error remove(const char *path, bool recursive = false) override;
+		Error remove(const char *path, bool recursive = false) noexcept override;
 
 		/**
 		 * Resizes FileSystem to minimum possible size.
 		 */
-		Error resize();
+		Error resize() noexcept;
 
-		Error resize(uint64_t size, void *buffer = nullptr) override;
+		Error resize(uint64_t size, void *buffer = nullptr) noexcept override;
 
-		Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
+		Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept override;
 
-		Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
+		Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept override;
 
-		Result<FileStat> stat(uint64_t inode) override;
+		Result<FileStat> stat(uint64_t inode) noexcept override;
 
-		Result<FileStat> stat(const char *path) override;
+		Result<FileStat> stat(const char *path) noexcept override;
 
-		uint64_t spaceNeeded(uint64_t size) override;
+		uint64_t spaceNeeded(uint64_t size) noexcept override;
 
-		Result<uint64_t> available() override;
+		Result<uint64_t> available() noexcept override;
 
-		Result<uint64_t> size() const override;
+		Result<uint64_t> size() const noexcept override;
 
-		char *buff() override;
+		char *buff() noexcept override;
 
-		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) override;
+		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) noexcept override;
 
-		bool valid() const override;
+		bool valid() const noexcept override;
 
 	private:
 		Result<FileSystemData> fileSystemData() const noexcept;
@@ -206,7 +211,7 @@ Error FileSystemTemplate<FileStore, Directory>::format(void *buff, uint64_t buff
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::mkdir(const char *path, bool recursive) {
+Error FileSystemTemplate<FileStore, Directory>::mkdir(const char *path, bool recursive) noexcept {
 	oxTrace("ox::fs::FileSystemTemplate::mkdir") << "path:" << path << "recursive:" << recursive;
 	auto rootDir = this->rootDir();
 	oxReturnError(rootDir.error);
@@ -214,7 +219,7 @@ Error FileSystemTemplate<FileStore, Directory>::mkdir(const char *path, bool rec
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::move(const char *src, const char *dest) {
+Error FileSystemTemplate<FileStore, Directory>::move(const char *src, const char *dest) noexcept {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
 	Directory rootDir(m_fs, fd.value.rootDirInode);
@@ -226,7 +231,7 @@ Error FileSystemTemplate<FileStore, Directory>::move(const char *src, const char
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::read(const char *path, void *buffer, std::size_t buffSize) {
+Error FileSystemTemplate<FileStore, Directory>::read(const char *path, void *buffer, std::size_t buffSize) noexcept {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
 	Directory rootDir(m_fs, fd.value.rootDirInode);
@@ -236,7 +241,7 @@ Error FileSystemTemplate<FileStore, Directory>::read(const char *path, void *buf
 }
 
 template<typename FileStore, typename Directory>
-Result<uint8_t*> FileSystemTemplate<FileStore, Directory>::read(const char *path) {
+Result<uint8_t*> FileSystemTemplate<FileStore, Directory>::read(const char *path) noexcept {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
 	Directory rootDir(m_fs, fd.value.rootDirInode);
@@ -246,17 +251,17 @@ Result<uint8_t*> FileSystemTemplate<FileStore, Directory>::read(const char *path
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::read(uint64_t inode, void *buffer, std::size_t buffSize) {
+Error FileSystemTemplate<FileStore, Directory>::read(uint64_t inode, void *buffer, std::size_t buffSize) noexcept {
 	return m_fs.read(inode, buffer, buffSize);
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) {
+Error FileSystemTemplate<FileStore, Directory>::read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept {
 	return m_fs.read(inode, readStart, readSize, reinterpret_cast<uint8_t*>(buffer), size);
 }
 
 template<typename FileStore, typename Directory>
-Result<uint8_t*> FileSystemTemplate<FileStore, Directory>::read(uint64_t inode) {
+Result<uint8_t*> FileSystemTemplate<FileStore, Directory>::read(uint64_t inode) noexcept {
 	auto data = m_fs.read(inode);
 	if (!data.valid()) {
 		return OxError(1);
@@ -266,7 +271,7 @@ Result<uint8_t*> FileSystemTemplate<FileStore, Directory>::read(uint64_t inode) 
 
 template<typename FileStore, typename Directory>
 template<typename F>
-Error FileSystemTemplate<FileStore, Directory>::ls(const char *path, F cb) {
+Error FileSystemTemplate<FileStore, Directory>::ls(const char *path, F cb) noexcept {
 	oxTrace("ox::FileSystemTemplate::ls") << "path:" << path;
 	auto [s, err] = stat(path);
 	oxReturnError(err);
@@ -275,7 +280,7 @@ Error FileSystemTemplate<FileStore, Directory>::ls(const char *path, F cb) {
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::remove(const char *path, bool recursive) {
+Error FileSystemTemplate<FileStore, Directory>::remove(const char *path, bool recursive) noexcept {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
 	Directory rootDir(m_fs, fd.value.rootDirInode);
@@ -297,18 +302,18 @@ Error FileSystemTemplate<FileStore, Directory>::remove(const char *path, bool re
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::resize() {
+Error FileSystemTemplate<FileStore, Directory>::resize() noexcept {
 	return m_fs.resize();
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::resize(uint64_t size, void *buffer) {
+Error FileSystemTemplate<FileStore, Directory>::resize(uint64_t size, void *buffer) noexcept {
 	oxReturnError(m_fs.resize(size, buffer));
 	return OxError(0);
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void *buffer, uint64_t size, uint8_t fileType) {
+Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void *buffer, uint64_t size, uint8_t fileType) noexcept {
 	auto [inode, err] = find(path);
 	if (err) {
 		auto generated = m_fs.generateInodeId();
@@ -323,12 +328,12 @@ Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void *bu
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType) {
+Error FileSystemTemplate<FileStore, Directory>::write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType) noexcept {
 	return m_fs.write(inode, buffer, size, fileType);
 }
 
 template<typename FileStore, typename Directory>
-Result<FileStat> FileSystemTemplate<FileStore, Directory>::stat(uint64_t inode) {
+Result<FileStat> FileSystemTemplate<FileStore, Directory>::stat(uint64_t inode) noexcept {
 	auto s = m_fs.stat(inode);
 	FileStat out;
 	out.inode = s.value.inode;
@@ -339,7 +344,7 @@ Result<FileStat> FileSystemTemplate<FileStore, Directory>::stat(uint64_t inode) 
 }
 
 template<typename FileStore, typename Directory>
-Result<FileStat> FileSystemTemplate<FileStore, Directory>::stat(const char *path) {
+Result<FileStat> FileSystemTemplate<FileStore, Directory>::stat(const char *path) noexcept {
 	auto inode = find(path);
 	if (inode.error) {
 		return {{}, inode.error};
@@ -348,32 +353,32 @@ Result<FileStat> FileSystemTemplate<FileStore, Directory>::stat(const char *path
 }
 
 template<typename FileStore, typename Directory>
-uint64_t FileSystemTemplate<FileStore, Directory>::spaceNeeded(uint64_t size) {
+uint64_t FileSystemTemplate<FileStore, Directory>::spaceNeeded(uint64_t size) noexcept {
 	return m_fs.spaceNeeded(size);
 }
 
 template<typename FileStore, typename Directory>
-Result<uint64_t> FileSystemTemplate<FileStore, Directory>::available() {
+Result<uint64_t> FileSystemTemplate<FileStore, Directory>::available() noexcept {
 	return m_fs.available();
 }
 
 template<typename FileStore, typename Directory>
-Result<uint64_t> FileSystemTemplate<FileStore, Directory>::size() const {
+Result<uint64_t> FileSystemTemplate<FileStore, Directory>::size() const noexcept {
 	return m_fs.size();
 }
 
 template<typename FileStore, typename Directory>
-char *FileSystemTemplate<FileStore, Directory>::buff() {
+char *FileSystemTemplate<FileStore, Directory>::buff() noexcept {
 	return m_fs.buff();
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) {
+Error FileSystemTemplate<FileStore, Directory>::walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) noexcept {
 	return m_fs.walk(cb);
 }
 
 template<typename FileStore, typename Directory>
-bool FileSystemTemplate<FileStore, Directory>::valid() const {
+bool FileSystemTemplate<FileStore, Directory>::valid() const noexcept {
 	return m_fs.valid();
 }
 

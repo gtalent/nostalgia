@@ -39,57 +39,57 @@ class PassThroughFS: public FileSystem {
 		[[nodiscard]]
 		ox::String basePath();
 
-		Error mkdir(const char *path, bool recursive = false) override;
+		Error mkdir(const char *path, bool recursive = false) noexcept override;
 
-		Error move(const char *src, const char *dest) override;
+		Error move(const char *src, const char *dest) noexcept override;
 
-		Error read(const char *path, void *buffer, std::size_t buffSize) override;
+		Error read(const char *path, void *buffer, std::size_t buffSize) noexcept override;
 
-		Result<uint8_t*> read(const char*) override;
+		Result<uint8_t*> read(const char*) noexcept override;
 
-		Error read(uint64_t inode, void *buffer, std::size_t size) override;
+		Error read(uint64_t inode, void *buffer, std::size_t size) noexcept override;
 
-		Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) override;
+		Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept override;
 
-		Result<uint8_t*> read(uint64_t) override;
+		Result<uint8_t*> read(uint64_t) noexcept override;
 
 		template<typename F>
-		Error ls(const char *dir, F cb);
+		Error ls(const char *dir, F cb) noexcept;
 
-		Error remove(const char *path, bool recursive = false) override;
+		Error remove(const char *path, bool recursive = false) noexcept override;
 
-		Error resize(uint64_t size, void *buffer = nullptr) override;
+		Error resize(uint64_t size, void *buffer = nullptr) noexcept override;
 
-		Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
+		Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept override;
 
-		Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) override;
+		Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept override;
 
-		Result<FileStat> stat(uint64_t inode) override;
+		Result<FileStat> stat(uint64_t inode) noexcept override;
 
-		Result<FileStat> stat(const char *path) override;
+		Result<FileStat> stat(const char *path) noexcept override;
 
-		uint64_t spaceNeeded(uint64_t size) override;
+		uint64_t spaceNeeded(uint64_t size) noexcept override;
 
-		Result<uint64_t> available() override;
+		Result<uint64_t> available() noexcept override;
 
-		Result<uint64_t> size() const override;
+		Result<uint64_t> size() const noexcept override;
 
-		char *buff() override;
+		char *buff() noexcept override;
 
-		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) override;
+		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) noexcept override;
 
-		bool valid() const override;
+		bool valid() const noexcept override;
 
 	private:
 		/**
 		 * Strips the leading slashes from a string.
 		 */
-		const char *stripSlash(const char *path);
+		const char *stripSlash(const char *path) noexcept;
 
 };
 
 template<typename F>
-Error PassThroughFS::ls(const char *dir, F cb) {
+Error PassThroughFS::ls(const char *dir, F cb) noexcept {
 	std::error_code ec;
 	const auto di = std::filesystem::directory_iterator(m_path / stripSlash(dir), ec);
 	oxReturnError(OxError(ec.value(), "PassThroughFS: ls failed"));

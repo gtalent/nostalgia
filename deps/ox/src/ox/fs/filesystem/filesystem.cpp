@@ -10,7 +10,7 @@
 
 namespace ox {
 
-Result<uint8_t*> FileSystem::read(FileAddress addr) {
+Result<uint8_t*> FileSystem::read(FileAddress addr) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return read(addr.getInode().value);
@@ -22,7 +22,7 @@ Result<uint8_t*> FileSystem::read(FileAddress addr) {
 	}
 }
 
-Error FileSystem::read(FileAddress addr, void *buffer, std::size_t size) {
+Error FileSystem::read(FileAddress addr, void *buffer, std::size_t size) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return read(addr.getInode().value, buffer, size);
@@ -34,7 +34,7 @@ Error FileSystem::read(FileAddress addr, void *buffer, std::size_t size) {
 	}
 }
 
-Error FileSystem::read(FileAddress addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) {
+Error FileSystem::read(FileAddress addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return read(addr.getInode().value, readStart, readSize, buffer, size);
@@ -46,7 +46,7 @@ Error FileSystem::read(FileAddress addr, std::size_t readStart, std::size_t read
 	}
 }
 
-Error FileSystem::remove(FileAddress addr, bool recursive) {
+Error FileSystem::remove(FileAddress addr, bool recursive) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return remove(addr.getInode().value, recursive);
@@ -58,7 +58,7 @@ Error FileSystem::remove(FileAddress addr, bool recursive) {
 	}
 }
 
-Error FileSystem::write(FileAddress addr, void *buffer, uint64_t size, uint8_t fileType) {
+Error FileSystem::write(FileAddress addr, void *buffer, uint64_t size, uint8_t fileType) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return write(addr.getInode().value, buffer, size, fileType);
@@ -70,7 +70,7 @@ Error FileSystem::write(FileAddress addr, void *buffer, uint64_t size, uint8_t f
 	}
 }
 
-Result<FileStat> FileSystem::stat(FileAddress addr) {
+Result<FileStat> FileSystem::stat(FileAddress addr) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return stat(addr.getInode().value);

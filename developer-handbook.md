@@ -259,11 +259,17 @@ ox::Result<int> f() {
 }
 
 ox::Result<int> f2() {
-	oxRequire(i, f()); // creates i and assigns it the value returned by f, returns if there was an error
+	oxRequire(i, f()); // const auto [out, oxConcat(oxRequire_err_, __LINE__)] = x; oxReturnError(oxConcat(oxRequire_err_, __LINE__))
 	return i + 4;
 }
 ```
 ```oxRequire``` is not quite as versatile, but it should still cleanup a lot of otherwise less ideal code.
+
+```oxRequire``` also has variants for throwing the error and for making to value non-const:
+
+* ```oxRequireM``` - oxRequire Mutable
+* ```oxRequireT``` - oxRequire Throw
+* ```oxRequireMT``` - oxRequire Mutable Throw
 
 ### Logging
 

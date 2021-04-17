@@ -67,10 +67,10 @@ struct [[nodiscard]] Result {
 	constexpr Result() noexcept: error(0) {
 	}
 
-	constexpr Result(Error error) noexcept: error(error) {
+	constexpr Result(const Error &error) noexcept: error(error) {
 	}
 
-	constexpr Result(T value, Error error = OxError(0)) noexcept: value(ox::move(value)), error(error) {
+	constexpr Result(T value, const Error &error = OxError(0)) noexcept: value(ox::move(value)), error(error) {
 	}
 
 	explicit constexpr operator const T&() const noexcept {
@@ -81,7 +81,8 @@ struct [[nodiscard]] Result {
 		return value;
 	}
 
-	[[nodiscard]] constexpr bool ok() const noexcept {
+	[[nodiscard]]
+	constexpr bool ok() const noexcept {
 		return error == 0;
 	}
 
@@ -122,6 +123,11 @@ inline void oxIgnoreError(ox::Error) noexcept {}
 #endif
 #define oxConcatImpl(a, b) a##b
 #define oxConcat(a, b) oxConcatImpl(a, b)
-#define oxRequire(out, x) auto [out, oxConcat(oxRequire_err_, __LINE__)] = x; oxReturnError(oxConcat(oxRequire_err_, __LINE__))
-#define oxRequireT(out, x) auto [out, oxConcat(oxRequire_err_, __LINE__)] = x; oxThrowError(oxConcat(oxRequire_err_, __LINE__))
+// oxRequire Mutable
+#define oxRequireM(out, x) auto [out, oxConcat(oxRequire_err_, __LINE__)] = x; oxReturnError(oxConcat(oxRequire_err_, __LINE__))
+#define oxRequire(out, x) const oxRequireM(out, x)
+// oxRequire Mutable Throw
+#define oxRequireMT(out, x) auto [out, oxConcat(oxRequire_err_, __LINE__)] = x; oxThrowError(oxConcat(oxRequire_err_, __LINE__))
+// oxRequire Throw
+#define oxRequireT(out, x) const oxRequireMT(out, x)
 

@@ -177,6 +177,20 @@ char &String::operator[](std::size_t i) noexcept {
 	return m_buff[i];
 }
 
+String String::substr(std::size_t pos) const noexcept {
+	return m_buff.data() + pos;
+}
+
+bool String::endsWith(const char *ending) const noexcept {
+	const auto endingLen = ox_strlen(ending);
+	return len() >= endingLen && ox_strcmp(data() + (len() - endingLen), ending) == 0;
+}
+
+bool String::endsWith(const String &ending) const noexcept {
+	const auto endingLen = ending.len();
+	return len() >= endingLen && ox_strcmp(data() + (len() - endingLen), ending.c_str()) == 0;
+}
+
 std::size_t String::len() const noexcept {
 	std::size_t length = 0;
 	for (std::size_t i = 0; i < m_buff.size(); i++) {

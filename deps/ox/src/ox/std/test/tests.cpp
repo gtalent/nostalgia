@@ -75,6 +75,10 @@ std::map<std::string, std::function<ox::Error()>> tests = {
 			oxAssert(s == "asdf", "String assign broken");
 			s += "aoeu";
 			oxAssert(s == "asdfaoeu", "String append broken");
+			ox::String ending = "asdf";
+			oxAssert(ending.endsWith("df"), "String::endsWith is broken");
+			oxAssert(!ending.endsWith("awefawe"), "String::endsWith is broken");
+			oxAssert(!ending.endsWith("eu"), "String::endsWith is broken");
 			return OxError(0);
 		}
 	},

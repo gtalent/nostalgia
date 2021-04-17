@@ -83,6 +83,20 @@ class String {
 		char &operator[](std::size_t i) noexcept;
 
 		[[nodiscard]]
+		String substr(std::size_t pos) const noexcept;
+
+		[[nodiscard]]
+		bool endsWith(const char *other) const noexcept;
+
+		[[nodiscard]]
+		bool endsWith(const String &other) const noexcept;
+
+		[[nodiscard]]
+		constexpr const char *data() const noexcept {
+			return m_buff.data();
+		}
+
+		[[nodiscard]]
 		constexpr char *data() noexcept {
 			return m_buff.data();
 		}

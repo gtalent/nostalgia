@@ -199,7 +199,7 @@ template<typename T>
 Result<std::unique_ptr<T>> readOC(const char *json) {
 	auto val = std::make_unique<T>();
 	oxReturnError(readOC(json, ox_strlen(json), val.get()));
-	return std::move(val);
+	return val;
 }
 
 }

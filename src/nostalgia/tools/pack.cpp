@@ -15,7 +15,7 @@
 
 #include "pack/pack.hpp"
 
-static ox::Error writeFileBuff(const std::string &path, std::vector<char> &buff) {
+static ox::Error writeFileBuff(const std::string_view path, ox::Vector<char> &buff) {
 	try {
 		std::ofstream f(path, std::ios::binary);
 		f.write(buff.data(), static_cast<intptr_t>(buff.size()));
@@ -36,15 +36,16 @@ static ox::Error run(const ox::ClArgs &args) {
 		std::cerr << "error: must specify a destination ROM file\n";
 		return OxError(1, "must specify a destination ROM file");
 	}
-	std::vector<char> buff(32 * ox::units::MB);
+	ox::Vector<char> buff(32 * ox::units::MB);
 	oxReturnError(ox::FileSystem32::format(buff.data(), buff.size()));
 	ox::PassThroughFS src(argSrc.c_str());
 	ox::FileSystem32 dst(ox::FileStore32(buff.data(), buff.size()));
 	oxReturnError(nostalgia::pack(&src, &dst));
 
 	oxReturnError(dst.resize());
-	std::cout << "new size: " << dst.size() << '\n';
-	buff.resize(dst.size());
+	oxRequire(dstSize, dst.size());
+	std::cout << "new size: " << dstSize << '\n';
+	buff.resize(dstSize);
 
 	oxReturnError(writeFileBuff(argDst.c_str(), buff));
 	return OxError(0);

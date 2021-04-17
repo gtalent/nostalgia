@@ -66,9 +66,9 @@ class FileSystem {
 
 		[[nodiscard]] virtual uint64_t spaceNeeded(uint64_t size) = 0;
 
-		[[nodiscard]] virtual uint64_t available() = 0;
+		[[nodiscard]] virtual Result<uint64_t> available() = 0;
 
-		[[nodiscard]] virtual uint64_t size() const = 0;
+		[[nodiscard]] virtual Result<uint64_t> size() const = 0;
 
 		[[nodiscard]] virtual char *buff() = 0;
 
@@ -143,9 +143,9 @@ class FileSystemTemplate: public FileSystem {
 
 		uint64_t spaceNeeded(uint64_t size) override;
 
-		uint64_t available() override;
+		Result<uint64_t> available() override;
 
-		uint64_t size() const override;
+		Result<uint64_t> size() const override;
 
 		char *buff() override;
 
@@ -353,12 +353,12 @@ uint64_t FileSystemTemplate<FileStore, Directory>::spaceNeeded(uint64_t size) {
 }
 
 template<typename FileStore, typename Directory>
-uint64_t FileSystemTemplate<FileStore, Directory>::available() {
+Result<uint64_t> FileSystemTemplate<FileStore, Directory>::available() {
 	return m_fs.available();
 }
 
 template<typename FileStore, typename Directory>
-uint64_t FileSystemTemplate<FileStore, Directory>::size() const {
+Result<uint64_t> FileSystemTemplate<FileStore, Directory>::size() const {
 	return m_fs.size();
 }
 

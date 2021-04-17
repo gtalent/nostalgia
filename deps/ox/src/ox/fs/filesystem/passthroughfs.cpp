@@ -21,8 +21,8 @@ PassThroughFS::PassThroughFS(const char *dirPath) {
 PassThroughFS::~PassThroughFS() {
 }
 
-std::string PassThroughFS::basePath() {
-	return m_path.string();
+ox::String PassThroughFS::basePath() {
+	return m_path.string().c_str();
 }
 
 Error PassThroughFS::mkdir(const char *path, bool recursive) {
@@ -31,19 +31,29 @@ Error PassThroughFS::mkdir(const char *path, bool recursive) {
 	const auto u8p = p.u8string();
 	oxTrace("ox::fs::PassThroughFS::mkdir") << u8p.c_str();
 	if (recursive) {
-		if (std::filesystem::is_directory(p)) {
+		std::error_code ec;
+		auto isDir = std::filesystem::is_directory(p, ec);
+		oxReturnError(OxError(ec.value(), "PassThroughFS: mkdir failed"));
+		if (isDir) {
 			success = true;
 		} else {
-			success = std::filesystem::create_directories(p);
+			success = std::filesystem::create_directories(p, ec);
+			oxReturnError(OxError(ec.value(), "PassThroughFS: mkdir failed"));
 		}
 	} else {
-		success = std::filesystem::create_directory(p);
+		std::error_code ec;
+		success = std::filesystem::create_directory(p, ec);
+		oxReturnError(OxError(ec.value(), "PassThroughFS: mkdir failed"));
 	}
 	return OxError(success ? 0 : 1);
 }
 
 Error PassThroughFS::move(const char *src, const char *dest) {
-	std::filesystem::rename(m_path / stripSlash(src), m_path / stripSlash(dest));
+	std::error_code ec;
+	std::filesystem::rename(m_path / stripSlash(src), m_path / stripSlash(dest), ec);
+	if (ec.value()) {
+		return OxError(1);
+	}
 	return OxError(0);
 }
 
@@ -59,7 +69,7 @@ Error PassThroughFS::read(const char *path, void *buffer, std::size_t buffSize) 
 		file.read(static_cast<char*>(buffer), buffSize);
 	} catch (const std::fstream::failure&) {
 		oxTrace("ox::fs::PassThroughFS::read::error") << "Read failed:" << path;
-		throw OxError(2);
+		return OxError(2);
 	}
 	return OxError(0);
 }
@@ -102,7 +112,7 @@ Error PassThroughFS::write(const char *path, void *buffer, uint64_t size, uint8_
 		f.write(static_cast<char*>(buffer), size);
 	} catch (const std::fstream::failure&) {
 		oxTrace("ox::fs::PassThroughFS::write::error") << "Write failed:" << path;
-		throw OxError(1);
+		return OxError(1);
 	}
 	return OxError(0);
 }
@@ -114,7 +124,7 @@ Error PassThroughFS::write(uint64_t, void*, uint64_t, uint8_t) {
 
 Result<FileStat> PassThroughFS::stat(uint64_t) {
 	// unsupported
-	return {{}, OxError(1)};
+	return OxError(1);
 }
 
 Result<FileStat> PassThroughFS::stat(const char *path) {
@@ -133,15 +143,17 @@ uint64_t PassThroughFS::spaceNeeded(uint64_t size) {
 	return size;
 }
 
-uint64_t PassThroughFS::available() {
+Result<uint64_t> PassThroughFS::available() {
 	std::error_code ec;
 	auto s = std::filesystem::space(m_path, ec);
+	oxReturnError(OxError(ec.value(), "PassThroughFS: could not get FS size"));
 	return s.available;
 }
 
-uint64_t PassThroughFS::size() const {
+Result<uint64_t> PassThroughFS::size() const {
 	std::error_code ec;
 	auto s = std::filesystem::space(m_path, ec);
+	oxReturnError(OxError(ec.value(), "PassThroughFS: could not get FS size"));
 	return s.capacity;
 }
 
@@ -154,7 +166,12 @@ Error PassThroughFS::walk(Error(*)(uint8_t, uint64_t, uint64_t)) {
 }
 
 bool PassThroughFS::valid() const {
-	return std::filesystem::is_directory(m_path);
+	std::error_code ec;
+	auto out = std::filesystem::is_directory(m_path, ec);
+	if (!ec.value()) {
+		return out;
+	}
+	return false;
 }
 
 const char *PassThroughFS::stripSlash(const char *path) {

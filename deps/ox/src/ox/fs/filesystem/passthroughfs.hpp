@@ -36,7 +36,8 @@ class PassThroughFS: public FileSystem {
 
 		~PassThroughFS();
 
-		[[nodiscard]] std::string basePath();
+		[[nodiscard]]
+		ox::String basePath();
 
 		Error mkdir(const char *path, bool recursive = false) override;
 
@@ -69,9 +70,9 @@ class PassThroughFS: public FileSystem {
 
 		uint64_t spaceNeeded(uint64_t size) override;
 
-		uint64_t available() override;
+		Result<uint64_t> available() override;
 
-		uint64_t size() const override;
+		Result<uint64_t> size() const override;
 
 		char *buff() override;
 
@@ -89,7 +90,10 @@ class PassThroughFS: public FileSystem {
 
 template<typename F>
 Error PassThroughFS::ls(const char *dir, F cb) {
-	for (auto &p : std::filesystem::directory_iterator(m_path / stripSlash(dir))) {
+	std::error_code ec;
+	const auto di = std::filesystem::directory_iterator(m_path / stripSlash(dir), ec);
+	oxReturnError(OxError(ec.value(), "PassThroughFS: ls failed"));
+	for (auto &p : di) {
 		auto u8p = p.path().filename().u8string();
 		oxReturnError(cb(ox::bit_cast<const char*>(u8p.c_str()), 0));
 	}

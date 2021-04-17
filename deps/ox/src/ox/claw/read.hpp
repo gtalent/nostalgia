@@ -36,7 +36,7 @@ Result<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept;
 Result<Vector<char>> stripClawHeader(const char *buff, std::size_t buffLen) noexcept;
 
 template<typename T>
-Error readClaw(char *buff, std::size_t buffLen, T *val) {
+Error readClaw(const char *buff, std::size_t buffLen, T *val) {
 	auto header = detail::readHeader(buff, buffLen);
 	oxReturnError(header);
 	switch (header.value.fmt) {

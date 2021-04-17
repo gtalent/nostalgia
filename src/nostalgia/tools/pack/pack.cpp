@@ -35,10 +35,12 @@ static ox::Error toMetalClaw(ox::Vector<uint8_t> *buff) noexcept {
 
 // claw file transformations are broken out because path to inode
 // transformations need to be done after the copy to the new FS is complete
-static ox::Error transformClaw(ox::FileSystem32 *dest, ox::String path) noexcept {
+static ox::Error transformClaw(ox::FileSystem *dest, ox::String path) noexcept {
 	// copy
 	oxTrace("pack::transformClaw") << "path:" << path.c_str();
-	return dest->ls(path.c_str(), [dest, path](const ox::String &name, ox::InodeId_t) {
+	oxRequire(fileList, dest->ls(path.c_str()));
+	for (auto i = 0u; i < fileList.size(); ++i) {
+		auto &name = fileList[i];
 		auto filePath = path + name;
 		auto [stat, err] = dest->stat(filePath.c_str());
 		oxReturnError(err);
@@ -58,11 +60,11 @@ static ox::Error transformClaw(ox::FileSystem32 *dest, ox::String path) noexcept
 				oxReturnError(dest->write(filePath.c_str(), buff.data(), buff.size()));
 			}
 		}
-		return OxError(0);
-	});
+	}
+	return OxError(0);
 }
 
-static ox::Error verifyFile(ox::FileSystem32 *fs, const ox::String &path, const ox::Vector<uint8_t> &expected) noexcept {
+static ox::Error verifyFile(ox::FileSystem *fs, const ox::String &path, const ox::Vector<uint8_t> &expected) noexcept {
 	ox::Vector<uint8_t> buff(expected.size());
 	oxReturnError(fs->read(path.c_str(), buff.data(), buff.size()));
 	return OxError(buff == expected ? 0 : 1);
@@ -73,14 +75,16 @@ struct VerificationPair {
 	ox::Vector<uint8_t> buff;
 };
 
-static ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, ox::String path) noexcept {
+static ox::Error copy(ox::FileSystem *src, ox::FileSystem *dest, ox::String path) noexcept {
 	oxOutf("copying directory: {}\n", path);
 	ox::Vector<VerificationPair> verificationPairs;
 	// copy
-	oxReturnError(src->ls(path.c_str(), [&verificationPairs, src, dest, path](const char *name, ox::InodeId_t) noexcept {
+	oxRequire(fileList, src->ls(path.c_str()));
+	for (auto i = 0u; i < fileList.size(); ++i) {
+		auto &name = fileList[i];
 		auto currentFile = path + name;
 		if (currentFile == "/.nostalgia") {
-			return OxError(0);
+			continue;
 		}
 		oxOutf("reading {}\n", name);
 		auto [stat, err] = src->stat((currentFile).c_str());
@@ -99,8 +103,7 @@ static ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, ox::String
 			oxReturnError(verifyFile(dest, currentFile, buff));
 			verificationPairs.push_back({currentFile, buff});
 		}
-		return OxError(0);
-	}));
+	}
 	// verify all at once in addition to right after the files are written
 	for (auto i = 0u; i < verificationPairs.size(); ++i) {
 		const auto &v = verificationPairs[i];
@@ -111,7 +114,7 @@ static ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, ox::String
 
 }
 
-ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest) noexcept {
+ox::Error pack(ox::FileSystem *src, ox::FileSystem *dest) noexcept {
 	oxReturnError(copy(src, dest, "/"));
 	oxReturnError(transformClaw(dest, "/"));
 	return OxError(0);

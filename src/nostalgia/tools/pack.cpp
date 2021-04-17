@@ -13,7 +13,7 @@
 
 #include "pack/pack.hpp"
 
-static ox::Error writeFileBuff(const ox::String &path, ox::Vector<char> &buff) {
+static ox::Error writeFileBuff(const ox::String &path, ox::Vector<char> &buff) noexcept {
 	try {
 		std::ofstream f(path.c_str(), std::ios::binary);
 		f.write(buff.data(), static_cast<intptr_t>(buff.size()));
@@ -23,7 +23,7 @@ static ox::Error writeFileBuff(const ox::String &path, ox::Vector<char> &buff) {
 	return OxError(0);
 }
 
-static ox::Error run(const ox::ClArgs &args) {
+static ox::Error run(const ox::ClArgs &args) noexcept {
 	auto argSrc = args.getString("src", "");
 	auto argDst = args.getString("dst", "");
 	if (argSrc == "") {

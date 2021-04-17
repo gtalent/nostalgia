@@ -40,21 +40,29 @@ class Vector {
 
 		Vector &operator=(Vector &&other);
 
-		[[nodiscard]] T &operator[](std::size_t i) noexcept;
+		[[nodiscard]]
+		T &operator[](std::size_t i) noexcept;
 
-		[[nodiscard]] const T &operator[](std::size_t i) const noexcept;
+		[[nodiscard]]
+		const T &operator[](std::size_t i) const noexcept;
 
-		[[nodiscard]] Result<T&> front() noexcept;
+		[[nodiscard]]
+		Result<T&> front() noexcept;
 
-		[[nodiscard]] Result<const T&> front() const noexcept;
+		[[nodiscard]]
+		Result<const T&> front() const noexcept;
 
-		[[nodiscard]] Result<T&> back() noexcept;
+		[[nodiscard]]
+		Result<T&> back() noexcept;
 
-		[[nodiscard]] Result<const T&> back() const noexcept;
+		[[nodiscard]]
+		Result<const T&> back() const noexcept;
 
-		[[nodiscard]] std::size_t size() const noexcept;
+		[[nodiscard]]
+		std::size_t size() const noexcept;
 
-		[[nodiscard]] bool empty() const noexcept;
+		[[nodiscard]]
+		bool empty() const noexcept;
 
 		void clear();
 

@@ -30,13 +30,17 @@ class HashMap {
 	public:
 		explicit HashMap(std::size_t size = 100);
 
-		HashMap(HashMap &other);
+		HashMap(const HashMap &other);
+
+		HashMap(HashMap &&other);
 
 		~HashMap();
 
 		bool operator==(const HashMap &other) const;
 
-		HashMap &operator=(HashMap &other);
+		HashMap &operator=(const HashMap &other);
+
+		HashMap &operator=(HashMap &&other);
 
 		/**
 		 * K is assumed to be a null terminated string.
@@ -46,14 +50,14 @@ class HashMap {
 		/**
 		 * K is assumed to be a null terminated string.
 		 */
-		Result<T&> at(K key);
+		Result<T&> at(K key) noexcept;
 
 		/**
 		 * K is assumed to be a null terminated string.
 		 */
-		Result<const T&> at(K key) const;
+		Result<const T&> at(K key) const noexcept;
 
-		bool contains(K key) const;
+		bool contains(K key) const noexcept;
 
 		std::size_t size() const noexcept;
 
@@ -84,8 +88,16 @@ HashMap<K, T>::HashMap(std::size_t size): m_pairs(size) {
 }
 
 template<typename K, typename T>
-HashMap<K, T>::HashMap(HashMap<K, T> &other) {
+HashMap<K, T>::HashMap(const HashMap<K, T> &other) {
 	m_pairs = other.m_pairs;
+}
+
+template<typename K, typename T>
+HashMap<K, T>::HashMap(HashMap<K, T> &&other) {
+	m_keys = ox::move(other.m_keys);
+	m_pairs = ox::move(other.m_pairs);
+	other.m_keys = {};
+	other.m_pairs = {};
 }
 
 template<typename K, typename T>
@@ -110,10 +122,20 @@ bool HashMap<K, T>::operator==(const HashMap &other) const {
 }
 
 template<typename K, typename T>
-HashMap<K, T> &HashMap<K, T>::operator=(HashMap<K, T> &other) {
+HashMap<K, T> &HashMap<K, T>::operator=(const HashMap<K, T> &other) {
 	this->~HashMap<K, T>();
 	m_keys = other.m_keys;
 	m_pairs = other.m_pairs;
+	return *this;
+}
+
+template<typename K, typename T>
+HashMap<K, T> &HashMap<K, T>::operator=(HashMap<K, T> &&other) {
+	this->~HashMap<K, T>();
+	m_keys = ox::move(other.m_keys);
+	m_pairs = ox::move(other.m_pairs);
+	other.m_keys = {};
+	other.m_pairs = {};
 	return *this;
 }
 
@@ -132,7 +154,7 @@ T &HashMap<K, T>::operator[](K k) {
 }
 
 template<typename K, typename T>
-Result<T&> HashMap<K, T>::at(K k) {
+Result<T&> HashMap<K, T>::at(K k) noexcept {
 	auto p = access(m_pairs, k);
 	if (!p) {
 		AllocAlias<T> v;
@@ -142,7 +164,7 @@ Result<T&> HashMap<K, T>::at(K k) {
 }
 
 template<typename K, typename T>
-Result<const T&> HashMap<K, T>::at(K k) const {
+Result<const T&> HashMap<K, T>::at(K k) const noexcept {
 	auto p = access(m_pairs, k);
 	if (!p) {
 		AllocAlias<T> v;
@@ -152,7 +174,7 @@ Result<const T&> HashMap<K, T>::at(K k) const {
 }
 
 template<typename K, typename T>
-bool HashMap<K, T>::contains(K k) const {
+bool HashMap<K, T>::contains(K k) const noexcept {
 	return access(m_pairs, k) != nullptr;
 }
 

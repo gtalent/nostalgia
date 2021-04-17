@@ -84,15 +84,17 @@ class Vector {
 		/**
 		 * Removes an item from the Vector.
 		 * @param pos position of item to remove
+		 * @return Error if index is out of bounds
 		 */
-		void erase(std::size_t pos);
+		Error erase(std::size_t pos);
 
 		/**
 		 * Moves the last item in the Vector to position pos and decrements the
 		 * size by 1.
 		 * @param pos position of item to remove
+		 * @return Error if index is out of bounds
 		 */
-		void unordered_erase(std::size_t pos);
+		Error unordered_erase(std::size_t pos);
 
 	private:
 		void expandCap(std::size_t cap);
@@ -301,17 +303,25 @@ void Vector<T>::pop_back() {
 }
 
 template<typename T>
-void Vector<T>::erase(std::size_t pos) {
-	m_size--;
-	for (auto i = pos; i < m_size; i++) {
+Error Vector<T>::erase(std::size_t pos) {
+	if (pos >= m_size) {
+		return OxError(1);
+	}
+	--m_size;
+	for (auto i = pos; i < m_size; ++i) {
 		m_items[i] = ox::move(m_items[i + 1]);
 	}
+	return OxError(0);
 }
 
 template<typename T>
-void Vector<T>::unordered_erase(std::size_t pos) {
+Error Vector<T>::unordered_erase(std::size_t pos) {
+	if (pos >= m_size) {
+		return OxError(1);
+	}
 	m_size--;
 	m_items[pos] = ox::move(m_items[m_size]);
+	return OxError(0);
 }
 
 template<typename T>

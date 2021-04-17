@@ -12,8 +12,9 @@
 
 namespace ox {
 
-FieldPresenceIndicator::FieldPresenceIndicator(uint8_t *mask, std::size_t maxLen) {
-	m_mask = mask;
+FieldPresenceIndicator::FieldPresenceIndicator(const uint8_t *mask, std::size_t maxLen) {
+	// TODO: have separate read only version of this class
+	m_mask = const_cast<uint8_t*>(mask);
 	m_maskLen = maxLen;
 }
 

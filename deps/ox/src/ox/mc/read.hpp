@@ -31,11 +31,11 @@ class MetalClawReader {
 		int m_unionIdx = -1;
 		std::size_t m_buffIt = 0;
 		std::size_t m_buffLen = 0;
-		uint8_t *m_buff = nullptr;
+		const uint8_t *m_buff = nullptr;
 		MetalClawReader *m_parent = nullptr;
 
 	public:
-		MetalClawReader(uint8_t *buff, std::size_t buffLen, int unionIdx = -1, MetalClawReader *parent = nullptr) noexcept;
+		MetalClawReader(const uint8_t *buff, std::size_t buffLen, int unionIdx = -1, MetalClawReader *parent = nullptr) noexcept;
 
 		~MetalClawReader() noexcept;
 
@@ -273,7 +273,7 @@ void MetalClawReader::setTypeInfo(const char*, int fields) {
 }
 
 template<typename T>
-Error readMC(uint8_t *buff, std::size_t buffLen, T *val) {
+Error readMC(const uint8_t *buff, std::size_t buffLen, T *val) {
 	MetalClawReader reader(buff, buffLen);
 	return model(&reader, val);
 }

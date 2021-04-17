@@ -14,7 +14,7 @@
 
 namespace ox {
 
-MetalClawReader::MetalClawReader(uint8_t *buff, std::size_t buffLen, int unionIdx, MetalClawReader *parent) noexcept:
+MetalClawReader::MetalClawReader(const uint8_t *buff, std::size_t buffLen, int unionIdx, MetalClawReader *parent) noexcept:
 	m_fieldPresence(buff, buffLen),
 	m_unionIdx(unionIdx),
 	m_buffLen(buffLen),

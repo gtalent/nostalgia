@@ -20,7 +20,7 @@ class FieldPresenceIndicator {
 		std::size_t m_fields = 0;
 
 	public:
-		FieldPresenceIndicator(uint8_t *mask, std::size_t maxLen);
+		FieldPresenceIndicator(const uint8_t *mask, std::size_t maxLen);
 
 		Result<bool> get(std::size_t i) const;
 

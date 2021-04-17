@@ -8,7 +8,6 @@
 
 #include <iostream>
 #include <string_view>
-#include <vector>
 
 #include <ox/claw/read.hpp>
 
@@ -18,7 +17,8 @@ namespace nostalgia {
 
 namespace {
 
-[[nodiscard]] static constexpr bool endsWith(std::string_view str, std::string_view ending) {
+[[nodiscard]]
+static constexpr bool endsWith(std::string_view str, std::string_view ending) noexcept {
 	return str.size() >= ending.size() && str.substr(str.size() - ending.size()) == ending;
 }
 
@@ -32,12 +32,12 @@ static_assert(!endsWith("asdf", "eu"));
  * @return error
  * stub for now
  */
-ox::Error pathToInode(std::vector<uint8_t>*) {
+ox::Error pathToInode(ox::Vector<uint8_t>*) {
 	return OxError(0);
 }
 
-// stub for now
-ox::Error toMetalClaw(std::vector<uint8_t> *buff) {
+// just strip header for now...
+ox::Error toMetalClaw(ox::Vector<uint8_t> *buff) {
 	auto [mc, err] = ox::stripClawHeader(ox::bit_cast<char*>(buff->data()), buff->size());
 	oxReturnError(err);
 	buff->resize(mc.size());
@@ -47,7 +47,7 @@ ox::Error toMetalClaw(std::vector<uint8_t> *buff) {
 
 // claw file transformations are broken out because path to inode
 // transformations need to be done after the copy to the new FS is complete
-ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
+ox::Error transformClaw(ox::FileSystem32 *dest, ox::String path) {
 	// copy
 	oxTrace("pack::transformClaw") << "path:" << path.c_str();
 	return dest->ls(path.c_str(), [dest, path](const char *name, ox::InodeId_t) {
@@ -61,7 +61,7 @@ ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
 			// do transforms
 			if (endsWith(name, ".ng") || endsWith(name, ".npal")) {
 				// load file
-				std::vector<uint8_t> buff(stat.size);
+				ox::Vector<uint8_t> buff(stat.size);
 				oxReturnError(dest->read(filePath.c_str(), buff.data(), buff.size()));
 				// do transformations
 				oxReturnError(pathToInode(&buff));
@@ -74,53 +74,50 @@ ox::Error transformClaw(ox::FileSystem32 *dest, std::string path) {
 	});
 }
 
-ox::Error verifyFile(ox::FileSystem32 *fs, const std::string &path, const std::vector<uint8_t> &expected) noexcept {
-	std::vector<uint8_t> buff(expected.size());
+ox::Error verifyFile(ox::FileSystem32 *fs, const ox::String &path, const ox::Vector<uint8_t> &expected) noexcept {
+	ox::Vector<uint8_t> buff(expected.size());
 	oxReturnError(fs->read(path.c_str(), buff.data(), buff.size()));
 	return OxError(buff == expected ? 0 : 1);
 }
 
 struct VerificationPair {
-	std::string path;
-	std::vector<uint8_t> buff;
+	ox::String path;
+	ox::Vector<uint8_t> buff;
 };
 
-ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, std::string path) {
-	std::cout << "copying directory: " << path << '\n';
-	std::vector<VerificationPair> verficationPairs;
+ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, ox::String path) {
+	std::cout << "copying directory: " << path.c_str() << '\n';
+	ox::Vector<VerificationPair> verificationPairs;
 	// copy
-	oxReturnError(src->ls(path.c_str(), [&verficationPairs, src, dest, path](std::string name, ox::InodeId_t) {
+	oxReturnError(src->ls(path.c_str(), [&verificationPairs, src, dest, path](ox::String name, ox::InodeId_t) {
 		auto currentFile = path + name;
 		if (currentFile == "/.nostalgia") {
 			return OxError(0);
 		}
-		std::cout << "reading " << name << '\n';
+		std::cout << "reading " << name.c_str() << '\n';
 		auto [stat, err] = src->stat((currentFile).c_str());
 		oxReturnError(err);
 		if (stat.fileType == ox::FileType_Directory) {
 			oxReturnError(dest->mkdir(currentFile.c_str(), true));
 			oxReturnError(copy(src, dest, currentFile + '/'));
 		} else {
-			std::vector<uint8_t> buff;
-			// do transforms
-			//const std::string OldExt = path.substr(path.find_last_of('.'));
+			ox::Vector<uint8_t> buff;
 			// load file
 			buff.resize(stat.size);
 			oxReturnError(src->read(currentFile.c_str(), buff.data(), buff.size()));
 			// write file to dest
-			std::cout << "writing " << currentFile << '\n';
+			std::cout << "writing " << currentFile.c_str() << '\n';
 			oxReturnError(dest->write(currentFile.c_str(), buff.data(), buff.size()));
 			oxReturnError(verifyFile(dest, currentFile, buff));
-			verficationPairs.push_back({currentFile, buff});
+			verificationPairs.push_back({currentFile, buff});
 		}
 		return OxError(0);
 	}));
-
 	// verify all at once in addition to right after the files are written
-	for (auto v : verficationPairs) {
+	for (auto i = 0u; i < verificationPairs.size(); ++i) {
+		const auto &v = verificationPairs[i];
 		oxReturnError(verifyFile(dest, v.path, v.buff));
 	}
-
 	return OxError(0);
 }
 

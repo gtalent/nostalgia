@@ -167,12 +167,18 @@ void init();
 #define oxLogError(err) ox::trace::logError(__FILE__, __LINE__, err)
 
 #define oxTrace(...) ox::trace::TraceStream(__FILE__, __LINE__, __VA_ARGS__)
+#define oxOut(...) ox::trace::TraceStream(__FILE__, __LINE__, "stdout", __VA_ARGS__)
+#define oxErr(...) ox::trace::TraceStream(__FILE__, __LINE__, "stderr", __VA_ARGS__)
 
 #ifdef OX_USE_STDLIB
 // Non-GCC compilers don't like ##__VA_ARGS__, so use initializer list, which relies on std lib
 #define oxTracef(ch, fmt, ...) ox::trace::TraceStream(__FILE__, __LINE__, ch, ox::detail::fmtSegments<ox::detail::argCount(fmt)+1>(fmt), {__VA_ARGS__})
+#define oxOutf(fmt, ...) ox::trace::OutStream(__FILE__, __LINE__, "stdout", ox::detail::fmtSegments<ox::detail::argCount(fmt)+1>(fmt), {__VA_ARGS__})
+#define oxErrf(fmt, ...) ox::trace::OutStream(__FILE__, __LINE__, "stderr", ox::detail::fmtSegments<ox::detail::argCount(fmt)+1>(fmt), {__VA_ARGS__})
 #else
 #define oxTracef(ch, fmt, ...) ox::trace::TraceStream(__FILE__, __LINE__, ch, ox::detail::fmtSegments<ox::detail::argCount(fmt)+1>(fmt), ##__VA_ARGS__)
+#define oxOutf(fmt, ...) ox::trace::OutStream(__FILE__, __LINE__, "stdout", ox::detail::fmtSegments<ox::detail::argCount(fmt)+1>(fmt), ##__VA_ARGS__)
+#define oxErrf(fmt, ...) ox::trace::OutStream(__FILE__, __LINE__, "stderr", ox::detail::fmtSegments<ox::detail::argCount(fmt)+1>(fmt), ##__VA_ARGS__)
 #endif
 
 #define oxInfo(...) oxTrace("info", __VA_ARGS__)

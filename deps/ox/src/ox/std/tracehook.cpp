@@ -31,6 +31,10 @@ void oxTraceHook([[maybe_unused]] const char *file, [[maybe_unused]] int line,
 		std::cout << " " << file << ':' << line << "\n";
 	} else if (ox_strcmp(ch, "debug") == 0 || ox_strcmp(ch, "info") == 0) {
 		std::cout << msg << '\n';
+	} else if (ox_strcmp(ch, "stdout") == 0) {
+		std::cout << msg;
+	} else if (ox_strcmp(ch, "stderr") == 0) {
+		std::cerr << msg << '\n';
 	} else if (ox_strcmp(ch, "error") == 0) {
 		std::cerr << "\033[31;1;1mERROR:\033[0m (" << file << ':' << line << "): " << msg << '\n';
 	}

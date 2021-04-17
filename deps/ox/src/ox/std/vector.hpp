@@ -60,9 +60,15 @@ class Vector {
 
 		void resize(std::size_t size);
 
-		[[nodiscard]] T *data() noexcept;
+		[[nodiscard]]
+		constexpr T *data() noexcept {
+			return m_items;
+		}
 
-		[[nodiscard]] const T *data() const noexcept;
+		[[nodiscard]]
+		constexpr const T *data() const noexcept {
+			return m_items;
+		}
 
 		[[nodiscard]] bool contains(T) const;
 
@@ -228,16 +234,6 @@ void Vector<T>::resize(std::size_t size) {
 		}
 	}
 	m_size = size;
-}
-
-template<typename T>
-T *Vector<T>::data() noexcept {
-	return m_items;
-}
-
-template<typename T>
-const T *Vector<T>::data() const noexcept {
-	return m_items;
 }
 
 template<typename T>

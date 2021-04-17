@@ -82,12 +82,19 @@ class String {
 
 		char &operator[](std::size_t i) noexcept;
 
-		[[nodiscard]] char *data() noexcept;
+		[[nodiscard]]
+		constexpr char *data() noexcept {
+			return m_buff.data();
+		}
 
-		[[nodiscard]] const char *c_str() const noexcept;
+		[[nodiscard]]
+		constexpr const char *c_str() const noexcept {
+			return static_cast<const char*>(m_buff.data());
+		}
 
 #ifdef OX_USE_STDLIB
-		[[nodiscard]] inline std::string toStdString() const {
+		[[nodiscard]]
+		inline std::string toStdString() const {
 			return c_str();
 		}
 #endif
@@ -95,12 +102,14 @@ class String {
 		/**
 		 * Returns the number of characters in this string.
 		 */
-		[[nodiscard]] std::size_t len() const noexcept;
+		[[nodiscard]]
+		std::size_t len() const noexcept;
 
 		/**
 		 * Returns the number of bytes used for this string.
 		 */
-		[[nodiscard]] std::size_t bytes() const noexcept;
+		[[nodiscard]]
+		std::size_t bytes() const noexcept;
 
 };
 

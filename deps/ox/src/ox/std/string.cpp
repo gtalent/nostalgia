@@ -177,15 +177,6 @@ char &String::operator[](std::size_t i) noexcept {
 	return m_buff[i];
 }
 
-char *String::data() noexcept {
-	return m_buff.data();
-}
-
-const char *String::c_str() const noexcept {
-	return static_cast<const char*>(m_buff.data());
-}
-
-
 std::size_t String::len() const noexcept {
 	std::size_t length = 0;
 	for (std::size_t i = 0; i < m_buff.size(); i++) {

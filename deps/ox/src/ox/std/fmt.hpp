@@ -8,11 +8,20 @@
 
 #pragma once
 
+#include <ox/std/string.hpp>
 #include <ox/std/strops.hpp>
 #include <ox/std/types.hpp>
 #include <ox/std/typetraits.hpp>
 
 namespace ox::detail {
+
+constexpr const char *stringify(const char *s) noexcept {
+	return s;
+}
+
+constexpr const char *stringify(const ox::String &s) noexcept {
+	return s.c_str();
+}
 
 class FmtArg {
 
@@ -29,7 +38,7 @@ class FmtArg {
 			} else if constexpr(is_integral_v<T>) {
 				out = ox_itoa(v, dataStr);
 			} else {
-				out = v;
+				out = stringify(v);
 			}
 		}
 

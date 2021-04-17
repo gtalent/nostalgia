@@ -13,24 +13,66 @@
 
 namespace ox {
 
-class FieldPresenceIndicator {
-	private:
-		uint8_t *m_mask = nullptr;
-		std::size_t m_maskLen = 0;
+template<typename T>
+class FieldBitmapReader {
+	protected:
+		T m_map = nullptr;
+		std::size_t m_mapLen = 0;
 		std::size_t m_fields = 0;
 
 	public:
-		FieldPresenceIndicator(const uint8_t *mask, std::size_t maxLen);
+		FieldBitmapReader(T map, std::size_t maxLen) noexcept;
 
-		Result<bool> get(std::size_t i) const;
-
-		Error set(std::size_t i, bool on);
+		Result<bool> get(std::size_t i) const noexcept;
 
 		void setFields(int) noexcept;
 
-	void setMaxLen(int) noexcept;
+		void setMaxLen(int) noexcept;
 
 		int getMaxLen() const noexcept;
+
+};
+
+template<typename T>
+FieldBitmapReader<T>::FieldBitmapReader(T map, std::size_t maxLen) noexcept {
+	m_map = map;
+	m_mapLen = maxLen;
+}
+
+template<typename T>
+Result<bool> FieldBitmapReader<T>::get(std::size_t i) const noexcept {
+	if (i / 8 < m_mapLen) {
+		return (m_map[i / 8] >> (i % 8)) & 1;
+	} else {
+		return OxError(MC_PRESENCEMASKOUTBOUNDS);
+	}
+}
+
+template<typename T>
+void FieldBitmapReader<T>::setFields(int fields) noexcept {
+	m_fields = fields;
+	m_mapLen = (fields / 8 + 1) - (fields % 8 == 0);
+}
+
+template<typename T>
+void FieldBitmapReader<T>::setMaxLen(int maxLen) noexcept {
+	m_mapLen = maxLen;
+}
+
+template<typename T>
+int FieldBitmapReader<T>::getMaxLen() const noexcept {
+	return m_mapLen;
+}
+
+extern template class FieldBitmapReader<uint8_t*>;
+extern template class FieldBitmapReader<const uint8_t*>;
+
+class FieldBitmap: public FieldBitmapReader<uint8_t*> {
+
+	public:
+		FieldBitmap(uint8_t *mask, std::size_t maxLen) noexcept;
+
+		Error set(std::size_t i, bool on) noexcept;
 
 };
 

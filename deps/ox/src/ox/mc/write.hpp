@@ -28,7 +28,7 @@ namespace ox {
 class MetalClawWriter {
 
 	private:
-		FieldPresenceIndicator m_fieldPresence;
+		FieldBitmap m_fieldPresence;
 		int m_fields = 0;
 		int m_field = 0;
 		int m_unionIdx = -1;

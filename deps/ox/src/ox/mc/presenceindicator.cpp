@@ -12,44 +12,23 @@
 
 namespace ox {
 
-FieldPresenceIndicator::FieldPresenceIndicator(const uint8_t *mask, std::size_t maxLen) {
-	// TODO: have separate read only version of this class
-	m_mask = const_cast<uint8_t*>(mask);
-	m_maskLen = maxLen;
+template class FieldBitmapReader<uint8_t*>;
+template class FieldBitmapReader<const uint8_t*>;
+
+FieldBitmap::FieldBitmap(uint8_t *mask, std::size_t maxLen) noexcept: FieldBitmapReader<uint8_t*>(mask, maxLen) {
 }
 
-Result<bool> FieldPresenceIndicator::get(std::size_t i) const {
-	if (i / 8 < m_maskLen) {
-		return (m_mask[i / 8] >> (i % 8)) & 1;
-	} else {
-		return OxError(MC_PRESENCEMASKOUTBOUNDS);
-	}
-}
-
-Error FieldPresenceIndicator::set(std::size_t i, bool on) {
-	if (i / 8 < m_maskLen) {
+Error FieldBitmap::set(std::size_t i, bool on) noexcept {
+	if (i / 8 < m_mapLen) {
 		if (on) {
-			m_mask[i / 8] |= 1 << (i % 8);
+			m_map[i / 8] |= 1 << (i % 8);
 		} else {
-			m_mask[i / 8] &= ~(1 << (i % 8));
+			m_map[i / 8] &= ~(1 << (i % 8));
 		}
 		return OxError(0);
 	} else {
 		return OxError(MC_PRESENCEMASKOUTBOUNDS);
 	}
-}
-
-void FieldPresenceIndicator::setFields(int fields) noexcept {
-	m_fields = fields;
-	m_maskLen = (fields / 8 + 1) - (fields % 8 == 0);
-}
-
-	void FieldPresenceIndicator::setMaxLen(int maxLen) noexcept {
-	m_maskLen = maxLen;
-}
-
-int FieldPresenceIndicator::getMaxLen() const noexcept {
-	return m_maskLen;
 }
 
 }

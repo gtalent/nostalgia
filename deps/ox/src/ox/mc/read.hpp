@@ -25,7 +25,7 @@ namespace ox {
 class MetalClawReader {
 
 	private:
-		FieldPresenceIndicator m_fieldPresence;
+		FieldBitmapReader<const uint8_t*> m_fieldPresence;
 		int m_fields = 0;
 		int m_field = 0;
 		int m_unionIdx = -1;

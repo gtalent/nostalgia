@@ -118,6 +118,19 @@ struct enable_if<true, T> {
 
 
 template<typename T>
+struct is_pointer {
+	static constexpr bool value = false;
+};
+
+template<typename T>
+struct is_pointer<T*> {
+	static constexpr bool value = true;
+};
+
+template<typename T>
+constexpr bool is_pointer_v = is_pointer<T>::value;
+
+template<typename T>
 struct remove_pointer {
 	using type = T;
 };

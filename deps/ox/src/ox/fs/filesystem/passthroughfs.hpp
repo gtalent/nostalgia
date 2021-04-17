@@ -8,21 +8,19 @@
 
 #pragma once
 
-#if __has_include(<filesystem>)
+#if __has_include(<filesystem>) && defined(OX_USE_STDLIB)
 
 #include <filesystem>
 #include <string>
 
-#define OX_HAS_PASSTHROUGHFS
-
-#endif
-
-#ifdef OX_HAS_PASSTHROUGHFS
-
 #include <ox/std/bit.hpp>
 #include "filesystem.hpp"
 
+#define OX_HAS_PASSTHROUGHFS
+
 namespace ox {
+
+constexpr auto HasPassThroughFS = true;
 
 /**
  *
@@ -99,6 +97,14 @@ Error PassThroughFS::ls(const char *dir, F cb) noexcept {
 	}
 	return OxError(0);
 }
+
+}
+
+#else
+
+namespace ox {
+
+constexpr auto HasPassThroughFS = false;
 
 }
 

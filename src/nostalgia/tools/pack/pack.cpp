@@ -35,10 +35,10 @@ static ox::Error toMetalClaw(ox::Vector<uint8_t> *buff) noexcept {
 
 // claw file transformations are broken out because path to inode
 // transformations need to be done after the copy to the new FS is complete
-static ox::Error transformClaw(ox::FileSystem *dest, ox::String path) noexcept {
+static ox::Error transformClaw(ox::FileSystem *dest, const ox::String &path) noexcept {
 	// copy
-	oxTrace("pack::transformClaw") << "path:" << path.c_str();
-	oxRequire(fileList, dest->ls(path.c_str()));
+	oxTracef("pack::transformClaw", "path: {}", path);
+	oxRequire(fileList, dest->ls(path));
 	for (auto i = 0u; i < fileList.size(); ++i) {
 		auto &name = fileList[i];
 		auto filePath = path + name;
@@ -75,11 +75,11 @@ struct VerificationPair {
 	ox::Vector<uint8_t> buff;
 };
 
-static ox::Error copy(ox::FileSystem *src, ox::FileSystem *dest, ox::String path) noexcept {
+static ox::Error copy(ox::FileSystem *src, ox::FileSystem *dest, const ox::String &path) noexcept {
 	oxOutf("copying directory: {}\n", path);
 	ox::Vector<VerificationPair> verificationPairs;
 	// copy
-	oxRequire(fileList, src->ls(path.c_str()));
+	oxRequire(fileList, src->ls(path));
 	for (auto i = 0u; i < fileList.size(); ++i) {
 		auto &name = fileList[i];
 		auto currentFile = path + name;

@@ -26,11 +26,11 @@ class Vector {
 	public:
 		Vector() noexcept = default;
 
-		explicit Vector(std::size_t size);
+		explicit Vector(std::size_t size) noexcept;
 
 		Vector(const Vector &other);
 
-		Vector(Vector &&other);
+		Vector(Vector &&other) noexcept;
 
 		~Vector();
 
@@ -44,17 +44,17 @@ class Vector {
 
 		[[nodiscard]] const T &operator[](std::size_t i) const noexcept;
 
-		[[nodiscard]] T &front() noexcept;
+		[[nodiscard]] Result<T&> front() noexcept;
 
-		[[nodiscard]] const T &front() const noexcept;
+		[[nodiscard]] Result<const T&> front() const noexcept;
 
-		[[nodiscard]] T &back() noexcept;
+		[[nodiscard]] Result<T&> back() noexcept;
 
-		[[nodiscard]] const T &back() const noexcept;
+		[[nodiscard]] Result<const T&> back() const noexcept;
 
 		[[nodiscard]] std::size_t size() const noexcept;
 
-		[[nodiscard]] bool empty() const;
+		[[nodiscard]] bool empty() const noexcept;
 
 		void clear();
 
@@ -70,7 +70,7 @@ class Vector {
 			return m_items;
 		}
 
-		[[nodiscard]] bool contains(T) const;
+		[[nodiscard]] bool contains(const T&) const;
 
 		void insert(std::size_t pos, const T &val);
 
@@ -100,7 +100,7 @@ class Vector {
 };
 
 template<typename T>
-Vector<T>::Vector(std::size_t size) {
+Vector<T>::Vector(std::size_t size) noexcept {
 	m_size = size;
 	m_cap = m_size;
 	m_items = bit_cast<T*>(new AllocAlias<T>[m_cap]);
@@ -120,7 +120,7 @@ Vector<T>::Vector(const Vector<T> &other) {
 }
 
 template<typename T>
-Vector<T>::Vector(Vector<T> &&other) {
+Vector<T>::Vector(Vector<T> &&other) noexcept {
 	m_size = other.m_size;
 	m_cap = other.m_cap;
 	m_items = other.m_items;
@@ -185,22 +185,38 @@ const T &Vector<T>::operator[](std::size_t i) const noexcept {
 }
 
 template<typename T>
-T &Vector<T>::front() noexcept {
+Result<T&> Vector<T>::front() noexcept {
+	if (!m_size) {
+		AllocAlias<T> v;
+		return {*bit_cast<T*>(&v), OxError(1)};
+	}
 	return m_items[0];
 }
 
 template<typename T>
-const T &Vector<T>::front() const noexcept {
+Result<const T&> Vector<T>::front() const noexcept {
+	if (!m_size) {
+		AllocAlias<T> v;
+		return {*bit_cast<T*>(&v), OxError(1)};
+	}
 	return m_items[0];
 }
 
 template<typename T>
-T &Vector<T>::back() noexcept {
+Result<T&> Vector<T>::back() noexcept {
+	if (!m_size) {
+		AllocAlias<T> v;
+		return {*bit_cast<T*>(&v), OxError(1)};
+	}
 	return m_items[m_size - 1];
 }
 
 template<typename T>
-const T &Vector<T>::back() const noexcept {
+Result<const T&> Vector<T>::back() const noexcept {
+	if (!m_size) {
+		AllocAlias<T> v;
+		return {*bit_cast<T*>(&v), OxError(1)};
+	}
 	return m_items[m_size - 1];
 }
 
@@ -210,7 +226,7 @@ std::size_t Vector<T>::size() const noexcept {
 }
 
 template<typename T>
-bool Vector<T>::empty() const {
+bool Vector<T>::empty() const noexcept {
 	return !m_size;
 }
 
@@ -237,7 +253,7 @@ void Vector<T>::resize(std::size_t size) {
 }
 
 template<typename T>
-bool Vector<T>::contains(T v) const {
+bool Vector<T>::contains(const T &v) const {
 	for (std::size_t i = 0; i < m_size; i++) {
 		if (m_items[i] == v) {
 			return true;

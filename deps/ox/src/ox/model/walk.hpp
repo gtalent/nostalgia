@@ -28,7 +28,8 @@ class DataWalker {
 	public:
 		DataWalker(DescriptorType *type, T fieldHandler);
 
-		[[nodiscard]] const DescriptorType *type() const noexcept;
+		[[nodiscard]]
+		Result<const DescriptorType*> type() const noexcept;
 
 		Error read(const DescriptorField&, Reader *rdr);
 
@@ -49,8 +50,9 @@ DataWalker<Reader, T>::DataWalker(DescriptorType *type, T fieldHandler): m_field
 }
 
 template<typename Reader, typename T>
-const DescriptorType *DataWalker<Reader, T>::type() const noexcept {
-	return m_typeStack.back();
+Result<const DescriptorType*> DataWalker<Reader, T>::type() const noexcept {
+	oxRequire(out, m_typeStack.back());
+	return out;
 }
 
 template<typename Reader, typename T>
@@ -132,10 +134,7 @@ static Error parseField(const DescriptorField &field, Reader *rdr, DataWalker<Re
 
 template<typename Reader, typename FH>
 Error model(Reader *rdr, DataWalker<Reader, FH> *walker) {
-	auto type = walker->type();
-	if (!type) {
-		return OxError(1);
-	}
+	oxRequire(type, walker->type());
 	auto typeName = type->typeName.c_str();
 	auto &fields = type->fieldList;
 	rdr->setTypeInfo(typeName, fields.size());

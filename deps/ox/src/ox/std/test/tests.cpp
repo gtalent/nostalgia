@@ -18,7 +18,7 @@ std::map<std::string, std::function<ox::Error()>> tests = {
 		"malloc",
 		[] {
 			ox::Vector<char> buff(ox::units::MB);
-			ox::heapmgr::initHeap(&buff.front(), &buff.back());
+			ox::heapmgr::initHeap(&buff[0], &buff[buff.size()-1]);
 			oxAssert(ox::heapmgr::malloc(5) != nullptr, "malloc is broken");
 			oxAssert(ox::heapmgr::malloc(5) != nullptr, "malloc is broken");
 			return OxError(0);

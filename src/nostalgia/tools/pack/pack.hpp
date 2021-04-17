@@ -10,6 +10,6 @@
 
 namespace nostalgia {
 
-ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest);
+ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest) noexcept;
 
 }

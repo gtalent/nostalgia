@@ -6,8 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <string_view>
-
 #include <ox/claw/read.hpp>
 
 #include "pack.hpp"
@@ -16,27 +14,18 @@ namespace nostalgia {
 
 namespace {
 
-[[nodiscard]]
-static constexpr bool endsWith(std::string_view str, std::string_view ending) noexcept {
-	return str.size() >= ending.size() && str.substr(str.size() - ending.size()) == ending;
-}
-
-static_assert(endsWith("asdf", "df"));
-static_assert(!endsWith("asdf", "awefawe"));
-static_assert(!endsWith("asdf", "eu"));
-
 /**
  * Convert path references to inodes to save space
  * @param buff buffer holding file
  * @return error
  * stub for now
  */
-ox::Error pathToInode(ox::Vector<uint8_t>*) {
+static ox::Error pathToInode(ox::Vector<uint8_t>*) noexcept {
 	return OxError(0);
 }
 
 // just strip header for now...
-ox::Error toMetalClaw(ox::Vector<uint8_t> *buff) {
+static ox::Error toMetalClaw(ox::Vector<uint8_t> *buff) noexcept {
 	auto [mc, err] = ox::stripClawHeader(ox::bit_cast<char*>(buff->data()), buff->size());
 	oxReturnError(err);
 	buff->resize(mc.size());
@@ -46,10 +35,10 @@ ox::Error toMetalClaw(ox::Vector<uint8_t> *buff) {
 
 // claw file transformations are broken out because path to inode
 // transformations need to be done after the copy to the new FS is complete
-ox::Error transformClaw(ox::FileSystem32 *dest, ox::String path) {
+static ox::Error transformClaw(ox::FileSystem32 *dest, ox::String path) noexcept {
 	// copy
 	oxTrace("pack::transformClaw") << "path:" << path.c_str();
-	return dest->ls(path.c_str(), [dest, path](const char *name, ox::InodeId_t) {
+	return dest->ls(path.c_str(), [dest, path](const ox::String &name, ox::InodeId_t) {
 		auto filePath = path + name;
 		auto [stat, err] = dest->stat(filePath.c_str());
 		oxReturnError(err);
@@ -58,7 +47,7 @@ ox::Error transformClaw(ox::FileSystem32 *dest, ox::String path) {
 			oxReturnError(transformClaw(dest, dir));
 		} else {
 			// do transforms
-			if (endsWith(name, ".ng") || endsWith(name, ".npal")) {
+			if (name.endsWith(".ng") || name.endsWith(".npal")) {
 				// load file
 				ox::Vector<uint8_t> buff(stat.size);
 				oxReturnError(dest->read(filePath.c_str(), buff.data(), buff.size()));
@@ -73,7 +62,7 @@ ox::Error transformClaw(ox::FileSystem32 *dest, ox::String path) {
 	});
 }
 
-ox::Error verifyFile(ox::FileSystem32 *fs, const ox::String &path, const ox::Vector<uint8_t> &expected) noexcept {
+static ox::Error verifyFile(ox::FileSystem32 *fs, const ox::String &path, const ox::Vector<uint8_t> &expected) noexcept {
 	ox::Vector<uint8_t> buff(expected.size());
 	oxReturnError(fs->read(path.c_str(), buff.data(), buff.size()));
 	return OxError(buff == expected ? 0 : 1);
@@ -84,11 +73,11 @@ struct VerificationPair {
 	ox::Vector<uint8_t> buff;
 };
 
-ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, ox::String path) {
+static ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, ox::String path) noexcept {
 	oxOutf("copying directory: {}\n", path);
 	ox::Vector<VerificationPair> verificationPairs;
 	// copy
-	oxReturnError(src->ls(path.c_str(), [&verificationPairs, src, dest, path](const char *name, ox::InodeId_t) {
+	oxReturnError(src->ls(path.c_str(), [&verificationPairs, src, dest, path](const char *name, ox::InodeId_t) noexcept {
 		auto currentFile = path + name;
 		if (currentFile == "/.nostalgia") {
 			return OxError(0);
@@ -122,7 +111,7 @@ ox::Error copy(ox::PassThroughFS *src, ox::FileSystem32 *dest, ox::String path) 
 
 }
 
-ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest) {
+ox::Error pack(ox::PassThroughFS *src, ox::FileSystem32 *dest) noexcept {
 	oxReturnError(copy(src, dest, "/"));
 	oxReturnError(transformClaw(dest, "/"));
 	return OxError(0);

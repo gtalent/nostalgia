@@ -60,6 +60,15 @@ String &String::operator=(char *str) noexcept {
 	return *this = static_cast<const char*>(str);
 }
 
+String &String::operator=(char c) noexcept {
+	char str[] = {c, 0};
+	return this->operator=(str);
+}
+
+String &String::operator=(int i) noexcept {
+	return this->operator=(static_cast<int64_t>(i));
+}
+
 String &String::operator=(int64_t i) noexcept {
 	char str[65] = {};
 	ox_itoa(i, str);
@@ -89,6 +98,15 @@ String &String::operator+=(char *str) noexcept {
 	return *this += static_cast<const char*>(str);
 }
 
+String &String::operator+=(char c) noexcept {
+	char str[] = {c, 0};
+	return this->operator+=(str);
+}
+
+String &String::operator+=(int i) noexcept {
+	return this->operator+=(static_cast<int64_t>(i));
+}
+
 String &String::operator+=(int64_t i) noexcept {
 	char str[65] = {};
 	ox_itoa(i, str);
@@ -113,6 +131,15 @@ String String::operator+(const char *str) const noexcept {
 
 String String::operator+(char *str) const noexcept {
 	return *this + static_cast<const char*>(str);
+}
+
+String String::operator+(char c) const noexcept {
+	char str[] = {c, 0};
+	return *this + str;
+}
+
+String String::operator+(int i) const noexcept {
+	return this->operator+(static_cast<int64_t>(i));
 }
 
 String String::operator+(int64_t i) const noexcept {

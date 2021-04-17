@@ -40,6 +40,10 @@ class String {
 
 		String &operator=(char *str) noexcept;
 
+		String &operator=(char c) noexcept;
+
+		String &operator=(int i) noexcept;
+
 		String &operator=(int64_t i) noexcept;
 
 		String &operator=(const String &src) noexcept;
@@ -50,6 +54,10 @@ class String {
 
 		String &operator+=(char *str) noexcept;
 
+		String &operator+=(char c) noexcept;
+
+		String &operator+=(int i) noexcept;
+
 		String &operator+=(int64_t i) noexcept;
 
 		String &operator+=(const String &src) noexcept;
@@ -57,6 +65,10 @@ class String {
 		String operator+(const char *str) const noexcept;
 
 		String operator+(char *str) const noexcept;
+
+		String operator+(char c) const noexcept;
+
+		String operator+(int i) const noexcept;
 
 		String operator+(int64_t i) const noexcept;
 

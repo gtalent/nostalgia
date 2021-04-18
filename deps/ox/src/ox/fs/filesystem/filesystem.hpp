@@ -32,13 +32,13 @@ class FileSystem {
 
 		virtual Error read(const char *path, void *buffer, std::size_t buffSize) noexcept = 0;
 
-		virtual Result<const uint8_t*> read(const char *path) noexcept = 0;
+		virtual Result<const uint8_t*> directAccess(const char *path) noexcept = 0;
 
 		virtual Error read(uint64_t inode, void *buffer, std::size_t size) noexcept = 0;
 
 		virtual Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept = 0;
 
-		virtual Result<const uint8_t*> read(uint64_t inode) noexcept = 0;
+		virtual Result<const uint8_t*> directAccess(uint64_t inode) noexcept = 0;
 
 		Error read(FileAddress addr, void *buffer, std::size_t size) noexcept;
 
@@ -122,13 +122,13 @@ class FileSystemTemplate: public FileSystem {
 
 		Error read(const char *path, void *buffer, std::size_t buffSize) noexcept override;
 
-		Result<const uint8_t*> read(const char*) noexcept override;
+		Result<const uint8_t*> directAccess(const char*) noexcept override;
 
 		Error read(uint64_t inode, void *buffer, std::size_t size) noexcept override;
 
 		Error read(uint64_t inode, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept override;
 
-		Result<const uint8_t*> read(uint64_t) noexcept override;
+		Result<const uint8_t*> directAccess(uint64_t) noexcept override;
 
 		Result<Vector<String>> ls(const char *dir) noexcept override;
 
@@ -247,13 +247,13 @@ Error FileSystemTemplate<FileStore, Directory>::read(const char *path, void *buf
 }
 
 template<typename FileStore, typename Directory>
-Result<const uint8_t*> FileSystemTemplate<FileStore, Directory>::read(const char *path) noexcept {
+Result<const uint8_t*> FileSystemTemplate<FileStore, Directory>::directAccess(const char *path) noexcept {
 	auto fd = fileSystemData();
 	oxReturnError(fd.error);
 	Directory rootDir(m_fs, fd.value.rootDirInode);
 	auto [inode, err] = rootDir.find(path);
 	oxReturnError(err);
-	return read(inode);
+	return directAccess(inode);
 }
 
 template<typename FileStore, typename Directory>
@@ -267,7 +267,7 @@ Error FileSystemTemplate<FileStore, Directory>::read(uint64_t inode, std::size_t
 }
 
 template<typename FileStore, typename Directory>
-Result<const uint8_t*> FileSystemTemplate<FileStore, Directory>::read(uint64_t inode) noexcept {
+Result<const uint8_t*> FileSystemTemplate<FileStore, Directory>::directAccess(uint64_t inode) noexcept {
 	auto data = m_fs.read(inode);
 	if (!data.valid()) {
 		return OxError(1);

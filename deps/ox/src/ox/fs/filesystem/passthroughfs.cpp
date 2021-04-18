@@ -74,8 +74,8 @@ Error PassThroughFS::read(const char *path, void *buffer, std::size_t buffSize) 
 	return OxError(0);
 }
 
-Result<const uint8_t*> PassThroughFS::read(const char*) noexcept {
-	return OxError(1);
+Result<const uint8_t*> PassThroughFS::directAccess(const char*) noexcept {
+	return OxError(1, "PassThroughFS::directAccess not supported");
 }
 
 Error PassThroughFS::read(uint64_t, void*, std::size_t) noexcept {
@@ -88,8 +88,8 @@ Error PassThroughFS::read(uint64_t, std::size_t, std::size_t, void*, std::size_t
 	return OxError(1);
 }
 
-Result<const uint8_t*> PassThroughFS::read(uint64_t) noexcept {
-	return OxError(1);
+Result<const uint8_t*> PassThroughFS::directAccess(uint64_t) noexcept {
+	return OxError(1, "PassThroughFS::directAccess not supported");
 }
 
 Result<Vector<String>> PassThroughFS::ls(const char *dir) noexcept {

@@ -46,7 +46,7 @@ class SerStr {
 			m_cap = cap;
 		}
 
-		constexpr const char *c_str() noexcept {
+		constexpr const char *c_str() const noexcept {
 			return m_str;
 		}
 
@@ -59,11 +59,11 @@ class SerStr {
 			return m_str;
 		}
 
-		constexpr int len() noexcept {
+		constexpr int len() const noexcept {
 			return static_cast<int>(m_str ? ox_strlen(m_str) : 0);
 		}
 
-		constexpr int cap() noexcept {
+		constexpr int cap() const noexcept {
 			return m_cap;
 		}
 
@@ -77,11 +77,15 @@ class UnionView {
 		typename enable_if<is_union_v<Union>, Union>::type *m_union = nullptr;
 
 	public:
-		constexpr explicit UnionView(Union *u, int idx) noexcept: m_idx(idx), m_union(u) {
+		constexpr UnionView(Union *u, int idx) noexcept: m_idx(idx), m_union(u) {
 		}
 
-		constexpr auto idx() noexcept {
+		constexpr auto idx() const noexcept {
 			return m_idx;
+		}
+
+		constexpr const Union *get() const noexcept {
+			return m_union;
 		}
 
 		constexpr Union *get() noexcept {

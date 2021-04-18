@@ -89,6 +89,11 @@ struct [[nodiscard]] Result {
 		return error == 0;
 	}
 
+	constexpr Error get(type *val) const noexcept {
+		*val = value;
+		return error;
+	}
+
 	constexpr Error get(type *val) noexcept {
 		*val = value;
 		return error;

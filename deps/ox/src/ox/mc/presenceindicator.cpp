@@ -15,7 +15,7 @@ namespace ox {
 template class FieldBitmapReader<uint8_t*>;
 template class FieldBitmapReader<const uint8_t*>;
 
-FieldBitmap::FieldBitmap(uint8_t *mask, std::size_t maxLen) noexcept: FieldBitmapReader<uint8_t*>(mask, maxLen) {
+FieldBitmap::FieldBitmap(uint8_t *map, std::size_t maxLen) noexcept: FieldBitmapReader<uint8_t*>(map, maxLen) {
 }
 
 Error FieldBitmap::set(std::size_t i, bool on) noexcept {

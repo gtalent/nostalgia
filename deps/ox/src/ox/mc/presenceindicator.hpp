@@ -70,7 +70,7 @@ extern template class FieldBitmapReader<const uint8_t*>;
 class FieldBitmap: public FieldBitmapReader<uint8_t*> {
 
 	public:
-		FieldBitmap(uint8_t *mask, std::size_t maxLen) noexcept;
+		FieldBitmap(uint8_t *map, std::size_t maxLen) noexcept;
 
 		Error set(std::size_t i, bool on) noexcept;
 

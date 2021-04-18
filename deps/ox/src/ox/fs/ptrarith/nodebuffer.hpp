@@ -34,45 +34,48 @@ class OX_PACKED NodeBuffer {
 				size_t m_it = 0;
 
 			public:
-				Iterator(NodeBuffer *buffer, ItemPtr current) {
+				Iterator(NodeBuffer *buffer, ItemPtr current) noexcept {
 					m_buffer = buffer;
 					m_current = current;
 					oxTrace("ox::ptrarith::Iterator::start") << current.offset();
 				}
 
-				operator const Item*() const {
+				operator const Item*() const noexcept {
 					return m_current;
 				}
 
-				ItemPtr ptr() {
+				ItemPtr ptr() noexcept {
 					return m_current;
 				}
 
-				Item *get() {
+				[[nodiscard]]
+				Item *get() noexcept {
 					return m_current;
 				}
 
-				operator ItemPtr() {
+				operator ItemPtr() noexcept {
 					return m_current;
 				}
 
-				operator Item*() {
+				operator Item*() noexcept {
 					return m_current;
 				}
 
-				const Item *operator->() const {
+				const Item *operator->() const noexcept {
 					return m_current;
 				}
 
-				Item *operator->() {
+				Item *operator->() noexcept {
 					return m_current;
 				}
 
-				[[nodiscard]] bool valid() const noexcept {
+				[[nodiscard]]
+				bool valid() const noexcept {
 					return m_current.valid();
 				}
 
-				bool hasNext() {
+				[[nodiscard]]
+				bool hasNext() noexcept {
 					if (m_current.valid()) {
 						oxTrace("ox::ptrarith::NodeBuffer::Iterator::hasNext::current") << m_current.offset();
 						auto next = m_buffer->next(m_current);
@@ -81,7 +84,7 @@ class OX_PACKED NodeBuffer {
 					return false;
 				}
 
-				void next() {
+				void next() noexcept {
 					oxTrace("ox::ptrarith::NodeBuffer::Iterator::next") << m_it++;
 					if (hasNext()) {
 						m_current = m_buffer->next(m_current);
@@ -94,76 +97,83 @@ class OX_PACKED NodeBuffer {
 		Header m_header;
 
 	public:
-		NodeBuffer();
+		NodeBuffer() noexcept;
 
-		NodeBuffer(const NodeBuffer &other, size_t size);
+		NodeBuffer(const NodeBuffer &other, size_t size) noexcept;
 
-		explicit NodeBuffer(size_t size);
+		explicit NodeBuffer(size_t size) noexcept;
 
-		const Iterator iterator() const;
+		[[nodiscard]]
+		const Iterator iterator() const noexcept;
 
-		Iterator iterator();
+		[[nodiscard]]
+		Iterator iterator() noexcept;
 
-		ItemPtr firstItem();
+		ItemPtr firstItem() noexcept;
 
-		ItemPtr lastItem();
+		ItemPtr lastItem() noexcept;
 
 		/**
 		 * @return the data section of the given item
 		 */
 		template<typename T>
-		Ptr<T, size_t, sizeof(Item)> dataOf(ItemPtr);
+		Ptr<T, size_t, sizeof(Item)> dataOf(ItemPtr) noexcept;
 
-		[[nodiscard]] ItemPtr prev(Item *item);
+		ItemPtr prev(Item *item) noexcept;
 
-		[[nodiscard]] ItemPtr next(Item *item);
+		ItemPtr next(Item *item) noexcept;
 
 		/**
 		 * Like pointer but omits checks that assume the memory at the offset has
 		 * already been initialed as an Item.
 		 */
-		[[nodiscard]] ItemPtr uninitializedPtr(size_t offset);
+		ItemPtr uninitializedPtr(size_t offset) noexcept;
 
-		[[nodiscard]] ItemPtr ptr(size_t offset);
+		ItemPtr ptr(size_t offset) noexcept;
 
-		[[nodiscard]] ItemPtr malloc(size_t size);
+		ItemPtr malloc(size_t size) noexcept;
 
-		Error free(ItemPtr item);
+		Error free(ItemPtr item) noexcept;
 
-		[[nodiscard]] bool valid(size_t maxSize);
+		[[nodiscard]]
+		bool valid(size_t maxSize) noexcept;
 
 		/**
 		 * Set size, capacity.
 		 */
-		Error setSize(size_t size);
+		Error setSize(size_t size) noexcept;
 
 		/**
 		 * Get size, capacity.
 		 * @return capacity
 		 */
-		size_t size();
+		[[nodiscard]]
+		constexpr size_t size() const noexcept;
 
 		/**
 		 * @return the bytes still available in this NodeBuffer
 		 */
-		size_t available();
+		[[nodiscard]]
+		size_t available() noexcept;
 
 		/**
 		 * @return the actual number a bytes need to store the given number of
 		 * bytes
 		 */
-		static size_t spaceNeeded(size_t size);
+		[[nodiscard]]
+		static size_t spaceNeeded(size_t size) noexcept;
 
 		template<typename F>
-		Error compact(F cb = [](uint64_t, ItemPtr) {});
+		Error compact(F cb = [](uint64_t, ItemPtr) {}) noexcept;
 
-private:
-		uint8_t *data();
+	private:
+		[[nodiscard]]
+		uint8_t *data() noexcept;
 
 };
 
 template<typename size_t, typename Item>
-NodeBuffer<size_t, Item>::NodeBuffer(size_t size) {
+NodeBuffer<size_t, Item>::NodeBuffer(size_t size) noexcept {
 	m_header.size = size;
 	auto data = reinterpret_cast<uint8_t*>(this) + sizeof(*this);
 	ox_memset(data, 0, size - sizeof(*this));
@@ -171,7 +181,7 @@ NodeBuffer<size_t, Item>::NodeBuffer(size_t size) {
 }
 
 template<typename size_t, typename Item>
-NodeBuffer<size_t, Item>::NodeBuffer(const NodeBuffer &other, size_t size) {
+NodeBuffer<size_t, Item>::NodeBuffer(const NodeBuffer &other, size_t size) noexcept {
 	oxTrace("ox::ptrarith::NodeBuffer::copy") << "other.m_header.firstItem:" << other.m_header.firstItem;
 	auto data = reinterpret_cast<uint8_t*>(this) + sizeof(*this);
 	ox_memset(data, 0, size - sizeof(*this));
@@ -179,24 +189,24 @@ NodeBuffer<size_t, Item>::NodeBuffer(const NodeBuffer &other, size_t size) {
 }
 
 template<typename size_t, typename Item>
-const typename NodeBuffer<size_t, Item>::Iterator NodeBuffer<size_t, Item>::iterator() const {
+const typename NodeBuffer<size_t, Item>::Iterator NodeBuffer<size_t, Item>::iterator() const noexcept {
 	return Iterator(this, firstItem());
 }
 
 template<typename size_t, typename Item>
-typename NodeBuffer<size_t, Item>::Iterator NodeBuffer<size_t, Item>::iterator() {
+typename NodeBuffer<size_t, Item>::Iterator NodeBuffer<size_t, Item>::iterator() noexcept {
 	oxTrace("ox::ptrarith::NodeBuffer::iterator::size") << m_header.size;
 	return Iterator(this, firstItem());
 }
 
 template<typename size_t, typename Item>
-typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::firstItem() {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::firstItem() noexcept {
 	//oxTrace("ox::ptrarith::NodeBuffer::firstItem") << m_header.firstItem;
 	return ptr(m_header.firstItem);
 }
 
 template<typename size_t, typename Item>
-typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::lastItem() {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::lastItem() noexcept {
 	auto first = ptr(m_header.firstItem);
 	if (first.valid()) {
 		return prev(first);
@@ -206,24 +216,24 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::lastItem() 
 
 template<typename size_t, typename Item>
 template<typename T>
-Ptr<T, size_t, sizeof(Item)> NodeBuffer<size_t, Item>::dataOf(ItemPtr ip) {
+Ptr<T, size_t, sizeof(Item)> NodeBuffer<size_t, Item>::dataOf(ItemPtr ip) noexcept {
 	auto out = ip.template subPtr<T>(sizeof(Item));
 	oxAssert(out.size() == ip.size() - sizeof(Item), "Sub Ptr has invalid size.");
 	return out;
 }
 
 template<typename size_t, typename Item>
-typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::prev(Item *item) {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::prev(Item *item) noexcept {
 	return ptr(item->prev);
 }
 
 template<typename size_t, typename Item>
-typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::next(Item *item) {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::next(Item *item) noexcept {
 	return ptr(item->next);
 }
 
 template<typename size_t, typename Item>
-typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::uninitializedPtr(size_t itemOffset) {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::uninitializedPtr(size_t itemOffset) noexcept {
 	// make sure this can be read as an Item, and then use Item::size for the size
 	std::size_t itemSpace = m_header.size - itemOffset;
 	if (itemOffset >= sizeof(Header) &&
@@ -240,7 +250,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::uninitializ
 }
 
 template<typename size_t, typename Item>
-typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t itemOffset) {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t itemOffset) noexcept {
 	// make sure this can be read as an Item, and then use Item::size for the size
 	std::size_t itemSpace = m_header.size - itemOffset;
 	auto item = reinterpret_cast<Item*>(reinterpret_cast<uint8_t*>(this) + itemOffset);
@@ -259,7 +269,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t 
 }
 
 template<typename size_t, typename Item>
-typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size_t size) {
+typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size_t size) noexcept {
 	oxTrace("ox::ptrarith::NodeBuffer::malloc") << "Size:" << size;
 	size_t fullSize = size + sizeof(Item);
 	if (m_header.size - m_header.bytesUsed >= fullSize) {
@@ -318,7 +328,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 }
 
 template<typename size_t, typename Item>
-Error NodeBuffer<size_t, Item>::free(ItemPtr item) {
+Error NodeBuffer<size_t, Item>::free(ItemPtr item) noexcept {
 	oxTrace("ox::ptrarith::NodeBuffer::free") << "offset:" << item.offset();
 	auto prev = this->prev(item);
 	auto next = this->next(item);
@@ -349,7 +359,7 @@ Error NodeBuffer<size_t, Item>::free(ItemPtr item) {
 }
 
 template<typename size_t, typename Item>
-Error NodeBuffer<size_t, Item>::setSize(size_t size) {
+Error NodeBuffer<size_t, Item>::setSize(size_t size) noexcept {
 	oxTracef("ox::ptrarith::NodeBuffer::setSize", "{} to {}", m_header.size.get(), size);
 	auto last = lastItem();
 	auto end = last.valid() ? last.end() : sizeof(m_header);
@@ -366,28 +376,28 @@ Error NodeBuffer<size_t, Item>::setSize(size_t size) {
 }
 
 template<typename size_t, typename Item>
-size_t NodeBuffer<size_t, Item>::size() {
+constexpr size_t NodeBuffer<size_t, Item>::size() const noexcept {
 	return m_header.size;
 }
 
 template<typename size_t, typename Item>
-bool NodeBuffer<size_t, Item>::valid(size_t maxSize) {
+bool NodeBuffer<size_t, Item>::valid(size_t maxSize) noexcept {
 	return m_header.size <= maxSize;
 }
 
 template<typename size_t, typename Item>
-size_t NodeBuffer<size_t, Item>::available() {
+size_t NodeBuffer<size_t, Item>::available() noexcept {
 	return m_header.size - m_header.bytesUsed;
 }
 
 template<typename size_t, typename Item>
-size_t NodeBuffer<size_t, Item>::spaceNeeded(size_t size) {
+size_t NodeBuffer<size_t, Item>::spaceNeeded(size_t size) noexcept {
 	return sizeof(Item) + size;
 }
 
 template<typename size_t, typename Item>
 template<typename F>
-Error NodeBuffer<size_t, Item>::compact(F cb) {
+Error NodeBuffer<size_t, Item>::compact(F cb) noexcept {
 	auto src = firstItem();
 	auto dest = ptr(sizeof(*this));
 	while (dest.offset() <= src.offset()) {
@@ -417,7 +427,7 @@ Error NodeBuffer<size_t, Item>::compact(F cb) {
 }
 
 template<typename size_t, typename Item>
-uint8_t *NodeBuffer<size_t, Item>::data() {
+uint8_t *NodeBuffer<size_t, Item>::data() noexcept {
 	return reinterpret_cast<uint8_t*>(ptr(sizeof(*this)).get());
 }
 

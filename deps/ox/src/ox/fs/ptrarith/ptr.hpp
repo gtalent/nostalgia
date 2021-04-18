@@ -13,7 +13,7 @@
 namespace ox::ptrarith {
 
 template<typename T, typename size_t, size_t minOffset = 1>
-class Ptr {
+class [[nodiscard]] Ptr {
 
 	private:
 		uint8_t *m_dataStart = nullptr;
@@ -25,65 +25,66 @@ class Ptr {
 		mutable uint8_t m_validated = false;
 
 	public:
-		inline Ptr() = default;
+		constexpr Ptr() noexcept = default;
 
-		inline Ptr(std::nullptr_t);
+		constexpr Ptr(std::nullptr_t) noexcept;
 
-		inline Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize = sizeof(T), size_t itemTypeSize = sizeof(T));
+		constexpr Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize = sizeof(T), size_t itemTypeSize = sizeof(T)) noexcept;
 
-		[[nodiscard]] inline bool valid() const;
+		[[nodiscard]]
+		constexpr bool valid() const noexcept;
 
-		inline size_t size() const;
+		constexpr size_t size() const noexcept;
 
-		inline size_t offset() const;
+		constexpr size_t offset() const noexcept;
 
-		inline size_t end();
+		constexpr size_t end() noexcept;
 
-		inline const T *get() const;
+		constexpr const T *get() const noexcept;
 
-		inline T *get();
+		constexpr T *get() noexcept;
 
-		inline const T *operator->() const;
+		constexpr const T *operator->() const noexcept;
 
-		inline T *operator->();
+		constexpr T *operator->() noexcept;
 
-		inline operator const T*() const;
+		constexpr operator const T*() const noexcept;
 
-		inline operator T*();
+		constexpr operator T*() noexcept;
 
-		inline const T &operator*() const;
+		constexpr const T &operator*() const noexcept;
 
-		inline T &operator*();
+		constexpr T &operator*() noexcept;
 
-		inline operator size_t() const;
+		constexpr operator size_t() const noexcept;
 
-		inline bool operator==(const Ptr<T, size_t, minOffset> &other) const;
+		constexpr bool operator==(const Ptr<T, size_t, minOffset> &other) const noexcept;
 
-		inline bool operator!=(const Ptr<T, size_t, minOffset> &other) const;
-
-		template<typename SubT>
-		inline const Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset, size_t size) const;
+		constexpr bool operator!=(const Ptr<T, size_t, minOffset> &other) const noexcept;
 
 		template<typename SubT>
-		inline const Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset) const;
+		constexpr const Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset, size_t size) const noexcept;
 
 		template<typename SubT>
-		inline Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset, size_t size);
+		constexpr const Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset) const noexcept;
 
 		template<typename SubT>
-		inline Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset);
+		constexpr Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset, size_t size) noexcept;
 
 		template<typename SubT>
-		inline const Ptr<SubT, size_t, minOffset> to() const;
+		constexpr Ptr<SubT, size_t, sizeof(T)> subPtr(size_t offset) noexcept;
+
+		template<typename SubT>
+		constexpr const Ptr<SubT, size_t, minOffset> to() const noexcept;
 
 };
 
 template<typename T, typename size_t, size_t minOffset>
-inline Ptr<T, size_t, minOffset>::Ptr(std::nullptr_t) {
+constexpr Ptr<T, size_t, minOffset>::Ptr(std::nullptr_t) noexcept {
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline Ptr<T, size_t, minOffset>::Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize, size_t itemTypeSize) {
+constexpr Ptr<T, size_t, minOffset>::Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize, size_t itemTypeSize) noexcept {
 	// do some sanity checks before assuming this is valid
 	if (itemSize >= itemTypeSize &&
 	    dataStart &&
@@ -97,84 +98,84 @@ inline Ptr<T, size_t, minOffset>::Ptr(void *dataStart, size_t dataSize, size_t i
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline bool Ptr<T, size_t, minOffset>::valid() const {
+constexpr bool Ptr<T, size_t, minOffset>::valid() const noexcept {
 	m_validated = m_dataStart != nullptr;
 	return m_validated;
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline size_t Ptr<T, size_t, minOffset>::size() const {
+constexpr size_t Ptr<T, size_t, minOffset>::size() const noexcept {
 	return m_itemSize;
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline size_t Ptr<T, size_t, minOffset>::offset() const {
+constexpr size_t Ptr<T, size_t, minOffset>::offset() const noexcept {
 	return m_itemOffset;
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline size_t Ptr<T, size_t, minOffset>::end() {
+constexpr size_t Ptr<T, size_t, minOffset>::end() noexcept {
 	return m_itemOffset + m_itemSize;
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline const T *Ptr<T, size_t, minOffset>::get() const {
+constexpr const T *Ptr<T, size_t, minOffset>::get() const noexcept {
 	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::get())");
 	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::get())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline T *Ptr<T, size_t, minOffset>::get() {
+constexpr T *Ptr<T, size_t, minOffset>::get() noexcept {
 	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::get())");
 	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::get())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline const T *Ptr<T, size_t, minOffset>::operator->() const {
+constexpr const T *Ptr<T, size_t, minOffset>::operator->() const noexcept {
 	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::operator->())");
 	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::operator->())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline T *Ptr<T, size_t, minOffset>::operator->() {
+constexpr T *Ptr<T, size_t, minOffset>::operator->() noexcept {
 	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::operator->())");
 	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::operator->())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline Ptr<T, size_t, minOffset>::operator const T*() const {
+constexpr Ptr<T, size_t, minOffset>::operator const T*() const noexcept {
 	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::operator const T*())");
 	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::operator const T*())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline Ptr<T, size_t, minOffset>::operator T*() {
+constexpr Ptr<T, size_t, minOffset>::operator T*() noexcept {
 	oxAssert(m_validated, "Unvalidated pointer access. (ox::fs::Ptr::operator T*())");
 	oxAssert(valid(), "Invalid pointer access. (ox::fs::Ptr::operator T*())");
 	return reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline const T &Ptr<T, size_t, minOffset>::operator*() const {
+constexpr const T &Ptr<T, size_t, minOffset>::operator*() const noexcept {
 	oxAssert(m_validated, "Unvalidated pointer dereference. (ox::fs::Ptr::operator*())");
 	oxAssert(valid(), "Invalid pointer dereference. (ox::fs::Ptr::operator*())");
 	return *reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline T &Ptr<T, size_t, minOffset>::operator*() {
+constexpr T &Ptr<T, size_t, minOffset>::operator*() noexcept {
 	oxAssert(m_validated, "Unvalidated pointer dereference. (ox::fs::Ptr::operator*())");
 	oxAssert(valid(), "Invalid pointer dereference. (ox::fs::Ptr::operator*())");
 	return *reinterpret_cast<T*>(m_dataStart + m_itemOffset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline Ptr<T, size_t, minOffset>::operator size_t() const {
+constexpr Ptr<T, size_t, minOffset>::operator size_t() const noexcept {
 	if (m_dataStart && m_itemOffset) {
 		return m_itemOffset;
 	}
@@ -182,14 +183,14 @@ inline Ptr<T, size_t, minOffset>::operator size_t() const {
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline bool Ptr<T, size_t, minOffset>::operator==(const Ptr<T, size_t, minOffset> &other) const {
+constexpr bool Ptr<T, size_t, minOffset>::operator==(const Ptr<T, size_t, minOffset> &other) const noexcept {
 	return m_dataStart == other.m_dataStart &&
 	       m_itemOffset == other.m_itemOffset &&
 	       m_itemSize == other.m_itemSize;
 }
 
 template<typename T, typename size_t, size_t minOffset>
-inline bool Ptr<T, size_t, minOffset>::operator!=(const Ptr<T, size_t, minOffset> &other) const {
+constexpr bool Ptr<T, size_t, minOffset>::operator!=(const Ptr<T, size_t, minOffset> &other) const noexcept {
 	return m_dataStart != other.m_dataStart ||
 	       m_itemOffset != other.m_itemOffset ||
 	       m_itemSize != other.m_itemSize;
@@ -197,33 +198,33 @@ inline bool Ptr<T, size_t, minOffset>::operator!=(const Ptr<T, size_t, minOffset
 
 template<typename T, typename size_t, size_t minOffset>
 template<typename SubT>
-inline const Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset, size_t size) const {
+constexpr const Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset, size_t size) const noexcept {
 	return Ptr<SubT, size_t, sizeof(T)>(get(), this->size(), offset, size);
 }
 
 template<typename T, typename size_t, size_t minOffset>
 template<typename SubT>
-inline const Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset) const {
+constexpr const Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset) const noexcept {
 	oxTrace("ox::fs::Ptr::subPtr") << m_itemOffset << this->size() << offset << m_itemSize << (m_itemSize - offset);
 	return subPtr<SubT>(offset, m_itemSize - offset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
 template<typename SubT>
-inline Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset, size_t size) {
+constexpr Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset, size_t size) noexcept {
 	return Ptr<SubT, size_t, sizeof(T)>(get(), this->size(), offset, size);
 }
 
 template<typename T, typename size_t, size_t minOffset>
 template<typename SubT>
-inline Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset) {
+constexpr Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset) noexcept {
 	oxTrace("ox::fs::Ptr::subPtr") << m_itemOffset << this->size() << offset << m_itemSize << (m_itemSize - offset);
 	return subPtr<SubT>(offset, m_itemSize - offset);
 }
 
 template<typename T, typename size_t, size_t minOffset>
 template<typename SubT>
-inline const Ptr<SubT, size_t, minOffset> Ptr<T, size_t, minOffset>::to() const {
+constexpr const Ptr<SubT, size_t, minOffset> Ptr<T, size_t, minOffset>::to() const noexcept {
 	return Ptr<SubT, size_t, minOffset>(m_dataStart, m_dataSize, m_itemOffset, m_itemSize);
 }
 

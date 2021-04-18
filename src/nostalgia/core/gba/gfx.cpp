@@ -14,8 +14,8 @@
 
 #include "addresses.hpp"
 #include "bios.hpp"
-#include "irq.hpp"
 #include "gfx.hpp"
+#include "irq.hpp"
 
 namespace nostalgia::core {
 
@@ -168,10 +168,8 @@ ox::Error loadBgTileSheet(Context *ctx,
                           int section,
                           ox::FileAddress tilesheetAddr,
                           ox::FileAddress paletteAddr) {
-	const auto [tsStat, tsStatErr] = ctx->rom->stat(tilesheetAddr);
-	oxReturnError(tsStatErr);
-	const auto [ts, tserr] = ctx->rom->read(tilesheetAddr);
-	oxReturnError(tserr);
+	oxRequire(tsStat, ctx->rom->stat(tilesheetAddr));
+	oxRequire(ts, ctx->rom->directAccess(tilesheetAddr));
 	GbaTileMapTarget target;
 	target.pal.palette = &MEM_BG_PALETTE[section];
 	target.bgCtl = &bgCtl(section);
@@ -179,10 +177,8 @@ ox::Error loadBgTileSheet(Context *ctx,
 	oxReturnError(ox::readMC(ts, tsStat.size, &target));
 	// load external palette if available
 	if (paletteAddr) {
-		const auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
-		oxReturnError(palStatErr);
-		const auto [pal, palErr] = ctx->rom->read(paletteAddr);
-		oxReturnError(palErr);
+		oxRequire(palStat, ctx->rom->stat(paletteAddr));
+		oxRequire(pal, ctx->rom->directAccess(paletteAddr));
 		oxReturnError(ox::readMC(pal, palStat.size, &target.pal));
 	}
 	return OxError(0);
@@ -192,10 +188,8 @@ ox::Error loadSpriteTileSheet(Context *ctx,
                               int section,
                               ox::FileAddress tilesheetAddr,
                               ox::FileAddress paletteAddr) {
-	const auto [tsStat, tsStatErr] = ctx->rom->stat(tilesheetAddr);
-	oxReturnError(tsStatErr);
-	const auto [ts, tserr] = ctx->rom->read(tilesheetAddr);
-	oxReturnError(tserr);
+	oxRequire(tsStat, ctx->rom->stat(tilesheetAddr));
+	oxRequire(ts, ctx->rom->directAccess(tilesheetAddr));
 	GbaTileMapTarget target;
 	target.pal.palette = &MEM_SPRITE_PALETTE[section];
 	// Is this needed? Should this be written to an equivalent sprite value?
@@ -204,10 +198,8 @@ ox::Error loadSpriteTileSheet(Context *ctx,
 	oxReturnError(ox::readMC(ts, tsStat.size, &target));
 	// load external palette if available
 	if (paletteAddr) {
-		const auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
-		oxReturnError(palStatErr);
-		const auto [pal, palErr] = ctx->rom->read(paletteAddr);
-		oxReturnError(palErr);
+		oxRequire(palStat, ctx->rom->stat(paletteAddr));
+		oxRequire(pal, ctx->rom->directAccess(paletteAddr));
 		oxReturnError(ox::readMC(pal, palStat.size, &target.pal));
 	}
 	return OxError(0);
@@ -216,10 +208,8 @@ ox::Error loadSpriteTileSheet(Context *ctx,
 ox::Error loadBgPalette(Context *ctx, int section, ox::FileAddress paletteAddr) {
 	GbaPaletteTarget target;
 	target.palette = &MEM_BG_PALETTE[section];
-	const auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
-	oxReturnError(palStatErr);
-	const auto [pal, palErr] = ctx->rom->read(paletteAddr);
-	oxReturnError(palErr);
+	oxRequire(palStat, ctx->rom->stat(paletteAddr));
+	oxRequire(pal, ctx->rom->directAccess(paletteAddr));
 	oxReturnError(ox::readMC(pal, palStat.size, &target));
 	return OxError(0);
 }
@@ -227,10 +217,8 @@ ox::Error loadBgPalette(Context *ctx, int section, ox::FileAddress paletteAddr) 
 ox::Error loadSpritePalette(Context *ctx, int section, ox::FileAddress paletteAddr) {
 	GbaPaletteTarget target;
 	target.palette = &MEM_SPRITE_PALETTE[section];
-	const auto [palStat, palStatErr] = ctx->rom->stat(paletteAddr);
-	oxReturnError(palStatErr);
-	const auto [pal, palErr] = ctx->rom->read(paletteAddr);
-	oxReturnError(palErr);
+	oxRequire(palStat, ctx->rom->stat(paletteAddr));
+	oxRequire(pal, ctx->rom->directAccess(paletteAddr));
 	oxReturnError(ox::readMC(pal, palStat.size, &target));
 	return OxError(0);
 }

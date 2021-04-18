@@ -10,13 +10,13 @@
 
 namespace ox {
 
-Result<const uint8_t*> FileSystem::read(FileAddress addr) noexcept {
+Result<const uint8_t*> FileSystem::directAccess(FileAddress addr) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
-			return read(addr.getInode().value);
+			return directAccess(addr.getInode().value);
 		case FileAddressType::ConstPath:
 		case FileAddressType::Path:
-			return read(addr.getPath().value);
+			return directAccess(addr.getPath().value);
 		default:
 			return OxError(1);
 	}

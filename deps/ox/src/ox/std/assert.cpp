@@ -18,7 +18,7 @@
 namespace ox {
 
 template<>
-void assertFunc<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]bool pass, [[maybe_unused]]const char *msg) {
+void assertFunc<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]bool pass, [[maybe_unused]]const char *msg) noexcept {
 	if (!pass) {
 #if defined(OX_USE_STDLIB)
 		std::cerr << "\033[31;1;1mASSERT FAILURE:\033[0m (" << file << ':' << line << "): " << msg << std::endl;
@@ -32,7 +32,7 @@ void assertFunc<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line
 }
 
 template<>
-void assertFunc<Error>(const char *file, int line, Error err, const char *assertMsg) {
+void assertFunc<Error>(const char *file, int line, Error err, const char *assertMsg) noexcept {
 	if (err) {
 #if defined(OX_USE_STDLIB)
 		std::cerr << "\033[31;1;1mASSERT FAILURE:\033[0m (" << file << ':' << line << "): " << assertMsg << '\n';
@@ -53,7 +53,7 @@ void assertFunc<Error>(const char *file, int line, Error err, const char *assert
 }
 
 #if defined(OX_USE_STDLIB)
-void panic(const char *file, int line, const char *panicMsg, Error err) {
+void panic(const char *file, int line, const char *panicMsg, Error err) noexcept {
 	std::cerr << "\033[31;1;1mPANIC:\033[0m (" << file << ':' << line << "): " << panicMsg << '\n';
 	if (err.msg) {
 		std::cerr <<  "\tError Message:\t" << err.msg << '\n';

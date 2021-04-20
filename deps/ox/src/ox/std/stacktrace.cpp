@@ -17,7 +17,7 @@
 
 namespace ox {
 
-void printStackTrace([[maybe_unused]]int shave) {
+void printStackTrace([[maybe_unused]]int shave) noexcept {
 #if defined(OX_USE_STDLIB) && __has_include(<unistd.h>)
 	std::array<void*, 100> frames;
 	auto size = static_cast<int>(backtrace(frames.data(), frames.size()));

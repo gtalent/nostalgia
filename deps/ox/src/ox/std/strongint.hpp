@@ -14,12 +14,12 @@ namespace ox {
 
 struct BaseInteger {
 
-	constexpr BaseInteger() = default;
+	constexpr BaseInteger() noexcept = default;
 
-	constexpr BaseInteger(const BaseInteger&) {
+	constexpr BaseInteger(const BaseInteger&) noexcept {
 	}
 
-	constexpr BaseInteger operator=(const BaseInteger&) {
+	constexpr BaseInteger operator=(const BaseInteger&) noexcept {
 		return *this;
 	}
 

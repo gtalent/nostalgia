@@ -203,9 +203,7 @@ Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode,
 		oxTrace("ox::fs::Directory::write") << "Attempting to write to next sub-Directory: "
 			<< name->c_str() << " of " << path.fullPath();
 
-		auto [nextChild, err] = findEntry(*name);
-		oxReturnError(err);
-
+		oxRequire(nextChild, findEntry(*name));
 		oxTrace("ox::fs::Directory::write") << name->c_str() << ": " << nextChild;
 
 		if (nextChild) {
@@ -227,9 +225,8 @@ Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode,
 
 		// find existing version of directory
 		oxTrace("ox::fs::Directory::write") << "Searching for directory inode" << m_inodeId;
-		auto oldStat = m_fs.stat(m_inodeId);
-		oxReturnError(oldStat);
-		oxTrace("ox::fs::Directory::write") << "Found existing directory of size" << oldStat.value.size;
+		oxRequire(oldStat, m_fs.stat(m_inodeId));
+		oxTrace("ox::fs::Directory::write") << "Found existing directory of size" << oldStat.size;
 		auto old = m_fs.read(m_inodeId).template to<Buffer>();
 		if (!old.valid()) {
 			oxTrace("ox::fs::Directory::write::fail") << "Could not read existing version of Directory";
@@ -238,8 +235,8 @@ Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode,
 
 		const auto pathSize = name->len() + 1;
 		const auto entryDataSize = DirectoryEntry<InodeId_t>::DirectoryEntryData::spaceNeeded(pathSize);
-		const auto newSize = oldStat.value.size + Buffer::spaceNeeded(entryDataSize);
-		auto cpy = ox_malloca(newSize, Buffer, *old, oldStat.value.size);
+		const auto newSize = oldStat.size + Buffer::spaceNeeded(entryDataSize);
+		auto cpy = ox_malloca(newSize, Buffer, *old, oldStat.size);
 		if (cpy == nullptr) {
 			oxTrace("ox::fs::Directory::write::fail") << "Could not allocate memory for copy of Directory";
 			return OxError(1);
@@ -349,11 +346,10 @@ Result<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::find(Path
 	auto name = nameBuff;
 	oxReturnError(path.get(name));
 
-	auto v = findEntry(name->c_str());
-	oxReturnError(v);
+	oxRequire(v, findEntry(name->c_str()));
 	// recurse if not at end of path
 	if (auto p = path.next(); p.valid()) {
-		Directory dir(m_fs, v.value);
+		Directory dir(m_fs, v);
 		name = nullptr;
 		return dir.find(p, nameBuff);
 	}

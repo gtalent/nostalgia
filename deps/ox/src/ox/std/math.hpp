@@ -13,17 +13,20 @@
 namespace ox {
 
 template<typename T>
-inline constexpr const T &min(const T &a, const T &b) {
+[[nodiscard]]
+constexpr const T &min(const T &a, const T &b) noexcept {
 	return a < b ? a : b;
 }
 
 template<typename T>
-inline constexpr const T &max(const T &a, const T &b) {
+[[nodiscard]]
+constexpr const T &max(const T &a, const T &b) noexcept {
 	return a > b ? a : b;
 }
 
 template<typename I>
-inline constexpr I pow(I v, int e) {
+[[nodiscard]]
+constexpr I pow(I v, int e) noexcept {
 	I out = 1;
 	for (I i = 0; i < e; i++) {
 		out *= v;

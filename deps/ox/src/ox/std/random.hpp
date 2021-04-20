@@ -20,11 +20,11 @@ class OX_PACKED Random {
 		RandomSeed m_seed;
 
 	public:
-		Random();
+		Random() noexcept;
 
-		explicit Random(RandomSeed seed);
+		explicit Random(RandomSeed seed) noexcept;
 
-		uint64_t gen();
+		uint64_t gen() noexcept;
 };
 
 }

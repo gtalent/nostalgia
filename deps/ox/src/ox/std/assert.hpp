@@ -14,16 +14,16 @@
 namespace ox {
 
 template<typename T>
-void assertFunc(const char*, int, T, const char*) {
+void assertFunc(const char*, int, T, const char*) noexcept {
 }
 
 template<>
-void assertFunc<bool>(const char *file, int line, bool pass, const char *msg);
+void assertFunc<bool>(const char *file, int line, bool pass, const char *msg) noexcept;
 
 template<>
-void assertFunc<Error>(const char *file, int line, Error err, const char*);
+void assertFunc<Error>(const char *file, int line, Error err, const char*) noexcept;
 
-void panic([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]const char *msg, [[maybe_unused]]Error err = OxError(0));
+void panic([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]const char *msg, [[maybe_unused]]Error err = OxError(0)) noexcept;
 
 }
 

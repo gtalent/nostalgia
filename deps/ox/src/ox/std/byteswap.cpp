@@ -11,12 +11,12 @@
 namespace ox {
 
 template<typename T>
-static constexpr bool testLittleEndian(T i) {
+static constexpr bool testLittleEndian(T i) noexcept {
 	return LittleEndian<T>(i) == i;
 }
 
 template<typename T>
-static constexpr bool testBigEndian(T i) {
+static constexpr bool testBigEndian(T i) noexcept {
 	return BigEndian<T>(i) == i;
 }
 

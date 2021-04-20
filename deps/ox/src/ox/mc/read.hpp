@@ -255,8 +255,7 @@ Error MetalClawReader::field(const char* name, ox::Vector<T> *val) {
 	if (m_unionIdx == -1 || m_unionIdx == m_field) {
 		// set size of val if the field is present, don't worry about it if not
 		if (m_fieldPresence.get(m_field)) {
-			const auto [len, err] = arrayLength(name, false);
-			oxReturnError(err);
+			oxRequire(len, arrayLength(name, false));
 			val->resize(len);
 		}
 		return field(name, val->data(), val->size());

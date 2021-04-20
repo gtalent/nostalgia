@@ -14,20 +14,23 @@ struct HeapSegment {
 	std::size_t size;
 	uint8_t inUse;
 
-	void init(std::size_t maxSize);
+	void init(std::size_t maxSize) noexcept;
 
 	template<typename T>
-	T *data();
+	[[nodiscard]]
+	T *data() noexcept;
 
 	template<typename T = uint8_t>
-	T *end();
+	[[nodiscard]]
+	T *end() noexcept;
 
 };
 
-void initHeap(char *heapBegin, char *heapEnd);
+void initHeap(char *heapBegin, char *heapEnd) noexcept;
 
-[[nodiscard]] void *malloc(std::size_t allocSize);
+[[nodiscard]]
+void *malloc(std::size_t allocSize) noexcept;
 
-void free(void *ptr);
+void free(void *ptr) noexcept;
 
 }

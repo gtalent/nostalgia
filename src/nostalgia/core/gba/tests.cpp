@@ -13,11 +13,12 @@
 
 namespace ox::heapmgr {
 
-[[nodiscard]] void *malloc(std::size_t allocSize);
+[[nodiscard]]
+void *malloc(std::size_t allocSize) noexcept;
 
-void free(void *ptr);
+void free(void *ptr) noexcept;
 
-void initHeap(char *heapBegin, char *heapEnd);
+void initHeap(char *heapBegin, char *heapEnd) noexcept;
 
 }
 

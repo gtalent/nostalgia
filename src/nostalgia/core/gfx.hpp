@@ -72,50 +72,50 @@ struct Sprite {
 	unsigned flipX = 0;
 };
 
-ox::Error initGfx(Context *ctx);
+ox::Error initGfx(Context *ctx) noexcept;
 
-ox::Error shutdownGfx(Context *ctx);
-
-[[nodiscard]]
-int getScreenWidth(Context *ctx);
+ox::Error shutdownGfx(Context *ctx) noexcept;
 
 [[nodiscard]]
-int getScreenHeight(Context *ctx);
+int getScreenWidth(Context *ctx) noexcept;
 
 [[nodiscard]]
-common::Size getScreenSize(Context *ctx);
+int getScreenHeight(Context *ctx) noexcept;
 
 [[nodiscard]]
-uint8_t bgStatus(Context *ctx);
+common::Size getScreenSize(Context *ctx) noexcept;
 
-void setBgStatus(Context *ctx, uint32_t status);
+[[nodiscard]]
+uint8_t bgStatus(Context *ctx) noexcept;
 
-bool bgStatus(Context *ctx, unsigned bg);
+void setBgStatus(Context *ctx, uint32_t status) noexcept;
 
-void setBgStatus(Context *ctx, unsigned bg, bool status);
+bool bgStatus(Context *ctx, unsigned bg) noexcept;
 
-ox::Error initConsole(Context *ctx);
+void setBgStatus(Context *ctx, unsigned bg, bool status) noexcept;
+
+ox::Error initConsole(Context *ctx) noexcept;
 
 /**
  * @param section describes which section of the selected TileSheetSpace to use (e.g. MEM_PALLETE_BG[section])
  */
-ox::Error loadBgTileSheet(Context *ctx, int section, ox::FileAddress tilesheet, ox::FileAddress palette = nullptr);
+ox::Error loadBgTileSheet(Context *ctx, int section, ox::FileAddress tilesheet, ox::FileAddress palette = nullptr) noexcept;
 
 ox::Error loadSpriteTileSheet(Context *ctx,
                               int section,
                               ox::FileAddress tilesheetAddr,
-                              ox::FileAddress paletteAddr);
+                              ox::FileAddress paletteAddr) noexcept;
 
-void puts(Context *ctx, int column, int row, const char *str);
+void puts(Context *ctx, int column, int row, const char *str) noexcept;
 
-void setTile(Context *ctx, int layer, int column, int row, uint8_t tile);
+void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) noexcept;
 
-void clearTileLayer(Context *ctx, int layer);
+void clearTileLayer(Context *ctx, int layer) noexcept;
 
-void hideSprite(Context *ctx, unsigned);
+void hideSprite(Context *ctx, unsigned) noexcept;
 
-void setSprite(Context *ctx, unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape = 0, unsigned spriteSize = 0, unsigned flipX = 0);
+void setSprite(Context *ctx, unsigned idx, unsigned x, unsigned y, unsigned tileIdx, unsigned spriteShape = 0, unsigned spriteSize = 0, unsigned flipX = 0) noexcept;
 
-void setSprite(Context *ctx, const Sprite &s);
+void setSprite(Context *ctx, const Sprite &s) noexcept;
 
 }

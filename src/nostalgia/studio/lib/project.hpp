@@ -95,22 +95,20 @@ class NOSTALGIASTUDIO_EXPORT Project: public QObject {
 template<typename T>
 void Project::writeObj(QString path, T *obj) const {
 	// write MetalClaw
-	auto [buff, err] = ox::writeClaw(obj, ox::ClawFormat::Metal);
-	oxThrowError(err);
+	oxRequireMT(buff, ox::writeClaw(obj, ox::ClawFormat::Metal));
 	// write to FS
 	writeBuff(path, ox::bit_cast<uint8_t*>(buff.data()), buff.size());
 
 	// write type descriptor
 	const auto type = ox::buildTypeDef(obj);
-	auto typeOut = ox::writeClaw(type.value, ox::ClawFormat::Organic);
-	oxThrowError(typeOut);
+	oxRequireMT(typeOut, ox::writeClaw(type.value, ox::ClawFormat::Organic));
 	// replace garbage last character with new line
-	typeOut.value.back().value = '\n';
+	typeOut.back().value = '\n';
 	// write to FS
 	QString descPath = "/.nostalgia/type_descriptors/";
 	const auto typePath = descPath + type.value->typeName.c_str();
 	mkdir(descPath);
-	writeBuff(typePath, ox::bit_cast<uint8_t*>(typeOut.value.data()), typeOut.value.size());
+	writeBuff(typePath, ox::bit_cast<uint8_t*>(typeOut.data()), typeOut.size());
 	emit fileUpdated(path);
 }
 

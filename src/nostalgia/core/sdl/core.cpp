@@ -22,12 +22,12 @@ static uint64_t g_wakeupTime;
 
 void draw(Context *ctx);
 
-ox::Error init(Context *ctx) {
+ox::Error init(Context *ctx) noexcept {
 	oxReturnError(initGfx(ctx));
 	return OxError(0);
 }
 
-ox::Error run(Context *ctx) {
+ox::Error run(Context *ctx) noexcept {
 	const auto id = ctx->windowerData<SdlImplData>();
 	// try adaptive vsync
 	if (SDL_GL_SetSwapInterval(config::SdlVsyncOption) < 0) {
@@ -64,15 +64,15 @@ ox::Error run(Context *ctx) {
 	return OxError(0);
 }
 
-void setEventHandler(event_handler h) {
+void setEventHandler(event_handler h) noexcept {
 	g_eventHandler = h;
 }
 
-uint64_t ticksMs() {
+uint64_t ticksMs() noexcept {
 	return SDL_GetTicks();
 }
 
-bool buttonDown(Key) {
+bool buttonDown(Key) noexcept {
 	return false;
 }
 

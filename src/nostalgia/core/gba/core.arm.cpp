@@ -21,7 +21,7 @@ extern volatile gba_timer_t g_timerMs;
 gba_timer_t g_wakeupTime;
 event_handler g_eventHandler = nullptr;
 
-ox::Error run(Context *ctx) {
+ox::Error run(Context *ctx) noexcept {
 	g_wakeupTime = 0;
 	while (1) {
 		if (g_wakeupTime <= g_timerMs && g_eventHandler) {

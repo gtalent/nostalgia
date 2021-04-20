@@ -10,20 +10,17 @@
 
 namespace nostalgia::core {
 
-ox::FileSystem *loadRomFs(const char *path) {
+ox::Result<ox::FileSystem*> loadRomFs(const char *path) noexcept {
 	const auto lastDot = ox_lastIndexOf(path, '.');
 	const auto fsExt = lastDot != -1 ? path + lastDot : "";
 	if (ox_strcmp(fsExt, ".oxfs") == 0) {
-		auto rom = core::loadRom(path);
-		if (!rom) {
-			return nullptr;
-		}
+		oxRequire(rom, core::loadRom(path));
 		return new ox::FileSystem32(rom, 32 * ox::units::MB, unloadRom);
 	} else {
 #ifdef OX_HAS_PASSTHROUGHFS
 		return new ox::PassThroughFS(path);
 #else
-		return nullptr;
+		return OxError(2);
 #endif
 	}
 }

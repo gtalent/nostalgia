@@ -27,12 +27,12 @@ extern event_handler g_eventHandler;
 
 extern volatile gba_timer_t g_timerMs;
 
-static void initIrq() {
+static void initIrq() noexcept {
 	REG_ISR = isr;
 	REG_IME = 1; // enable interrupts
 }
 
-static void initTimer() {
+static void initTimer() noexcept {
 	// make timer0 a ~1 millisecond timer
 	REG_TIMER0 = TicksMs59ns;
 	REG_TIMER0CTL = 0b11000000;
@@ -40,22 +40,22 @@ static void initTimer() {
 	REG_IE = REG_IE | Int_timer0;
 }
 
-ox::Error init(Context *ctx) {
+ox::Error init(Context *ctx) noexcept {
 	oxReturnError(initGfx(ctx));
 	initTimer();
 	initIrq();
 	return OxError(0);
 }
 
-void setEventHandler(event_handler h) {
+void setEventHandler(event_handler h) noexcept {
 	g_eventHandler = h;
 }
 
-uint64_t ticksMs() {
+uint64_t ticksMs() noexcept {
 	return g_timerMs;
 }
 
-bool buttonDown(Key k) {
+bool buttonDown(Key k) noexcept {
 	return !(REG_GAMEPAD & k);
 }
 

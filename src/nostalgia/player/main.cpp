@@ -15,11 +15,15 @@ int main(int argc, const char **argv) {
 	if (argc > 1) {
 		ox::trace::init();
 		auto path = argv[1];
-		auto fs = nostalgia::core::loadRomFs(path);
-		auto err = run(fs);
+		auto [fs, err] = nostalgia::core::loadRomFs(path);
+		if (err) {
+			oxAssert(err, "Something went wrong...");
+			return static_cast<int>(err);
+		}
+		err = run(fs);
 		oxAssert(err, "Something went wrong...");
 		delete fs;
-		return err;
+		return static_cast<int>(err);
 	}
 	return 1;
 }

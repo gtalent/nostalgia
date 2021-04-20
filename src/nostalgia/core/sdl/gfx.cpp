@@ -22,7 +22,7 @@ namespace nostalgia::core {
 
 constexpr auto Scale = 5;
 
-ox::Error initGfx(Context *ctx) {
+ox::Error initGfx(Context *ctx) noexcept {
 	auto id = new SdlImplData;
 	ctx->setWindowerData(id);
 	id->window = SDL_CreateWindow("nostalgia", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -42,7 +42,7 @@ ox::Error initGfx(Context *ctx) {
 	return OxError(0);
 }
 
-ox::Error shutdownGfx(Context *ctx) {
+ox::Error shutdownGfx(Context *ctx) noexcept {
 	oxReturnError(renderer::shutdown(ctx));
 	auto id = ctx->windowerData<SdlImplData>();
 	SDL_GL_DeleteContext(id->renderer);
@@ -52,21 +52,21 @@ ox::Error shutdownGfx(Context *ctx) {
 	return OxError(0);
 }
 
-int getScreenWidth(Context *ctx) {
+int getScreenWidth(Context *ctx) noexcept {
 	auto id = ctx->windowerData<SdlImplData>();
 	int x = 0, y = 0;
 	SDL_GetWindowSize(id->window, &x, &y);
 	return x;
 }
 
-int getScreenHeight(Context *ctx) {
+int getScreenHeight(Context *ctx) noexcept {
 	auto id = ctx->windowerData<SdlImplData>();
 	int x = 0, y = 0;
 	SDL_GetWindowSize(id->window, &x, &y);
 	return y;
 }
 
-common::Size getScreenSize(Context *ctx) {
+common::Size getScreenSize(Context *ctx) noexcept {
 	auto id = ctx->windowerData<SdlImplData>();
 	int x = 0, y = 0;
 	SDL_GetWindowSize(id->window, &x, &y);

@@ -14,7 +14,7 @@
 
 namespace nostalgia::core {
 
-char *loadRom(const char*) {
+ox::Result<char*> loadRom(const char*) noexcept {
 	// put the header in the wrong order to prevent mistaking this code for the
 	// media section
 	constexpr auto headerP2 = "_HEADER_________";
@@ -29,10 +29,10 @@ char *loadRom(const char*) {
 			return current + headerLen;
 		}
 	}
-	return nullptr;
+	return OxError(1);
 }
 
-void unloadRom(char*) {
+void unloadRom(char*) noexcept {
 }
 
 }

@@ -85,7 +85,7 @@ ox::Error modelRead(T *io, GbaTileMapTarget *t) {
 	return io->template field<uint8_t, decltype(handleTileMap)>("tileMap", handleTileMap);
 }
 
-ox::Error initGfx(Context*) {
+ox::Error initGfx(Context*) noexcept {
 	REG_DISPCTL = DispCtl_Mode0
 	            | DispCtl_SpriteMap1D
 	            | DispCtl_Obj;
@@ -96,42 +96,43 @@ ox::Error initGfx(Context*) {
 	return OxError(0);
 }
 
-ox::Error shutdownGfx(Context*) {
+ox::Error shutdownGfx(Context*) noexcept {
 	return OxError(0);
 }
 
-int getScreenWidth(Context*) {
+int getScreenWidth(Context*) noexcept {
 	return 240;
 }
 
-int getScreenHeight(Context*) {
+int getScreenHeight(Context*) noexcept {
 	return 160;
 }
 
-common::Size getScreenSize(Context*) {
+common::Size getScreenSize(Context*) noexcept {
 	return {240, 160};
 }
 
-uint8_t bgStatus(Context*) {
+uint8_t bgStatus(Context*) noexcept {
 	return (REG_DISPCTL >> 8) & 0b1111;
 }
 
-void setBgStatus(Context*, uint32_t status) {
+void setBgStatus(Context*, uint32_t status) noexcept {
 	constexpr auto Bg0Status = 8;
 	REG_DISPCTL = (REG_DISPCTL & ~0b111100000000u) | status << Bg0Status;
 }
 
-bool bgStatus(Context*, unsigned bg) {
+bool bgStatus(Context*, unsigned bg) noexcept {
 	return (REG_DISPCTL >> (8 + bg)) & 1;
 }
 
-void setBgStatus(Context*, unsigned bg, bool status) {
+void setBgStatus(Context*, unsigned bg, bool status) noexcept {
 	constexpr auto Bg0Status = 8;
 	const auto mask = static_cast<uint32_t>(status) << (Bg0Status + bg);
 	REG_DISPCTL = REG_DISPCTL | ((REG_DISPCTL & ~mask) | mask);
 }
 
-[[nodiscard]] constexpr volatile uint32_t &bgCtl(int bg) noexcept {
+[[nodiscard]]
+constexpr volatile uint32_t &bgCtl(int bg) noexcept {
 	switch (bg) {
 		case 0:
 			return REG_BG0CTL;
@@ -148,16 +149,13 @@ void setBgStatus(Context*, unsigned bg, bool status) {
 }
 
 // Do NOT rely on Context in the GBA version of this function.
-ox::Error initConsole(Context *ctx) {
+ox::Error initConsole(Context *ctx) noexcept {
 	constexpr auto TilesheetAddr = "/TileSheets/Charset.ng";
 	constexpr auto PaletteAddr = "/Palettes/Charset.npal";
 	setBgStatus(ctx, 0b0001);
 	if (!ctx) {
 		ctx = new (ox_alloca(sizeof(Context))) Context();
-		auto rom = loadRom();
-		if (!rom) {
-			return OxError(1);
-		}
+		oxRequire(rom, loadRom());
 		ox::FileStore32 fs(rom, 32 * ox::units::MB);
 		ctx->rom = new (ox_alloca(sizeof(ox::FileSystem32))) ox::FileSystem32(fs);
 	}
@@ -167,7 +165,7 @@ ox::Error initConsole(Context *ctx) {
 ox::Error loadBgTileSheet(Context *ctx,
                           int section,
                           ox::FileAddress tilesheetAddr,
-                          ox::FileAddress paletteAddr) {
+                          ox::FileAddress paletteAddr) noexcept {
 	oxRequire(tsStat, ctx->rom->stat(tilesheetAddr));
 	oxRequire(ts, ctx->rom->directAccess(tilesheetAddr));
 	GbaTileMapTarget target;
@@ -187,7 +185,7 @@ ox::Error loadBgTileSheet(Context *ctx,
 ox::Error loadSpriteTileSheet(Context *ctx,
                               int section,
                               ox::FileAddress tilesheetAddr,
-                              ox::FileAddress paletteAddr) {
+                              ox::FileAddress paletteAddr) noexcept {
 	oxRequire(tsStat, ctx->rom->stat(tilesheetAddr));
 	oxRequire(ts, ctx->rom->directAccess(tilesheetAddr));
 	GbaTileMapTarget target;
@@ -205,7 +203,7 @@ ox::Error loadSpriteTileSheet(Context *ctx,
 	return OxError(0);
 }
 
-ox::Error loadBgPalette(Context *ctx, int section, ox::FileAddress paletteAddr) {
+ox::Error loadBgPalette(Context *ctx, int section, ox::FileAddress paletteAddr) noexcept {
 	GbaPaletteTarget target;
 	target.palette = &MEM_BG_PALETTE[section];
 	oxRequire(palStat, ctx->rom->stat(paletteAddr));
@@ -214,7 +212,7 @@ ox::Error loadBgPalette(Context *ctx, int section, ox::FileAddress paletteAddr) 
 	return OxError(0);
 }
 
-ox::Error loadSpritePalette(Context *ctx, int section, ox::FileAddress paletteAddr) {
+ox::Error loadSpritePalette(Context *ctx, int section, ox::FileAddress paletteAddr) noexcept {
 	GbaPaletteTarget target;
 	target.palette = &MEM_SPRITE_PALETTE[section];
 	oxRequire(palStat, ctx->rom->stat(paletteAddr));
@@ -224,23 +222,23 @@ ox::Error loadSpritePalette(Context *ctx, int section, ox::FileAddress paletteAd
 }
 
 // Do NOT use Context in the GBA version of this function.
-void puts(Context *ctx, int column, int row, const char *str) {
+void puts(Context *ctx, int column, int row, const char *str) noexcept {
 	for (int i = 0; str[i]; i++) {
 		setTile(ctx, 0, column + i, row, static_cast<uint8_t>(charMap[static_cast<int>(str[i])]));
 	}
 }
 
-void setTile(Context*, int layer, int column, int row, uint8_t tile) {
+void setTile(Context*, int layer, int column, int row, uint8_t tile) noexcept {
 	MEM_BG_MAP[layer][row * GbaTileColumns + column] = tile;
 }
 
 // Do NOT use Context in the GBA version of this function.
-void clearTileLayer(Context*, int layer) {
+void clearTileLayer(Context*, int layer) noexcept {
 	memset(&MEM_BG_MAP[layer], 0, GbaTileRows * GbaTileColumns);
 }
 
 [[maybe_unused]]
-void hideSprite(Context*, unsigned idx) {
+void hideSprite(Context*, unsigned idx) noexcept {
 	oxAssert(g_spriteUpdates < config::GbaSpriteBufferLen, "Sprite update buffer overflow");
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = 2 << 8;
@@ -269,7 +267,7 @@ void setSprite(Context*,
                unsigned tileIdx,
                unsigned spriteShape,
                unsigned spriteSize,
-               unsigned flipX) {
+               unsigned flipX) noexcept {
 	oxAssert(g_spriteUpdates < config::GbaSpriteBufferLen, "Sprite update buffer overflow");
 	GbaSpriteAttrUpdate oa;
 	oa.attr0 = static_cast<uint16_t>(y & ox::onMask<uint8_t>(7))

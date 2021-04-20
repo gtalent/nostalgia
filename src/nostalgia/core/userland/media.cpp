@@ -14,21 +14,25 @@
 
 namespace nostalgia::core {
 
-char *loadRom(const char *path) {
+ox::Result<char*> loadRom(const char *path) noexcept {
 	std::ifstream file(path, std::ios::binary | std::ios::ate);
 	if (!file.good()) {
-		oxTrace("nostalgia::core::userland::loadRom") << "Read failed:" << path;
-		return nullptr;
+		oxErrorf("Could not find ROM file: {}", path);
+		return OxError(1, "Could not find ROM file");
 	}
-
-	const auto size = file.tellg();
-	file.seekg(0, std::ios::beg);
-	auto buff = new char[static_cast<std::size_t>(size)];
-	file.read(buff, size);
-	return buff;
+	try {
+		const auto size = file.tellg();
+		file.seekg(0, std::ios::beg);
+		auto buff = new char[static_cast<std::size_t>(size)];
+		file.read(buff, size);
+		return buff;
+	} catch (const std::ios_base::failure &e) {
+		oxErrorf("Could not read ROM file: {}", e.what());
+		return OxError(2, "Could not read ROM file");
+	}
 }
 
-void unloadRom(char *rom) {
+void unloadRom(char *rom) noexcept {
 	delete rom;
 }
 

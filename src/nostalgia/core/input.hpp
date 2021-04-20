@@ -24,6 +24,7 @@ enum Key {
 	GamePad_L      = 512,
 };
 
-[[nodiscard]] bool buttonDown(Key);
+[[nodiscard]]
+bool buttonDown(Key) noexcept;
 
 }

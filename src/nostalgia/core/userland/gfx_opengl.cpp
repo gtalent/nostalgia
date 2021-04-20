@@ -131,7 +131,7 @@ static Buffer genBuffer() noexcept {
 	return Buffer(buff);
 }
 
-static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg) {
+static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg) noexcept {
 	// vao
 	bg->vao = genVertexArrayObject();
 	glBindVertexArray(bg->vao);
@@ -151,7 +151,7 @@ static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg)
 	                      ox::bit_cast<void*>(2 * sizeof(float)));
 }
 
-static Texture loadTexture(GLsizei w, GLsizei h, void *pixels) {
+static Texture loadTexture(GLsizei w, GLsizei h, void *pixels) noexcept {
 	GLuint texId = 0;
 	glGenTextures(1, &texId);
 	Texture tex(texId);
@@ -167,7 +167,7 @@ static Texture loadTexture(GLsizei w, GLsizei h, void *pixels) {
 	return ox::move(tex);
 }
 
-static void tickFps(GlImplData *id) {
+static void tickFps(GlImplData *id) noexcept {
 	++id->draws;
 	if (id->draws >= 500) {
 		using namespace std::chrono;
@@ -183,7 +183,7 @@ static void tickFps(GlImplData *id) {
 	}
 }
 
-static void drawBackground(Background *bg) {
+static void drawBackground(Background *bg) noexcept {
 	if (bg->enabled) {
 		glBindVertexArray(bg->vao);
 		if (bg->updated) {
@@ -195,7 +195,7 @@ static void drawBackground(Background *bg) {
 	}
 }
 
-static void drawBackgrounds(GlImplData *id) {
+static void drawBackgrounds(GlImplData *id) noexcept {
 	// load background shader and its uniforms
 	glUseProgram(id->bgShader);
 	const auto uniformTileHeight = static_cast<GLint>(glGetUniformLocation(id->bgShader, "vTileHeight"));
@@ -205,7 +205,7 @@ static void drawBackgrounds(GlImplData *id) {
 	}
 }
 
-ox::Error init(Context *ctx) {
+ox::Error init(Context *ctx) noexcept {
 	const auto id = new GlImplData;
 	ctx->setRendererData(id);
 	oxReturnError(buildShaderProgram(bgvshad, bgfshad).moveTo(&id->bgShader));
@@ -215,14 +215,14 @@ ox::Error init(Context *ctx) {
 	return OxError(0);
 }
 
-ox::Error shutdown(Context *ctx) {
+ox::Error shutdown(Context *ctx) noexcept {
 	const auto id = ctx->rendererData<GlImplData>();
 	ctx->setRendererData(nullptr);
 	delete id;
 	return OxError(0);
 }
 
-ox::Error loadBgTexture(Context *ctx, int section, void *pixels, int w, int h) {
+ox::Error loadBgTexture(Context *ctx, int section, void *pixels, int w, int h) noexcept {
 	oxTracef("nostalgia::core::gfx::gl", "loadBgTexture: { section: {}, w: {}, h: {} }", section, w, h);
 	const auto &id = ctx->rendererData<GlImplData>();
 	auto &tex = id->backgrounds[static_cast<std::size_t>(section)].tex;
@@ -232,7 +232,7 @@ ox::Error loadBgTexture(Context *ctx, int section, void *pixels, int w, int h) {
 
 }
 
-uint8_t bgStatus(Context *ctx) {
+uint8_t bgStatus(Context *ctx) noexcept {
 	const auto &id = ctx->rendererData<renderer::GlImplData>();
 	uint8_t out = 0;
 	for (unsigned i = 0; i < id->backgrounds.size(); ++i) {
@@ -241,25 +241,25 @@ uint8_t bgStatus(Context *ctx) {
 	return out;
 }
 
-void setBgStatus(Context *ctx, uint32_t status) {
+void setBgStatus(Context *ctx, uint32_t status) noexcept {
 	const auto &id = ctx->rendererData<renderer::GlImplData>();
 	for (unsigned i = 0; i < id->backgrounds.size(); ++i) {
 		id->backgrounds[i].enabled = (status >> i) & 1;
 	}
 }
 
-bool bgStatus(Context *ctx, unsigned bg) {
+bool bgStatus(Context *ctx, unsigned bg) noexcept {
 	const auto &id = ctx->rendererData<renderer::GlImplData>();
 	return id->backgrounds[bg].enabled;
 }
 
-void setBgStatus(Context *ctx, unsigned bg, bool status) {
+void setBgStatus(Context *ctx, unsigned bg, bool status) noexcept {
 	const auto &id = ctx->rendererData<renderer::GlImplData>();
 	id->backgrounds[bg].enabled = status;
 }
 
 
-void draw(Context *ctx) {
+void draw(Context *ctx) noexcept {
 	const auto id = ctx->rendererData<renderer::GlImplData>();
 	renderer::tickFps(id);
 	// clear screen
@@ -269,14 +269,14 @@ void draw(Context *ctx) {
 	renderer::drawBackgrounds(id);
 }
 
-void clearTileLayer(Context *ctx, int layer) {
+void clearTileLayer(Context *ctx, int layer) noexcept {
 	const auto id = ctx->rendererData<renderer::GlImplData>();
 	auto &bg = id->backgrounds[static_cast<std::size_t>(layer)];
 	initBackgroundBufferObjects(ctx, &bg);
 	bg.updated = true;
 }
 
-void hideSprite(Context*, unsigned) {
+void hideSprite(Context*, unsigned) noexcept {
 }
 
 void setSprite(Context*,
@@ -286,10 +286,10 @@ void setSprite(Context*,
                unsigned,
                unsigned,
                unsigned,
-               unsigned) {
+               unsigned) noexcept {
 }
 
-void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) {
+void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) noexcept {
 	const auto id = ctx->rendererData<renderer::GlImplData>();
 	const auto z = static_cast<unsigned>(layer);
 	const auto y = static_cast<unsigned>(row);

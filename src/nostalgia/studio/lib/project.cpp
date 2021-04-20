@@ -41,8 +41,7 @@ void Project::mkdir(QString path) const {
 }
 
 ox::FileStat Project::stat(QString path) const {
-	auto [s, e] = m_fs.stat(path.toUtf8().data());
-	oxThrowError(e);
+	oxRequireT(s, m_fs.stat(path.toUtf8().data()));
 	return s;
 }
 

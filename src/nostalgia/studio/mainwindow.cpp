@@ -258,7 +258,7 @@ void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockWidget)
 QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip, const QObject *tgt, const char *cb) {
 	auto action = menu->addAction(text);
 	action->setStatusTip(toolTip);
-	auto conn = connect(action, SIGNAL(triggered()), tgt, cb);
+	connect(action, SIGNAL(triggered()), tgt, cb);
 	return action;
 }
 
@@ -267,7 +267,7 @@ QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 	auto action = menu->addAction(text);
 	action->setShortcuts(key);
 	action->setStatusTip(toolTip);
-	auto conn = connect(action, SIGNAL(triggered()), tgt, cb);
+	connect(action, SIGNAL(triggered()), tgt, cb);
 	return action;
 }
 
@@ -276,7 +276,7 @@ QAction *MainWindow::addAction(QMenu *menu, QString text, QString toolTip,
 	auto action = menu->addAction(text);
 	action->setShortcuts(key);
 	action->setStatusTip(toolTip);
-	auto conn = connect(action, &QAction::triggered, cb);
+	connect(action, &QAction::triggered, cb);
 	return action;
 }
 

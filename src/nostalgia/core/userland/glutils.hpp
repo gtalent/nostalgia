@@ -26,7 +26,7 @@ struct TextureBase {
 	GLsizei width = 0;
 	GLsizei height = 0;
 
-	constexpr TextureBase() = default;
+	constexpr TextureBase() noexcept = default;
 
 	constexpr TextureBase(TextureBase &&tb) noexcept {
 		width = tb.width;
@@ -51,7 +51,7 @@ struct GLobject: public Base {
 
 	GLuint id = 0;
 
-	constexpr GLobject() = default;
+	constexpr GLobject() noexcept = default;
 
 	explicit constexpr GLobject(GLuint id) {
 		this->id = id;

@@ -14,7 +14,7 @@
 
 namespace nostalgia::core {
 
-static ox::Result<ox::Vector<char>> readFile(Context *ctx, const ox::FileAddress &file) {
+static ox::Result<ox::Vector<char>> readFile(Context *ctx, const ox::FileAddress &file) noexcept {
 	oxRequire(stat, ctx->rom->stat(file));
 	ox::Vector<char> buff(stat.size);
 	oxReturnError(ctx->rom->read(file, buff.data(), buff.size()));
@@ -22,14 +22,14 @@ static ox::Result<ox::Vector<char>> readFile(Context *ctx, const ox::FileAddress
 }
 
 template<typename T>
-ox::Result<T> readObj(Context *ctx, const ox::FileAddress &file) {
+ox::Result<T> readObj(Context *ctx, const ox::FileAddress &file) noexcept {
 	oxRequire(buff, readFile(ctx, file));
 	T t;
 	oxReturnError(ox::readClaw(buff.data(), buff.size(), &t));
 	return ox::move(t);
 }
 
-ox::Error initConsole(Context *ctx) {
+ox::Error initConsole(Context *ctx) noexcept {
 	constexpr auto TilesheetAddr = "/TileSheets/Charset.ng";
 	constexpr auto PaletteAddr = "/Palettes/Charset.npal";
 	setBgStatus(ctx, 0b0001);
@@ -39,14 +39,14 @@ ox::Error initConsole(Context *ctx) {
 ox::Error loadSpriteTileSheet(Context*,
                               int,
                               ox::FileAddress,
-                              ox::FileAddress) {
+                              ox::FileAddress) noexcept {
 	return OxError(0);
 }
 
 ox::Error loadBgTileSheet(Context *ctx,
                           int section,
                           ox::FileAddress tilesheetPath,
-                          ox::FileAddress palettePath) {
+                          ox::FileAddress palettePath) noexcept {
 	oxRequire(tilesheet, readObj<NostalgiaGraphic>(ctx, tilesheetPath));
 	if (!palettePath) {
 		palettePath = tilesheet.defaultPalette;
@@ -72,7 +72,7 @@ ox::Error loadBgTileSheet(Context *ctx,
 	return renderer::loadBgTexture(ctx, section, pixels.data(), width, height);
 }
 
-void puts(Context *ctx, int column, int row, const char *str) {
+void puts(Context *ctx, int column, int row, const char *str) noexcept {
 	for (int i = 0; str[i]; ++i) {
 		setTile(ctx, 0, column + i, row, static_cast<uint8_t>(charMap[static_cast<int>(str[i])]));
 	}

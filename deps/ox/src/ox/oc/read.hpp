@@ -15,6 +15,7 @@
 #include <ox/std/byteswap.hpp>
 #include <ox/std/hashmap.hpp>
 #include <ox/std/memops.hpp>
+#include <ox/std/memory.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/vector.hpp>
 
@@ -78,7 +79,8 @@ class OrganicClawReader {
 		/**
 		 * Reads an string length from the current location in the buffer.
 		 */
-		[[nodiscard]] std::size_t stringLength(const char *name);
+		[[nodiscard]]
+		std::size_t stringLength(const char *name);
 
 		template<typename T = void>
 		constexpr void setTypeInfo(const char* = T::TypeName, int = T::Fields) {
@@ -87,7 +89,8 @@ class OrganicClawReader {
 		/**
 		 * Returns a OrganicClawReader to parse a child object.
 		 */
-		[[nodiscard]] OrganicClawReader child(const char *key, int unionIdx = -1);
+		[[nodiscard]]
+		OrganicClawReader child(const char *key, int unionIdx = -1);
 
 		// compatibility stub
 		constexpr void nextField() noexcept {}
@@ -196,8 +199,8 @@ Error readOC(const char *json, std::size_t jsonSize, T *val) noexcept {
 }
 
 template<typename T>
-Result<std::unique_ptr<T>> readOC(const char *json) {
-	auto val = std::make_unique<T>();
+Result<ox::UniquePtr<T>> readOC(const char *json) {
+	auto val = ox::make_unique<T>();
 	oxReturnError(readOC(json, ox_strlen(json), val.get()));
 	return val;
 }

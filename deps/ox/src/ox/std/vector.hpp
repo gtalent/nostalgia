@@ -78,7 +78,8 @@ class Vector {
 			return m_items;
 		}
 
-		[[nodiscard]] bool contains(const T&) const;
+		[[nodiscard]]
+		bool contains(const T&) const;
 
 		void insert(std::size_t pos, const T &val);
 

@@ -20,6 +20,7 @@
 #include "heapmgr.hpp"
 #include "math.hpp"
 #include "memops.hpp"
+#include "memory.hpp"
 #include "new.hpp"
 #include "random.hpp"
 #include "stacktrace.hpp"

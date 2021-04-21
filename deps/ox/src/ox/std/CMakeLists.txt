@@ -71,6 +71,7 @@ install(
 		heapmgr.hpp
 		math.hpp
 		memops.hpp
+		memory.hpp
 		new.hpp
 		random.hpp
 		std.hpp

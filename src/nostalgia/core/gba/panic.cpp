@@ -19,7 +19,7 @@ namespace ox {
 
 using namespace nostalgia::core;
 
-void panic(const char*, int, const char *msg, ox::Error err) {
+void panic(const char*, int, const char *msg, const ox::Error &err) noexcept {
 	oxIgnoreError(initGfx(nullptr));
 	oxIgnoreError(initConsole(nullptr));
 	// enable only BG 0

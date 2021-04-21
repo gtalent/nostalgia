@@ -76,10 +76,12 @@ class OrganicClawWriter {
 		}
 
 	private:
+		[[nodiscard]]
 		constexpr bool targetValid() noexcept {
 			return static_cast<int>(m_fieldIt) == m_unionIdx || m_unionIdx == -1;
 		}
 
+		[[nodiscard]]
 		Json::Value &value(const char *key);
 
 };

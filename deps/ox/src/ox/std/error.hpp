@@ -20,10 +20,10 @@ namespace ox {
 using ErrorCode = uint16_t;
 
 struct [[nodiscard]] Error {
-	ErrorCode errCode = 0;
 	const char *msg = nullptr;
 	const char *file = nullptr;
 	uint16_t line = 0;
+	ErrorCode errCode = 0;
 
 	explicit constexpr Error(ErrorCode ec = 0) noexcept: errCode(ec) {
 	}

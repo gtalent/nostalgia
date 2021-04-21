@@ -42,6 +42,8 @@ class FileSystem {
 
 		Error read(FileAddress addr, void *buffer, std::size_t size) noexcept;
 
+		Result<Vector<char>> read(FileAddress addr) noexcept;
+
 		Error read(FileAddress addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept;
 
 		Result<const uint8_t*> directAccess(FileAddress addr) noexcept;

@@ -44,7 +44,7 @@ struct GbaTileMapTarget {
 };
 
 template<typename T>
-ox::Error modelRead(T *io, GbaPaletteTarget *t) {
+ox::Error modelRead(T *io, GbaPaletteTarget *t) noexcept {
 	io->template setTypeInfo<GbaPaletteTarget>();
 	const auto colorHandler = [t](std::size_t i, Color16 *c) {
 		t->palette[i] = *c;
@@ -54,7 +54,7 @@ ox::Error modelRead(T *io, GbaPaletteTarget *t) {
 }
 
 template<typename T>
-ox::Error modelRead(T *io, GbaTileMapTarget *t) {
+ox::Error modelRead(T *io, GbaTileMapTarget *t) noexcept {
 	io->template setTypeInfo<GbaTileMapTarget>();
 	uint8_t bpp;
 	int dummy;

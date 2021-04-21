@@ -26,6 +26,7 @@ class Context {
 		}
 
 		template<typename T>
+		[[nodiscard]]
 		constexpr T *windowerData() noexcept {
 			return static_cast<T*>(m_windowerData);
 		}
@@ -35,6 +36,7 @@ class Context {
 		}
 
 		template<typename T>
+		[[nodiscard]]
 		constexpr T *rendererData() noexcept {
 			return static_cast<T*>(m_rendererData);
 		}

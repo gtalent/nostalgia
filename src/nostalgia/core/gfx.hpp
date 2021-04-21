@@ -44,14 +44,14 @@ struct NostalgiaGraphic {
 };
 
 template<typename T>
-constexpr ox::Error model(T *io, NostalgiaPalette *pal) {
+constexpr ox::Error model(T *io, NostalgiaPalette *pal) noexcept {
 	io->template setTypeInfo<NostalgiaPalette>();
 	oxReturnError(io->field("colors", &pal->colors));
 	return OxError(0);
 }
 
 template<typename T>
-constexpr ox::Error model(T *io, NostalgiaGraphic *ng) {
+constexpr ox::Error model(T *io, NostalgiaGraphic *ng) noexcept {
 	io->template setTypeInfo<NostalgiaGraphic>();
 	oxReturnError(io->field("bpp", &ng->bpp));
 	oxReturnError(io->field("rows", &ng->rows));

@@ -92,7 +92,7 @@ constexpr uint8_t blue32(Color32 c) noexcept {
 
 
 [[nodiscard]]
-constexpr Color16 color16(uint8_t r, uint8_t g, uint8_t b) {
+constexpr Color16 color16(uint8_t r, uint8_t g, uint8_t b) noexcept {
 	return r | (g << 5) | (b << 10);
 }
 

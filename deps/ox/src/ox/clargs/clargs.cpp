@@ -16,7 +16,7 @@ ClArgs::ClArgs(int argc, const char **args) noexcept {
 		String arg = args[i];
 		if (arg[0] == '-') {
 			while (arg[0] == '-' && arg.len()) {
-				arg = arg.c_str() + 1;
+				arg = arg.substr(1);
 			}
 			m_bools[arg] = true;
 			// parse additional arguments

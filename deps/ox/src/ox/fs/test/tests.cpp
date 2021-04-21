@@ -38,8 +38,12 @@ const std::map<std::string_view, std::function<ox::Error(std::string_view)>> tes
 				auto a2 = buffer->malloc(sizeof(String));
 				oxAssert(a1.valid(), "Allocation 1 failed.");
 				oxAssert(a2.valid(), "Allocation 2 failed.");
-				auto &s1 = *new (buffer->dataOf<String>(a1)) String("asdf");
-				auto &s2 = *new (buffer->dataOf<String>(a2)) String("aoeu");
+				auto s1Buff = buffer->dataOf<String>(a1);
+				auto s2Buff = buffer->dataOf<String>(a2);
+				oxAssert(s1Buff.valid(), "s1 allocation 1 failed.");
+				oxAssert(s2Buff.valid(), "s2 allocation 2 failed.");
+				auto &s1 = *new (s1Buff) String("asdf");
+				auto &s2 = *new (s2Buff) String("aoeu");
 				oxTrace("test") << "s1: " << s1.c_str();
 				oxTrace("test") << "s2: " << s2.c_str();
 				oxAssert(s1 == "asdf", "Allocation 1 not as expected.");

@@ -71,10 +71,8 @@ class FileSystem {
 		[[nodiscard]]
 		virtual uint64_t spaceNeeded(uint64_t size) noexcept = 0;
 
-		[[nodiscard]]
 		virtual Result<uint64_t> available() noexcept = 0;
 
-		[[nodiscard]]
 		virtual Result<uint64_t> size() const noexcept = 0;
 
 		[[nodiscard]]

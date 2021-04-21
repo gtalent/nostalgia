@@ -48,6 +48,29 @@ struct TestStruct {
 	TestStructNest EmptyStruct;
 	TestStructNest Struct;
 
+	TestStruct() noexcept = default;
+
+	TestStruct(TestStruct &&other) noexcept {
+		Bool = other.Bool;
+		Int = other.Int;
+		Int1 = other.Int1;
+		Int2 = other.Int2;
+		Int3 = other.Int3;
+		Int4 = other.Int4;
+		Int5 = other.Int5;
+		Int6 = other.Int6;
+		Int7 = other.Int7;
+		Int8 = other.Int8;
+		Union = other.Union;
+		CString = other.CString;
+		other.CString = nullptr;
+		String = other.String;
+		memcpy(List, other.List, sizeof(List));
+		Map = ox::move(other.Map);
+		EmptyStruct = ox::move(other.EmptyStruct);
+		Struct = ox::move(other.Struct);
+	}
+
 	~TestStruct() {
 		delete[] CString;
 	}

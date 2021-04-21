@@ -13,23 +13,17 @@
 
 namespace ox {
 
-template<typename T>
-void assertFunc(const char*, int, T, const char*) noexcept {
-}
+void assertFunc(const char *file, int line, bool pass, const char *msg) noexcept;
 
-template<>
-void assertFunc<bool>(const char *file, int line, bool pass, const char *msg) noexcept;
+void assertFunc(const char *file, int line, const Error &err, const char *msg) noexcept;
 
-template<>
-void assertFunc<Error>(const char *file, int line, Error err, const char*) noexcept;
-
-void panic([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]const char *msg, [[maybe_unused]]Error err = OxError(0)) noexcept;
+void panic([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]const char *msg, [[maybe_unused]]const Error &err = OxError(0)) noexcept;
 
 }
 
 #define oxPanic(errCode, msg) ox::panic(__FILE__, __LINE__, msg, errCode)
 #ifndef NDEBUG
-#define oxAssert(pass, msg) ox::assertFunc<decltype(pass)>(__FILE__, __LINE__, pass, msg)
+#define oxAssert(pass, msg) ox::assertFunc(__FILE__, __LINE__, pass, msg)
 #else
 inline void oxAssert(bool, const char*) {}
 inline void oxAssert(ox::Error, const char*) {}

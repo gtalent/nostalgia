@@ -17,8 +17,7 @@
 
 namespace ox {
 
-template<>
-void assertFunc<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]bool pass, [[maybe_unused]]const char *msg) noexcept {
+void assertFunc([[maybe_unused]]const char *file, [[maybe_unused]]int line, [[maybe_unused]]bool pass, [[maybe_unused]]const char *msg) noexcept {
 	if (!pass) {
 #if defined(OX_USE_STDLIB)
 		std::cerr << "\033[31;1;1mASSERT FAILURE:\033[0m (" << file << ':' << line << "): " << msg << std::endl;
@@ -31,8 +30,7 @@ void assertFunc<bool>([[maybe_unused]]const char *file, [[maybe_unused]]int line
 	}
 }
 
-template<>
-void assertFunc<Error>(const char *file, int line, Error err, const char *assertMsg) noexcept {
+void assertFunc(const char *file, int line, const Error &err, const char *assertMsg) noexcept {
 	if (err) {
 #if defined(OX_USE_STDLIB)
 		std::cerr << "\033[31;1;1mASSERT FAILURE:\033[0m (" << file << ':' << line << "): " << assertMsg << '\n';
@@ -41,7 +39,7 @@ void assertFunc<Error>(const char *file, int line, Error err, const char *assert
 		}
 		std::cerr <<  "\tError Code:\t" << err << '\n';
 		if (err.file != nullptr) {
-			std::cerr << "\tError Location:\t" << reinterpret_cast<const char*>(err.file) << ':' << err.line << '\n';
+			std::cerr << "\tError Location:\t" << err.file << ':' << err.line << '\n';
 		}
 		printStackTrace(2);
 		oxTrace("panic").del("") << "Panic: " << assertMsg << " (" << file << ":" << line << ")";
@@ -53,14 +51,14 @@ void assertFunc<Error>(const char *file, int line, Error err, const char *assert
 }
 
 #if defined(OX_USE_STDLIB)
-void panic(const char *file, int line, const char *panicMsg, Error err) noexcept {
+void panic(const char *file, int line, const char *panicMsg, const Error &err) noexcept {
 	std::cerr << "\033[31;1;1mPANIC:\033[0m (" << file << ':' << line << "): " << panicMsg << '\n';
 	if (err.msg) {
 		std::cerr <<  "\tError Message:\t" << err.msg << '\n';
 	}
 	std::cerr <<  "\tError Code:\t" << err << '\n';
 	if (err.file != nullptr) {
-		std::cerr << "\tError Location:\t" << reinterpret_cast<const char*>(err.file) << ':' << err.line << '\n';
+		std::cerr << "\tError Location:\t" << err.file << ':' << err.line << '\n';
 	}
 	printStackTrace(2);
 	oxTrace("panic").del("") << "Panic: " << panicMsg << " (" << file << ":" << line << ")";

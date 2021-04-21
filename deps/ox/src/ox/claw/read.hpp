@@ -58,4 +58,16 @@ Error readClaw(const char *buff, std::size_t buffLen, T *val) {
 	return OxError(1);
 }
 
+template<typename T>
+Result<T> readClaw(const char *buff, std::size_t buffLen) {
+	T val;
+	oxReturnError(readClaw(buff, buffLen, &val));
+	return ox::move(val);
+}
+
+template<typename T>
+Result<T> readClaw(const Vector<char> &buff) {
+	return readClaw<T>(buff.data(), buff.size());
+}
+
 }

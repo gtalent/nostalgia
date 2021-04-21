@@ -277,4 +277,16 @@ Error readMC(const uint8_t *buff, std::size_t buffLen, T *val) {
 	return model(&reader, val);
 }
 
+template<typename T>
+Result<T> readMC(const char *buff, std::size_t buffLen) {
+	T val;
+	oxReturnError(readMC(buff, buffLen, &val));
+	return ox::move(val);
+}
+
+template<typename T>
+Result<T> readMC(const Vector<char> &buff) {
+	return readMC<T>(buff.data(), buff.size());
+}
+
 }

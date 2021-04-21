@@ -173,7 +173,7 @@ Error OrganicClawReader::field(const char *key, HashMap<String, T> *val) {
 	auto srcSize = srcVal.size();
 	OrganicClawReader r(srcVal);
 	for (decltype(srcSize) i = 0; i < srcSize; ++i) {
-		auto k = keys[i].c_str();
+		const auto k = keys[i].c_str();
 		oxReturnError(r.field(k, &val->operator[](k)));
 	}
 	return OxError(0);
@@ -191,7 +191,7 @@ Error readOC(const char *json, std::size_t jsonSize, T *val) noexcept {
 		}
 		OrganicClawReader reader(json, jsonSize);
 		return model(&reader, val);
-	} catch (Error err) {
+	} catch (const Error &err) {
 		return err;
 	} catch (...) {
 		return OxError(1, "Unkown Error");
@@ -199,10 +199,20 @@ Error readOC(const char *json, std::size_t jsonSize, T *val) noexcept {
 }
 
 template<typename T>
-Result<ox::UniquePtr<T>> readOC(const char *json) {
-	auto val = ox::make_unique<T>();
-	oxReturnError(readOC(json, ox_strlen(json), val.get()));
-	return val;
+Result<T> readOC(const char *json, std::size_t jsonLen) {
+	T val;
+	oxReturnError(readOC(json, jsonLen, &val));
+	return ox::move(val);
+}
+
+template<typename T>
+Result<T> readOC(const char *json) {
+	return readOC<T>(json, ox_strlen(json));
+}
+
+template<typename T>
+Result<T> readOC(const Vector<char> &buff) {
+	return readOC<T>(buff.data(), buff.size());
 }
 
 }

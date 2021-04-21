@@ -12,7 +12,7 @@
 
 namespace nostalgia::core {
 
-ox::Result<ox::FileSystem*> loadRomFs(const char *path) noexcept;
+ox::Result<ox::UniquePtr<ox::FileSystem>> loadRomFs(const char *path) noexcept;
 
 ox::Result<char*> loadRom(const char *path = "") noexcept;
 

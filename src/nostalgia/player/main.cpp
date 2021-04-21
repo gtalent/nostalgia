@@ -11,19 +11,19 @@
 
 #include "app.hpp"
 
-int main(int argc, const char **argv) {
-	if (argc > 1) {
-		ox::trace::init();
-		auto path = argv[1];
-		auto [fs, err] = nostalgia::core::loadRomFs(path);
-		if (err) {
-			oxAssert(err, "Something went wrong...");
-			return static_cast<int>(err);
-		}
-		err = run(fs);
-		oxAssert(err, "Something went wrong...");
-		delete fs;
-		return static_cast<int>(err);
+ox::Error run(int argc, const char **argv) {
+	if (argc < 2) {
+		oxErrf("Please provide path to project directory or OxFS file.");
+		return OxError(1);
 	}
-	return 1;
+	const auto path = argv[1];
+	oxRequire(fs, nostalgia::core::loadRomFs(path));
+	return run(fs.get());
+}
+
+int main(int argc, const char **argv) {
+	ox::trace::init();
+	const auto err = run(argc, argv);
+	oxAssert(err, "Something went wrong...");
+	return static_cast<int>(err);
 }

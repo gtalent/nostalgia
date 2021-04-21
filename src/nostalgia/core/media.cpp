@@ -10,15 +10,15 @@
 
 namespace nostalgia::core {
 
-ox::Result<ox::FileSystem*> loadRomFs(const char *path) noexcept {
+ox::Result<ox::UniquePtr<ox::FileSystem>> loadRomFs(const char *path) noexcept {
 	const auto lastDot = ox_lastIndexOf(path, '.');
 	const auto fsExt = lastDot != -1 ? path + lastDot : "";
 	if (ox_strcmp(fsExt, ".oxfs") == 0) {
 		oxRequire(rom, core::loadRom(path));
-		return new ox::FileSystem32(rom, 32 * ox::units::MB, unloadRom);
+		return {ox::make_unique<ox::FileSystem32>(rom, 32 * ox::units::MB, unloadRom)};
 	} else {
 #ifdef OX_HAS_PASSTHROUGHFS
-		return new ox::PassThroughFS(path);
+		return {ox::make_unique<ox::PassThroughFS>(path)};
 #else
 		return OxError(2);
 #endif

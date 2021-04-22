@@ -104,7 +104,7 @@ constexpr bool operator!=(std::nullptr_t, const UniquePtr<T> p2) noexcept {
 
 template<typename T, typename ...Args>
 [[nodiscard]]
-constexpr auto make_unique(Args&&... args) noexcept {
+constexpr auto make_unique(Args&&... args) {
 	return UniquePtr(new T(args...));
 }
 

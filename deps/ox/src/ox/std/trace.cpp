@@ -15,7 +15,7 @@ void logError(const char *file, int line, const Error &err) {
 		TraceStream trc(file, line, "ox::error");
 		trc <<  "Error:" << err;
 		if (err.file != nullptr) {
-			trc << "(" << reinterpret_cast<const char*>(err.file) << ":" << err.line << ")";
+			trc << "(" << err.file << ":" << err.line << ")";
 		}
 	}
 }

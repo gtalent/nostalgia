@@ -81,6 +81,8 @@ class HashMap {
 		 */
 		Pair *&access(Vector<Pair*> &pairs, K key);
 
+		void clear();
+
 };
 
 template<typename K, typename T>
@@ -96,15 +98,11 @@ template<typename K, typename T>
 HashMap<K, T>::HashMap(HashMap<K, T> &&other) {
 	m_keys = ox::move(other.m_keys);
 	m_pairs = ox::move(other.m_pairs);
-	other.m_keys = {};
-	other.m_pairs = {};
 }
 
 template<typename K, typename T>
 HashMap<K, T>::~HashMap() {
-	for (std::size_t i = 0; i < m_pairs.size(); i++) {
-		delete m_pairs[i];
-	}
+	clear();
 }
 
 template<typename K, typename T>
@@ -123,19 +121,21 @@ bool HashMap<K, T>::operator==(const HashMap &other) const {
 
 template<typename K, typename T>
 HashMap<K, T> &HashMap<K, T>::operator=(const HashMap<K, T> &other) {
-	this->~HashMap<K, T>();
-	m_keys = other.m_keys;
-	m_pairs = other.m_pairs;
+	if (this != &other) {
+		clear();
+		m_keys = other.m_keys;
+		m_pairs = other.m_pairs;
+	}
 	return *this;
 }
 
 template<typename K, typename T>
 HashMap<K, T> &HashMap<K, T>::operator=(HashMap<K, T> &&other) {
-	this->~HashMap<K, T>();
-	m_keys = ox::move(other.m_keys);
-	m_pairs = ox::move(other.m_pairs);
-	other.m_keys = {};
-	other.m_pairs = {};
+	if (this != &other) {
+		clear();
+		m_keys = ox::move(other.m_keys);
+		m_pairs = ox::move(other.m_pairs);
+	}
 	return *this;
 }
 
@@ -233,6 +233,14 @@ typename HashMap<K, T>::Pair *&HashMap<K, T>::access(Vector<Pair*> &pairs, K k) 
 			h = hash(hashStr, 8) % pairs.size();
 		}
 	}
+}
+
+template<typename K, typename T>
+void HashMap<K, T>::clear() {
+	for (std::size_t i = 0; i < m_pairs.size(); i++) {
+		delete m_pairs[i];
+	}
+	m_pairs.clear();
 }
 
 }

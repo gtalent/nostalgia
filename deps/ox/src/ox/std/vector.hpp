@@ -38,24 +38,18 @@ class Vector {
 
 		Vector &operator=(const Vector &other);
 
-		Vector &operator=(Vector &&other);
+		Vector &operator=(Vector &&other) noexcept;
 
-		[[nodiscard]]
 		T &operator[](std::size_t i) noexcept;
 
-		[[nodiscard]]
 		const T &operator[](std::size_t i) const noexcept;
 
-		[[nodiscard]]
 		Result<T&> front() noexcept;
 
-		[[nodiscard]]
 		Result<const T&> front() const noexcept;
 
-		[[nodiscard]]
 		Result<T&> back() noexcept;
 
-		[[nodiscard]]
 		Result<const T&> back() const noexcept;
 
 		[[nodiscard]]
@@ -142,17 +136,16 @@ Vector<T>::Vector(Vector<T> &&other) noexcept {
 
 template<typename T>
 Vector<T>::~Vector() {
-	if constexpr(ox::is_class<T>()) {
-		for (std::size_t i = 0; i < m_size; i++) {
-			m_items[i].~T();
-		}
-	}
+	clear();
 	delete[] bit_cast<AllocAlias<T>*>(m_items);
 	m_items = nullptr;
 }
 
 template<typename T>
 bool Vector<T>::operator==(const Vector<T> &other) const {
+	if (m_size != other.m_size) {
+		return false;
+	}
 	for (std::size_t i = 0; i < m_size; i++) {
 		if (!(m_items[i] == other.m_items[i])) {
 			return false;
@@ -163,25 +156,31 @@ bool Vector<T>::operator==(const Vector<T> &other) const {
 
 template<typename T>
 Vector<T> &Vector<T>::operator=(const Vector<T> &other) {
-	this->~Vector<T>();
-	m_size = other.m_size;
-	m_cap = other.m_cap;
-	m_items = bit_cast<T*>(new AllocAlias<T>[m_cap]);
-	for (std::size_t i = 0; i < m_size; i++) {
-		m_items[i] = other.m_items[i];
+	if (this != &other) {
+		clear();
+		delete[] bit_cast<AllocAlias<T>*>(m_items);
+		m_size = other.m_size;
+		m_cap = other.m_cap;
+		m_items = bit_cast<T*>(new AllocAlias<T>[m_cap]);
+		for (std::size_t i = 0; i < m_size; i++) {
+			m_items[i] = other.m_items[i];
+		}
 	}
 	return *this;
 }
 
 template<typename T>
-Vector<T> &Vector<T>::operator=(Vector<T> &&other) {
-	this->~Vector<T>();
-	m_size = other.m_size;
-	m_cap = other.m_cap;
-	m_items = other.m_items;
-	other.m_size = 0;
-	other.m_cap = 0;
-	other.m_items = nullptr;
+Vector<T> &Vector<T>::operator=(Vector<T> &&other) noexcept {
+	if (this != &other) {
+		clear();
+		delete[] bit_cast<AllocAlias<T>*>(m_items);
+		m_size = other.m_size;
+		m_cap = other.m_cap;
+		m_items = other.m_items;
+		other.m_size = 0;
+		other.m_cap = 0;
+		other.m_items = nullptr;
+	}
 	return *this;
 }
 
@@ -243,7 +242,12 @@ bool Vector<T>::empty() const noexcept {
 
 template<typename T>
 void Vector<T>::clear() {
-	resize(0);
+	if constexpr(ox::is_class<T>()) {
+		for (std::size_t i = 0; i < m_size; ++i) {
+			m_items[i].~T();
+		}
+	}
+	m_size = 0;
 }
 
 template<typename T>

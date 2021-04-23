@@ -10,43 +10,43 @@
 
 namespace ox {
 
-FileAddress::FileAddress() {
+FileAddress::FileAddress() noexcept {
 	m_data.inode = 0;
 	m_type = FileAddressType::Inode;
 }
 
-FileAddress::FileAddress(const FileAddress &other) {
+FileAddress::FileAddress(const FileAddress &other) noexcept {
 	operator=(other);
 }
 
-FileAddress::FileAddress(std::nullptr_t) {
+FileAddress::FileAddress(std::nullptr_t) noexcept {
 }
 
-FileAddress::FileAddress(uint64_t inode) {
+FileAddress::FileAddress(uint64_t inode) noexcept {
 	m_data.inode = inode;
 	m_type = FileAddressType::Inode;
 }
 
-FileAddress::FileAddress(char *path) {
+FileAddress::FileAddress(char *path) noexcept {
 	auto pathSize = ox_strlen(path) + 1;
 	m_data.path = new char[pathSize];
 	memcpy(m_data.path, path, pathSize);
 	m_type = FileAddressType::Path;
 }
 
-FileAddress::FileAddress(const char *path) {
+FileAddress::FileAddress(const char *path) noexcept {
 	m_data.constPath = path;
 	m_type = FileAddressType::ConstPath;
 }
 
-FileAddress::~FileAddress() {
+FileAddress::~FileAddress() noexcept {
 	if (m_type == FileAddressType::Path) {
 		delete[] m_data.path;
 		m_data.path = nullptr;
 	}
 }
 
-const FileAddress &FileAddress::operator=(const FileAddress &other) {
+const FileAddress &FileAddress::operator=(const FileAddress &other) noexcept {
 	m_type = other.m_type;
 	switch (m_type) {
 		case FileAddressType::Path:

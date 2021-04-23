@@ -23,7 +23,7 @@ enum class FileAddressType: int8_t {
 class FileAddress {
 
 	template<typename T>
-	friend Error model(T*, FileAddress*);
+	friend constexpr Error model(T*, FileAddress*) noexcept;
 
 	public:
 		static constexpr auto TypeName = "net.drinkingtea.ox.FileAddress";
@@ -42,21 +42,21 @@ class FileAddress {
 		Data m_data;
 
 	public:
-		FileAddress();
+		FileAddress() noexcept;
 
-		FileAddress(const FileAddress &other);
+		FileAddress(const FileAddress &other) noexcept;
 
-		FileAddress(std::nullptr_t);
+		FileAddress(std::nullptr_t) noexcept;
 
-		FileAddress(uint64_t inode);
+		FileAddress(uint64_t inode) noexcept;
 
-		FileAddress(char *path);
+		FileAddress(char *path) noexcept;
 
-		FileAddress(const char *path);
+		FileAddress(const char *path) noexcept;
 
-		~FileAddress();
+		~FileAddress() noexcept;
 
-		const FileAddress &operator=(const FileAddress &other);
+		const FileAddress &operator=(const FileAddress &other) noexcept;
 
 		[[nodiscard]] constexpr FileAddressType type() const noexcept {
 			switch (m_type) {
@@ -68,7 +68,7 @@ class FileAddress {
 			}
 		}
 
-		Result<uint64_t> getInode() const noexcept {
+		constexpr Result<uint64_t> getInode() const noexcept {
 			switch (m_type) {
 				case FileAddressType::Inode:
 					return m_data.inode;
@@ -77,7 +77,7 @@ class FileAddress {
 			}
 		}
 
-		Result<const char*> getPath() const noexcept {
+		constexpr Result<const char*> getPath() const noexcept {
 			switch (m_type) {
 				case FileAddressType::Path:
 					return m_data.path;
@@ -88,14 +88,14 @@ class FileAddress {
 			}
 		}
 
-		operator bool() const {
+		constexpr operator bool() const noexcept {
 			return m_type != FileAddressType::None;
 		}
 
 };
 
 template<typename T>
-Error model(T *io, FileAddress::Data *obj) {
+constexpr Error model(T *io, FileAddress::Data *obj) noexcept {
 	io->template setTypeInfo<FileAddress::Data>();
 	oxReturnError(io->field("path", SerStr(&obj->path)));
 	oxReturnError(io->field("constPath", SerStr(&obj->path)));
@@ -104,7 +104,7 @@ Error model(T *io, FileAddress::Data *obj) {
 }
 
 template<typename T>
-Error model(T *io, FileAddress *fa) {
+constexpr Error model(T *io, FileAddress *fa) noexcept {
 	io->template setTypeInfo<FileAddress>();
 	oxReturnError(io->field("type", bit_cast<int8_t*>(&fa->m_type)));
 	oxReturnError(io->field("data", UnionView(&fa->m_data, static_cast<int>(fa->m_type))));

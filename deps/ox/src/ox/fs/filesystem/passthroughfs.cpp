@@ -67,8 +67,8 @@ Error PassThroughFS::read(const char *path, void *buffer, std::size_t buffSize) 
 			return OxError(1);
 		}
 		file.read(static_cast<char*>(buffer), buffSize);
-	} catch (const std::fstream::failure&) {
-		oxTrace("ox::fs::PassThroughFS::read::error") << "Read failed:" << path;
+	} catch (const std::fstream::failure &f) {
+		oxTracef("ox::fs::PassThroughFS::read::error", "Read of {} failed: {}", path, f.what());
 		return OxError(2);
 	}
 	return OxError(0);
@@ -122,8 +122,8 @@ Error PassThroughFS::write(const char *path, void *buffer, uint64_t size, uint8_
 	try {
 		std::ofstream f(p, std::ios::binary);
 		f.write(static_cast<char*>(buffer), size);
-	} catch (const std::fstream::failure&) {
-		oxTrace("ox::fs::PassThroughFS::write::error") << "Write failed:" << path;
+	} catch (const std::fstream::failure &f) {
+		oxTracef("ox::fs::PassThroughFS::read::error", "Write of {} failed: {}", path, f.what());
 		return OxError(1);
 	}
 	return OxError(0);

@@ -23,26 +23,32 @@ class Bounds {
 		int width = 0;
 		int height = 0;
 
-		Bounds() = default;
+		constexpr Bounds() noexcept = default;
 
-		Bounds(int x, int y, int w, int h);
+		Bounds(int x, int y, int w, int h) noexcept;
 
-		[[nodiscard]] bool intersects(Bounds other) const;
+		[[nodiscard]]
+		bool intersects(const Bounds &other) const noexcept;
 
-		[[nodiscard]] bool contains(int x, int y) const;
+		[[nodiscard]]
+		bool contains(int x, int y) const noexcept;
 
-		[[nodiscard]] int x2() const;
+		[[nodiscard]]
+		int x2() const noexcept;
 
-		[[nodiscard]] int y2() const;
+		[[nodiscard]]
+		int y2() const noexcept;
 
-		[[nodiscard]] Point pt1();
+		[[nodiscard]]
+		Point pt1() const noexcept;
 
-		[[nodiscard]] Point pt2();
+		[[nodiscard]]
+		Point pt2() const noexcept;
 
 };
 
 template<typename T>
-ox::Error model(T *io, Bounds *obj) {
+constexpr ox::Error model(T *io, Bounds *obj) {
 	io->template setTypeInfo<Point>();
 	oxReturnError(io->field("x", &obj->x));
 	oxReturnError(io->field("y", &obj->y));

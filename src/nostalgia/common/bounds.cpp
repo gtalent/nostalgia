@@ -9,34 +9,34 @@
 
 namespace nostalgia::common {
 
-Bounds::Bounds(int x, int y, int w, int h) {
+Bounds::Bounds(int x, int y, int w, int h) noexcept {
 	this->x = x;
 	this->y = y;
 	this->width = w;
 	this->height = h;
 }
 
-bool Bounds::intersects(Bounds o) const {
+bool Bounds::intersects(const Bounds &o) const noexcept {
 	return o.x2() >= x && x2() >= o.x && o.y2() >= y && y2() >= o.y;
 }
 
-bool Bounds::contains(int x, int y) const {
+bool Bounds::contains(int x, int y) const noexcept {
 	return x >= this->x && y >= this->y && x <= x2() && y <= y2();
 }
 
-int Bounds::x2() const {
+int Bounds::x2() const noexcept {
 	return x + width;
 }
 
-int Bounds::y2() const {
+int Bounds::y2() const noexcept {
 	return y + height;
 }
 
-Point Bounds::pt1() {
+Point Bounds::pt1() const noexcept {
 	return Point(x, y);
 }
 
-Point Bounds::pt2() {
+Point Bounds::pt2() const noexcept {
 	return Point(x2(), y2());
 }
 

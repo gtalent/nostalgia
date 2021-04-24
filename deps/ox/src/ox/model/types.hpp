@@ -8,12 +8,45 @@
 
 #pragma once
 
+#if __has_include(<vector>)
+#include <vector>
+#endif
+
+#if __has_include(<QVector>)
+#include <QVector>
+#endif
+
 #include <ox/std/bstring.hpp>
 #include <ox/std/strops.hpp>
 #include <ox/std/types.hpp>
 #include <ox/std/typetraits.hpp>
+#include <ox/std/vector.hpp>
 
 namespace ox {
+
+template<typename T>
+constexpr bool isVector(const T&) noexcept {
+	return false;
+}
+
+template<typename T>
+constexpr bool isVector(const Vector<T>*) noexcept {
+	return true;
+}
+
+#if __has_include(<vector>)
+template<typename T>
+constexpr bool isVector(const std::vector<T>*) noexcept {
+	return true;
+}
+#endif
+
+#if __has_include(<QVector>)
+template<typename T>
+constexpr bool isVector(const QVector<T>*) noexcept {
+	return true;
+}
+#endif
 
 class SerStr {
 
@@ -46,8 +79,14 @@ class SerStr {
 			m_cap = cap;
 		}
 
+		[[nodiscard]]
 		constexpr const char *c_str() const noexcept {
 			return m_str;
+		}
+
+		[[nodiscard]]
+		constexpr auto target() const noexcept {
+			return m_tgt;
 		}
 
 		constexpr char *data(std::size_t sz = 0) noexcept {
@@ -59,10 +98,12 @@ class SerStr {
 			return m_str;
 		}
 
+		[[nodiscard]]
 		constexpr int len() const noexcept {
 			return static_cast<int>(m_str ? ox_strlen(m_str) : 0);
 		}
 
+		[[nodiscard]]
 		constexpr int cap() const noexcept {
 			return m_cap;
 		}
@@ -80,14 +121,17 @@ class UnionView {
 		constexpr UnionView(Union *u, int idx) noexcept: m_idx(idx), m_union(u) {
 		}
 
+		[[nodiscard]]
 		constexpr auto idx() const noexcept {
 			return m_idx;
 		}
 
+		[[nodiscard]]
 		constexpr const Union *get() const noexcept {
 			return m_union;
 		}
 
+		[[nodiscard]]
 		constexpr Union *get() noexcept {
 			return m_union;
 		}

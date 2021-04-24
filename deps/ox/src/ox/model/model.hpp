@@ -11,5 +11,6 @@
 #include "descread.hpp"
 #include "desctypes.hpp"
 #include "descwrite.hpp"
+#include "modelops.hpp"
 #include "types.hpp"
 #include "walk.hpp"

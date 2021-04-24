@@ -8,6 +8,15 @@
 
 #pragma once
 
+#if __has_include(<string>)
+#include <string>
+#endif
+
+#if __has_include(<QString>)
+#include <QString>
+#endif
+
+#include <ox/std/bstring.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/strops.hpp>
 #include <ox/std/types.hpp>
@@ -19,9 +28,26 @@ constexpr const char *stringify(const char *s) noexcept {
 	return s;
 }
 
+template<std::size_t size>
+constexpr const char *stringify(const ox::BString<size> &s) noexcept {
+    return s.c_str();
+}
+
 constexpr const char *stringify(const ox::String &s) noexcept {
 	return s.c_str();
 }
+
+#if __has_include(<string>)
+constexpr const char *stringify(const std::string &s) noexcept {
+	return s.c_str();
+}
+#endif
+
+#if __has_include(<QString>)
+constexpr const char *stringify(const QString &s) noexcept {
+	return s.c_str();
+}
+#endif
 
 class FmtArg {
 

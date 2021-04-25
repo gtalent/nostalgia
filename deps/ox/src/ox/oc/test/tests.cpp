@@ -8,7 +8,6 @@
 
 #undef NDEBUG
 
-#include <iostream>
 #include <map>
 
 #include <ox/model/model.hpp>
@@ -24,12 +23,16 @@ union TestUnion {
 };
 
 struct TestStructNest {
+	static constexpr auto TypeName = "TestStructNest";
+	static constexpr auto Fields = 3;
 	bool Bool = false;
 	uint32_t Int = 0;
 	ox::BString<32> String = "";
 };
 
 struct TestStruct {
+	static constexpr auto TypeName = "TestStruct";
+	static constexpr auto Fields = 17;
 	bool Bool = false;
 	int32_t Int = 0;
 	int32_t Int1 = 0;
@@ -50,35 +53,22 @@ struct TestStruct {
 
 	TestStruct() noexcept = default;
 
-	TestStruct(TestStruct &&other) noexcept {
-		Bool = other.Bool;
-		Int = other.Int;
-		Int1 = other.Int1;
-		Int2 = other.Int2;
-		Int3 = other.Int3;
-		Int4 = other.Int4;
-		Int5 = other.Int5;
-		Int6 = other.Int6;
-		Int7 = other.Int7;
-		Int8 = other.Int8;
-		Union = other.Union;
-		CString = other.CString;
-		other.CString = nullptr;
-		String = other.String;
-		memcpy(List, other.List, sizeof(List));
-		Map = ox::move(other.Map);
-		EmptyStruct = ox::move(other.EmptyStruct);
-		Struct = ox::move(other.Struct);
-	}
+	TestStruct(const TestStruct&) noexcept;
 
-	~TestStruct() {
+	TestStruct(TestStruct &&other) noexcept;
+
+	~TestStruct() noexcept {
 		delete[] CString;
 	}
+
+	constexpr TestStruct &operator=(const TestStruct&) noexcept;
+
+	constexpr TestStruct &operator=(TestStruct&&) noexcept;
 
 };
 
 template<typename T>
-ox::Error model(T *io, TestUnion *obj) {
+constexpr ox::Error model(T *io, TestUnion *obj) noexcept {
 	io->template setTypeInfo<TestUnion>();
 	oxReturnError(io->field("Bool", &obj->Bool));
 	oxReturnError(io->field("Int", &obj->Int));
@@ -87,8 +77,8 @@ ox::Error model(T *io, TestUnion *obj) {
 }
 
 template<typename T>
-ox::Error model(T *io, TestStructNest *obj) {
-	io->setTypeInfo("TestStructNest", 3);
+constexpr ox::Error model(T *io, TestStructNest *obj) noexcept {
+	io->template setTypeInfo<TestStructNest>();
 	oxReturnError(io->field("Bool", &obj->Bool));
 	oxReturnError(io->field("Int", &obj->Int));
 	oxReturnError(io->field("String", &obj->String));
@@ -96,8 +86,8 @@ ox::Error model(T *io, TestStructNest *obj) {
 }
 
 template<typename T>
-ox::Error model(T *io, TestStruct *obj) {
-	io->setTypeInfo("TestStruct", 17);
+constexpr ox::Error model(T *io, TestStruct *obj) noexcept {
+	io->template setTypeInfo<TestStruct>();
 	oxReturnError(io->field("Bool", &obj->Bool));
 	oxReturnError(io->field("Int", &obj->Int));
 	oxReturnError(io->field("Int1", &obj->Int1));
@@ -118,7 +108,25 @@ ox::Error model(T *io, TestStruct *obj) {
 	return OxError(0);
 }
 
-std::map<std::string, ox::Error(*)()> tests = {
+TestStruct::TestStruct(const TestStruct &other) noexcept {
+	ox::copyModel(this, &other);
+}
+
+TestStruct::TestStruct(TestStruct &&other) noexcept {
+	ox::moveModel(this, &other);
+}
+
+constexpr TestStruct &TestStruct::operator=(const TestStruct &other) noexcept {
+	ox::copyModel(this, &other);
+	return *this;
+}
+
+constexpr TestStruct &TestStruct::operator=(TestStruct &&other) noexcept {
+	ox::moveModel(this, &other);
+	return *this;
+}
+
+const std::map<std::string_view, ox::Error(*)()> tests = {
 	{
 		{
 			"OrganicClawWriter",
@@ -151,7 +159,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 
 				auto [oc, writeErr] = ox::writeOC(&testIn);
 				oxAssert(writeErr, "writeOC failed");
-				std::cout << oc.data() << '\n';
+				oxOutf("{}\n", oc.data());
 				auto [testOut, readErr] = ox::readOC<TestStruct>(oc.data());
 				oxAssert(readErr, "readOC failed");
 
@@ -206,80 +214,78 @@ std::map<std::string, ox::Error(*)()> tests = {
 				oxAssert(type.error, "Descriptor write failed");
 				oxReturnError(ox::walkModel<ox::OrganicClawReader>(type.value, ox::bit_cast<uint8_t*>(oc.data()), oc.size(),
 					[](const ox::Vector<ox::FieldName>&, const ox::Vector<ox::TypeName>&, const ox::DescriptorField &f, ox::OrganicClawReader *rdr) -> ox::Error {
-						//std::cout << f.fieldName.c_str() << '\n';
 						auto fieldName = f.fieldName.c_str();
 						switch (f.type->primitiveType) {
 							case ox::PrimitiveType::UnsignedInteger:
-								std::cout << fieldName << ":\tuint" << f.type->length * 8 << "_t:\t";
+								oxOutf("{}:\tuint{}_t:\t", fieldName, f.type->length * 8);
 								switch (f.type->length) {
 									case 1: {
 										uint8_t i = {};
 										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-										std::cout << i;
+										oxOutf("{}", i);
 										break;
 									}
 									case 2: {
 										uint16_t i = {};
 										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-										std::cout << i;
+										oxOutf("{}", i);
 										break;
 									}
 									case 4: {
 										uint32_t i = {};
 										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-										std::cout << i;
+										oxOutf("{}", i);
 										break;
 									}
 									case 8: {
 										uint64_t i = {};
 										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-										std::cout << i;
+										oxOutf("{}", i);
 										break;
 									}
 								}
-								std::cout << '\n';
+								oxOut("\n");
 								break;
 							case ox::PrimitiveType::SignedInteger:
-								std::cout << fieldName << ":\tint" << f.type->length * 8 << "_t:\t";
+								oxOutf("{}:\tint{}_t:\t", fieldName, f.type->length * 8);
 								switch (f.type->length) {
 									case 1: {
 										int8_t i = {};
 										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-										std::cout << i;
+										oxOutf("{}", i);
 										break;
 									}
 									case 2: {
 										int16_t i = {};
 										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-										std::cout << i;
+										oxOutf("{}", i);
 										break;
 									}
 									case 4: {
 										int32_t i = {};
 										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-										std::cout << i;
+										oxOutf("{}", i);
 										break;
 									}
 									case 8: {
 										int64_t i = {};
 										oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-										std::cout << i;
+										oxOutf("{}", i);
 										break;
 									}
 								}
-								std::cout << '\n';
+								oxOut("\n");
 								break;
 							case ox::PrimitiveType::Bool: {
 								bool i = {};
 								oxAssert(rdr->field(fieldName, &i), "Walking model failed.");
-								std::cout << fieldName << ":\t" << "bool:\t" << (i ? "true" : "false") << '\n';
+								oxOutf("{}:\tbool:\t{}\n", fieldName, i ? "true" : "false");
 								break;
 							}
 							case ox::PrimitiveType::String: {
 								ox::Vector<char> v(rdr->stringLength(fieldName) + 1);
-								//std::cout << rdr->stringLength() << '\n';
 								oxAssert(rdr->field(fieldName, ox::SerStr(v.data(), v.size())), "Walking model failed.");
-								std::cout << fieldName << ":\t" << "string: " << v.data() << '\n';
+								oxOutf("{}:\tstring:\t{}\n", fieldName, v.data());
 								break;
 							}
 							case ox::PrimitiveType::Struct:
@@ -299,12 +305,16 @@ std::map<std::string, ox::Error(*)()> tests = {
 };
 
 int main(int argc, const char **args) {
-	int retval = -1;
-	if (argc > 0) {
-		auto testName = args[1];
-		if (tests.find(testName) != tests.end()) {
-			retval = tests[testName]();
-		}
+	if (argc < 2) {
+		oxError("Must specify test to run");
 	}
-	return retval;
+	const auto testName = args[1];
+	ox::Error(*test)();
+	try {
+		test = tests.at(testName);
+	} catch (const std::out_of_range&) {
+		oxErrorf("Test {} not found", testName);
+		return 1;
+	}
+	return test();
 }

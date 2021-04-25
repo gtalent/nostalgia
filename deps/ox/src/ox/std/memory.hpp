@@ -44,15 +44,17 @@ class UniquePtr {
 			return m_t;
 		}
 
-		constexpr void reset(UniquePtr &&other = UniquePtr()) {
+		template<typename U>
+		constexpr void reset(UniquePtr<U> &&other = UniquePtr()) {
 			auto t = m_t;
 			m_t = other.m_t;
 			other.m_t = nullptr;
 			delete t;
 		}
 
-		constexpr UniquePtr &operator=(UniquePtr &&other) {
-			reset(ox::move(other));
+		template<typename U>
+		constexpr UniquePtr &operator=(UniquePtr<U> &&other) {
+			reset(move(other));
 			return *this;
 		}
 
@@ -71,33 +73,33 @@ class UniquePtr {
 };
 
 template<typename T>
-constexpr bool operator==(const UniquePtr<T> p1, const UniquePtr<T> p2) noexcept {
+constexpr bool operator==(const UniquePtr<T> &p1, const UniquePtr<T> &p2) noexcept {
 	return p1.get() == p2.get();
 }
 
 template<typename T>
-constexpr bool operator==(const UniquePtr<T> p1, std::nullptr_t) noexcept {
+constexpr bool operator==(const UniquePtr<T> &p1, std::nullptr_t) noexcept {
 	return p1.get();
 }
 
 template<typename T>
-constexpr bool operator==(std::nullptr_t, const UniquePtr<T> p2) noexcept {
+constexpr bool operator==(std::nullptr_t, const UniquePtr<T> &p2) noexcept {
 	return p2.get();
 }
 
 
 template<typename T>
-constexpr bool operator!=(const UniquePtr<T> p1, const UniquePtr<T> p2) noexcept {
+constexpr bool operator!=(const UniquePtr<T> &p1, const UniquePtr<T> &p2) noexcept {
 	return p1.get() != p2.get();
 }
 
 template<typename T>
-constexpr bool operator!=(const UniquePtr<T> p1, std::nullptr_t) noexcept {
+constexpr bool operator!=(const UniquePtr<T> &p1, std::nullptr_t) noexcept {
 	return !p1.get();
 }
 
 template<typename T>
-constexpr bool operator!=(std::nullptr_t, const UniquePtr<T> p2) noexcept {
+constexpr bool operator!=(std::nullptr_t, const UniquePtr<T> &p2) noexcept {
 	return !p2.get();
 }
 

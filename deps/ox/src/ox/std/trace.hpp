@@ -35,9 +35,10 @@ struct TraceMsg {
 };
 
 template<typename T>
-Error model(T *io, ox::trace::TraceMsg *obj) {
+constexpr Error model(T *io, ox::trace::TraceMsg *obj) {
 	auto err = OxError(0);
 	io->setTypeInfo("ox::trace::TraceMsg", 5);
+	oxReturnError(io->field("ch", &obj->ch));
 	oxReturnError(io->field("file", &obj->file));
 	oxReturnError(io->field("line", &obj->line));
 	oxReturnError(io->field("time", &obj->time));
@@ -52,7 +53,7 @@ class OutStream {
 		TraceMsg m_msg;
 
 	public:
-		constexpr OutStream(const char *file, int line, const char *ch, const char *msg = "") {
+		constexpr OutStream(const char *file, int line, const char *ch, const char *msg = "") noexcept {
 			m_msg.file = file;
 			m_msg.line = line;
 			m_msg.ch = ch;
@@ -61,7 +62,7 @@ class OutStream {
 
 #ifdef OX_USE_STDLIB
 		template<std::size_t fmtSegmentCnt, typename ...Args>
-		constexpr OutStream(const char *file, int line, const char *ch, detail::Fmt<fmtSegmentCnt> fmtSegments, std::array<detail::FmtArg, fmtSegmentCnt - 1> elements) {
+		constexpr OutStream(const char *file, int line, const char *ch, detail::Fmt<fmtSegmentCnt> fmtSegments, std::array<detail::FmtArg, fmtSegmentCnt - 1> elements) noexcept {
 			//static_assert(sizeof...(args) == fmtSegmentCnt - 1, "Wrong number of trace arguments for format.");
 			m_msg.file = file;
 			m_msg.line = line;
@@ -93,12 +94,12 @@ class OutStream {
 		}
 #endif
 
-		inline ~OutStream() {
+		inline ~OutStream() noexcept {
 			oxTraceHook(m_msg.file, m_msg.line, m_msg.ch, m_msg.msg.c_str());
 		}
 
 		template<typename T>
-		constexpr OutStream &operator<<(const T &v) {
+		constexpr OutStream &operator<<(const T &v) noexcept {
 			if (m_msg.msg.len()) {
 				m_msg.msg += m_delimiter;
 			}
@@ -106,7 +107,7 @@ class OutStream {
 			return *this;
 		}
 
-		constexpr OutStream &operator<<(Error err) {
+		constexpr OutStream &operator<<(const Error &err) noexcept {
 			if (m_msg.msg.len()) {
 				m_msg.msg += m_delimiter;
 			}
@@ -117,7 +118,7 @@ class OutStream {
 		/**
 		 * del sets the delimiter between log segments.
 		 */
-		constexpr OutStream &del(const char *delimiter) {
+		constexpr OutStream &del(const char *delimiter) noexcept {
 			m_delimiter = delimiter;
 			return *this;
 		}
@@ -128,12 +129,12 @@ class OutStream {
 class NullStream {
 
 	public:
-		constexpr NullStream(const char*, int, const char*, const char* = "") {
+		constexpr NullStream(const char*, int, const char*, const char* = "") noexcept {
 		}
 
 #ifdef OX_USE_STDLIB
 		template<std::size_t fmtSegmentCnt, typename ...Args>
-		constexpr NullStream(const char*, int, const char*, detail::Fmt<fmtSegmentCnt>, std::array<detail::FmtArg, fmtSegmentCnt - 1>) {
+		constexpr NullStream(const char*, int, const char*, detail::Fmt<fmtSegmentCnt>, std::array<detail::FmtArg, fmtSegmentCnt - 1>) noexcept {
 		}
 #else
 		template<std::size_t fmtSegmentCnt, typename ...Args>
@@ -142,11 +143,11 @@ class NullStream {
 #endif
 
 		template<typename T>
-		constexpr NullStream &operator<<(const T&) {
+		constexpr NullStream &operator<<(const T&) noexcept {
 			return *this;
 		}
 
-		constexpr NullStream &del(const char*) {
+		constexpr NullStream &del(const char*) noexcept {
 			return *this;
 		}
 

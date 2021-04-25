@@ -52,7 +52,7 @@ class FmtArg {
 		const char *out = nullptr;
 
 		template<typename T>
-		constexpr FmtArg(T v) noexcept {
+		constexpr FmtArg(const T &v) noexcept {
 			if constexpr(is_bool_v<T>) {
 				out = v ? "true" : "false";
 			} else if constexpr(is_integral_v<T>) {

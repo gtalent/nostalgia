@@ -37,18 +37,17 @@ Result<Vector<char>> stripClawHeader(const char *buff, std::size_t buffLen) noex
 
 template<typename T>
 Error readClaw(const char *buff, std::size_t buffLen, T *val) {
-	auto header = detail::readHeader(buff, buffLen);
-	oxReturnError(header);
-	switch (header.value.fmt) {
+	oxRequire(header, detail::readHeader(buff, buffLen));
+	switch (header.fmt) {
 		case ClawFormat::Metal:
 		{
-			MetalClawReader reader(bit_cast<uint8_t*>(header.value.data), buffLen);
+			MetalClawReader reader(bit_cast<uint8_t*>(header.data), buffLen);
 			return model(&reader, val);
 		}
 #ifdef OX_USE_STDLIB
 		case ClawFormat::Organic:
 		{
-			OrganicClawReader reader(bit_cast<uint8_t*>(header.value.data), buffLen);
+			OrganicClawReader reader(bit_cast<uint8_t*>(header.data), buffLen);
 			return model(&reader, val);
 		}
 #endif

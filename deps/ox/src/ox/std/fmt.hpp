@@ -37,14 +37,8 @@ constexpr const char *stringify(const ox::String &s) noexcept {
 	return s.c_str();
 }
 
-#if __has_include(<string>)
+#if __has_include(<string>) && __cplusplus >= 202002L
 constexpr const char *stringify(const std::string &s) noexcept {
-	return s.c_str();
-}
-#endif
-
-#if __has_include(<QString>)
-constexpr const char *stringify(const QString &s) noexcept {
 	return s.c_str();
 }
 #endif

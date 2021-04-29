@@ -112,18 +112,18 @@ ifneq (${OS},windows)
 else
 	${VCPKG_DIR}/vcpkg install --triplet x64-windows ${VCPKG_PKGS}
 endif
-endif # USE_VCPKG
+else # USE_VCPKG
 
 .PHONY: setup-conan
 conan-config:
-	conan profile new nostalgia --detect --force
+	conan profile new nostalgia --detect --force 
 ifeq ($(OS),linux)
 	conan profile update settings.compiler.libcxx=libstdc++11 ${PROJECT_NAME}
 endif
-	conan remote add -f bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 .PHONY: conan
 conan:
 	@mkdir -p .conanbuild && cd .conanbuild && conan install ../ --build=missing -pr=${PROJECT_NAME}
+endif # USE_VCPKG
 
 .PHONY: configure-xcode
 configure-xcode:

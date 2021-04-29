@@ -7,6 +7,7 @@
  */
 
 #include <ox/claw/read.hpp>
+#include <ox/fs/fs.hpp>
 
 #include "pack.hpp"
 
@@ -37,8 +38,8 @@ static ox::Error transformClaw(ox::FileSystem *dest, const ox::String &path) noe
 	oxTracef("pack::transformClaw", "path: {}", path);
 	oxRequire(fileList, dest->ls(path));
 	for (auto i = 0u; i < fileList.size(); ++i) {
-		auto &name = fileList[i];
-		auto filePath = path + name;
+		const auto &name = fileList[i];
+		const auto filePath = path + name;
 		oxRequire(stat, dest->stat(filePath.c_str()));
 		if (stat.fileType == ox::FileType_Directory) {
 			const auto dir = path + name + '/';
@@ -77,8 +78,8 @@ static ox::Error copy(ox::FileSystem *src, ox::FileSystem *dest, const ox::Strin
 	// copy
 	oxRequire(fileList, src->ls(path));
 	for (auto i = 0u; i < fileList.size(); ++i) {
-		auto &name = fileList[i];
-		auto currentFile = path + name;
+		const auto &name = fileList[i];
+		const auto currentFile = path + name;
 		if (currentFile == "/.nostalgia") {
 			continue;
 		}

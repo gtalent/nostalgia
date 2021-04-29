@@ -6,10 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <ox/fs/fs.hpp>
-
 namespace nostalgia {
 
-ox::Error pack(ox::FileSystem *src, ox::FileSystem *dest) noexcept;
+class ox::Error pack(class ox::FileSystem *src, class ox::FileSystem *dest) noexcept;
 
 }

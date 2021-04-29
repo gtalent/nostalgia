@@ -32,7 +32,7 @@ ifdef USE_VCPKG
 	ifndef VCPKG_VERSION
 		VCPKG_VERSION=2020.06
 	endif
-	VCPKG_TOOLCHAIN=--toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake 
+	VCPKG_TOOLCHAIN=--toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake
 endif
 ifeq ($(OS),darwin)
 	DEBUGGER=lldb
@@ -116,7 +116,7 @@ else # USE_VCPKG
 
 .PHONY: setup-conan
 conan-config:
-	conan profile new nostalgia --detect --force 
+	conan profile new nostalgia --detect --force
 ifeq ($(OS),linux)
 	conan profile update settings.compiler.libcxx=libstdc++11 ${PROJECT_NAME}
 endif

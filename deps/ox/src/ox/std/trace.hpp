@@ -27,6 +27,9 @@ void oxTraceHook(const char *file, int line, const char *ch, const char *msg);
 namespace ox::trace {
 
 struct TraceMsg {
+	static constexpr auto TypeName = "net.drinkingtea.ox.trace.TraceMsg";
+	static constexpr auto Fields = 5;
+	static constexpr auto TypeVersion = 1;
 	const char *file = "";
 	int line = 0;
 	uint64_t time = 0;
@@ -36,14 +39,13 @@ struct TraceMsg {
 
 template<typename T>
 constexpr Error model(T *io, ox::trace::TraceMsg *obj) {
-	auto err = OxError(0);
-	io->setTypeInfo("ox::trace::TraceMsg", 5);
+	io->template setTypeInfo<TraceMsg>();
 	oxReturnError(io->field("ch", &obj->ch));
 	oxReturnError(io->field("file", &obj->file));
 	oxReturnError(io->field("line", &obj->line));
 	oxReturnError(io->field("time", &obj->time));
 	oxReturnError(io->field("msg", &obj->msg));
-	return err;
+	return OxError(0);
 }
 
 class OutStream {

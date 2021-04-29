@@ -58,7 +58,8 @@ class FileAddress {
 
 		const FileAddress &operator=(const FileAddress &other) noexcept;
 
-		[[nodiscard]] constexpr FileAddressType type() const noexcept {
+		[[nodiscard]]
+		constexpr FileAddressType type() const noexcept {
 			switch (m_type) {
 				case FileAddressType::Path:
 				case FileAddressType::ConstPath:

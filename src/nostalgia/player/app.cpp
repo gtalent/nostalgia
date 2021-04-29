@@ -41,7 +41,7 @@ ox::Error run(ox::FileSystem *fs) noexcept {
 	oxReturnError(core::loadSpriteTileSheet(&ctx, 0, TileSheetAddr, PaletteAddr));
 	oxReturnError(core::initConsole(&ctx));
 	core::puts(&ctx, 10, 9, "DOPENESS!!!");
-	core::setEventHandler(eventHandler);
+	core::setEventHandler(&ctx, eventHandler);
 	oxReturnError(core::run(&ctx));
 	oxReturnError(core::shutdownGfx(&ctx));
 	return OxError(0);

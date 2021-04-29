@@ -47,11 +47,11 @@ ox::Error init(Context *ctx) noexcept {
 	return OxError(0);
 }
 
-void setEventHandler(event_handler h) noexcept {
+void setEventHandler(Context*, event_handler h) noexcept {
 	g_eventHandler = h;
 }
 
-uint64_t ticksMs() noexcept {
+uint64_t ticksMs(Context*) noexcept {
 	return g_timerMs;
 }
 

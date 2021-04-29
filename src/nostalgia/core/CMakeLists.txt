@@ -15,7 +15,7 @@ target_link_libraries(
 
 add_subdirectory(gba)
 if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
-	add_subdirectory(sdl)
+	add_subdirectory(glfw)
 	add_subdirectory(userland)
 endif()
 if(NOSTALGIA_BUILD_STUDIO)

@@ -25,11 +25,11 @@ ox::Error run(Context *ctx) noexcept;
 
 // Sets event handler that sleeps for the time given in the return value. The
 // sleep time is a minimum of ~16 milliseconds.
-void setEventHandler(event_handler) noexcept;
+void setEventHandler(Context *ctx, event_handler) noexcept;
 
 // Returns the number of milliseconds that have passed since the start of the
 //  program.
 [[nodiscard]]
-uint64_t ticksMs() noexcept;
+uint64_t ticksMs(Context *ctx) noexcept;
 
 }

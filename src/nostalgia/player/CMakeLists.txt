@@ -22,7 +22,7 @@ target_link_libraries(
 	nostalgia
 		NostalgiaWorld
 		$<$<STREQUAL:${NOSTALGIA_BUILD_TYPE},GBA>:NostalgiaCore-GBA>
-		$<$<STREQUAL:${NOSTALGIA_BUILD_TYPE},Native>:NostalgiaCore-SDL>
+		$<$<STREQUAL:${NOSTALGIA_BUILD_TYPE},Native>:NostalgiaCore-GLFW>
 )
 
 install(

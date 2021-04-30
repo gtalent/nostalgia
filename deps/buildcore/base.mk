@@ -34,6 +34,12 @@ ifdef USE_VCPKG
 	endif
 	VCPKG_TOOLCHAIN=--toolchain=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake 
 endif
+ifeq ($(OS),darwin)
+	DEBUGGER=lldb
+else
+	DEBUGGER=gdb --args
+endif
+
 VCPKG_DIR=$(VCPKG_DIR_BASE)/$(VCPKG_VERSION)-$(HOST_ENV)
 DEVENV=devenv$(shell pwd | sed 's/\//-/g')
 DEVENV_IMAGE=${PROJECT_NAME}-devenv

@@ -27,10 +27,10 @@ gba-run: pkg-gba
 	${MGBA} nostalgia.gba
 .PHONY: debug
 debug: install
-	${ENV_RUN} gdb --args ./dist/${CURRENT_BUILD}/bin/nostalgia sample_project
+	${ENV_RUN} ${DEBUGGER} ./dist/${CURRENT_BUILD}/bin/nostalgia sample_project
 .PHONY: debug-studio
 debug-studio: install
-	${ENV_RUN} gdb --args ${NOSTALGIA_STUDIO}
+	${ENV_RUN} ${DEBUGGER} ${NOSTALGIA_STUDIO}
 
 .PHONY: configure-gba
 configure-gba:

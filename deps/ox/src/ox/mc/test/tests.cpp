@@ -110,11 +110,9 @@ std::map<std::string, ox::Error(*)()> tests = {
 				// This test doesn't confirm much, but it does show that the writer
 				// doesn't segfault
 				constexpr size_t buffLen = 1024;
-				uint8_t buff[buffLen];
+				char buff[buffLen];
 				TestStruct ts;
-
 				oxReturnError(ox::writeMC(buff, buffLen, &ts));
-
 				return OxError(0);
 			}
 		},
@@ -122,7 +120,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 			"MetalClawReader",
 			[] {
 				constexpr size_t buffLen = 1024;
-				uint8_t buff[buffLen];
+				char buff[buffLen];
 				TestStruct testIn, testOut;
 
 				testIn.Bool = true;
@@ -284,7 +282,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 				//constexpr size_t descBuffLen = 1024;
 				//uint8_t descBuff[descBuffLen];
 				constexpr size_t dataBuffLen = 1024;
-				uint8_t dataBuff[dataBuffLen];
+				char dataBuff[dataBuffLen];
 				TestStruct testIn, testOut;
 
 				testIn.Bool = true;

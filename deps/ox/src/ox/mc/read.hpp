@@ -271,8 +271,8 @@ void MetalClawReader::setTypeInfo(const char*, int fields) {
 }
 
 template<typename T>
-Error readMC(const uint8_t *buff, std::size_t buffLen, T *val) {
-	MetalClawReader reader(buff, buffLen);
+Error readMC(const char *buff, std::size_t buffLen, T *val) {
+	MetalClawReader reader(bit_cast<uint8_t*>(buff), buffLen);
 	return model(&reader, val);
 }
 

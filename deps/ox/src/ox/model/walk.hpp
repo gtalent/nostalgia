@@ -145,9 +145,9 @@ Error model(Reader *rdr, DataWalker<Reader, FH> *walker) {
 }
 
 template<typename Reader, typename Handler>
-Error walkModel(DescriptorType *type, uint8_t *data, std::size_t dataLen, Handler handler) {
+Error walkModel(DescriptorType *type, char *data, std::size_t dataLen, Handler handler) {
 	DataWalker<Reader, Handler> walker(type, handler);
-	Reader rdr(data, dataLen);
+	Reader rdr(bit_cast<uint8_t*>(data), dataLen);
 	return model(&rdr, &walker);
 }
 

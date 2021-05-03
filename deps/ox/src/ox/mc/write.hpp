@@ -232,8 +232,8 @@ Result<Vector<char>> writeMC(T *val) {
 }
 
 template<typename T>
-Error writeMC(uint8_t *buff, std::size_t buffLen, T *val, std::size_t *sizeOut = nullptr) {
-	MetalClawWriter writer(buff, buffLen);
+Error writeMC(char *buff, std::size_t buffLen, T *val, std::size_t *sizeOut = nullptr) {
+	MetalClawWriter writer(bit_cast<uint8_t*>(buff), buffLen);
 	auto err = model(&writer, val);
 	if (sizeOut) {
 		*sizeOut = writer.size();

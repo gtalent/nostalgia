@@ -11,11 +11,11 @@
 #include <ox/model/optype.hpp>
 #include <ox/model/types.hpp>
 #include <ox/std/bit.hpp>
+#include <ox/std/buffer.hpp>
 #include <ox/std/byteswap.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/types.hpp>
 #include <ox/std/units.hpp>
-#include <ox/std/vector.hpp>
 
 #include "intops.hpp"
 #include "err.hpp"
@@ -223,8 +223,8 @@ void MetalClawWriter::setTypeInfo(const char*, int fields) {
 }
 
 template<typename T>
-Result<Vector<char>> writeMC(T *val) {
-	Vector<char> buff(10 * units::MB);
+Result<Buffer> writeMC(T *val) {
+	Buffer buff(10 * units::MB);
 	MetalClawWriter writer(bit_cast<uint8_t*>(buff.data()), buff.size());
 	oxReturnError(model(&writer, val));
 	buff.resize(writer.size());

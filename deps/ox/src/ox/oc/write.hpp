@@ -12,16 +12,16 @@
 
 #include <ox/model/optype.hpp>
 #include <ox/model/types.hpp>
+#include <ox/std/buffer.hpp>
 #include <ox/std/hashmap.hpp>
 #include <ox/std/string.hpp>
-#include <ox/std/vector.hpp>
 
 namespace ox {
 
 class OrganicClawWriter {
 
 	template<typename T>
-	friend Result<Vector<char>> writeOC(T *val);
+	friend Result<Buffer> writeOC(T *val);
 
 	protected:
 		Json::Value m_json;
@@ -145,12 +145,12 @@ Error OrganicClawWriter::field(const char *key, ox::HashMap<String, T> *val) {
 }
 
 template<typename T>
-Result<Vector<char>> writeOC(T *val) {
+Result<Buffer> writeOC(T *val) {
 	OrganicClawWriter writer;
 	oxReturnError(model(&writer, val));
 	Json::StreamWriterBuilder jsonBuilder;
 	auto str = Json::writeString(jsonBuilder, writer.m_json);
-	Vector<char> buff(str.size() + 1);
+	Buffer buff(str.size() + 1);
 	memcpy(buff.data(), str.c_str(), str.size() + 1);
 	return buff;
 }

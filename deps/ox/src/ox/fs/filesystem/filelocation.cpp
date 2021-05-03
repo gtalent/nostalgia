@@ -6,6 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <ox/model/modelops.hpp>
+
 #include "filelocation.hpp"
 
 namespace ox {
@@ -17,6 +19,10 @@ FileAddress::FileAddress() noexcept {
 
 FileAddress::FileAddress(const FileAddress &other) noexcept {
 	operator=(other);
+}
+
+FileAddress::FileAddress(FileAddress &&other) noexcept {
+	operator=(move(other));
 }
 
 FileAddress::FileAddress(std::nullptr_t) noexcept {
@@ -40,13 +46,11 @@ FileAddress::FileAddress(const char *path) noexcept {
 }
 
 FileAddress::~FileAddress() noexcept {
-	if (m_type == FileAddressType::Path) {
-		delete[] m_data.path;
-		m_data.path = nullptr;
-	}
+	cleanup();
 }
 
 const FileAddress &FileAddress::operator=(const FileAddress &other) noexcept {
+	cleanup();
 	m_type = other.m_type;
 	switch (m_type) {
 		case FileAddressType::Path:
@@ -64,6 +68,28 @@ const FileAddress &FileAddress::operator=(const FileAddress &other) noexcept {
 			break;
 	}
 	return *this;
+}
+
+const FileAddress &FileAddress::operator=(FileAddress &&other) noexcept {
+	cleanup();
+	m_type = other.m_type;
+	memcpy(this, &other, sizeof(*this));
+	other.clear();
+	return *this;
+}
+
+void FileAddress::cleanup() noexcept {
+	if (m_type == FileAddressType::Path) {
+		delete[] m_data.path;
+		clear();
+	}
+}
+
+void FileAddress::clear() noexcept {
+	if (m_type == FileAddressType::Path) {
+		m_data.path = nullptr;
+		m_type = FileAddressType::None;
+	}
 }
 
 }

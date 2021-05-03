@@ -46,6 +46,8 @@ class FileAddress {
 
 		FileAddress(const FileAddress &other) noexcept;
 
+		FileAddress(FileAddress &&other) noexcept;
+
 		FileAddress(std::nullptr_t) noexcept;
 
 		FileAddress(uint64_t inode) noexcept;
@@ -57,6 +59,8 @@ class FileAddress {
 		~FileAddress() noexcept;
 
 		const FileAddress &operator=(const FileAddress &other) noexcept;
+
+		const FileAddress &operator=(FileAddress &&other) noexcept;
 
 		[[nodiscard]]
 		constexpr FileAddressType type() const noexcept {
@@ -92,6 +96,17 @@ class FileAddress {
 		constexpr operator bool() const noexcept {
 			return m_type != FileAddressType::None;
 		}
+
+	private:
+		/**
+		 * Cleanup memory allocations.
+		 */
+		void cleanup() noexcept;
+
+		/**
+		 * Clears fields, but does not delete allocations.
+		 */
+		void clear() noexcept;
 
 };
 

@@ -25,7 +25,7 @@
 namespace ox {
 
 template<typename T>
-constexpr bool isVector(const T&) noexcept {
+constexpr bool isVector(const T*) noexcept {
 	return false;
 }
 
@@ -47,6 +47,9 @@ constexpr bool isVector(const QVector<T>*) noexcept {
 	return true;
 }
 #endif
+
+template<typename T>
+constexpr bool isVector_v = isVector(static_cast<const T*>(nullptr));
 
 class SerStr {
 

@@ -61,7 +61,7 @@ template<typename T>
 Result<T> readClaw(const char *buff, std::size_t buffLen) {
 	T val;
 	oxReturnError(readClaw(buff, buffLen, &val));
-	return ox::move(val);
+	return move(val);
 }
 
 template<typename T>

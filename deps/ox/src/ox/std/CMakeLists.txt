@@ -19,6 +19,7 @@ target_compile_definitions(
 add_library(
 	OxStd
 		assert.cpp
+		buffer.cpp
 		buildinfo.cpp
 		byteswap.cpp
 		heapmgr.cpp
@@ -61,6 +62,7 @@ install(
 		assert.hpp
 		bit.hpp
 		bstring.hpp
+		buffer.hpp
 		buildinfo.hpp
 		byteswap.hpp
 		defines.hpp

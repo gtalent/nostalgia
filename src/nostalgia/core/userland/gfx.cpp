@@ -14,19 +14,10 @@
 
 namespace nostalgia::core {
 
-static ox::Result<ox::Vector<char>> readFile(Context *ctx, const ox::FileAddress &file) noexcept {
-	oxRequire(stat, ctx->rom->stat(file));
-	ox::Vector<char> buff(stat.size);
-	oxReturnError(ctx->rom->read(file, buff.data(), buff.size()));
-	return ox::move(buff);
-}
-
 template<typename T>
-ox::Result<T> readObj(Context *ctx, const ox::FileAddress &file) noexcept {
-	oxRequire(buff, readFile(ctx, file));
-	T t;
-	oxReturnError(ox::readClaw(buff.data(), buff.size(), &t));
-	return ox::move(t);
+static ox::Result<T> readObj(Context *ctx, const ox::FileAddress &file) noexcept {
+	oxRequire(buff, ctx->rom->read(file));
+	return ox::readClaw<T>(buff);
 }
 
 ox::Error initConsole(Context *ctx) noexcept {

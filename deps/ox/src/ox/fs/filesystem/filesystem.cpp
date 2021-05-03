@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <ox/std/error.hpp>
 #include <ox/std/utility.hpp>
 
 #include "filesystem.hpp"
@@ -36,9 +37,9 @@ Error FileSystem::read(const FileAddress &addr, void *buffer, std::size_t size) 
 	}
 }
 
-Result<Vector<char>> FileSystem::read(const FileAddress &addr) noexcept {
+Result<Buffer> FileSystem::read(const FileAddress &addr) noexcept {
 	oxRequire(s, stat(addr));
-	ox::Vector<char> buff(s.size);
+	Buffer buff(s.size);
 	oxReturnError(read(addr, buff.data(), buff.size()));
 	return ox::move(buff);
 }

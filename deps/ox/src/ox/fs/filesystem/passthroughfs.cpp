@@ -6,6 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <ox/std/error.hpp>
+
 #include "passthroughfs.hpp"
 
 #if defined(OX_HAS_PASSTHROUGHFS)

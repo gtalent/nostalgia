@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <ox/std/buffer.hpp>
+
 #include <ox/fs/filestore/filestoretemplate.hpp>
 #include <ox/fs/filesystem/filelocation.hpp>
 #include <ox/fs/filesystem/types.hpp>
@@ -42,7 +44,7 @@ class FileSystem {
 
 		Error read(const FileAddress &addr, void *buffer, std::size_t size) noexcept;
 
-		Result<Vector<char>> read(const FileAddress &addr) noexcept;
+		Result<Buffer> read(const FileAddress &addr) noexcept;
 
 		Error read(const FileAddress &addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept;
 

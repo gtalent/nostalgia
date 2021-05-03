@@ -12,6 +12,7 @@
 #include "app.hpp"
 
 ox::Error run(int argc, const char **argv) {
+	ox::trace::init();
 	if (argc < 2) {
 		oxErrf("Please provide path to project directory or OxFS file.");
 		return OxError(1);
@@ -22,7 +23,6 @@ ox::Error run(int argc, const char **argv) {
 }
 
 int main(int argc, const char **argv) {
-	ox::trace::init();
 	const auto err = run(argc, argv);
 	oxAssert(err, "Something went wrong...");
 	return static_cast<int>(err);

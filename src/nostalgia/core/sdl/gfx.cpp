@@ -12,7 +12,6 @@
 
 #include <ox/claw/read.hpp>
 
-#include <nostalgia/common/point.hpp>
 #include <nostalgia/core/gfx.hpp>
 #include <nostalgia/core/userland/gfx.hpp>
 

@@ -29,20 +29,17 @@ ox::Error initConsole(Context *ctx) noexcept {
 
 ox::Error loadSpriteTileSheet(Context*,
                               int,
-                              ox::FileAddress,
-                              ox::FileAddress) noexcept {
+                              const ox::FileAddress&,
+                              const ox::FileAddress&) noexcept {
 	return OxError(0);
 }
 
 ox::Error loadBgTileSheet(Context *ctx,
                           int section,
-                          ox::FileAddress tilesheetPath,
-                          ox::FileAddress palettePath) noexcept {
+                          const ox::FileAddress &tilesheetPath,
+                          const ox::FileAddress &palettePath) noexcept {
 	oxRequire(tilesheet, readObj<NostalgiaGraphic>(ctx, tilesheetPath));
-	if (!palettePath) {
-		palettePath = tilesheet.defaultPalette;
-	}
-	oxRequire(palette, readObj<NostalgiaPalette>(ctx, palettePath));
+	oxRequire(palette, readObj<NostalgiaPalette>(ctx, palettePath ? palettePath : tilesheet.defaultPalette));
 	const unsigned bytesPerTile = tilesheet.bpp == 8 ? 64 : 32;
 	const auto tiles = tilesheet.pixels.size() / bytesPerTile;
 	constexpr int width = 8;

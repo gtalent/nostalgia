@@ -99,12 +99,12 @@ ox::Error initConsole(Context *ctx) noexcept;
 /**
  * @param section describes which section of the selected TileSheetSpace to use (e.g. MEM_PALLETE_BG[section])
  */
-ox::Error loadBgTileSheet(Context *ctx, int section, ox::FileAddress tilesheet, ox::FileAddress palette = nullptr) noexcept;
+ox::Error loadBgTileSheet(Context *ctx, int section, const ox::FileAddress &tilesheet, const ox::FileAddress &palette = nullptr) noexcept;
 
 ox::Error loadSpriteTileSheet(Context *ctx,
                               int section,
-                              ox::FileAddress tilesheetAddr,
-                              ox::FileAddress paletteAddr) noexcept;
+                              const ox::FileAddress &tilesheetAddr,
+                              const ox::FileAddress &paletteAddr) noexcept;
 
 void puts(Context *ctx, int column, int row, const char *str) noexcept;
 

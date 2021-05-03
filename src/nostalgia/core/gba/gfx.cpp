@@ -164,28 +164,28 @@ ox::Error initConsole(Context *ctx) noexcept {
 
 ox::Error loadBgTileSheet(Context *ctx,
                           int section,
-                          ox::FileAddress tilesheetAddr,
-                          ox::FileAddress paletteAddr) noexcept {
+                          const ox::FileAddress &tilesheetAddr,
+                          const ox::FileAddress &paletteAddr) noexcept {
 	oxRequire(tsStat, ctx->rom->stat(tilesheetAddr));
 	oxRequire(ts, ctx->rom->directAccess(tilesheetAddr));
 	GbaTileMapTarget target;
 	target.pal.palette = &MEM_BG_PALETTE[section];
 	target.bgCtl = &bgCtl(section);
 	target.tileMap = &ox::bit_cast<uint16_t*>(MEM_BG_TILES)[section * 512];
-	oxReturnError(ox::readMC(ts, tsStat.size, &target));
+	oxReturnError(ox::readMC(ox::bit_cast<char*>(ts), tsStat.size, &target));
 	// load external palette if available
 	if (paletteAddr) {
 		oxRequire(palStat, ctx->rom->stat(paletteAddr));
 		oxRequire(pal, ctx->rom->directAccess(paletteAddr));
-		oxReturnError(ox::readMC(pal, palStat.size, &target.pal));
+		oxReturnError(ox::readMC(ox::bit_cast<char*>(pal), palStat.size, &target.pal));
 	}
 	return OxError(0);
 }
 
 ox::Error loadSpriteTileSheet(Context *ctx,
                               int section,
-                              ox::FileAddress tilesheetAddr,
-                              ox::FileAddress paletteAddr) noexcept {
+                              const ox::FileAddress &tilesheetAddr,
+                              const ox::FileAddress &paletteAddr) noexcept {
 	oxRequire(tsStat, ctx->rom->stat(tilesheetAddr));
 	oxRequire(ts, ctx->rom->directAccess(tilesheetAddr));
 	GbaTileMapTarget target;
@@ -193,31 +193,31 @@ ox::Error loadSpriteTileSheet(Context *ctx,
 	// Is this needed? Should this be written to an equivalent sprite value?
 	// target.bgCtl = &bgCtl(section);
 	target.tileMap = &ox::bit_cast<uint16_t*>(MEM_SPRITE_TILES)[section * 512];
-	oxReturnError(ox::readMC(ts, tsStat.size, &target));
+	oxReturnError(ox::readMC(ox::bit_cast<char*>(ts), tsStat.size, &target));
 	// load external palette if available
 	if (paletteAddr) {
 		oxRequire(palStat, ctx->rom->stat(paletteAddr));
 		oxRequire(pal, ctx->rom->directAccess(paletteAddr));
-		oxReturnError(ox::readMC(pal, palStat.size, &target.pal));
+		oxReturnError(ox::readMC(ox::bit_cast<char*>(pal), palStat.size, &target.pal));
 	}
 	return OxError(0);
 }
 
-ox::Error loadBgPalette(Context *ctx, int section, ox::FileAddress paletteAddr) noexcept {
+ox::Error loadBgPalette(Context *ctx, int section, const ox::FileAddress &paletteAddr) noexcept {
 	GbaPaletteTarget target;
 	target.palette = &MEM_BG_PALETTE[section];
 	oxRequire(palStat, ctx->rom->stat(paletteAddr));
 	oxRequire(pal, ctx->rom->directAccess(paletteAddr));
-	oxReturnError(ox::readMC(pal, palStat.size, &target));
+	oxReturnError(ox::readMC(ox::bit_cast<char*>(pal), palStat.size, &target));
 	return OxError(0);
 }
 
-ox::Error loadSpritePalette(Context *ctx, int section, ox::FileAddress paletteAddr) noexcept {
+ox::Error loadSpritePalette(Context *ctx, int section, const ox::FileAddress &paletteAddr) noexcept {
 	GbaPaletteTarget target;
 	target.palette = &MEM_SPRITE_PALETTE[section];
 	oxRequire(palStat, ctx->rom->stat(paletteAddr));
 	oxRequire(pal, ctx->rom->directAccess(paletteAddr));
-	oxReturnError(ox::readMC(pal, palStat.size, &target));
+	oxReturnError(ox::readMC(ox::bit_cast<char*>(pal), palStat.size, &target));
 	return OxError(0);
 }
 

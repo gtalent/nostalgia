@@ -73,7 +73,7 @@ class Copier {
 
 		template<typename FT>
 		constexpr Error field(const char *name, const FT *v) noexcept {
-			if constexpr(isVector(v)) {
+			if constexpr(isVector_v<FT>) {
 				return field(name, v->data(), v->size());
 			} else {
 				auto &src = *v;
@@ -109,11 +109,11 @@ class Copier {
 		}
 
 		template<typename T = void>
-		constexpr void setTypeInfo(const char* = T::TypeName, int = T::Fields) {
+		constexpr void setTypeInfo(const char* = T::TypeName, int = T::Fields) noexcept {
 		}
 
 		[[nodiscard]]
-		static constexpr auto opType() {
+		static constexpr auto opType() noexcept {
 			return "Copy";
 		}
 
@@ -132,7 +132,7 @@ class Mover {
 
 		template<typename FT>
 		constexpr Error field(const char *name, FT *v) noexcept {
-			if constexpr(isVector(v)) {
+			if constexpr(isVector_v<FT>) {
 				return field(name, v->data(), v->size());
 			} else {
 				auto &src = *v;
@@ -185,36 +185,32 @@ class Equals {
 
 	private:
 		std::size_t m_i = 0;
-		MemberList<size> *m_dst = nullptr;
+		MemberList<size> *m_other = nullptr;
 
 	public:
 		bool value = false;
 
-		constexpr Equals(MemberList<size> *dst) noexcept: m_dst(dst) {
+		constexpr Equals(MemberList<size> *other) noexcept: m_other(other) {
 		}
 
 		template<typename FT>
-		constexpr Error field(const char *name, const FT *v) noexcept {
-			if constexpr(isVector(v)) {
-				return field(name, v->data(), v->size());
+		constexpr Error field(const char*, const FT *v) noexcept {
+			const auto &src = *v;
+			const auto &dst = *cbit_cast<FT*>(m_other->vars[m_i]);
+			++m_i;
+			if (dst == src) {
+				return OxError(0);
 			} else {
-				auto &src = *v;
-				auto &dst = *cbit_cast<FT*>(m_dst->vars[m_i]);
-				++m_i;
-				if (dst == src) {
-					return OxError(0);
-				} else {
-					this->value = false;
-					return OxError(1);
-				}
+				this->value = false;
+				return OxError(1);
 			}
 		}
 
 		template<typename FT>
 		constexpr Error field(const char*, const FT *list, int elements) noexcept {
 			for (auto i = 0l; i < elements; ++i) {
-				auto &src = list[i];
-				auto &dst = cbit_cast<FT*>(m_dst->vars[m_i])[i];
+				const auto &src = list[i];
+				const auto &dst = cbit_cast<FT*>(m_other->vars[m_i])[i];
 				if (!(dst == src)) {
 					this->value = false;
 					return OxError(1);
@@ -226,8 +222,8 @@ class Equals {
 
 		template<typename U>
 		constexpr Error field(const char*, UnionView<U> u) noexcept {
-			auto &dst = *cbit_cast<U*>(m_dst->vars[m_i]);
-			auto &src = *u.get();
+			const auto &dst = *cbit_cast<U*>(m_other->vars[m_i]);
+			const auto &src = *u.get();
 			++m_i;
 			if (dst == src) {
 				return OxError(0);
@@ -237,8 +233,16 @@ class Equals {
 			}
 		}
 
-		constexpr Error field(const char *name, SerStr s) noexcept {
-			return field(name, s.target());
+		constexpr Error field(const char*, SerStr s) noexcept {
+			const auto a = s.c_str();
+			const auto b = *cbit_cast<const char**>(m_other->vars[m_i]);
+			++m_i;
+			if (a && b && ox_strcmp(a, b) == 0) {
+				return OxError(0);
+			} else {
+				this->value = false;
+				return OxError(1);
+			}
 		}
 
 		template<typename T = void>

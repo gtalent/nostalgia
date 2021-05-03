@@ -57,9 +57,6 @@ class MetalClawWriter {
 		Error field(const char*, T *val, std::size_t len);
 
 		template<typename T>
-		Error field(const char*, Vector<T> *val);
-
-		template<typename T>
 		Error field(const char*, HashMap<String, T> *val);
 
 		template<std::size_t L>
@@ -95,18 +92,22 @@ Error MetalClawWriter::field(const char *name, ox::BString<L> *val) noexcept {
 
 template<typename T>
 Error MetalClawWriter::field(const char*, T *val) {
-	bool fieldSet = false;
-	if (val && (m_unionIdx == -1 || m_unionIdx == m_field)) {
-		MetalClawWriter writer(m_buff + m_buffIt, m_buffLen - m_buffIt);
-		oxReturnError(model(&writer, val));
-		if (static_cast<std::size_t>(writer.m_fieldPresence.getMaxLen()) < writer.m_buffIt) {
-			m_buffIt += writer.m_buffIt;
-			fieldSet = true;
+	if constexpr(isVector_v<T>) {
+		return field(nullptr, val->data(), val->size());
+	} else {
+		bool fieldSet = false;
+		if (val && (m_unionIdx == -1 || m_unionIdx == m_field)) {
+			MetalClawWriter writer(m_buff + m_buffIt, m_buffLen - m_buffIt);
+			oxReturnError(model(&writer, val));
+			if (static_cast<std::size_t>(writer.m_fieldPresence.getMaxLen()) < writer.m_buffIt) {
+				m_buffIt += writer.m_buffIt;
+				fieldSet = true;
+			}
 		}
+		oxReturnError(m_fieldPresence.set(m_field, fieldSet));
+		m_field++;
+		return OxError(0);
 	}
-	oxReturnError(m_fieldPresence.set(m_field, fieldSet));
-	m_field++;
-	return OxError(0);
 }
 
 template<typename U>
@@ -154,11 +155,6 @@ Error MetalClawWriter::field(const char*, T *val, std::size_t len) {
 	oxReturnError(m_fieldPresence.set(m_field, fieldSet));
 	m_field++;
 	return OxError(0);
-}
-
-template<typename T>
-Error MetalClawWriter::field(const char*, Vector<T> *val) {
-	return field(nullptr, val->data(), val->size());
 }
 
 template<typename T>

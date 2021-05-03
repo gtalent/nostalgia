@@ -64,16 +64,13 @@ class MetalClawReader {
 		Error field(const char*, Handler handler);
 
 		template<typename T>
-		Error field(const char*, ox::Vector<T> *val);
-
-		template<typename T>
 		Error field(const char*, T *val);
 
 		template<typename U>
 		Error field(const char*, UnionView<U> val);
 
 		template<std::size_t L>
-		Error field(const char*, ox::BString<L> *val);
+		Error field(const char*, BString<L> *val);
 
 		Error field(const char*, SerStr val);
 
@@ -86,7 +83,8 @@ class MetalClawReader {
 		/**
 		 * Reads an string length from the current location in the buffer.
 		 */
-		[[nodiscard]] StringLength stringLength(const char *name);
+		[[nodiscard]]
+		StringLength stringLength(const char *name);
 
 		template<typename T = std::nullptr_t>
 		void setTypeInfo(const char *name = T::TypeName, int fields = T::Fields);
@@ -94,7 +92,8 @@ class MetalClawReader {
 		/**
 		 * Returns a MetalClawReader to parse a child object.
 		 */
-		[[nodiscard]] MetalClawReader child(const char *name, int unionIdx = -1);
+		[[nodiscard]]
+		MetalClawReader child(const char *name, int unionIdx = -1);
 
 		/**
 		 * Indicates whether or not the next field to be read is present.
@@ -119,13 +118,26 @@ class MetalClawReader {
 };
 
 template<typename T>
-Error MetalClawReader::field(const char*, T *val) {
-	if ((m_unionIdx == -1 || m_unionIdx == m_field) && val && m_fieldPresence.get(m_field)) {
-		auto reader = child("");
-		oxReturnError(model(&reader, val));
+Error MetalClawReader::field(const char *name, T *val) {
+	if constexpr(isVector_v<T>) {
+		if (m_unionIdx == -1 || m_unionIdx == m_field) {
+			// set size of val if the field is present, don't worry about it if not
+			if (m_fieldPresence.get(m_field)) {
+				oxRequire(len, arrayLength(name, false));
+				val->resize(len);
+			}
+			return field(name, val->data(), val->size());
+		}
+		++m_field;
+		return OxError(0);
+	} else {
+		if ((m_unionIdx == -1 || m_unionIdx == m_field) && val && m_fieldPresence.get(m_field)) {
+			auto reader = child("");
+			oxReturnError(model(&reader, val));
+		}
+		++m_field;
+		return OxError(0);
 	}
-	++m_field;
-	return OxError(0);
 }
 
 template<typename U>
@@ -139,7 +151,7 @@ Error MetalClawReader::field(const char*, UnionView<U> val) {
 }
 
 template<std::size_t L>
-Error MetalClawReader::field(const char *name, ox::BString<L> *val) {
+Error MetalClawReader::field(const char *name, BString<L> *val) {
 	return field(name, SerStr(val->data(), val->cap()));
 }
 
@@ -251,19 +263,6 @@ Error MetalClawReader::field(const char*, Handler handler) {
 }
 
 template<typename T>
-Error MetalClawReader::field(const char* name, ox::Vector<T> *val) {
-	if (m_unionIdx == -1 || m_unionIdx == m_field) {
-		// set size of val if the field is present, don't worry about it if not
-		if (m_fieldPresence.get(m_field)) {
-			oxRequire(len, arrayLength(name, false));
-			val->resize(len);
-		}
-		return field(name, val->data(), val->size());
-	}
-	return OxError(0);
-}
-
-template<typename T>
 void MetalClawReader::setTypeInfo(const char*, int fields) {
 	m_fields = fields;
 	m_buffIt = (fields / 8 + 1) - (fields % 8 == 0);
@@ -281,7 +280,7 @@ template<typename T>
 Result<T> readMC(const char *buff, std::size_t buffLen) {
 	T val;
 	oxReturnError(readMC(buff, buffLen, &val));
-	return ox::move(val);
+	return move(val);
 }
 
 template<typename T>

@@ -12,6 +12,7 @@
 #include <string>
 #endif
 
+#include "buffer.hpp"
 #include "memops.hpp"
 #include "strops.hpp"
 #include "typetraits.hpp"
@@ -21,7 +22,7 @@ namespace ox {
 
 class String {
 	private:
-		Vector<char> m_buff;
+		Buffer m_buff;
 
 	public:
 		String() noexcept;

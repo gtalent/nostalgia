@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "error.hpp"
 #include "vector.hpp"
 
 namespace ox {

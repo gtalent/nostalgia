@@ -12,7 +12,7 @@
 
 namespace ox {
 
-Result<const uint8_t*> FileSystem::directAccess(FileAddress addr) noexcept {
+Result<const uint8_t*> FileSystem::directAccess(const FileAddress &addr) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return directAccess(addr.getInode().value);
@@ -24,7 +24,7 @@ Result<const uint8_t*> FileSystem::directAccess(FileAddress addr) noexcept {
 	}
 }
 
-Error FileSystem::read(FileAddress addr, void *buffer, std::size_t size) noexcept {
+Error FileSystem::read(const FileAddress &addr, void *buffer, std::size_t size) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return read(addr.getInode().value, buffer, size);
@@ -36,14 +36,14 @@ Error FileSystem::read(FileAddress addr, void *buffer, std::size_t size) noexcep
 	}
 }
 
-Result<Vector<char>> FileSystem::read(FileAddress addr) noexcept {
+Result<Vector<char>> FileSystem::read(const FileAddress &addr) noexcept {
 	oxRequire(s, stat(addr));
 	ox::Vector<char> buff(s.size);
 	oxReturnError(read(addr, buff.data(), buff.size()));
 	return ox::move(buff);
 }
 
-Error FileSystem::read(FileAddress addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept {
+Error FileSystem::read(const FileAddress &addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return read(addr.getInode().value, readStart, readSize, buffer, size);
@@ -59,7 +59,7 @@ Result<Vector<String>> FileSystem::ls(const ox::String &dir) noexcept {
 	return ls(dir.c_str());
 }
 
-Error FileSystem::remove(FileAddress addr, bool recursive) noexcept {
+Error FileSystem::remove(const FileAddress &addr, bool recursive) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return remove(addr.getInode().value, recursive);
@@ -71,7 +71,7 @@ Error FileSystem::remove(FileAddress addr, bool recursive) noexcept {
 	}
 }
 
-Error FileSystem::write(FileAddress addr, void *buffer, uint64_t size, uint8_t fileType) noexcept {
+Error FileSystem::write(const FileAddress &addr, void *buffer, uint64_t size, uint8_t fileType) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return write(addr.getInode().value, buffer, size, fileType);
@@ -83,7 +83,7 @@ Error FileSystem::write(FileAddress addr, void *buffer, uint64_t size, uint8_t f
 	}
 }
 
-Result<FileStat> FileSystem::stat(FileAddress addr) noexcept {
+Result<FileStat> FileSystem::stat(const FileAddress &addr) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return stat(addr.getInode().value);

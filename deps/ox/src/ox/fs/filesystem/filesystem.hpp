@@ -40,13 +40,13 @@ class FileSystem {
 
 		virtual Result<const uint8_t*> directAccess(uint64_t inode) noexcept = 0;
 
-		Error read(FileAddress addr, void *buffer, std::size_t size) noexcept;
+		Error read(const FileAddress &addr, void *buffer, std::size_t size) noexcept;
 
-		Result<Vector<char>> read(FileAddress addr) noexcept;
+		Result<Vector<char>> read(const FileAddress &addr) noexcept;
 
-		Error read(FileAddress addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept;
+		Error read(const FileAddress &addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept;
 
-		Result<const uint8_t*> directAccess(FileAddress addr) noexcept;
+		Result<const uint8_t*> directAccess(const FileAddress &addr) noexcept;
 
 		Result<Vector<String>> ls(const ox::String &dir) noexcept;
 
@@ -54,7 +54,7 @@ class FileSystem {
 
 		virtual Error remove(const char *path, bool recursive = false) noexcept = 0;
 
-		Error remove(FileAddress addr, bool recursive = false) noexcept;
+		Error remove(const FileAddress &addr, bool recursive = false) noexcept;
 
 		virtual Error resize(uint64_t size, void *buffer = nullptr) noexcept = 0;
 
@@ -62,13 +62,13 @@ class FileSystem {
 
 		virtual Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept = 0;
 
-		Error write(FileAddress addr, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept;
+		Error write(const FileAddress &addr, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept;
 
 		virtual Result<FileStat> stat(uint64_t inode) noexcept = 0;
 
 		virtual Result<FileStat> stat(const char *path) noexcept = 0;
 
-		Result<FileStat> stat(FileAddress addr) noexcept;
+		Result<FileStat> stat(const FileAddress &addr) noexcept;
 
 		[[nodiscard]]
 		virtual uint64_t spaceNeeded(uint64_t size) noexcept = 0;

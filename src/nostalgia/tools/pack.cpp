@@ -7,13 +7,13 @@
  */
 
 #include <fstream>
+
 #include <ox/clargs/clargs.hpp>
 #include <ox/fs/fs.hpp>
-#include <ox/std/trace.hpp>
 
 #include "pack/pack.hpp"
 
-static ox::Error writeFileBuff(const ox::String &path, ox::Vector<char> &buff) noexcept {
+static ox::Error writeFileBuff(const ox::String &path, const ox::Vector<char> &buff) noexcept {
 	try {
 		std::ofstream f(path.c_str(), std::ios::binary);
 		f.write(buff.data(), static_cast<intptr_t>(buff.size()));
@@ -24,8 +24,9 @@ static ox::Error writeFileBuff(const ox::String &path, ox::Vector<char> &buff) n
 }
 
 static ox::Error run(const ox::ClArgs &args) noexcept {
-	auto argSrc = args.getString("src", "");
-	auto argDst = args.getString("dst", "");
+	ox::trace::init();
+	const auto argSrc = args.getString("src", "");
+	const auto argDst = args.getString("dst", "");
 	if (argSrc == "") {
 		oxErr("\033[31;1;1merror:\033[0m must specify a source directory\n");
 		return OxError(1, "must specify a source directory");
@@ -50,7 +51,6 @@ static ox::Error run(const ox::ClArgs &args) noexcept {
 }
 
 int main(int argc, const char **args) {
-	ox::trace::init();
 	auto err = run(ox::ClArgs(argc, args));
 	oxAssert(err, "pack failed");
 	return static_cast<int>(err);

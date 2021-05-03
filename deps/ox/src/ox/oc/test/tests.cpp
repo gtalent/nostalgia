@@ -53,15 +53,11 @@ struct TestStruct {
 
 	TestStruct() noexcept = default;
 
-	TestStruct(const TestStruct&) noexcept;
-
 	TestStruct(TestStruct &&other) noexcept;
 
 	~TestStruct() noexcept {
 		delete[] CString;
 	}
-
-	constexpr TestStruct &operator=(const TestStruct&) noexcept;
 
 	constexpr TestStruct &operator=(TestStruct&&) noexcept;
 
@@ -108,17 +104,8 @@ constexpr ox::Error model(T *io, TestStruct *obj) noexcept {
 	return OxError(0);
 }
 
-TestStruct::TestStruct(const TestStruct &other) noexcept {
-	ox::copyModel(this, &other);
-}
-
 TestStruct::TestStruct(TestStruct &&other) noexcept {
 	ox::moveModel(this, &other);
-}
-
-constexpr TestStruct &TestStruct::operator=(const TestStruct &other) noexcept {
-	ox::copyModel(this, &other);
-	return *this;
 }
 
 constexpr TestStruct &TestStruct::operator=(TestStruct &&other) noexcept {

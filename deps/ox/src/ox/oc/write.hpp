@@ -52,9 +52,6 @@ class OrganicClawWriter {
 		Error field(const char*, UnionView<U> val);
 
 		template<typename T>
-		Error field(const char*, ox::Vector<T> *val);
-
-		template<typename T>
 		Error field(const char*, HashMap<String, T> *val);
 
 		template<std::size_t L>
@@ -106,7 +103,9 @@ Error OrganicClawWriter::field(const char *key, ox::BString<L> *val) {
 
 template<typename T>
 Error OrganicClawWriter::field(const char *key, T *val) {
-	if (val && targetValid()) {
+	if constexpr(isVector_v<T>) {
+		return field(key, val->data(), val->size());
+	} else if (val && targetValid()) {
 		OrganicClawWriter w;
 		oxReturnError(model(&w, val));
 		if (!w.m_json.isNull()) {
@@ -128,11 +127,6 @@ Error OrganicClawWriter::field(const char *key, UnionView<U> val) {
 	}
 	++m_fieldIt;
 	return OxError(0);
-}
-
-template<typename T>
-Error OrganicClawWriter::field(const char *key, ox::Vector<T> *val) {
-	return field(key, val->data(), val->size());
 }
 
 template<typename T>

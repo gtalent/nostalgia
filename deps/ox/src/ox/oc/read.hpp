@@ -54,9 +54,6 @@ class OrganicClawReader {
 		Error field(const char *key, T *val, std::size_t len);
 
 		template<typename T>
-		Error field(const char *key, Vector<T> *val);
-
-		template<typename T>
 		Error field(const char*, HashMap<String, T> *val);
 
 		template<typename T>
@@ -112,7 +109,9 @@ class OrganicClawReader {
 template<typename T>
 Error OrganicClawReader::field(const char *key, T *val) {
 	auto err = OxError(0);
-	if (targetValid()) {
+	if constexpr(isVector_v<T>) {
+		return field(key, val->data(), val->size());
+	} else if (targetValid()) {
 		const auto &jv = value(key);
 		if (jv.empty() || jv.isObject()) {
 			auto reader = child(key);
@@ -159,11 +158,6 @@ Error OrganicClawReader::field(const char *key, T *val, std::size_t valLen) {
 		oxReturnError(r.field("", &val[i]));
 	}
 	return OxError(0);
-}
-
-template<typename T>
-Error OrganicClawReader::field(const char *key, ox::Vector<T> *val) {
-	return field(key, val->data(), val->size());
 }
 
 template<typename T>

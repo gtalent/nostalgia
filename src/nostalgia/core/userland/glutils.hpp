@@ -53,11 +53,11 @@ struct GLobject: public Base {
 
 	constexpr GLobject() noexcept = default;
 
-	explicit constexpr GLobject(GLuint id) {
+	explicit constexpr GLobject(GLuint id) noexcept {
 		this->id = id;
 	}
 
-	constexpr GLobject(GLobject &&o): Base(ox::move(o)) {
+	constexpr GLobject(GLobject &&o) noexcept: Base(ox::move(o)) {
 		id = o.id;
 		o.id = 0;
 	}
@@ -66,11 +66,13 @@ struct GLobject: public Base {
 		del(id);
 	}
 
-	GLobject &operator=(GLobject &&o) {
-		this->~GLobject();
-		Base::operator=(ox::move(o));
-		id = o.id;
-		o.id = 0;
+	GLobject &operator=(GLobject &&o) noexcept {
+		if (this != &o) {
+			del(id);
+			Base::operator=(ox::move(o));
+			id = o.id;
+			o.id = 0;
+		}
 		return *this;
 	}
 

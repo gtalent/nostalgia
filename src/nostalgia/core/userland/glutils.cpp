@@ -9,6 +9,7 @@
 #include <array>
 
 #include <ox/std/assert.hpp>
+#include <ox/std/bstring.hpp>
 #include <ox/std/trace.hpp>
 
 #include "glutils.hpp"
@@ -41,9 +42,9 @@ static ox::Result<Shader> buildShader(GLuint shaderType, const GLchar *src, cons
 	GLint status;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 	if (status != GL_TRUE) {
-		std::array<char, 1000> errMsg;
-		glGetShaderInfoLog(shader, errMsg.size(), nullptr, errMsg.data());
-		oxErrorf("shader compile error in {}: {}", shaderName, errMsg.data());
+		ox::BString<1000> errMsg;
+		glGetShaderInfoLog(shader, errMsg.cap(), nullptr, errMsg.data());
+		oxErrorf("shader compile error in {}: {}", shaderName, errMsg);
 		return OxError(1, "shader compile error");
 	}
 	return ox::move(shader);

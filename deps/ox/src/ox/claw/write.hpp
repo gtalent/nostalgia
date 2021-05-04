@@ -77,7 +77,7 @@ Result<String> writeClawHeader(T *t, ClawFormat fmt) noexcept {
 		out += tn;
 	}
 	out += ";";
-	return out;
+	return move(out);
 }
 
 }

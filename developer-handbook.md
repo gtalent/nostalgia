@@ -127,9 +127,10 @@ question.
 Pointers are generally preferred to references. References should be used for
 optimizing the passing in of parameters and for returning from accessor
 operators (e.g. ```T &Vector::operator[](size_t)```). As parameters, references
-should always be const. A non-const reference is generally used because the parameter
-value is changed in the function, but it will look like it was passed in by value
-where it is called, making that code less readable.
+should always be const. A non-const reference is generally used because the
+parameter value is changed in the function, but it will look like it was passed
+in by value where it is called and thus not subject to change. The reference
+operator makes it clear that the value can and likely will change.
 
 ### Error Handling
 
@@ -140,12 +141,13 @@ disabled. Exceptions cause the compiler to generate a great deal of extra code
 that inflates the size of the binary. The binary size bloat is often cited as
 one of the main reasons why many embedded developers prefer C to C++.
 
-Instead throwing exceptions, all engine code must return error codes. Nostalgia
-and Ox both use ```ox::Error``` to report errors. ```ox::Error``` is a struct
-that has overloaded operators to behave like an integer error code, plus some
-extra fields to enhance debuggability. If instantiated through the ```OxError(x)```
-macro, it will also include the file and line of the error. The ```OxError(x)```
-macro should only be used for the initial instantiation of an ```ox::Error```.
+Instead of throwing exceptions, all engine code must return error codes.
+Nostalgia and Ox both use ```ox::Error``` to report errors. ```ox::Error``` is
+a struct that has overloaded operators to behave like an integer error code,
+plus some extra fields to enhance debuggability. If instantiated through the
+```OxError(x)``` macro, it will also include the file and line of the error.
+The ```OxError(x)``` macro should only be used for the initial instantiation of
+an ```ox::Error```.
 
 In addition to ```ox::Error``` there is also the template ```ox::Result<T>```.
 ```ox::Result``` simply wraps the type T value in a struct that also includes
@@ -271,10 +273,13 @@ ox::Result<int> f2() {
 * ```oxRequireT``` - oxRequire Throw
 * ```oxRequireMT``` - oxRequire Mutable Throw
 
-### Logging
+### Logging and Output
 
 Ox provides for logging and debug prints via the ```oxTrace```, ```oxDebug```, and ```oxError``` macros.
 Each of these also provides a format variation.
+
+Ox also provide ```oxOut``` and ```oxErr``` for printing to stdout and stderr.
+These are intended for permanent messages and always go to stdout and stderr.
 
 Tracing functions do not go to stdout unless the OXTRACE environment variable is set.
 They also print with the channel that they are on, along with file and line.
@@ -284,7 +289,7 @@ Where trace statements are intended to be written with thoughtfulness,
 debug statements are intended to be quick and temporary insertions.
 Debug statements trigger compilation failures if OX_NODEBUG is enabled when CMake is run,
 as it is on Jenkins builds, so ```oxDebug``` statements should never be checked in.
-This makes oxDebug preferable to other from of logging, as temporary prints should
+This makes oxDebug preferable to other forms of logging, as temporary prints should
 never be checked in anyway.
 
 ```oxError``` always prints.
@@ -325,3 +330,245 @@ nostalgia::studio::Project, which should go through ox::FileSystem.
 
 ox::FileSystem abstracts away differences between conventional storage devices
 and ROM.
+
+### Model System
+
+Ox has a model system that provides a sort of manual reflection mechanism.
+
+Models require a model function for the type that you want to model.
+The type must provide its number of fields in a static constexper integer named Fields.
+It is also good to provide a type name and type version number, though that is not required.
+
+The model function takes an instance of the type it is modelling and a template
+parameter type.
+The template parameter type must implement the API used in the models, but it
+can do anything witht the data provided to it.
+
+Here is an example from the Nostalgia/Core package:
+
+```cpp
+struct NostalgiaPalette {
+	static constexpr auto TypeName = "net.drinkingtea.nostalgia.core.NostalgiaPalette";
+	static constexpr auto Fields = 1;
+	static constexpr auto TypeVersion = 1;
+	ox::Vector<Color16> colors;
+};
+
+struct NostalgiaGraphic {
+	static constexpr auto TypeName = "net.drinkingtea.nostalgia.core.NostalgiaGraphic";
+	static constexpr auto Fields = 6;
+	static constexpr auto TypeVersion = 1;
+	int8_t bpp = 0;
+	// rows and columns are really only used by TileSheetEditor
+	int rows = 1;
+	int columns = 1;
+	ox::FileAddress defaultPalette;
+	NostalgiaPalette pal;
+	ox::Vector<uint8_t> pixels;
+};
+
+template<typename T>
+constexpr ox::Error model(T *io, NostalgiaPalette *pal) {
+	io->template setTypeInfo<NostalgiaPalette>();
+	// it is also possible to provide the type name and number of fields as function arguments
+	//io->setTypeInfo("net.drinkingtea.nostalgia.core.NostalgiaPalette", 1);
+	oxReturnError(io->field("colors", &pal->colors));
+	return OxError(0);
+}
+
+template<typename T>
+constexpr ox::Error model(T *io, NostalgiaGraphic *ng) {
+	io->template setTypeInfo<NostalgiaGraphic>();
+	oxReturnError(io->field("bpp", &ng->bpp));
+	oxReturnError(io->field("rows", &ng->rows));
+	oxReturnError(io->field("columns", &ng->columns));
+	oxReturnError(io->field("defaultPalette", &ng->defaultPalette));
+	oxReturnError(io->field("pal", &ng->pal));
+	oxReturnError(io->field("pixels", &ng->pixels));
+	return OxError(0);
+}
+```
+
+The model system also provides for unions:
+
+```cpp
+
+#include <ox/model/types.hpp>
+
+class FileAddress {
+
+	template<typename T>
+	friend Error model(T*, FileAddress*);
+
+	public:
+		static constexpr auto TypeName = "net.drinkingtea.ox.FileAddress";
+		static constexpr auto Fields = 2;
+
+		union Data {
+			static constexpr auto TypeName = "net.drinkingtea.ox.FileAddress.Data";
+			static constexpr auto Fields = 3;
+			char *path;
+			const char *constPath;
+			uint64_t inode;
+		};
+
+		FileAddressType m_type = FileAddressType::None;
+		Data m_data;
+
+};
+
+template<typename T>
+constexpr Error model(T *io, FileAddress::Data *obj) {
+	io->template setTypeInfo<FileAddress::Data>();
+	oxReturnError(io->field("path", SerStr(&obj->path)));
+	oxReturnError(io->field("constPath", SerStr(&obj->path)));
+	oxReturnError(io->field("inode", &obj->inode));
+	return OxError(0);
+}
+
+template<typename T>
+constexpr Error model(T *io, FileAddress *fa) {
+	io->template setTypeInfo<FileAddress>();
+	oxReturnError(io->field("type", bit_cast<int8_t*>(&fa->m_type)));
+	oxReturnError(io->field("data", UnionView(&fa->m_data, static_cast<int>(fa->m_type))));
+	return OxError(0);
+}
+```
+
+### Serialization
+
+Using the model system, Ox provides for serialization.
+Ox has MetalClaw and OrganicClaw as its serialization format options.
+MetalClaw is a custom binary format designed for minimal size.
+OrganicClaw is a wrapper around JsonCpp, chosen because it technically
+implements a superset of JSON.
+OrganicClaw requires support for 64 bit integers, whereas normal JSON
+technically does not.
+
+There is also a wrapper format called Claw that provides a header at the
+beginning of the file and can dynamically switch between the two depending on
+what the header says is present.
+The Claw header also includes information about the type and type version of
+the data.
+
+Except when the data is exported for loading on the GBA, Claw is always used as
+a wrapper around the bare formats.
+
+These formats do not currently support ```float```s.
+
+Claw header: ```M1;net.drinkingtea.nostalgia.core.NostalgiaPalette;1;```
+
+That reads:
+
+* Format is Metal Claw, version 1
+* Type ID is net.drinkingtea.nostalgia.core.NostalgiaPalette
+* Type version is 1
+
+#### Metal Claw Example
+
+##### Read
+
+```cpp
+#include <ox/mc/read.hpp>
+
+ox::Result<NostalgiaPalette> loadPalette1(const Buffer &buff) noexcept {
+	return ox::readMC<NostalgiaPalette>(buff);
+}
+
+ox::Result<NostalgiaPalette> loadPalette2(const Buffer &buff) noexcept {
+	return ox::readMC<NostalgiaPalette>(buff.data(), buff.size());
+}
+
+ox::Result<NostalgiaPalette> loadPalette3(const Buffer &buff) noexcept {
+	NostalgiaPalette pal;
+	oxReturnError(ox::readMC(buff.data(), buff.size(), &pal));
+	return pal;
+}
+```
+
+##### Write
+
+```cpp
+#include <ox/mc/write.hpp>
+
+ox::Result<ox::Buffer> writeSpritePalette1(NostalgiaPalette *pal) noexcept {
+	ox::Buffer buffer(ox::units::MB);
+	oxReturnError(ox::writeMC(buffer.data(), buffer.size(), pal));
+	return ox::move(buffer);
+}
+
+ox::Result<ox::Buffer> writeSpritePalette2(NostalgiaPalette *pal) noexcept {
+	return ox::writeMC(pal);
+}
+```
+
+#### Organic Claw Example
+
+##### Read
+
+```cpp
+#include <ox/oc/read.hpp>
+
+ox::Result<NostalgiaPalette> loadPalette1(const Buffer &buff) noexcept {
+	return ox::readOC<NostalgiaPalette>(buff);
+}
+
+ox::Result<NostalgiaPalette> loadPalette2(const Buffer &buff) noexcept {
+	return ox::readOC<NostalgiaPalette>(buff.data(), buff.size());
+}
+
+ox::Result<NostalgiaPalette> loadPalette3(const Buffer &buff) noexcept {
+	NostalgiaPalette pal;
+	oxReturnError(ox::readOC(buff.data(), buff.size(), &pal));
+	return pal;
+}
+```
+
+##### Write
+
+```cpp
+#include <ox/oc/write.hpp>
+
+ox::Result<ox::Buffer> writeSpritePalette1(NostalgiaPalette *pal) noexcept {
+	ox::Buffer buffer(ox::units::MB);
+	oxReturnError(ox::writeOC(buffer.data(), buffer.size(), pal));
+	return ox::move(buffer);
+}
+
+ox::Result<ox::Buffer> writeSpritePalette2(NostalgiaPalette *pal) noexcept {
+	return ox::writeOC(pal);
+}
+```
+
+#### Claw Example
+
+##### Read
+
+```cpp
+#include <ox/claw/read.hpp>
+
+ox::Result<NostalgiaPalette> loadPalette1(const Buffer &buff) noexcept {
+	return ox::readClaw<NostalgiaPalette>(buff);
+}
+
+ox::Result<NostalgiaPalette> loadPalette2(const Buffer &buff) noexcept {
+	return ox::readClaw<NostalgiaPalette>(buff.data(), buff.size());
+}
+
+ox::Result<NostalgiaPalette> loadPalette3(const Buffer &buff) noexcept {
+	NostalgiaPalette pal;
+	oxReturnError(ox::readClaw(buff.data(), buff.size(), &pal));
+	return pal;
+}
+```
+
+##### Write
+
+```cpp
+#include <ox/claw/write.hpp>
+
+ox::Result<ox::Buffer> writeSpritePalette(NostalgiaPalette *pal) noexcept {
+	return ox::writeClaw(&pal);
+}
+```
+

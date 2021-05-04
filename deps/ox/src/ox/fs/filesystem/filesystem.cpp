@@ -13,7 +13,7 @@
 
 namespace ox {
 
-Result<const uint8_t*> FileSystem::directAccess(const FileAddress &addr) noexcept {
+Result<const char*> FileSystem::directAccess(const FileAddress &addr) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return directAccess(addr.getInode().value);

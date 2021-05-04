@@ -132,7 +132,7 @@ Error OrganicClawWriter::field(const char *key, UnionView<U> val) {
 template<typename T>
 Error OrganicClawWriter::field(const char *key, ox::HashMap<String, T> *val) {
 	if (targetValid()) {
-		auto &keys = val->keys();
+		const auto &keys = val->keys();
 		OrganicClawWriter w;
 		for (std::size_t i = 0; i < keys.size(); ++i) {
 			auto k = keys[i].c_str();
@@ -149,10 +149,10 @@ Result<Buffer> writeOC(T *val) {
 	OrganicClawWriter writer;
 	oxReturnError(model(&writer, val));
 	Json::StreamWriterBuilder jsonBuilder;
-	auto str = Json::writeString(jsonBuilder, writer.m_json);
+	const auto str = Json::writeString(jsonBuilder, writer.m_json);
 	Buffer buff(str.size() + 1);
 	memcpy(buff.data(), str.c_str(), str.size() + 1);
-	return buff;
+	return move(buff);
 }
 
 }

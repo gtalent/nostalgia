@@ -89,7 +89,7 @@ Result<Buffer> writeClaw(T *t, ClawFormat fmt) {
 	Buffer out(header.len() + data.size());
 	memcpy(out.data(), header.data(), header.len());
 	memcpy(out.data() + header.len(), data.data(), data.size());
-	return out;
+	return move(out);
 }
 
 }

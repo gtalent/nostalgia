@@ -228,7 +228,7 @@ Result<Buffer> writeMC(T *val) {
 	MetalClawWriter writer(bit_cast<uint8_t*>(buff.data()), buff.size());
 	oxReturnError(model(&writer, val));
 	buff.resize(writer.size());
-	return buff;
+	return move(buff);
 }
 
 template<typename T>

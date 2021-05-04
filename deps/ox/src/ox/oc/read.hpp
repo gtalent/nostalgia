@@ -63,7 +63,7 @@ class OrganicClawReader {
 		Error field(const char *key, UnionView<U> val);
 
 		template<std::size_t L>
-		Error field(const char *key, ox::BString<L> *val);
+		Error field(const char *key, BString<L> *val);
 
 		Error field(const char *key, SerStr val);
 
@@ -141,7 +141,7 @@ Error OrganicClawReader::field(const char *key, UnionView<U> val) {
 }
 
 template<std::size_t L>
-Error OrganicClawReader::field(const char *name, ox::BString<L> *val) {
+Error OrganicClawReader::field(const char *name, BString<L> *val) {
 	return field(name, SerStr(val->data(), val->cap()));
 }
 
@@ -196,7 +196,7 @@ template<typename T>
 Result<T> readOC(const char *json, std::size_t jsonLen) {
 	T val;
 	oxReturnError(readOC(json, jsonLen, &val));
-	return ox::move(val);
+	return move(val);
 }
 
 template<typename T>

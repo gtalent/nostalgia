@@ -55,9 +55,9 @@ class OrganicClawWriter {
 		Error field(const char*, HashMap<String, T> *val);
 
 		template<std::size_t L>
-		Error field(const char*, ox::BString<L> *val);
+		Error field(const char*, BString<L> *val);
 
-		Error field(const char*, ox::String val);
+		Error field(const char*, String val);
 
 		Error field(const char*, SerStr val);
 
@@ -97,7 +97,7 @@ Error OrganicClawWriter::field(const char *key, T *val, std::size_t len) {
 }
 
 template<std::size_t L>
-Error OrganicClawWriter::field(const char *key, ox::BString<L> *val) {
+Error OrganicClawWriter::field(const char *key, BString<L> *val) {
 	return field(key, SerStr(val->data(), val->cap()));
 }
 
@@ -130,12 +130,12 @@ Error OrganicClawWriter::field(const char *key, UnionView<U> val) {
 }
 
 template<typename T>
-Error OrganicClawWriter::field(const char *key, ox::HashMap<String, T> *val) {
+Error OrganicClawWriter::field(const char *key, HashMap<String, T> *val) {
 	if (targetValid()) {
 		const auto &keys = val->keys();
 		OrganicClawWriter w;
 		for (std::size_t i = 0; i < keys.size(); ++i) {
-			auto k = keys[i].c_str();
+			const auto k = keys[i].c_str();
 			oxReturnError(w.field(k, &val->operator[](k)));
 		}
 		value(key) = w.m_json;

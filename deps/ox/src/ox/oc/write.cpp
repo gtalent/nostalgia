@@ -91,7 +91,7 @@ Error OrganicClawWriter::field(const char *key, bool *val) {
 	return OxError(0);
 }
 
-Error OrganicClawWriter::field(const char *key, ox::String val) {
+Error OrganicClawWriter::field(const char *key, String val) {
 	if (targetValid() && val.len()) {
 		value(key) = val.c_str();
 	}

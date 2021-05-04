@@ -12,8 +12,8 @@
 #ifdef OX_USE_STDLIB
 #include <ox/oc/read.hpp>
 #endif
+#include <ox/std/buffer.hpp>
 #include <ox/std/string.hpp>
-#include <ox/std/vector.hpp>
 
 #include "format.hpp"
 
@@ -33,7 +33,7 @@ Result<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept;
 
 }
 
-Result<Vector<char>> stripClawHeader(const char *buff, std::size_t buffLen) noexcept;
+Result<Buffer> stripClawHeader(const char *buff, std::size_t buffLen) noexcept;
 
 template<typename T>
 Error readClaw(const char *buff, std::size_t buffLen, T *val) {
@@ -65,7 +65,7 @@ Result<T> readClaw(const char *buff, std::size_t buffLen) {
 }
 
 template<typename T>
-Result<T> readClaw(const Vector<char> &buff) {
+Result<T> readClaw(const Buffer &buff) {
 	return readClaw<T>(buff.data(), buff.size());
 }
 

@@ -59,10 +59,10 @@ Result<ClawHeader> readHeader(const char *buff, std::size_t buffLen) noexcept {
 
 }
 
-Result<Vector<char>> stripClawHeader(const char *buff, std::size_t buffLen) noexcept {
+Result<Buffer> stripClawHeader(const char *buff, std::size_t buffLen) noexcept {
 	auto header = detail::readHeader(buff, buffLen);
 	oxReturnError(header);
-	Vector<char> out(header.value.dataSize);
+	Buffer out(header.value.dataSize);
 	ox_memcpy(out.data(), header.value.data, out.size());
 	return ox::move(out);
 }

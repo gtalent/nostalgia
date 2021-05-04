@@ -12,8 +12,8 @@
 #ifdef OX_USE_STDLIB
 #include <ox/oc/write.hpp>
 #endif
+#include <ox/std/buffer.hpp>
 #include <ox/std/string.hpp>
-#include <ox/std/vector.hpp>
 
 #include "format.hpp"
 
@@ -39,15 +39,6 @@ struct TypeInfoCatcher {
 	}
 
 };
-
-template<typename T>
-[[nodiscard]] constexpr int getTypeVersion(int version = T::TypeVersion) noexcept {
-	return version;
-}
-
-[[nodiscard]] constexpr int getTypeVersion(...) noexcept {
-	return -1;
-}
 
 template<typename T, typename = int>
 struct type_version {
@@ -92,12 +83,10 @@ Result<String> writeClawHeader(T *t, ClawFormat fmt) noexcept {
 }
 
 template<typename T>
-Result<Vector<char>> writeClaw(T *t, ClawFormat fmt) {
-	auto [header, headerErr] = detail::writeClawHeader(t, fmt);
-	oxReturnError(headerErr);
-	const auto [data, dataErr] = fmt == ClawFormat::Metal ? writeMC(t) : writeOC(t);
-	oxReturnError(dataErr);
-	ox::Vector<char> out(header.len() + data.size());
+Result<Buffer> writeClaw(T *t, ClawFormat fmt) {
+	oxRequire(header, detail::writeClawHeader(t, fmt));
+	oxRequire(data, fmt == ClawFormat::Metal ? writeMC(t) : writeOC(t));
+	Buffer out(header.len() + data.size());
 	memcpy(out.data(), header.data(), header.len());
 	memcpy(out.data() + header.len(), data.data(), data.size());
 	return out;

@@ -186,15 +186,14 @@ Error MetalClawReader::field(const char *name, T *val, std::size_t valLen) {
 				return OxError(MC_BUFFENDED);
 			}
 			std::size_t bytesRead = 0;
-			auto len = mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+			oxRequire(len, mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead));
 			m_buffIt += bytesRead;
-			oxReturnError(len.error);
 
 			// read the list
-			if (valLen >= len.value) {
+			if (valLen >= len) {
 				auto reader = child("");
-				reader.setTypeInfo("List", len.value);
-				for (std::size_t i = 0; i < len.value; i++) {
+				reader.setTypeInfo("List", len);
+				for (std::size_t i = 0; i < len; i++) {
 					oxReturnError(reader.field("", &val[i]));
 				}
 			} else {
@@ -216,15 +215,14 @@ Error MetalClawReader::field(const char*, HashMap<String, T> *val) {
 				return OxError(MC_BUFFENDED);
 			}
 			std::size_t bytesRead = 0;
-			auto len = mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+			oxRequire(len, mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead));
 			m_buffIt += bytesRead;
-			oxReturnError(len.error);
 
 			// read the list
 			auto reader = child("");
-			reader.setTypeInfo("List", len.value);
-			for (std::size_t i = 0; i < len.value; i++) {
-				auto keyLen = reader.stringLength(nullptr);
+			reader.setTypeInfo("List", len);
+			for (std::size_t i = 0; i < len; i++) {
+				const auto keyLen = reader.stringLength(nullptr);
 				auto wkey = ox_malloca(keyLen + 1, char, 0);
 				oxReturnError(reader.field("", SerStr(wkey.get(), keyLen)));
 				oxReturnError(reader.field("", &val->operator[](wkey.get())));
@@ -244,14 +242,13 @@ Error MetalClawReader::field(const char*, Handler handler) {
 				return OxError(MC_BUFFENDED);
 			}
 			std::size_t bytesRead = 0;
-			auto len = mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead);
+			oxRequire(len, mc::decodeInteger<ArrayLength>(&m_buff[m_buffIt], m_buffLen - m_buffIt, &bytesRead));
 			m_buffIt += bytesRead;
-			oxReturnError(len.error);
 
 			// read the list
 			auto reader = child("");
-			reader.setTypeInfo("List", len.value);
-			for (std::size_t i = 0; i < len.value; i++) {
+			reader.setTypeInfo("List", len);
+			for (std::size_t i = 0; i < len; i++) {
 				T val;
 				oxReturnError(reader.field("", &val));
 				oxReturnError(handler(i, &val));

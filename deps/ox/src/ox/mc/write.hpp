@@ -13,13 +13,13 @@
 #include <ox/std/bit.hpp>
 #include <ox/std/buffer.hpp>
 #include <ox/std/byteswap.hpp>
+#include <ox/std/hashmap.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/types.hpp>
 #include <ox/std/units.hpp>
 
 #include "intops.hpp"
 #include "err.hpp"
-#include "ox/std/hashmap.hpp"
 #include "presenceindicator.hpp"
 #include "types.hpp"
 
@@ -60,7 +60,7 @@ class MetalClawWriter {
 		Error field(const char*, HashMap<String, T> *val);
 
 		template<std::size_t L>
-		Error field(const char*, ox::BString<L> *val) noexcept;
+		Error field(const char*, BString<L> *val) noexcept;
 
 		Error field(const char*, SerStr val) noexcept;
 
@@ -86,7 +86,7 @@ class MetalClawWriter {
 };
 
 template<std::size_t L>
-Error MetalClawWriter::field(const char *name, ox::BString<L> *val) noexcept {
+Error MetalClawWriter::field(const char *name, BString<L> *val) noexcept {
 	return field(name, SerStr(val->data(), val->cap()));
 }
 
@@ -159,8 +159,8 @@ Error MetalClawWriter::field(const char*, T *val, std::size_t len) {
 
 template<typename T>
 Error MetalClawWriter::field(const char*, HashMap<String, T> *val) {
-	auto &keys = val->keys();
-	auto len = keys.size();
+	const auto &keys = val->keys();
+	const auto len = keys.size();
 	bool fieldSet = false;
 
 	if (len && (m_unionIdx == -1 || m_unionIdx == m_field)) {
@@ -179,7 +179,7 @@ Error MetalClawWriter::field(const char*, HashMap<String, T> *val) {
 
 		// write the array
 		for (std::size_t i = 0; i < len; i++) {
-			auto &key = keys[i];
+			const auto &key = keys[i];
 			const auto keyLen = ox_strlen(key);
 			auto wkey = ox_malloca(keyLen + 1, char, 0);
 			memcpy(wkey, key.c_str(), keyLen + 1);
@@ -206,7 +206,7 @@ Error MetalClawWriter::appendInteger(I val) noexcept {
 			ox_memcpy(&m_buff[m_buffIt], mi.data, mi.length);
 			m_buffIt += mi.length;
 		} else {
-			oxReturnError(OxError(MC_BUFFENDED));
+			return OxError(MC_BUFFENDED);
 		}
 	}
 	oxReturnError(m_fieldPresence.set(m_field, fieldSet));

@@ -23,12 +23,13 @@ static constexpr auto Bits = sizeof(T) << 3;
  * Bit numbering starts at 0.
  */
 template<typename I>
-[[nodiscard]] constexpr std::size_t highestBit(I val) noexcept {
+[[nodiscard]]
+constexpr std::size_t highestBit(I val) noexcept {
 	int shiftStart = sizeof(I) * 8 - 1;
 	// find most significant non-sign indicator bit
 	std::size_t highestBit = 0;
 	// start at one bit lower if signed
-	if constexpr(ox::is_signed_v<I>) {
+	if constexpr(is_signed_v<I>) {
 		--shiftStart;
 	}
 	for (auto i = shiftStart; i > -1; --i) {
@@ -56,7 +57,8 @@ struct McInt {
 };
 
 template<typename I>
-[[nodiscard]] constexpr McInt encodeInteger(I input) noexcept {
+[[nodiscard]]
+constexpr McInt encodeInteger(I input) noexcept {
 	McInt out;
 	// move input to uint64_t to allow consistent bit manipulation, and to avoid
 	// overflow concerns
@@ -65,7 +67,7 @@ template<typename I>
 	if (val) {
 		// bits needed to represent number factoring in space possibly
 		// needed for signed bit
-		const auto bits = highestBit(val) + 1 + (ox::is_signed_v<I> ? 1 : 0);
+		const auto bits = highestBit(val) + 1 + (is_signed_v<I> ? 1 : 0);
 		// bytes needed to store value
 		std::size_t bytes = bits / 8 + (bits % 8 != 0);
 		const auto bitsAvailable = bytes * 8; // bits available to integer value
@@ -97,7 +99,8 @@ template<typename I>
  * Returns the number of bytes indicated by the bytes indicator of a variable
  * length integer.
  */
-[[nodiscard]] static constexpr std::size_t countBytes(uint8_t b) noexcept {
+[[nodiscard]]
+static constexpr std::size_t countBytes(uint8_t b) noexcept {
 	std::size_t i = 0;
 	for (; (b >> i) & 1; i++);
 	return i + 1;
@@ -128,7 +131,7 @@ Result<I> decodeInteger(const uint8_t buff[9], std::size_t buffLen, std::size_t 
 		decoded >>= bytes;
 		auto out = static_cast<I>(decoded);
 		// move sign bit
-		if constexpr(ox::is_signed_v<I>) {
+		if constexpr(is_signed_v<I>) {
 			const auto valBits = bytes << 3;
 			// get sign
 			uint64_t sign = decoded >> (valBits - 1);

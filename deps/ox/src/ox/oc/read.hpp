@@ -12,12 +12,12 @@
 
 #include <ox/model/optype.hpp>
 #include <ox/model/types.hpp>
+#include <ox/std/buffer.hpp>
 #include <ox/std/byteswap.hpp>
 #include <ox/std/hashmap.hpp>
 #include <ox/std/memops.hpp>
 #include <ox/std/memory.hpp>
 #include <ox/std/string.hpp>
-#include <ox/std/vector.hpp>
 
 namespace ox {
 
@@ -205,7 +205,7 @@ Result<T> readOC(const char *json) {
 }
 
 template<typename T>
-Result<T> readOC(const Vector<char> &buff) {
+Result<T> readOC(const Buffer &buff) {
 	return readOC<T>(buff.data(), buff.size());
 }
 

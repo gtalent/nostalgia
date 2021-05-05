@@ -18,6 +18,10 @@ namespace ox {
 template<typename T>
 class Vector {
 
+	public:
+		using value_type = T;
+		using size_type = std::size_t;
+
 	private:
 		std::size_t m_size = 0;
 		std::size_t m_cap = 0;

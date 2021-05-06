@@ -13,6 +13,13 @@
 namespace ox {
 
 template<typename T>
+struct DefaultDelete {
+	constexpr void operator()(T *p) noexcept {
+		delete p;
+	}
+};
+
+template<typename T, typename Deleter = DefaultDelete<T>>
 class UniquePtr {
 
 	private:
@@ -30,7 +37,7 @@ class UniquePtr {
 		}
 
 		~UniquePtr() {
-			delete m_t;
+			DefaultDelete<T>()(m_t);
 		}
 
 		constexpr T *release() noexcept {
@@ -49,7 +56,7 @@ class UniquePtr {
 			auto t = m_t;
 			m_t = other.m_t;
 			other.m_t = nullptr;
-			delete t;
+			DefaultDelete<T>()(t);
 		}
 
 		template<typename U>

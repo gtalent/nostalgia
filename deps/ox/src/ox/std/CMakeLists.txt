@@ -22,6 +22,7 @@ add_library(
 		buffer.cpp
 		buildinfo.cpp
 		byteswap.cpp
+		fmt.cpp
 		heapmgr.cpp
 		memops.cpp
 		random.cpp

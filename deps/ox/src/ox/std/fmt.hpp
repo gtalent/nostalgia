@@ -16,13 +16,15 @@
 #include <QString>
 #endif
 
-#include <ox/std/bstring.hpp>
-#include <ox/std/string.hpp>
-#include <ox/std/strops.hpp>
-#include <ox/std/types.hpp>
-#include <ox/std/typetraits.hpp>
+#include "assert.hpp"
+#include "bstring.hpp"
+#include "string.hpp"
+#include "strops.hpp"
+#include "types.hpp"
+#include "typetraits.hpp"
 
-namespace ox::detail {
+namespace ox {
+namespace detail {
 
 constexpr const char *stringify(const char *s) noexcept {
 	return s;
@@ -89,12 +91,6 @@ constexpr uint64_t argCount(const char *str) noexcept {
 	return cnt;
 }
 
-static_assert(argCount("sadf asdf") == 0);
-static_assert(argCount("{}") == 1);
-static_assert(argCount("{}{}") == 2);
-static_assert(argCount("thing1: {}, thing2: {}") == 2);
-static_assert(argCount("thing1: {}, thing2: {}{}") == 3);
-
 struct FmtSegment {
 	const char *str = nullptr;
 	unsigned length = 0;
@@ -156,59 +152,22 @@ constexpr Fmt<segementCnt> fmtSegments(const char *fmt) noexcept {
 	return out;
 }
 
-static_assert([] {
-		constexpr auto fmt = "{}";
-		return fmtSegments<argCount(fmt) + 1>(fmt) == Fmt<2>{
-			{
-				{"", 0},
-				{"", 0},
-			}
-		};
-	}()
-);
-static_assert([] {
-		constexpr auto fmt = "thing: {}";
-		return fmtSegments<argCount(fmt) + 1>(fmt) == Fmt<2>{
-			{
-				{"thing: ", 7},
-				{"", 0},
-			}
-		};
-	}()
-);
-static_assert([] {
-		constexpr auto fmt = "thing: {}, thing2: {}";
-		return fmtSegments<argCount(fmt) + 1>(fmt) == Fmt<3>{
-			{
-				{"thing: ", 7},
-				{", thing2: ", 10},
-				{"", 0},
-			}
-		};
-	}()
-);
-static_assert([] {
-		constexpr auto fmt = "thing: {}, thing2: {}s";
-		return fmtSegments<argCount(fmt) + 1>(fmt) == Fmt<3>{
-			{
-				{"thing: ", 7},
-				{", thing2: ", 10},
-				{"s", 1},
-			}
-		};
-	}()
-);
-static_assert([] {
-		constexpr auto fmt = "loadTexture: section: {}, w: {}, h: {}";
-		return fmtSegments<argCount(fmt) + 1>(fmt) == Fmt<4>{
-			{
-				{"loadTexture: section: ", 22},
-				{", w: ", 5},
-				{", h: ", 5},
-			}
-		};
-	}()
-);
+}
 
+template<typename StringType = String, typename ...Args>
+auto sfmt(const char *fmt, Args... args) noexcept {
+	oxAssert(ox::detail::argCount(fmt) == sizeof...(args), "Argument count mismatch.");
+	StringType out;
+	const auto fmtSegments = ox::detail::fmtSegments<sizeof...(args)+1>(fmt);
+	const auto &firstSegment = fmtSegments.segments[0];
+	out.append(firstSegment.str, firstSegment.length);
+	const detail::FmtArg elements[sizeof...(args)] = {args...};
+	for (auto i = 0u; i < fmtSegments.size - 1; ++i) {
+		out += elements[i].out;
+		const auto &s = fmtSegments.segments[i + 1];
+		out.append(s.str, s.length);
+	}
+	return move(out);
+}
 
 }

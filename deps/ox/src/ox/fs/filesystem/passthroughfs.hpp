@@ -35,7 +35,7 @@ class PassThroughFS: public FileSystem {
 		~PassThroughFS();
 
 		[[nodiscard]]
-		ox::String basePath();
+		String basePath();
 
 		Error mkdir(const char *path, bool recursive = false) noexcept override;
 
@@ -95,7 +95,7 @@ Error PassThroughFS::ls(const char *dir, F cb) noexcept {
 	oxReturnError(OxError(ec.value(), "PassThroughFS: ls failed"));
 	for (auto &p : di) {
 		auto u8p = p.path().filename().u8string();
-		oxReturnError(cb(ox::bit_cast<const char*>(u8p.c_str()), 0));
+		oxReturnError(cb(bit_cast<const char*>(u8p.c_str()), 0));
 	}
 	return OxError(0);
 }

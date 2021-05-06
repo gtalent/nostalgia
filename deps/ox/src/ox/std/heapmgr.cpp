@@ -25,29 +25,29 @@ static constexpr std::size_t alignedSize(T = {}) noexcept {
 	return alignedSize(sizeof(T));
 }
 
-void HeapSegment::init(std::size_t maxSize = ox::bit_cast<std::size_t>(g_heapEnd)) noexcept {
-	this->size = maxSize - ox::bit_cast<std::size_t>(this);
+void HeapSegment::init(std::size_t maxSize = bit_cast<std::size_t>(g_heapEnd)) noexcept {
+	this->size = maxSize - bit_cast<std::size_t>(this);
 	this->inUse = false;
 }
 
 template<typename T>
 T *HeapSegment::data() noexcept {
-	return ox::bit_cast<T*>(ox::bit_cast<uint8_t*>(this) + alignedSize(this));
+	return bit_cast<T*>(bit_cast<uint8_t*>(this) + alignedSize(this));
 }
 
 template<typename T>
 T *HeapSegment::end() noexcept {
 	const auto size = alignedSize(this) + alignedSize(this->size);
-	auto e = ox::bit_cast<uintptr_t>(ox::bit_cast<uint8_t*>(this) + size);
-	return ox::bit_cast<T*>(e);
+	auto e = bit_cast<uintptr_t>(bit_cast<uint8_t*>(this) + size);
+	return bit_cast<T*>(e);
 }
 
 
 void initHeap(char *heapBegin, char *heapEnd) noexcept {
-	g_heapBegin = ox::bit_cast<HeapSegment*>(heapBegin);
-	g_heapEnd = ox::bit_cast<HeapSegment*>(heapEnd);
+	g_heapBegin = bit_cast<HeapSegment*>(heapBegin);
+	g_heapEnd = bit_cast<HeapSegment*>(heapEnd);
 	heapIdx = g_heapBegin;
-	heapIdx->size = ox::bit_cast<std::size_t>(heapEnd) - ox::bit_cast<std::size_t>(heapIdx);
+	heapIdx->size = bit_cast<std::size_t>(heapEnd) - bit_cast<std::size_t>(heapIdx);
 	heapIdx->inUse = false;
 }
 

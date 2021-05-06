@@ -34,11 +34,11 @@ struct TraceMsg {
 	int line = 0;
 	uint64_t time = 0;
 	const char *ch = "";
-	ox::BString<100> msg;
+	BString<100> msg;
 };
 
 template<typename T>
-constexpr Error model(T *io, ox::trace::TraceMsg *obj) {
+constexpr Error model(T *io, TraceMsg *obj) {
 	io->template setTypeInfo<TraceMsg>();
 	oxReturnError(io->field("ch", &obj->ch));
 	oxReturnError(io->field("file", &obj->file));

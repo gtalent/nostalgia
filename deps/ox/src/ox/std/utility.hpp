@@ -13,8 +13,8 @@
 namespace ox {
 
 template<typename T>
-constexpr typename ox::remove_reference<T>::type &&move(T &&t) noexcept {
-	return static_cast<typename ox::remove_reference<T>::type&&>(t);
+constexpr typename remove_reference<T>::type &&move(T &&t) noexcept {
+	return static_cast<typename remove_reference<T>::type&&>(t);
 }
 
 }

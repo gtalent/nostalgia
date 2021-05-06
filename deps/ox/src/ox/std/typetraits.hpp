@@ -45,42 +45,42 @@ struct integral_constant {
 
 };
 
-using false_type = ox::integral_constant<bool, false>;
-using true_type = ox::integral_constant<bool, true>;
+using false_type = integral_constant<bool, false>;
+using true_type = integral_constant<bool, true>;
 
 
 // is_integral /////////////////////////////////////////////////////////////////
 
-template<typename T> struct is_integral: ox::false_type {};
-template<> struct is_integral<bool>    : ox::true_type {};
-template<> struct is_integral<wchar_t> : ox::true_type {};
-template<> struct is_integral<int8_t>  : ox::true_type {};
-template<> struct is_integral<uint8_t> : ox::true_type {};
-template<> struct is_integral<int16_t> : ox::true_type {};
-template<> struct is_integral<uint16_t>: ox::true_type {};
-template<> struct is_integral<int32_t> : ox::true_type {};
-template<> struct is_integral<uint32_t>: ox::true_type {};
+template<typename T> struct is_integral: false_type {};
+template<> struct is_integral<bool>    : true_type {};
+template<> struct is_integral<wchar_t> : true_type {};
+template<> struct is_integral<int8_t>  : true_type {};
+template<> struct is_integral<uint8_t> : true_type {};
+template<> struct is_integral<int16_t> : true_type {};
+template<> struct is_integral<uint16_t>: true_type {};
+template<> struct is_integral<int32_t> : true_type {};
+template<> struct is_integral<uint32_t>: true_type {};
 
 // some of these need to be done with the actual language syntax because no one
 // can agree on what an (u)int64_t is...
-template<> struct is_integral<long>: ox::true_type {};
-template<> struct is_integral<long long>: ox::true_type {};
-template<> struct is_integral<unsigned long>: ox::true_type {};
-template<> struct is_integral<unsigned long long>: ox::true_type {};
+template<> struct is_integral<long>: true_type {};
+template<> struct is_integral<long long>: true_type {};
+template<> struct is_integral<unsigned long>: true_type {};
+template<> struct is_integral<unsigned long long>: true_type {};
 
 template<typename T>
-constexpr bool is_integral_v = ox::is_integral<T>::value;
+constexpr bool is_integral_v = is_integral<T>::value;
 
-template<typename T> struct is_bool: ox::false_type {};
-template<> struct is_bool<bool>    : ox::true_type {};
-
-template<typename T>
-constexpr bool is_bool_v = ox::is_bool<T>::value;
-
-template<typename T> struct is_union: ox::integral_constant<bool, std::is_union_v<T>> {};
+template<typename T> struct is_bool: false_type {};
+template<> struct is_bool<bool>    : true_type {};
 
 template<typename T>
-constexpr bool is_union_v = ox::is_union<T>();
+constexpr bool is_bool_v = is_bool<T>::value;
+
+template<typename T> struct is_union: integral_constant<bool, std::is_union_v<T>> {};
+
+template<typename T>
+constexpr bool is_union_v = is_union<T>();
 
 // indicates the type can have members, but not that it necessarily does
 template<typename T>
@@ -89,21 +89,21 @@ template<typename T>
 constexpr bool memberable(...) { return false; }
 
 template<typename T>
-struct is_class: ox::integral_constant<bool, !ox::is_union<T>::value && ox::memberable<T>(0)> {};
+struct is_class: integral_constant<bool, !is_union<T>::value && memberable<T>(0)> {};
 
 namespace test {
 struct TestClass {int i;};
 union TestUnion {int i;};
-static_assert(ox::is_class<TestClass>::value == true);
-static_assert(ox::is_class<TestUnion>::value == false);
-static_assert(ox::is_class<int>::value == false);
+static_assert(is_class<TestClass>::value == true);
+static_assert(is_class<TestUnion>::value == false);
+static_assert(is_class<int>::value == false);
 }
 
 template<typename T>
-constexpr bool is_class_v = ox::is_class<T>();
+constexpr bool is_class_v = is_class<T>();
 
 template<typename T>
-constexpr bool is_signed_v = ox::integral_constant<bool, T(-1) < T(0)>::value;
+constexpr bool is_signed_v = integral_constant<bool, T(-1) < T(0)>::value;
 
 // enable_if ///////////////////////////////////////////////////////////////////
 

@@ -64,7 +64,7 @@ Result<Buffer> stripClawHeader(const char *buff, std::size_t buffLen) noexcept {
 	oxReturnError(header);
 	Buffer out(header.value.dataSize);
 	ox_memcpy(out.data(), header.value.data, out.size());
-	return ox::move(out);
+	return move(out);
 }
 
 }

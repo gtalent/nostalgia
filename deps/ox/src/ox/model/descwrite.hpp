@@ -145,7 +145,7 @@ class TypeDescWriter {
 template<typename T>
 Error TypeDescWriter::field(const char *name, T *val, std::size_t) {
 	if (m_type) {
-		constexpr typename ox::remove_pointer<decltype(val)>::type *p = nullptr;
+		constexpr typename remove_pointer<decltype(val)>::type *p = nullptr;
 		bool alreadyExisted = false;
 		const auto t = type(p, &alreadyExisted);
 		oxAssert(t != nullptr, "field(const char *name, T *val, std::size_t): Type not found or generated");

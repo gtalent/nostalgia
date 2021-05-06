@@ -29,11 +29,11 @@ constexpr const char *stringify(const char *s) noexcept {
 }
 
 template<std::size_t size>
-constexpr const char *stringify(const ox::BString<size> &s) noexcept {
+constexpr const char *stringify(const BString<size> &s) noexcept {
     return s.c_str();
 }
 
-constexpr const char *stringify(const ox::String &s) noexcept {
+constexpr const char *stringify(const String &s) noexcept {
 	return s.c_str();
 }
 

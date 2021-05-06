@@ -23,7 +23,7 @@ PassThroughFS::PassThroughFS(const char *dirPath) {
 PassThroughFS::~PassThroughFS() {
 }
 
-ox::String PassThroughFS::basePath() {
+String PassThroughFS::basePath() {
 	return m_path.string().c_str();
 }
 
@@ -101,7 +101,7 @@ Result<Vector<String>> PassThroughFS::ls(const char *dir) noexcept {
 	oxReturnError(OxError(ec.value(), "PassThroughFS: ls failed"));
 	for (auto &p : di) {
 		auto u8p = p.path().filename().u8string();
-		out.emplace_back(ox::bit_cast<const char*>(u8p.c_str()));
+		out.emplace_back(bit_cast<const char*>(u8p.c_str()));
 	}
 	return ox::move(out);
 }

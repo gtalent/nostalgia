@@ -75,7 +75,7 @@ class OX_PACKED ByteSwapInteger {
 			m_value = other.m_value;
 		}
 
-		constexpr ByteSwapInteger(T value) noexcept: m_value(ox::conditionalByteSwap<T, byteSwap>(value)) {
+		constexpr ByteSwapInteger(T value) noexcept: m_value(conditionalByteSwap<T, byteSwap>(value)) {
 		}
 
 		constexpr const ByteSwapInteger &operator=(const ByteSwapInteger &other) noexcept {
@@ -85,39 +85,39 @@ class OX_PACKED ByteSwapInteger {
 
 		template<typename I>
 		constexpr T operator=(I value) noexcept {
-			m_value = ox::conditionalByteSwap<T, byteSwap>(value);
+			m_value = conditionalByteSwap<T, byteSwap>(value);
 			return value;
 		}
 
 		constexpr operator T() const noexcept {
-			return ox::conditionalByteSwap<T, byteSwap>(m_value);
+			return conditionalByteSwap<T, byteSwap>(m_value);
 		}
 
 		template<typename I>
 		constexpr T operator+=(I other) noexcept {
 			auto newVal = *this + other;
-			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
+			m_value = conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
 		constexpr T operator-=(I other) noexcept {
 			auto newVal = *this - other;
-			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
+			m_value = conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
 		constexpr T operator*=(I other) noexcept {
 			auto newVal = *this * other;
-			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
+			m_value = conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
 		constexpr T operator/=(I other) noexcept {
 			auto newVal = *this / other;
-			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
+			m_value = conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
@@ -148,35 +148,35 @@ class OX_PACKED ByteSwapInteger {
 		template<typename I>
 		constexpr T operator&=(I other) noexcept {
 			auto newVal = *this & other;
-			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
+			m_value = conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
 		constexpr T operator|=(I other) noexcept {
 			auto newVal = *this | other;
-			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
+			m_value = conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
 		constexpr T operator^=(I other) noexcept {
 			auto newVal = *this ^ other;
-			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
+			m_value = conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
 		constexpr T operator>>=(I other) noexcept {
 			auto newVal = *this >> other;
-			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
+			m_value = conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
 		template<typename I>
 		constexpr T operator<<=(I other) noexcept {
 			auto newVal = *this << other;
-			m_value = ox::conditionalByteSwap<T, byteSwap>(newVal);
+			m_value = conditionalByteSwap<T, byteSwap>(newVal);
 			return newVal;
 		}
 
@@ -198,9 +198,9 @@ class OX_PACKED ByteSwapInteger {
 };
 
 template<typename T>
-using LittleEndian = ByteSwapInteger<T, ox::defines::BigEndian>;
+using LittleEndian = ByteSwapInteger<T, defines::BigEndian>;
 
 template<typename T>
-using BigEndian = ByteSwapInteger<T, ox::defines::LittleEndian>;
+using BigEndian = ByteSwapInteger<T, defines::LittleEndian>;
 
 }

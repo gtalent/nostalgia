@@ -56,7 +56,7 @@ Error FileSystem::read(const FileAddress &addr, std::size_t readStart, std::size
 	}
 }
 
-Result<Vector<String>> FileSystem::ls(const ox::String &dir) noexcept {
+Result<Vector<String>> FileSystem::ls(const String &dir) noexcept {
 	return ls(dir.c_str());
 }
 

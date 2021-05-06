@@ -50,7 +50,7 @@ class FileSystem {
 
 		Result<const char*> directAccess(const FileAddress &addr) noexcept;
 
-		Result<Vector<String>> ls(const ox::String &dir) noexcept;
+		Result<Vector<String>> ls(const String &dir) noexcept;
 
 		virtual Result<Vector<String>> ls(const char *dir) noexcept = 0;
 

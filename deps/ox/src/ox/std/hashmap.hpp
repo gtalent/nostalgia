@@ -96,8 +96,8 @@ HashMap<K, T>::HashMap(const HashMap<K, T> &other) {
 
 template<typename K, typename T>
 HashMap<K, T>::HashMap(HashMap<K, T> &&other) {
-	m_keys = ox::move(other.m_keys);
-	m_pairs = ox::move(other.m_pairs);
+	m_keys = move(other.m_keys);
+	m_pairs = move(other.m_pairs);
 }
 
 template<typename K, typename T>
@@ -133,8 +133,8 @@ template<typename K, typename T>
 HashMap<K, T> &HashMap<K, T>::operator=(HashMap<K, T> &&other) {
 	if (this != &other) {
 		clear();
-		m_keys = ox::move(other.m_keys);
-		m_pairs = ox::move(other.m_pairs);
+		m_keys = move(other.m_keys);
+		m_pairs = move(other.m_pairs);
 	}
 	return *this;
 }

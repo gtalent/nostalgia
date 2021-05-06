@@ -28,8 +28,8 @@ uint64_t Random::gen() noexcept {
 	auto retval = s0 + s1;
 
 	s1 ^= s0;
-	m_seed[0] = ox::rotl(s0, 55) ^ s1 ^ (s1 << 14);
-	m_seed[1] = ox::rotl(s1, 36);
+	m_seed[0] = rotl(s0, 55) ^ s1 ^ (s1 << 14);
+	m_seed[1] = rotl(s1, 36);
 
 	return retval;
 }

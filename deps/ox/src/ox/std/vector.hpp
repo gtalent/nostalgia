@@ -124,7 +124,7 @@ Vector<T>::Vector(const Vector<T> &other) {
 	m_cap = other.m_cap;
 	m_items = bit_cast<T*>(new AllocAlias<T>[m_cap]);
 	for (std::size_t i = 0; i < m_size; i++) {
-		m_items[i] = ox::move(other.m_items[i]);
+		m_items[i] = move(other.m_items[i]);
 	}
 }
 
@@ -246,7 +246,7 @@ bool Vector<T>::empty() const noexcept {
 
 template<typename T>
 void Vector<T>::clear() {
-	if constexpr(ox::is_class<T>()) {
+	if constexpr(is_class<T>()) {
 		for (std::size_t i = 0; i < m_size; ++i) {
 			m_items[i].~T();
 		}
@@ -288,7 +288,7 @@ void Vector<T>::insert(std::size_t pos, const T &val) {
 		expandCap(m_cap ? m_cap * 2 : 100);
 	}
 	for (auto i = m_size; i > pos; --i) {
-		m_items[i] = ox::move(m_items[i - 1]);
+		m_items[i] = move(m_items[i - 1]);
 	}
 	m_items[pos] = val;
 	++m_size;
@@ -326,7 +326,7 @@ Error Vector<T>::erase(std::size_t pos) {
 	}
 	--m_size;
 	for (auto i = pos; i < m_size; ++i) {
-		m_items[i] = ox::move(m_items[i + 1]);
+		m_items[i] = move(m_items[i + 1]);
 	}
 	return OxError(0);
 }
@@ -337,7 +337,7 @@ Error Vector<T>::unordered_erase(std::size_t pos) {
 		return OxError(1);
 	}
 	m_size--;
-	m_items[pos] = ox::move(m_items[m_size]);
+	m_items[pos] = move(m_items[m_size]);
 	return OxError(0);
 }
 
@@ -349,7 +349,7 @@ void Vector<T>::expandCap(std::size_t cap) {
 	if (oldItems) { // move over old items
 		const auto itRange = cap > m_size ? m_size : cap;
 		for (std::size_t i = 0; i < itRange; i++) {
-			m_items[i] = ox::move(oldItems[i]);
+			m_items[i] = move(oldItems[i]);
 		}
 		for (std::size_t i = itRange; i < m_cap; i++) {
 			new (&m_items[i]) T;

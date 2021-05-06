@@ -60,7 +60,7 @@ class SerStr {
 
 	public:
 		template<std::size_t sz>
-		constexpr SerStr(BString<sz> *str) noexcept {
+		explicit constexpr SerStr(BString<sz> *str) noexcept {
 			m_str = str->data();
 			m_cap = str->cap();
 		}
@@ -70,14 +70,14 @@ class SerStr {
 			m_cap = cap;
 		}
 
-		constexpr SerStr(char **tgt, int cap = -1) noexcept {
+		explicit constexpr SerStr(char **tgt, int cap = -1) noexcept {
 			m_tgt = tgt;
 			m_str = const_cast<char*>(*tgt);
 			m_cap = cap;
 		}
 
 		template<std::size_t cap>
-		constexpr SerStr(char (&str)[cap]) noexcept {
+		explicit constexpr SerStr(char (&str)[cap]) noexcept {
 			m_str = str;
 			m_cap = cap;
 		}

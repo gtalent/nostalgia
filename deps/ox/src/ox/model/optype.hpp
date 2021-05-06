@@ -40,11 +40,11 @@ constexpr Error modelWriteDefinition(T*, O*) {
 template<typename T, typename O>
 constexpr Error model(T *io, O *obj) {
 	Error err;
-	if constexpr(ox_strcmp(T::opType(), ox::OpType::Read) == 0) {
+	if constexpr(ox_strcmp(T::opType(), OpType::Read) == 0) {
 		err = modelRead(io, obj);
-	} else if constexpr(ox_strcmp(T::opType(), ox::OpType::Write) == 0) {
+	} else if constexpr(ox_strcmp(T::opType(), OpType::Write) == 0) {
 		err = modelWrite(io, obj);
-	} else if constexpr(ox_strcmp(T::opType(), ox::OpType::WriteDefinition) == 0) {
+	} else if constexpr(ox_strcmp(T::opType(), OpType::WriteDefinition) == 0) {
 		err = modelWriteDefinition(io, obj);
 	}
 	oxAssert(err, "Missing model function");

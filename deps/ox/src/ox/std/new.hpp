@@ -46,7 +46,7 @@ constexpr void *operator new[](std::size_t, void *addr) noexcept {
 
 namespace ox {
 
-constexpr auto MallocaStackLimit = ox::defines::UseStdLib ? 1024 : 0;
+constexpr auto MallocaStackLimit = defines::UseStdLib ? 1024 : 0;
 
 /**
  * MallocaPtr will automatically cleanup the pointed to address upon

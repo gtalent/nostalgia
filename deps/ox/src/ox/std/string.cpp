@@ -44,7 +44,7 @@ String::String(const String &other) noexcept {
 }
 
 String::String(String &&other) noexcept {
-	m_buff = ox::move(other.m_buff);
+	m_buff = move(other.m_buff);
 }
 
 String &String::operator=(const char *str) noexcept {
@@ -80,7 +80,7 @@ String &String::operator=(const String &src) noexcept {
 }
 
 String &String::operator=(String &&src) noexcept {
-	m_buff = ox::move(src.m_buff);
+	m_buff = move(src.m_buff);
 	return *this;
 }
 

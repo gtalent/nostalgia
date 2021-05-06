@@ -179,6 +179,6 @@ Error modelRead(T *io, DescriptorField *field) {
 	return err;
 }
 
-using TypeStore = ox::HashMap<ModelString, DescriptorType*>;
+using TypeStore = HashMap<ModelString, DescriptorType*>;
 
 }

@@ -20,9 +20,9 @@ class OX_PACKED NodeBuffer {
 
 	public:
 		struct OX_PACKED Header {
-			ox::LittleEndian<size_t> size = sizeof(Header); // capacity
-			ox::LittleEndian<size_t> bytesUsed = sizeof(Header);
-			ox::LittleEndian<size_t> firstItem = 0;
+			LittleEndian<size_t> size = sizeof(Header); // capacity
+			LittleEndian<size_t> bytesUsed = sizeof(Header);
+			LittleEndian<size_t> firstItem = 0;
 		};
 
 		using ItemPtr = Ptr<Item, size_t, sizeof(Header)>;
@@ -435,11 +435,11 @@ uint8_t *NodeBuffer<size_t, Item>::data() noexcept {
 template<typename size_t>
 struct OX_PACKED Item {
 	public:
-		ox::LittleEndian<size_t> prev = 0;
-		ox::LittleEndian<size_t> next = 0;
+		LittleEndian<size_t> prev = 0;
+		LittleEndian<size_t> next = 0;
 
 	private:
-		ox::LittleEndian<size_t> m_size = sizeof(Item);
+		LittleEndian<size_t> m_size = sizeof(Item);
 
 	public:
 		size_t size() const {

@@ -24,11 +24,11 @@ struct StatInfo {
 
 template<typename size_t>
 struct OX_PACKED FileStoreItem: public ptrarith::Item<size_t> {
-	ox::LittleEndian<size_t> id = 0;
-	ox::LittleEndian<uint8_t> fileType = 0;
-	ox::LittleEndian<size_t> links = 0;
-	ox::LittleEndian<size_t> left = 0;
-	ox::LittleEndian<size_t> right = 0;
+	LittleEndian<size_t> id = 0;
+	LittleEndian<uint8_t> fileType = 0;
+	LittleEndian<size_t> links = 0;
+	LittleEndian<size_t> left = 0;
+	LittleEndian<size_t> right = 0;
 
 	FileStoreItem() = default;
 
@@ -65,8 +65,8 @@ class FileStoreTemplate {
 		static constexpr auto MaxInode = MaxValue<size_t> / 2;
 
 		struct OX_PACKED FileStoreData {
-			ox::LittleEndian<size_t> rootNode = 0;
-			ox::Random random;
+			LittleEndian<size_t> rootNode = 0;
+			Random random;
 		};
 
 		size_t m_buffSize = 0;

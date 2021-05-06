@@ -86,11 +86,7 @@ String &String::operator=(String &&src) noexcept {
 
 String &String::operator+=(const char *str) noexcept {
 	std::size_t strLen = ox_strlen(str);
-	auto currentLen = len();
-	m_buff.resize(m_buff.size() + strLen);
-	memcpy(&m_buff[currentLen], str, strLen);
-	// make sure last element is a null terminator
-	m_buff[currentLen + strLen] = 0;
+	append(str, strLen);
 	return *this;
 }
 
@@ -189,23 +185,6 @@ bool String::endsWith(const char *ending) const noexcept {
 bool String::endsWith(const String &ending) const noexcept {
 	const auto endingLen = ending.len();
 	return len() >= endingLen && ox_strcmp(data() + (len() - endingLen), ending.c_str()) == 0;
-}
-
-std::size_t String::len() const noexcept {
-	std::size_t length = 0;
-	for (std::size_t i = 0; i < m_buff.size(); i++) {
-		uint8_t b = static_cast<uint8_t>(m_buff[i]);
-		if (b) {
-			if ((b & 128) == 0) { // normal ASCII character
-				length++;
-			} else if ((b & (256 << 6)) == (256 << 6)) { // start of UTF-8 character
-				length++;
-			}
-		} else {
-			break;
-		}
-	}
-	return length;
 }
 
 std::size_t String::bytes() const noexcept {

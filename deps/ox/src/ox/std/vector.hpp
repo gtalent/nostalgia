@@ -40,13 +40,13 @@ class Vector {
 
 		bool operator==(const Vector &other) const;
 
-		Vector &operator=(const Vector &other);
+		constexpr Vector &operator=(const Vector &other);
 
-		Vector &operator=(Vector &&other) noexcept;
+		constexpr Vector &operator=(Vector &&other) noexcept;
 
-		T &operator[](std::size_t i) noexcept;
+		constexpr T &operator[](std::size_t i) noexcept;
 
-		const T &operator[](std::size_t i) const noexcept;
+		constexpr const T &operator[](std::size_t i) const noexcept;
 
 		Result<T&> front() noexcept;
 
@@ -57,14 +57,14 @@ class Vector {
 		Result<const T&> back() const noexcept;
 
 		[[nodiscard]]
-		std::size_t size() const noexcept;
+		constexpr std::size_t size() const noexcept;
 
 		[[nodiscard]]
 		bool empty() const noexcept;
 
 		void clear();
 
-		void resize(std::size_t size);
+		constexpr void resize(std::size_t size);
 
 		[[nodiscard]]
 		constexpr T *data() noexcept {
@@ -159,7 +159,7 @@ bool Vector<T>::operator==(const Vector<T> &other) const {
 }
 
 template<typename T>
-Vector<T> &Vector<T>::operator=(const Vector<T> &other) {
+constexpr Vector<T> &Vector<T>::operator=(const Vector<T> &other) {
 	if (this != &other) {
 		clear();
 		delete[] bit_cast<AllocAlias<T>*>(m_items);
@@ -174,7 +174,7 @@ Vector<T> &Vector<T>::operator=(const Vector<T> &other) {
 }
 
 template<typename T>
-Vector<T> &Vector<T>::operator=(Vector<T> &&other) noexcept {
+constexpr Vector<T> &Vector<T>::operator=(Vector<T> &&other) noexcept {
 	if (this != &other) {
 		clear();
 		delete[] bit_cast<AllocAlias<T>*>(m_items);
@@ -189,12 +189,12 @@ Vector<T> &Vector<T>::operator=(Vector<T> &&other) noexcept {
 }
 
 template<typename T>
-T &Vector<T>::operator[](std::size_t i) noexcept {
+constexpr T &Vector<T>::operator[](std::size_t i) noexcept {
 	return m_items[i];
 }
 
 template<typename T>
-const T &Vector<T>::operator[](std::size_t i) const noexcept {
+constexpr const T &Vector<T>::operator[](std::size_t i) const noexcept {
 	return m_items[i];
 }
 
@@ -235,7 +235,7 @@ Result<const T&> Vector<T>::back() const noexcept {
 }
 
 template<typename T>
-std::size_t Vector<T>::size() const noexcept {
+constexpr std::size_t Vector<T>::size() const noexcept {
 	return m_size;
 }
 
@@ -255,7 +255,7 @@ void Vector<T>::clear() {
 }
 
 template<typename T>
-void Vector<T>::resize(std::size_t size) {
+constexpr void Vector<T>::resize(std::size_t size) {
 	if (m_cap < size) {
 		expandCap(size);
 	}

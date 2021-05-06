@@ -104,13 +104,7 @@ constexpr const BString<size> &BString<size>::operator=(char *str) noexcept {
 template<std::size_t size>
 constexpr const BString<size> &BString<size>::operator+=(const char *str) noexcept {
 	std::size_t strLen = ox_strlen(str) + 1;
-	auto currentLen = len();
-	if (cap() < currentLen + strLen) {
-		strLen = cap() - currentLen;
-	}
-	ox_memcpy(m_buff + currentLen, str, strLen);
-	// make sure last element is a null terminator
-	m_buff[currentLen + strLen] = 0;
+	append(str, strLen);
 	return *this;
 }
 

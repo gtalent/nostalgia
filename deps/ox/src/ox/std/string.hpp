@@ -83,6 +83,14 @@ class String {
 
 		char &operator[](std::size_t i) noexcept;
 
+		constexpr void append(const char *str, std::size_t strLen) noexcept {
+			auto currentLen = len();
+			m_buff.resize(m_buff.size() + strLen);
+			ox_memcpy(&m_buff[currentLen], str, strLen);
+			// make sure last element is a null terminator
+			m_buff[currentLen + strLen] = 0;
+		}
+
 		[[nodiscard]]
 		String substr(std::size_t pos) const noexcept;
 
@@ -118,7 +126,7 @@ class String {
 		 * Returns the number of characters in this string.
 		 */
 		[[nodiscard]]
-		std::size_t len() const noexcept;
+		constexpr std::size_t len() const noexcept;
 
 		/**
 		 * Returns the number of bytes used for this string.
@@ -127,5 +135,22 @@ class String {
 		std::size_t bytes() const noexcept;
 
 };
+
+constexpr std::size_t String::len() const noexcept {
+	std::size_t length = 0;
+	for (std::size_t i = 0; i < m_buff.size(); i++) {
+		uint8_t b = static_cast<uint8_t>(m_buff[i]);
+		if (b) {
+			if ((b & 128) == 0) { // normal ASCII character
+				length++;
+			} else if ((b & (256 << 6)) == (256 << 6)) { // start of UTF-8 character
+				length++;
+			}
+		} else {
+			break;
+		}
+	}
+	return length;
+}
 
 }

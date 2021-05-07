@@ -57,7 +57,7 @@ void printStackTrace([[maybe_unused]]unsigned shave) noexcept {
 	frames.resize(static_cast<std::size_t>(backtrace(frames.data(), frames.size())));
 	if (frames.size() > shave) {
 		const auto symbols = backtrace_symbols(frames.data() + shave, frames.size() - shave);
-		const auto symbolicatedStacktrace = symbolicate(bit_cast<const char**>(frames.data()), frames.size() - shave, "\t");
+		const auto symbolicatedStacktrace = symbolicate(bit_cast<const char**>(frames.data() + shave), frames.size() - shave, "\t");
 		free(symbols);
 		oxErrf("Stacktrace:\n{}", symbolicatedStacktrace);
 	}

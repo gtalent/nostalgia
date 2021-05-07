@@ -15,6 +15,6 @@ namespace ox {
  *
  * @param shave number of call levels to shave off the top
  */
-void printStackTrace(int shave = 1) noexcept;
+void printStackTrace(unsigned shave = 1) noexcept;
 
 }

@@ -15,6 +15,7 @@
 #include "bstring.hpp"
 #include "fmt.hpp"
 #include "hashmap.hpp"
+#include "units.hpp"
 
 extern "C" {
 
@@ -34,7 +35,7 @@ struct TraceMsg {
 	int line = 0;
 	uint64_t time = 0;
 	const char *ch = "";
-	BString<100> msg;
+	BString<units::KB * 10> msg;
 };
 
 template<typename T>

@@ -71,28 +71,28 @@ class OutStream {
 			m_msg.line = line;
 			m_msg.ch = ch;
 			const auto &firstSegment = fmtSegments.segments[0];
-			m_msg.msg.append(firstSegment.str, firstSegment.length);
+			oxIgnoreError(m_msg.msg.append(firstSegment.str, firstSegment.length));
 			//const detail::FmtArg elements[sizeof...(args)] = {args...};
 			for (auto i = 0u; i < fmtSegments.size - 1; ++i) {
 				m_msg.msg += elements[i].out;
 				const auto &s = fmtSegments.segments[i + 1];
-				m_msg.msg.append(s.str, s.length);
+				oxIgnoreError(m_msg.msg.append(s.str, s.length));
 			}
 		}
 #else
 		template<std::size_t fmtSegmentCnt, typename ...Args>
-		constexpr OutStream(const char *file, int line, const char *ch, detail::Fmt<fmtSegmentCnt> fmtSegments, Args... args) {
+		constexpr OutStream(const char *file, int line, const char *ch, detail::Fmt<fmtSegmentCnt> fmtSegments, Args... args) noexcept {
 			//static_assert(sizeof...(args) == fmtSegmentCnt - 1, "Wrong number of trace arguments for format.");
 			m_msg.file = file;
 			m_msg.line = line;
 			m_msg.ch = ch;
 			const auto &firstSegment = fmtSegments.segments[0];
-			m_msg.msg.append(firstSegment.str, firstSegment.length);
+			oxIgnoreError(m_msg.msg.append(firstSegment.str, firstSegment.length));
 			const detail::FmtArg elements[sizeof...(args)] = {args...};
 			for (auto i = 0u; i < fmtSegments.size - 1; ++i) {
 				m_msg.msg += elements[i].out;
 				const auto &s = fmtSegments.segments[i + 1];
-				m_msg.msg.append(s.str, s.length);
+				oxIgnoreError(m_msg.msg.append(s.str, s.length));
 			}
 		}
 #endif

@@ -39,9 +39,15 @@ constexpr const char *stringify(const String &s) noexcept {
 	return s.c_str();
 }
 
-#if __has_include(<string>) && __cplusplus >= 202002L
+#if __has_include(<string>)
 constexpr const char *stringify(const std::string &s) noexcept {
 	return s.c_str();
+}
+#endif
+
+#if __has_include(<QString>)
+constexpr const char *stringify(const QString &s) noexcept {
+	return s.toUtf8();
 }
 #endif
 
@@ -155,17 +161,17 @@ constexpr Fmt<segementCnt> fmtSegments(const char *fmt) noexcept {
 }
 
 template<typename StringType = String, typename ...Args>
-auto sfmt(const char *fmt, Args... args) noexcept {
+StringType sfmt(const char *fmt, Args... args) noexcept {
 	oxAssert(ox::detail::argCount(fmt) == sizeof...(args), "Argument count mismatch.");
 	StringType out;
 	const auto fmtSegments = ox::detail::fmtSegments<sizeof...(args)+1>(fmt);
 	const auto &firstSegment = fmtSegments.segments[0];
-	out.append(firstSegment.str, firstSegment.length);
+	oxIgnoreError(out.append(firstSegment.str, firstSegment.length));
 	const detail::FmtArg elements[sizeof...(args)] = {args...};
 	for (auto i = 0u; i < fmtSegments.size - 1; ++i) {
 		out += elements[i].out;
 		const auto &s = fmtSegments.segments[i + 1];
-		out.append(s.str, s.length);
+		oxIgnoreError(out.append(s.str, s.length));
 	}
 	return move(out);
 }

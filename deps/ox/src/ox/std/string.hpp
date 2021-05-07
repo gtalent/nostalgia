@@ -83,12 +83,14 @@ class String {
 
 		char &operator[](std::size_t i) noexcept;
 
-		constexpr void append(const char *str, std::size_t strLen) noexcept {
+		constexpr Error append(const char *str, std::size_t strLen) noexcept {
 			auto currentLen = len();
 			m_buff.resize(m_buff.size() + strLen);
 			ox_memcpy(&m_buff[currentLen], str, strLen);
 			// make sure last element is a null terminator
 			m_buff[currentLen + strLen] = 0;
+			// this can't fail, but it returns an Error to match BString::append
+			return OxError(0);
 		}
 
 		[[nodiscard]]

@@ -45,7 +45,7 @@ class BString {
 
 		constexpr char &operator[](std::size_t i) noexcept;
 
-		void append(const char *str, std::size_t sz) noexcept;
+		Error append(const char *str, std::size_t sz) noexcept;
 
 		constexpr char *data() noexcept;
 
@@ -104,7 +104,7 @@ constexpr const BString<size> &BString<size>::operator=(char *str) noexcept {
 template<std::size_t size>
 constexpr const BString<size> &BString<size>::operator+=(const char *str) noexcept {
 	std::size_t strLen = ox_strlen(str) + 1;
-	append(str, strLen);
+	oxIgnoreError(append(str, strLen));
 	return *this;
 }
 
@@ -150,14 +150,17 @@ constexpr char &BString<buffLen>::operator[](std::size_t i) noexcept {
 }
 
 template<std::size_t buffLen>
-void BString<buffLen>::append(const char *str, std::size_t strLen) noexcept {
+Error BString<buffLen>::append(const char *str, std::size_t strLen) noexcept {
+	Error err;
 	auto currentLen = len();
 	if (cap() < currentLen + strLen + 1) {
 		strLen = cap() - currentLen;
+		err = OxError(1, "Insufficient space for full string");
 	}
 	ox_memcpy(m_buff + currentLen, str, strLen);
 	// make sure last element is a null terminator
 	m_buff[currentLen + strLen] = 0;
+	return err;
 }
 
 template<std::size_t buffLen>

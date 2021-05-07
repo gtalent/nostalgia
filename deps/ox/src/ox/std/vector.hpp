@@ -28,7 +28,7 @@ class Vector {
 		T *m_items = nullptr;
 
 	public:
-		Vector() noexcept = default;
+		constexpr Vector() noexcept = default;
 
 		explicit Vector(std::size_t size) noexcept;
 

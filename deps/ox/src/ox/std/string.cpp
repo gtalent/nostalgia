@@ -86,7 +86,7 @@ String &String::operator=(String &&src) noexcept {
 
 String &String::operator+=(const char *str) noexcept {
 	std::size_t strLen = ox_strlen(str);
-	append(str, strLen);
+	oxIgnoreError(append(str, strLen));
 	return *this;
 }
 
@@ -95,7 +95,7 @@ String &String::operator+=(char *str) noexcept {
 }
 
 String &String::operator+=(char c) noexcept {
-	char str[] = {c, 0};
+	const char str[] = {c, 0};
 	return this->operator+=(str);
 }
 
@@ -114,15 +114,15 @@ String &String::operator+=(const String &src) noexcept {
 }
 
 String String::operator+(const char *str) const noexcept {
-	std::size_t strLen = ox_strlen(str);
-	auto currentLen = len();
+	const std::size_t strLen = ox_strlen(str);
+	const auto currentLen = len();
 	String cpy(currentLen + strLen);
 	cpy.m_buff.resize(m_buff.size() + strLen);
 	memcpy(&cpy.m_buff[0], m_buff.data(), currentLen);
 	memcpy(&cpy.m_buff[currentLen], str, strLen);
 	// make sure last element is a null terminator
 	cpy.m_buff[currentLen + strLen] = 0;
-	return cpy;
+	return move(cpy);
 }
 
 String String::operator+(char *str) const noexcept {
@@ -130,7 +130,7 @@ String String::operator+(char *str) const noexcept {
 }
 
 String String::operator+(char c) const noexcept {
-	char str[] = {c, 0};
+	const char str[] = {c, 0};
 	return *this + str;
 }
 

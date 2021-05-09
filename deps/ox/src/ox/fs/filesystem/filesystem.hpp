@@ -221,18 +221,15 @@ Error FileSystemTemplate<FileStore, Directory>::format(void *buff, uint64_t buff
 template<typename FileStore, typename Directory>
 Error FileSystemTemplate<FileStore, Directory>::mkdir(const char *path, bool recursive) noexcept {
 	oxTrace("ox::fs::FileSystemTemplate::mkdir") << "path:" << path << "recursive:" << recursive;
-	auto rootDir = this->rootDir();
-	oxReturnError(rootDir.error);
-	return rootDir.value.mkdir(path, recursive);
+	oxRequireM(rootDir, this->rootDir());
+	return rootDir.mkdir(path, recursive);
 }
 
 template<typename FileStore, typename Directory>
 Error FileSystemTemplate<FileStore, Directory>::move(const char *src, const char *dest) noexcept {
-	auto fd = fileSystemData();
-	oxReturnError(fd.error);
-	Directory rootDir(m_fs, fd.value.rootDirInode);
-	auto [inode, err] = rootDir.find(src);
-	oxReturnError(err);
+	oxRequire(fd, fileSystemData());
+	Directory rootDir(m_fs, fd.rootDirInode);
+	oxRequireM(inode, rootDir.find(src));
 	oxReturnError(rootDir.write(dest, inode));
 	oxReturnError(rootDir.remove(src));
 	return OxError(0);
@@ -240,21 +237,17 @@ Error FileSystemTemplate<FileStore, Directory>::move(const char *src, const char
 
 template<typename FileStore, typename Directory>
 Error FileSystemTemplate<FileStore, Directory>::read(const char *path, void *buffer, std::size_t buffSize) noexcept {
-	auto fd = fileSystemData();
-	oxReturnError(fd.error);
-	Directory rootDir(m_fs, fd.value.rootDirInode);
-	auto [inode, err] = rootDir.find(path);
-	oxReturnError(err);
+	oxRequire(fd, fileSystemData());
+	Directory rootDir(m_fs, fd.rootDirInode);
+	oxRequire(inode, rootDir.find(path));
 	return read(inode, buffer, buffSize);
 }
 
 template<typename FileStore, typename Directory>
 Result<const char*> FileSystemTemplate<FileStore, Directory>::directAccess(const char *path) noexcept {
-	auto fd = fileSystemData();
-	oxReturnError(fd.error);
-	Directory rootDir(m_fs, fd.value.rootDirInode);
-	auto [inode, err] = rootDir.find(path);
-	oxReturnError(err);
+	oxRequire(fd, fileSystemData());
+	Directory rootDir(m_fs, fd.rootDirInode);
+	oxRequire(inode, rootDir.find(path));
 	return directAccess(inode);
 }
 
@@ -290,26 +283,22 @@ Result<Vector<String>> FileSystemTemplate<FileStore, Directory>::ls(const char *
 template<typename FileStore, typename Directory>
 template<typename F>
 Error FileSystemTemplate<FileStore, Directory>::ls(const char *path, F cb) {
-	oxTrace("ox::FileSystemTemplate::ls") << "path:" << path;
-	auto [s, err] = stat(path);
-	oxReturnError(err);
+	oxTrace("ox::fs::FileSystemTemplate::ls") << "path:" << path;
+	oxRequire(s, stat(path));
 	Directory dir(m_fs, s.inode);
 	return dir.ls(cb);
 }
 
 template<typename FileStore, typename Directory>
 Error FileSystemTemplate<FileStore, Directory>::remove(const char *path, bool recursive) noexcept {
-	auto fd = fileSystemData();
-	oxReturnError(fd.error);
-	Directory rootDir(m_fs, fd.value.rootDirInode);
-	auto inode = rootDir.find(path);
-	oxReturnError(inode.error);
-	auto st = stat(inode.value);
-	oxReturnError(st.error);
-	if (st.value.fileType == FileType_NormalFile || recursive) {
+	oxRequire(fd, fileSystemData());
+	Directory rootDir(m_fs, fd.rootDirInode);
+	oxRequire(inode, rootDir.find(path));
+	oxRequire(st, stat(inode));
+	if (st.fileType == FileType_NormalFile || recursive) {
 		if (auto err = rootDir.remove(path)) {
 			// removal failed, try putting the index back
-			oxLogError(rootDir.write(path, inode.value));
+			oxLogError(rootDir.write(path, inode));
 			return err;
 		}
 	} else {
@@ -337,9 +326,8 @@ Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void *bu
 		oxRequire(generatedId, m_fs.generateInodeId());
 		inode = generatedId;
 	}
-	auto rootDir = this->rootDir();
-	oxReturnError(rootDir.error);
-	oxReturnError(rootDir.value.write(path, inode));
+	oxRequireM(rootDir, this->rootDir());
+	oxReturnError(rootDir.write(path, inode));
 	oxReturnError(write(inode, buffer, size, fileType));
 	return OxError(0);
 }

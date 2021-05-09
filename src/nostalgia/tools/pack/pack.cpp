@@ -37,8 +37,7 @@ static ox::Error transformClaw(ox::FileSystem *dest, const ox::String &path) noe
 	// copy
 	oxTracef("pack::transformClaw", "path: {}", path);
 	oxRequire(fileList, dest->ls(path));
-	for (auto i = 0u; i < fileList.size(); ++i) {
-		const auto &name = fileList[i];
+	for (const auto &name : fileList) {
 		const auto filePath = path + name;
 		oxRequire(stat, dest->stat(filePath.c_str()));
 		if (stat.fileType == ox::FileType_Directory) {
@@ -77,8 +76,7 @@ static ox::Error copy(ox::FileSystem *src, ox::FileSystem *dest, const ox::Strin
 	ox::Vector<VerificationPair> verificationPairs;
 	// copy
 	oxRequire(fileList, src->ls(path));
-	for (auto i = 0u; i < fileList.size(); ++i) {
-		const auto &name = fileList[i];
+	for (const auto &name : fileList) {
 		const auto currentFile = path + name;
 		if (currentFile == "/.nostalgia") {
 			continue;
@@ -101,8 +99,7 @@ static ox::Error copy(ox::FileSystem *src, ox::FileSystem *dest, const ox::Strin
 		}
 	}
 	// verify all at once in addition to right after the files are written
-	for (auto i = 0u; i < verificationPairs.size(); ++i) {
-		const auto &v = verificationPairs[i];
+	for (const auto &v : verificationPairs) {
 		oxReturnError(verifyFile(dest, v.path, v.buff));
 	}
 	return OxError(0);

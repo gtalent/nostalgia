@@ -18,6 +18,7 @@
 #include "hardware.hpp"
 #include "hashmap.hpp"
 #include "heapmgr.hpp"
+#include "iterator.hpp"
 #include "math.hpp"
 #include "memops.hpp"
 #include "memory.hpp"

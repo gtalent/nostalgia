@@ -9,6 +9,8 @@
 #pragma once
 
 #include "bit.hpp"
+#include "iterator.hpp"
+#include "math.hpp"
 #include "new.hpp"
 #include "types.hpp"
 #include "utility.hpp"
@@ -21,6 +23,96 @@ class Vector {
 	public:
 		using value_type = T;
 		using size_type = std::size_t;
+
+		template<typename RefType, bool reverse = false>
+		struct iterator: public std::iterator<std::bidirectional_iterator_tag, T> {
+			private:
+				T *m_t = nullptr;
+				size_type m_offset = 0;
+				size_type m_max = 0;
+
+			public:
+				constexpr iterator(T *t, size_type offset, size_type max) {
+					m_t = t;
+					m_offset = offset;
+					m_max = max;
+				}
+
+				constexpr iterator operator+(size_type s) const noexcept {
+					if constexpr(reverse) {
+						return iterator(m_t, max<size_type>(m_offset - s, 0), m_max);
+					} else {
+						return iterator(m_t, min<size_type>(m_offset + s, m_max), m_max);
+					}
+				}
+
+				constexpr iterator operator-(size_type s) const noexcept {
+					if constexpr(reverse) {
+						return iterator(m_t, min<size_type>(m_offset + s, m_max), m_max);
+					} else {
+						return iterator(m_t, max<size_type>(m_offset - s, 0), m_max);
+					}
+				}
+
+				constexpr iterator &operator+=(size_type s) noexcept {
+					if constexpr(reverse) {
+						m_offset = max<size_type>(m_offset - s, 0);
+					} else {
+						m_offset = min(m_offset + s, m_max);
+					}
+					return *this;
+				}
+
+				constexpr iterator &operator-=(size_type s) noexcept {
+					if constexpr(reverse) {
+						m_offset = min(m_offset + s, m_max);
+					} else {
+						m_offset = max<size_type>(m_offset - s, 0);
+					}
+					return *this;
+				}
+
+				constexpr iterator &operator++() noexcept {
+					return operator+=(1);
+				}
+
+				constexpr iterator &operator--() noexcept {
+					return operator-=(1);
+				}
+
+				constexpr RefType operator*() const noexcept {
+					return m_t[m_offset];
+				}
+
+				constexpr RefType operator[](size_type s) const noexcept {
+					return m_t[s];
+				}
+
+				constexpr bool operator<(const iterator &other) const noexcept {
+					return m_offset < other.m_offset;
+				}
+
+				constexpr bool operator>(const iterator &other) const noexcept {
+					return m_offset > other.m_offset;
+				}
+
+				constexpr bool operator<=(const iterator &other) const noexcept {
+					return m_offset <= other.m_offset;
+				}
+
+				constexpr bool operator>=(const iterator &other) const noexcept {
+					return m_offset >= other.m_offset;
+				}
+
+				constexpr bool operator==(const iterator &other) const noexcept {
+					return m_t == other.m_t && m_offset == other.m_offset && m_max == other.m_max;
+				}
+
+				constexpr bool operator!=(const iterator &other) const noexcept {
+					return m_t != other.m_t || m_offset != other.m_offset || m_max != other.m_max;
+				}
+
+		};
 
 	private:
 		std::size_t m_size = 0;
@@ -37,6 +129,38 @@ class Vector {
 		Vector(Vector &&other) noexcept;
 
 		~Vector();
+
+		constexpr iterator<T&> begin() const noexcept {
+			return iterator<T&>(m_items, 0, m_size);
+		}
+
+		constexpr iterator<T&> end() const noexcept {
+			return iterator<T&>(m_items, m_size, m_size);
+		}
+
+		constexpr iterator<const T&> cbegin() const noexcept {
+			return iterator<const T&>(m_items, 0, m_size);
+		}
+
+		constexpr iterator<const T&> cend() const noexcept {
+			return iterator<const T&>(m_items, m_size, m_size);
+		}
+
+		constexpr iterator<T&, true> rbegin() const noexcept {
+			return iterator<T&, true>(m_items, 0, m_size);
+		}
+
+		constexpr iterator<T&, true> rend() const noexcept {
+			return iterator<T&, true>(m_items, m_size, m_size);
+		}
+
+		constexpr iterator<const T&, true> crbegin() const noexcept {
+			return iterator<const T&, true>(m_items, 0, m_size);
+		}
+
+		constexpr iterator<const T&, true> crend() const noexcept {
+			return iterator<const T&, true>(m_items, m_size, m_size);
+		}
 
 		bool operator==(const Vector &other) const;
 

@@ -16,39 +16,32 @@
 
 namespace nostalgia::studio {
 
-using namespace ox;
-
-OxFSFile::OxFSFile(PassThroughFS *fs, QString path, OxFSFile *parentItem) {
+OxFSFile::OxFSFile(ox::FileSystem *fs, QString path, OxFSFile *parentItem) {
 	m_path = path;
 	m_parentItem = parentItem;
-
 	// find children
-	if (fs) {
-		QVector<QString> ls;
-		auto stat = fs->stat(static_cast<const char*>(m_path.toUtf8()));
-		if (!stat.error) {
-			if (stat.value.fileType == FileType_Directory) {
-				oxThrowError(fs->ls(m_path.toUtf8(), [&ls](const char *name, ox::InodeId_t) {
-					if (name[0] != '.') {
-						ls.push_back(name);
-					}
-					return OxError(0);
-				}));
-				std::sort(ls.begin(), ls.end());
+	oxRequireT(stat, fs->stat(static_cast<const char*>(m_path.toUtf8())));
+	QVector<QString> ls;
+	if (stat.fileType == ox::FileType_Directory) {
+		oxRequireT(names, fs->ls(m_path.toUtf8()));
+		for (const auto &name : names) {
+			if (name[0] != '.') {
+				ls.push_back(name.c_str());
 			}
-			auto p = m_path;
-			// make sure ends with path separator
-			if (fs->stat(p.toUtf8().data()).value.fileType == FileType_Directory &&
-				 p.size() && p.back() != QDir::separator()) {
-				p += QDir::separator();
-			}
-			for (auto name : ls) {
-				if (name != "." && name != "..") {
-					const auto path = m_path.size() ? m_path + '/' + name : name;
-					auto ch = new OxFSFile(fs, path, this);
-					m_childItems.push_back(ch);
-				}
-			}
+		}
+		std::sort(ls.begin(), ls.end());
+	}
+	auto p = m_path;
+	// make sure ends with path separator
+	if (fs->stat(p.toUtf8().data()).value.fileType == ox::FileType_Directory &&
+		 p.size() && p.back() != QDir::separator()) {
+		p += QDir::separator();
+	}
+	for (const auto &name : ls) {
+		if (name != "." && name != "..") {
+			const auto path = m_path.size() ? m_path + '/' + name : name;
+			const auto ch = new OxFSFile(fs, path, this);
+			m_childItems.push_back(ch);
 		}
 	}
 }
@@ -123,7 +116,7 @@ QString OxFSFile::path() const {
 
 // OxFSModel
 
-OxFSModel::OxFSModel(PassThroughFS *fs, QObject*) {
+OxFSModel::OxFSModel(ox::FileSystem *fs, QObject*) {
 	m_rootItem = new OxFSFile(fs, "");
 }
 

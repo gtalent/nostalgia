@@ -23,7 +23,7 @@ class OxFSFile {
 		QVector<OxFSFile*> m_childItems;
 
 	public:
-		OxFSFile(ox::PassThroughFS *fs, QString path, OxFSFile *parentItem = nullptr);
+		OxFSFile(ox::FileSystem *fs, QString path, OxFSFile *parentItem = nullptr);
 
 		~OxFSFile();
 
@@ -55,7 +55,7 @@ class OxFSModel: public QAbstractItemModel {
 		OxFSFile *m_rootItem = nullptr;
 
 	public:
-		explicit OxFSModel(ox::PassThroughFS *fs, QObject *parent = nullptr);
+		explicit OxFSModel(ox::FileSystem *fs, QObject *parent = nullptr);
 
 		~OxFSModel() override;
 

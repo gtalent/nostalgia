@@ -360,11 +360,10 @@ void MainWindow::openProject(QString projectPath) {
 			openFile(t, true);
 		} catch (const ox::Error &err) {
 			qInfo().nospace() << "Error opening tab: " << t << ", " << static_cast<int>(err) << ", " << err.file << ":" << err.line;
-			oxTrace("nostalgia::studio::MainWindow::openProject") << "Error opening tab:" << static_cast<int>(err)
-			                                                      << ", " << static_cast<int>(err) << ", " << err.file << ":" << err.line;
+			oxTracef("nostalgia::studio::MainWindow::openProject", "Error opening tab: {}, {}, {}:{}", static_cast<int>(err), static_cast<int>(err), err.file, err.line); 
 		} catch (...) {
 			qInfo() << "Error opening tab: " << t;
-			oxTrace("nostalgia::studio::MainWindow::openProject") << "Error opening tab";
+			oxTracef("nostalgia::studio::MainWindow::openProject", "Error opening tab: {}", t);
 		}
 	}
 	qInfo() << "Open project:" << projectPath;

@@ -20,7 +20,7 @@ QString filePathToName(QString path, QString prefix, QString suffix) {
 }
 
 
-Project::Project(QString path): m_fs(path.toUtf8()) {
+Project::Project(QString path): m_fs(std::make_unique<ox::PassThroughFS>(path.toUtf8())) {
 	qDebug() << "Project:" << path;
 	m_path = path;
 }
@@ -31,56 +31,54 @@ void Project::create() {
 	QDir().mkpath(m_path);
 }
 
-ox::PassThroughFS *Project::romFs() {
-	return &m_fs;
+ox::FileSystem *Project::romFs() {
+	return m_fs.get();
 }
 
 void Project::mkdir(QString path) const {
-	oxThrowError(m_fs.mkdir(path.toUtf8().data(), true));
+	oxThrowError(m_fs->mkdir(path.toUtf8().data(), true));
 	emit fileUpdated(path);
 }
 
 ox::FileStat Project::stat(QString path) const {
-	oxRequireT(s, m_fs.stat(path.toUtf8().data()));
+	oxRequireT(s, m_fs->stat(path.toUtf8().data()));
 	return s;
 }
 
 bool Project::exists(QString path) const {
-	return m_fs.stat(path.toUtf8().data()).error == 0;
+	return m_fs->stat(path.toUtf8().data()).error == 0;
 }
 
 void Project::writeBuff(QString path, uint8_t *buff, size_t buffLen) const {
-	oxThrowError(m_fs.write(path.toUtf8().data(), buff, buffLen));
+	oxThrowError(m_fs->write(path.toUtf8().data(), buff, buffLen));
 	emit fileUpdated(path);
 }
 
-std::vector<char> Project::loadBuff(QString path) const {
-	std::vector<char> buff(stat(path).size);
+ox::Buffer Project::loadBuff(QString path) const {
 	const auto csPath = path.toUtf8();
-	oxThrowError(m_fs.read(csPath.data(), buff.data(), buff.size()));
-	return buff;
+	oxRequireMT(buff, m_fs->read(csPath.data()));
+	return std::move(buff);
 }
 
-void Project::procDir(QStringList &paths, QString path) const {
-	oxThrowError(m_fs.ls(path.toUtf8(), [&](QString name, ox::InodeId_t) {
-		auto fullPath = path + "/" + name;
-		auto [stat, err] = m_fs.stat(fullPath.toUtf8().data());
-		oxReturnError(err);
+void Project::lsProcDir(QStringList *paths, QString path) const {
+	oxRequireT(files, m_fs->ls(path.toUtf8()));
+	for (const auto &name : files) {
+		const auto fullPath = path + "/" + name.c_str();
+		oxRequireT(stat, m_fs->stat(fullPath.toUtf8().data()));
 		switch (stat.fileType) {
 			case ox::FileType_NormalFile:
-				paths.push_back(fullPath);
+				paths->push_back(fullPath);
 				break;
 			case ox::FileType_Directory:
-				procDir(paths, fullPath);
+				lsProcDir(paths, fullPath);
 				break;
 		}
-		return OxError(0);
-	}));
+	}
 }
 
 QStringList Project::listFiles(QString path) const {
 	QStringList paths;
-	procDir(paths, path);
+	lsProcDir(&paths, path);
 	return paths;
 }
 

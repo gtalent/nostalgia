@@ -11,14 +11,13 @@
 #include <memory>
 
 #include <QSharedPointer>
-
-#include <ox/fs/fs.hpp>
-#include <ox/mc/mc.hpp>
 #include <qnamespace.h>
 
 #include <ox/claw/claw.hpp>
-#include <ox/fs/filesystem/passthroughfs.hpp>
+#include <ox/fs/fs.hpp>
+#include <ox/mc/mc.hpp>
 #include <ox/model/descwrite.hpp>
+#include <ox/std/std.hpp>
 
 #include "nostalgiastudio_export.h"
 
@@ -40,7 +39,7 @@ class NOSTALGIASTUDIO_EXPORT Project: public QObject {
 
 	private:
 		QString m_path = "";
-		mutable ox::PassThroughFS m_fs;
+		mutable std::unique_ptr<ox::FileSystem> m_fs;
 
 	public:
 		explicit Project(QString path);
@@ -49,7 +48,7 @@ class NOSTALGIASTUDIO_EXPORT Project: public QObject {
 
 		void create();
 
-		ox::PassThroughFS *romFs();
+		ox::FileSystem *romFs();
 
 		void mkdir(QString path) const;
 
@@ -74,9 +73,9 @@ class NOSTALGIASTUDIO_EXPORT Project: public QObject {
 	private:
 		void writeBuff(QString path, uint8_t *buff, size_t buffLen) const;
 
-		std::vector<char> loadBuff(QString path) const;
+		ox::Buffer loadBuff(QString path) const;
 
-		void procDir(QStringList &paths, QString path) const;
+		void lsProcDir(QStringList *paths, QString path) const;
 
 		QStringList listFiles(QString path = "") const;
 
@@ -117,7 +116,7 @@ std::unique_ptr<T> Project::loadObj(QString path) const {
 	auto obj = std::make_unique<T>();
 	auto buff = loadBuff(path);
 	oxThrowError(ox::readClaw<T>(buff.data(), buff.size(), obj.get()));
-	return obj;
+	return std::move(obj);
 }
 
 template<typename Functor>

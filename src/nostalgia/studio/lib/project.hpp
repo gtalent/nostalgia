@@ -116,7 +116,7 @@ std::unique_ptr<T> Project::loadObj(QString path) const {
 	auto obj = std::make_unique<T>();
 	auto buff = loadBuff(path);
 	oxThrowError(ox::readClaw<T>(buff.data(), buff.size(), obj.get()));
-	return std::move(obj);
+	return obj;
 }
 
 template<typename Functor>

@@ -17,6 +17,8 @@ extern "C" {
 
 void *memcpy(void *dest, const void *src, std::size_t size);
 
+void *memmove(void *dest, const void *src, std::size_t size);
+
 void *memset(void *ptr, int val, std::size_t size);
 
 }
@@ -25,6 +27,15 @@ void *memset(void *ptr, int val, std::size_t size);
 int ox_memcmp(const void *ptr1, const void *ptr2, std::size_t size) noexcept;
 
 constexpr void *ox_memcpy(void *dest, const void *src, std::size_t size) noexcept {
+	auto srcBuf = static_cast<const char*>(src);
+	auto dstBuf = static_cast<char*>(dest);
+	for (std::size_t i = 0; i < size; i++) {
+		dstBuf[i] = static_cast<char>(srcBuf[i]);
+	}
+	return dest;
+}
+
+constexpr void *ox_memmove(void *dest, const void *src, std::size_t size) noexcept {
 	auto srcBuf = static_cast<const char*>(src);
 	auto dstBuf = static_cast<char*>(dest);
 	for (std::size_t i = 0; i < size; i++) {

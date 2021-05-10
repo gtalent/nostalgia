@@ -19,6 +19,10 @@ void *ox_inhibit_loop_to_libcall memcpy(void *dest, const void *src, std::size_t
 	return ox_memcpy(dest, src, size);
 }
 
+void *ox_inhibit_loop_to_libcall memmove(void *dest, const void *src, std::size_t size) {
+	return ox_memcpy(dest, src, size);
+}
+
 void *ox_inhibit_loop_to_libcall memset(void *ptr, int val, std::size_t size) {
 	return ox_memset(ptr, val, size);
 }

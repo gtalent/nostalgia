@@ -54,6 +54,7 @@ target_compile_definitions(
 
 target_link_libraries(
 	OxStd PUBLIC
+		$<$<BOOL:${OX_USE_STDLIB}>:dl>
 		$<$<CXX_COMPILER_ID:GNU>:gcc>
 		OxTraceHook
 )

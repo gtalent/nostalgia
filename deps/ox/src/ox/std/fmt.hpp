@@ -40,13 +40,18 @@ constexpr const char *stringify(const String &s) noexcept {
 }
 
 #if __has_include(<string>)
-constexpr const char *stringify(const std::string &s) noexcept {
+#if __cplusplus >= 202002L
+constexpr
+#else
+inline
+#endif
+const char *stringify(const std::string &s) noexcept {
 	return s.c_str();
 }
 #endif
 
 #if __has_include(<QString>)
-constexpr const char *stringify(const QString &s) noexcept {
+inline const char *stringify(const QString &s) noexcept {
 	return s.toUtf8();
 }
 #endif

@@ -2,6 +2,7 @@ add_executable(nost-pack pack.cpp)
 
 target_link_libraries(
 	nost-pack
+		OxClArgs
 		NostalgiaPack
 )
 

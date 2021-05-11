@@ -51,7 +51,7 @@ static ox::Error run(const ox::ClArgs &args) noexcept {
 }
 
 int main(int argc, const char **args) {
-	auto err = run(ox::ClArgs(argc, args));
+	const auto err = run(ox::ClArgs(argc, args));
 	oxAssert(err, "pack failed");
 	return static_cast<int>(err);
 }

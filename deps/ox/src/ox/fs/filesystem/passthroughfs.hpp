@@ -84,7 +84,7 @@ class PassThroughFS: public FileSystem {
 		/**
 		 * Strips the leading slashes from a string.
 		 */
-		const char *stripSlash(const char *path) noexcept;
+		static const char *stripSlash(const char *path) noexcept;
 
 };
 
@@ -94,7 +94,7 @@ Error PassThroughFS::ls(const char *dir, F cb) noexcept {
 	const auto di = std::filesystem::directory_iterator(m_path / stripSlash(dir), ec);
 	oxReturnError(OxError(ec.value(), "PassThroughFS: ls failed"));
 	for (auto &p : di) {
-		auto u8p = p.path().filename().u8string();
+		const auto u8p = p.path().filename().u8string();
 		oxReturnError(cb(bit_cast<const char*>(u8p.c_str()), 0));
 	}
 	return OxError(0);

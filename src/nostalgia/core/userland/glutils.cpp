@@ -28,15 +28,15 @@ void deleteVertexArray(GLuint v) noexcept {
 	glDeleteVertexArrays(1, &v);
 }
 
-template struct GLobject<deleteBuffer>;
-template struct GLobject<deleteTexture, TextureBase>;
-template struct GLobject<deleteVertexArray>;
-template struct GLobject<glDeleteProgram>;
-template struct GLobject<glDeleteShader>;
+template struct GLObject<deleteBuffer>;
+template struct GLObject<deleteTexture, TextureBase>;
+template struct GLObject<deleteVertexArray>;
+template struct GLObject<glDeleteProgram>;
+template struct GLObject<glDeleteShader>;
 
 [[nodiscard]]
-static ox::Result<Shader> buildShader(GLuint shaderType, const GLchar *src, const char *shaderName) noexcept {
-	Shader shader(glCreateShader(shaderType));
+static ox::Result<GLShader> buildShader(GLuint shaderType, const GLchar *src, const char *shaderName) noexcept {
+	GLShader shader(glCreateShader(shaderType));
 	glShaderSource(shader, 1, &src, nullptr);
 	glCompileShader(shader);
 	GLint status;
@@ -51,10 +51,10 @@ static ox::Result<Shader> buildShader(GLuint shaderType, const GLchar *src, cons
 }
 
 [[nodiscard]]
-ox::Result<Program> buildShaderProgram(const GLchar *vert, const GLchar *frag) noexcept {
+ox::Result<GLProgram> buildShaderProgram(const GLchar *vert, const GLchar *frag) noexcept {
 	oxRequire(vs, buildShader(GL_VERTEX_SHADER, vert, "vshad"));
 	oxRequire(fs, buildShader(GL_FRAGMENT_SHADER, frag, "fshad"));
-	Program prgm(glCreateProgram());
+	GLProgram prgm(glCreateProgram());
 	glAttachShader(prgm, vs);
 	glAttachShader(prgm, fs);
 	glLinkProgram(prgm);

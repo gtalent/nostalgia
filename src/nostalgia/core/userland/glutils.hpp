@@ -47,26 +47,26 @@ struct TextureBase {
 
 
 template<auto del, typename Base = Empty>
-struct GLobject: public Base {
+struct GLObject: public Base {
 
 	GLuint id = 0;
 
-	constexpr GLobject() noexcept = default;
+	constexpr GLObject() noexcept = default;
 
-	explicit constexpr GLobject(GLuint id) noexcept {
+	explicit constexpr GLObject(GLuint id) noexcept {
 		this->id = id;
 	}
 
-	constexpr GLobject(GLobject &&o) noexcept: Base(ox::move(o)) {
+	constexpr GLObject(GLObject &&o) noexcept: Base(ox::move(o)) {
 		id = o.id;
 		o.id = 0;
 	}
 
-	~GLobject() {
+	~GLObject() {
 		del(id);
 	}
 
-	GLobject &operator=(GLobject &&o) noexcept {
+	GLObject &operator=(GLObject &&o) noexcept {
 		if (this != &o) {
 			del(id);
 			Base::operator=(ox::move(o));
@@ -96,19 +96,19 @@ void deleteBuffer(GLuint b) noexcept;
 void deleteTexture(GLuint t) noexcept;
 void deleteVertexArray(GLuint v) noexcept;
 
-extern template struct GLobject<deleteBuffer>;
-extern template struct GLobject<deleteTexture, TextureBase>;
-extern template struct GLobject<deleteVertexArray>;
-extern template struct GLobject<glDeleteProgram>;
-extern template struct GLobject<glDeleteShader>;
+extern template struct GLObject<deleteBuffer>;
+extern template struct GLObject<deleteTexture, TextureBase>;
+extern template struct GLObject<deleteVertexArray>;
+extern template struct GLObject<glDeleteProgram>;
+extern template struct GLObject<glDeleteShader>;
 
-using Buffer = GLobject<deleteBuffer>;
-using Shader = GLobject<glDeleteShader>;
-using Program = GLobject<glDeleteProgram>;
-using Texture = GLobject<deleteTexture, TextureBase>;
-using VertexArray = GLobject<deleteVertexArray>;
+using GLBuffer = GLObject<deleteBuffer>;
+using GLShader = GLObject<glDeleteShader>;
+using GLProgram = GLObject<glDeleteProgram>;
+using GLTexture = GLObject<deleteTexture, TextureBase>;
+using GLVertexArray = GLObject<deleteVertexArray>;
 
 [[nodiscard]]
-ox::Result<Program> buildShaderProgram(const GLchar *vert, const GLchar *frag) noexcept;
+ox::Result<GLProgram> buildShaderProgram(const GLchar *vert, const GLchar *frag) noexcept;
 
 }

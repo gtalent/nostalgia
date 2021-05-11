@@ -30,10 +30,10 @@ constexpr auto BgVertexVboLength = BgVertexVboRows * BgVertexVboRowLength;
 constexpr auto BgVertexEboLength = 6;
 
 struct Background {
-	VertexArray vao;
-	Buffer vbo;
-	Buffer ebo;
-	Texture tex;
+	GLVertexArray vao;
+	GLBuffer vbo;
+	GLBuffer ebo;
+	GLTexture tex;
 	bool enabled = false;
 	bool updated = false;
 	std::array<float, TileCount * BgVertexVboLength> bgVertices = {};
@@ -41,7 +41,7 @@ struct Background {
 };
 
 struct GlImplData {
-	Program bgShader;
+	GLProgram bgShader;
 	int64_t prevFpsCheckTime = 0;
 	uint64_t draws = 0;
 	std::array<Background, 4> backgrounds;
@@ -119,16 +119,16 @@ static void initBackgroundBufferObjects(Context *ctx, Background *bg) noexcept {
 	}
 }
 
-static VertexArray genVertexArrayObject() noexcept {
+static GLVertexArray genVertexArrayObject() noexcept {
 	GLuint vao = 0;
 	glGenVertexArrays(1, &vao);
-	return VertexArray(vao);
+	return GLVertexArray(vao);
 }
 
-static Buffer genBuffer() noexcept {
+static GLBuffer genBuffer() noexcept {
 	GLuint buff = 0;
 	glGenBuffers(1, &buff);
-	return Buffer(buff);
+	return GLBuffer(buff);
 }
 
 static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg) noexcept {
@@ -151,10 +151,10 @@ static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg)
 	                      ox::bit_cast<void*>(2 * sizeof(float)));
 }
 
-static Texture loadTexture(GLsizei w, GLsizei h, void *pixels) noexcept {
+static GLTexture loadTexture(GLsizei w, GLsizei h, void *pixels) noexcept {
 	GLuint texId = 0;
 	glGenTextures(1, &texId);
-	Texture tex(texId);
+	GLTexture tex(texId);
 	tex.width = w;
 	tex.height = h;
 	glActiveTexture(GL_TEXTURE0);

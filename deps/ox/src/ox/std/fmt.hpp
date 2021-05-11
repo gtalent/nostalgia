@@ -26,16 +26,16 @@
 namespace ox {
 namespace detail {
 
-constexpr const char *stringify(const char *s) noexcept {
+constexpr const char *toCString(const char *s) noexcept {
 	return s;
 }
 
 template<std::size_t size>
-constexpr const char *stringify(const BString<size> &s) noexcept {
+constexpr const char *toCString(const BString<size> &s) noexcept {
     return s.c_str();
 }
 
-constexpr const char *stringify(const String &s) noexcept {
+constexpr const char *toCString(const String &s) noexcept {
 	return s.c_str();
 }
 
@@ -45,13 +45,13 @@ constexpr
 #else
 inline
 #endif
-const char *stringify(const std::string &s) noexcept {
+const char *toCString(const std::string &s) noexcept {
 	return s.c_str();
 }
 #endif
 
 #if __has_include(<QString>)
-inline const char *stringify(const QString &s) noexcept {
+inline const char *toCString(const QString &s) noexcept {
 	return s.toUtf8();
 }
 #endif
@@ -71,7 +71,7 @@ class FmtArg {
 			} else if constexpr(is_integral_v<T>) {
 				out = ox_itoa(v, dataStr);
 			} else {
-				out = stringify(v);
+				out = toCString(v);
 			}
 		}
 
@@ -166,6 +166,7 @@ constexpr Fmt<segementCnt> fmtSegments(const char *fmt) noexcept {
 }
 
 template<typename StringType = String, typename ...Args>
+[[nodiscard]]
 StringType sfmt(const char *fmt, Args... args) noexcept {
 	oxAssert(ox::detail::argCount(fmt) == sizeof...(args), "Argument count mismatch.");
 	StringType out;

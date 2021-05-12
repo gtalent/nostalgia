@@ -11,16 +11,15 @@
 #include <ox/std/bit.hpp>
 #include <ox/std/error.hpp>
 #include <ox/std/hashmap.hpp>
-#include <ox/std/bstring.hpp>
+#include <ox/std/string.hpp>
 #include <ox/std/vector.hpp>
 
 #include "types.hpp"
 
 namespace ox {
 
-using ModelString = BString<100>;
-using FieldName = ModelString;
-using TypeName = ModelString;
+using FieldName = String;
+using TypeName = String;
 
 enum class PrimitiveType: uint8_t {
 	UnsignedInteger = 0,
@@ -144,7 +143,7 @@ Error modelWrite(T *io, DescriptorField *field) {
 		oxReturnError(io->field("typeName", SerStr(&empty)));
 		oxReturnError(io->field("type", field->type));
 	} else {
-		oxReturnError(io->field("typeName", SerStr(&field->type->typeName)));
+		oxReturnError(io->field("typeName", &field->type->typeName));
 		oxReturnError(io->field("type", static_cast<decltype(field->type)>(nullptr)));
 	}
 	oxReturnError(io->field("fieldName", &field->fieldName));
@@ -179,6 +178,6 @@ Error modelRead(T *io, DescriptorField *field) {
 	return err;
 }
 
-using TypeStore = HashMap<ModelString, DescriptorType*>;
+using TypeStore = HashMap<String, DescriptorType*>;
 
 }

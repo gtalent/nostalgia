@@ -94,10 +94,10 @@ static Error parseField(const DescriptorField &field, Reader *rdr, DataWalker<Re
 		child.setTypeInfo(field.fieldName.c_str(), arrayLen);
 		DescriptorField f(field); // create mutable copy
 		--f.subscriptLevels;
-		BString<100> subscript;
+		String subscript;
 		for (std::size_t i = 0; i < arrayLen; i++) {
 			subscript = "[";
-			subscript += i;
+			subscript += static_cast<uint64_t>(i);
 			subscript += "]";
 			walker->pushNamePath(subscript);
 			oxReturnError(parseField(f, &child, walker));

@@ -11,42 +11,6 @@
 
 namespace ox {
 
-String::String() noexcept {
-	if (m_buff.size()) {
-		m_buff[0] = 0;
-	} else {
-		m_buff.push_back(0);
-	}
-}
-
-String::String(std::size_t cap) noexcept {
-	m_buff.resize(cap + 1);
-	m_buff[0] = 0;
-}
-
-String::String(const char *str) noexcept {
-	if (m_buff.size()) {
-		m_buff[0] = 0;
-	} else {
-		m_buff.push_back(0);
-	}
-	*this = str;
-}
-
-String::String(const char *str, std::size_t size) noexcept {
-	m_buff.resize(size + 1);
-	memcpy(m_buff.data(), str, size);
-	m_buff[size] = 0;
-}
-
-String::String(const String &other) noexcept {
-	m_buff = other.m_buff;
-}
-
-String::String(String &&other) noexcept {
-	m_buff = move(other.m_buff);
-}
-
 String &String::operator=(const char *str) noexcept {
 	std::size_t strLen = ox_strlen(str) + 1;
 	m_buff.resize(strLen + 1);
@@ -70,6 +34,12 @@ String &String::operator=(int i) noexcept {
 }
 
 String &String::operator=(int64_t i) noexcept {
+	char str[65] = {};
+	ox_itoa(i, str);
+	return this->operator=(str);
+}
+
+String &String::operator=(uint64_t i) noexcept {
 	char str[65] = {};
 	ox_itoa(i, str);
 	return this->operator=(str);
@@ -109,6 +79,12 @@ String &String::operator+=(int64_t i) noexcept {
 	return this->operator+=(str);
 }
 
+String &String::operator+=(uint64_t i) noexcept {
+	char str[65] = {};
+	ox_itoa(i, str);
+	return this->operator+=(str);
+}
+
 String &String::operator+=(const String &src) noexcept {
 	return *this += src.c_str();
 }
@@ -139,6 +115,12 @@ String String::operator+(int i) const noexcept {
 }
 
 String String::operator+(int64_t i) const noexcept {
+	char str[65] = {};
+	ox_itoa(i, str);
+	return *this + str;
+}
+
+String String::operator+(uint64_t i) const noexcept {
 	char str[65] = {};
 	ox_itoa(i, str);
 	return *this + str;

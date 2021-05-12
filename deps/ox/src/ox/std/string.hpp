@@ -25,17 +25,17 @@ class String {
 		Buffer m_buff;
 
 	public:
-		String() noexcept;
+		constexpr String() noexcept;
 
-		explicit String(std::size_t cap) noexcept;
+		constexpr explicit String(std::size_t cap) noexcept;
 
-		String(const char *str) noexcept;
+		constexpr String(const char *str) noexcept;
 
-		String(const char *str, std::size_t size) noexcept;
+		constexpr String(const char *str, std::size_t size) noexcept;
 
-		String(const String&) noexcept;
+		constexpr String(const String&) noexcept;
 
-		String(String&&) noexcept;
+		constexpr String(String&&) noexcept;
 
 		String &operator=(const char *str) noexcept;
 
@@ -46,6 +46,8 @@ class String {
 		String &operator=(int i) noexcept;
 
 		String &operator=(int64_t i) noexcept;
+
+		String &operator=(uint64_t i) noexcept;
 
 		String &operator=(const String &src) noexcept;
 
@@ -61,6 +63,8 @@ class String {
 
 		String &operator+=(int64_t i) noexcept;
 
+		String &operator+=(uint64_t i) noexcept;
+
 		String &operator+=(const String &src) noexcept;
 
 		String operator+(const char *str) const noexcept;
@@ -72,6 +76,8 @@ class String {
 		String operator+(int i) const noexcept;
 
 		String operator+(int64_t i) const noexcept;
+
+		String operator+(uint64_t i) const noexcept;
 
 		String operator+(const String &src) const noexcept;
 
@@ -137,6 +143,42 @@ class String {
 		std::size_t bytes() const noexcept;
 
 };
+
+constexpr String::String() noexcept {
+	if (m_buff.size()) {
+		m_buff[0] = 0;
+	} else {
+		m_buff.push_back(0);
+	}
+}
+
+constexpr String::String(std::size_t cap) noexcept {
+	m_buff.resize(cap + 1);
+	m_buff[0] = 0;
+}
+
+constexpr String::String(const char *str) noexcept {
+	if (m_buff.size()) {
+		m_buff[0] = 0;
+	} else {
+		m_buff.push_back(0);
+	}
+	*this = str;
+}
+
+constexpr String::String(const char *str, std::size_t size) noexcept {
+	m_buff.resize(size + 1);
+	memcpy(m_buff.data(), str, size);
+	m_buff[size] = 0;
+}
+
+constexpr String::String(const String &other) noexcept {
+	m_buff = other.m_buff;
+}
+
+constexpr String::String(String &&other) noexcept {
+	m_buff = move(other.m_buff);
+}
 
 constexpr std::size_t String::len() const noexcept {
 	std::size_t length = 0;

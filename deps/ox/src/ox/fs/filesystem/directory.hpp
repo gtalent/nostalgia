@@ -150,7 +150,7 @@ Error Directory<FileStore, InodeId_t>::mkdir(PathIterator path, bool parents, Fi
 		oxTrace("ox::fs::Directory::mkdir") << path.fullPath();
 		// reuse nameBuff if it has already been allocated, as it is a rather large variable
 		if (nameBuff == nullptr) {
-			nameBuff = reinterpret_cast<FileName*>(ox_alloca(sizeof(FileName)));
+			nameBuff = new (ox_alloca(sizeof(FileName))) FileName;
 		}
 
 		// determine if already exists
@@ -193,7 +193,7 @@ template<typename FileStore, typename InodeId_t>
 Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode, FileName *nameBuff) noexcept {
 	// reuse nameBuff if it has already been allocated, as it is a rather large variable
 	if (nameBuff == nullptr) {
-		nameBuff = reinterpret_cast<FileName*>(ox_alloca(sizeof(FileName)));
+		nameBuff = new (ox_alloca(sizeof(FileName))) FileName;
 	}
 	auto name = nameBuff;
 
@@ -261,7 +261,7 @@ template<typename FileStore, typename InodeId_t>
 Error Directory<FileStore, InodeId_t>::remove(PathIterator path, FileName *nameBuff) noexcept {
 	// reuse nameBuff if it has already been allocated, as it is a rather large variable
 	if (nameBuff == nullptr) {
-		nameBuff = reinterpret_cast<FileName*>(ox_alloca(sizeof(FileName)));
+		nameBuff = new (ox_alloca(sizeof(FileName))) FileName;
 	}
 	auto &name = *nameBuff;
 	oxReturnError(path.get(&name));
@@ -339,7 +339,7 @@ template<typename FileStore, typename InodeId_t>
 Result<typename FileStore::InodeId_t> Directory<FileStore, InodeId_t>::find(PathIterator path, FileName *nameBuff) const noexcept {
 	// reuse nameBuff if it has already been allocated, as it is a rather large variable
 	if (nameBuff == nullptr) {
-		nameBuff = reinterpret_cast<FileName*>(ox_alloca(sizeof(FileName)));
+		nameBuff = new (ox_alloca(sizeof(FileName))) FileName;
 	}
 
 	// determine if already exists

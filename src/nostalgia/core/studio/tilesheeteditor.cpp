@@ -579,9 +579,9 @@ void SheetData::save(const studio::Context *ctx, QString ngPath) const {
 void SheetData::setPalette(const NostalgiaPalette *npal) {
 	// load palette
 	m_palette.clear();
-	for (std::size_t i = 0; i < npal->colors.size(); i++) {
-		const auto c = toQColor(npal->colors[i]);
-		const auto color = c.name(QColor::HexRgb);
+	for (const auto &c : npal->colors) {
+		const auto qc = toQColor(c);
+		const auto color = qc.name(QColor::HexRgb);
 		m_palette.append(color);
 	}
 	emit paletteChanged();
@@ -788,8 +788,8 @@ void SheetData::updatePixels(const NostalgiaGraphic *ng) {
 	m_pixels.clear();
 	m_pixelSelected.clear();
 	if (ng->bpp == 8) {
-		for (std::size_t i = 0; i < ng->pixels.size(); i++) {
-			m_pixels.push_back(ng->pixels[i]);
+		for (const auto &c : ng->pixels) {
+			m_pixels.push_back(c);
 			m_pixelSelected.push_back(0);
 		}
 	} else {

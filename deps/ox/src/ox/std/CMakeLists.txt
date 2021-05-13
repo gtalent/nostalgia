@@ -73,6 +73,7 @@ install(
 		hardware.hpp
 		hashmap.hpp
 		heapmgr.hpp
+		iterator.hpp
 		math.hpp
 		memops.hpp
 		memory.hpp

@@ -8,4 +8,4 @@
 
 #include <ox/fs/fs.hpp>
 
-ox::Error run(ox::FileSystem *fs);
+ox::Error run(ox::FileSystem *fs) noexcept;

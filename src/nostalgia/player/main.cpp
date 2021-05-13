@@ -11,7 +11,7 @@
 
 #include "app.hpp"
 
-ox::Error run(int argc, const char **argv) {
+static ox::Error run(int argc, const char **argv) noexcept {
 	ox::trace::init();
 	if (argc < 2) {
 		oxErrf("Please provide path to project directory or OxFS file.");

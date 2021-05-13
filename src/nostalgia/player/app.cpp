@@ -13,7 +13,7 @@ using namespace nostalgia;
 static unsigned spriteX = 72;
 static unsigned spriteY = 64;
 
-static int eventHandler(core::Context *ctx) {
+static int eventHandler(core::Context *ctx) noexcept {
 	if (core::buttonDown(core::GamePad_Right)) {
 		spriteX += 2;
 	} else if (core::buttonDown(core::GamePad_Left)) {
@@ -32,7 +32,7 @@ static int eventHandler(core::Context *ctx) {
 	return 16;
 }
 
-ox::Error run(ox::FileSystem *fs) {
+ox::Error run(ox::FileSystem *fs) noexcept {
 	core::Context ctx;
 	ctx.rom = fs;
 	oxReturnError(core::init(&ctx));

@@ -99,13 +99,13 @@ void Project::writeObj(QString path, T *obj) const {
 	writeBuff(path, ox::bit_cast<uint8_t*>(buff.data()), buff.size());
 
 	// write type descriptor
-	const auto type = ox::buildTypeDef(obj);
-	oxRequireMT(typeOut, ox::writeClaw(type.value, ox::ClawFormat::Organic));
+	oxRequireT(type, ox::buildTypeDef(obj));
+	oxRequireMT(typeOut, ox::writeClaw(type.get(), ox::ClawFormat::Organic));
 	// replace garbage last character with new line
 	typeOut.back().value = '\n';
 	// write to FS
 	QString descPath = "/.nostalgia/type_descriptors/";
-	const auto typePath = descPath + type.value->typeName.c_str();
+	const auto typePath = descPath + type->typeName.c_str();
 	mkdir(descPath);
 	writeBuff(typePath, ox::bit_cast<uint8_t*>(typeOut.data()), typeOut.size());
 	emit fileUpdated(path);

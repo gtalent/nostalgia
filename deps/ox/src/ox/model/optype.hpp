@@ -23,32 +23,32 @@ namespace OpType {
 // empty default implementations of model functions
 
 template<typename T, typename O>
-constexpr Error modelRead(T*, O*) {
+constexpr Error modelRead(T*, O*) noexcept {
 	return OxError(1, "Model: modelRead not implemented");
 }
 
 template<typename T, typename O>
-constexpr Error modelWrite(T*, O*) {
+constexpr Error modelWrite(T*, O*) noexcept {
 	return OxError(1, "Model: modelWrite not implemented");
 }
 
 template<typename T, typename O>
-constexpr Error modelWriteDefinition(T*, O*) {
+constexpr Error modelWriteDefinition(T*, O*) noexcept {
 	return OxError(1, "Model: modelWriteDefinition not implemented");
 }
 
 template<typename T, typename O>
-constexpr Error model(T *io, O *obj) {
-	Error err;
+constexpr Error model(T *io, O *obj) noexcept {
 	if constexpr(ox_strcmp(T::opType(), OpType::Read) == 0) {
-		err = modelRead(io, obj);
+		return modelRead(io, obj);
 	} else if constexpr(ox_strcmp(T::opType(), OpType::Write) == 0) {
-		err = modelWrite(io, obj);
+		return modelWrite(io, obj);
 	} else if constexpr(ox_strcmp(T::opType(), OpType::WriteDefinition) == 0) {
-		err = modelWriteDefinition(io, obj);
+		return modelWriteDefinition(io, obj);
+	} else {
+		oxAssert(OxError(1), "Missing model function");
+		return OxError(1);
 	}
-	oxAssert(err, "Missing model function");
-	return err;
 }
 
 }

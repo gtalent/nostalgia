@@ -25,6 +25,7 @@ install(
 		descwrite.hpp
 		optype.hpp
 		model.hpp
+		modelops.hpp
 		types.hpp
 		walk.hpp
 	DESTINATION

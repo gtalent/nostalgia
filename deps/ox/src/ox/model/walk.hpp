@@ -17,7 +17,7 @@ namespace ox {
 template<typename Reader, typename T>
 class DataWalker {
 	template<typename ReaderBase, typename FH>
-	friend Error parseField(const DescriptorField &field, ReaderBase *rdr, DataWalker<ReaderBase, FH> *walker);
+	friend Error parseField(const DescriptorField &field, ReaderBase *rdr, DataWalker<ReaderBase, FH> *walker) noexcept;
 
 	private:
 		Vector<const DescriptorType*> m_typeStack;
@@ -26,26 +26,25 @@ class DataWalker {
 		Vector<TypeName> m_typePath;
 
 	public:
-		DataWalker(DescriptorType *type, T fieldHandler);
+		DataWalker(DescriptorType *type, T fieldHandler) noexcept;
 
-		[[nodiscard]]
 		Result<const DescriptorType*> type() const noexcept;
 
-		Error read(const DescriptorField&, Reader *rdr);
+		Error read(const DescriptorField&, Reader *rdr) noexcept;
 
 	protected:
-		void pushNamePath(FieldName fn);
+		void pushNamePath(const FieldName &fn) noexcept;
 
-		void popNamePath();
+		void popNamePath() noexcept;
 
-		void pushType(const DescriptorType *type);
+		void pushType(const DescriptorType *type) noexcept;
 
-		void popType();
+		void popType() noexcept;
 
 };
 
 template<typename Reader, typename T>
-DataWalker<Reader, T>::DataWalker(DescriptorType *type, T fieldHandler): m_fieldHandler(fieldHandler) {
+DataWalker<Reader, T>::DataWalker(DescriptorType *type, T fieldHandler) noexcept: m_fieldHandler(fieldHandler) {
 	m_typeStack.push_back(type);
 }
 
@@ -56,7 +55,7 @@ Result<const DescriptorType*> DataWalker<Reader, T>::type() const noexcept {
 }
 
 template<typename Reader, typename T>
-Error DataWalker<Reader, T>::read(const DescriptorField &f, Reader *rdr) {
+Error DataWalker<Reader, T>::read(const DescriptorField &f, Reader *rdr) noexcept {
 	// get const ref of paths
 	const auto &pathCr = m_path;
 	const auto &typePathCr = m_typePath;
@@ -64,32 +63,31 @@ Error DataWalker<Reader, T>::read(const DescriptorField &f, Reader *rdr) {
 }
 
 template<typename Reader, typename T>
-void DataWalker<Reader, T>::pushNamePath(FieldName fn) {
+void DataWalker<Reader, T>::pushNamePath(const FieldName &fn) noexcept {
 	m_path.push_back(fn);
 }
 
 template<typename Reader, typename T>
-void DataWalker<Reader, T>::popNamePath() {
+void DataWalker<Reader, T>::popNamePath() noexcept {
 	m_path.pop_back();
 }
 
 template<typename Reader, typename T>
-void DataWalker<Reader, T>::pushType(const DescriptorType *type) {
+void DataWalker<Reader, T>::pushType(const DescriptorType *type) noexcept {
 	m_typeStack.push_back(type);
 }
 
 template<typename Reader, typename T>
-void DataWalker<Reader, T>::popType() {
+void DataWalker<Reader, T>::popType() noexcept {
 	m_typeStack.pop_back();
 }
 
 template<typename Reader, typename FH>
-static Error parseField(const DescriptorField &field, Reader *rdr, DataWalker<Reader, FH> *walker) {
+static Error parseField(const DescriptorField &field, Reader *rdr, DataWalker<Reader, FH> *walker) noexcept {
 	walker->pushNamePath(field.fieldName);
 	if (field.subscriptLevels) {
 		// add array handling
-		const auto [arrayLen, err] = rdr->arrayLength(field.fieldName.c_str(), true);
-		oxReturnError(err);
+		oxRequire(arrayLen, rdr->arrayLength(field.fieldName.c_str(), true));
 		auto child = rdr->child(field.fieldName.c_str());
 		child.setTypeInfo(field.fieldName.c_str(), arrayLen);
 		DescriptorField f(field); // create mutable copy
@@ -133,19 +131,19 @@ static Error parseField(const DescriptorField &field, Reader *rdr, DataWalker<Re
 }
 
 template<typename Reader, typename FH>
-Error model(Reader *rdr, DataWalker<Reader, FH> *walker) {
+constexpr Error model(Reader *rdr, DataWalker<Reader, FH> *walker) noexcept {
 	oxRequire(type, walker->type());
 	auto typeName = type->typeName.c_str();
 	auto &fields = type->fieldList;
 	rdr->setTypeInfo(typeName, fields.size());
-	for (std::size_t i = 0; i < fields.size(); i++) {
-		oxReturnError(parseField(fields[i], rdr, walker));
+	for (const auto &field : fields) {
+		oxReturnError(parseField(field, rdr, walker));
 	}
 	return OxError(0);
 }
 
 template<typename Reader, typename Handler>
-Error walkModel(DescriptorType *type, char *data, std::size_t dataLen, Handler handler) {
+Error walkModel(DescriptorType *type, char *data, std::size_t dataLen, Handler handler) noexcept {
 	DataWalker<Reader, Handler> walker(type, handler);
 	Reader rdr(bit_cast<uint8_t*>(data), dataLen);
 	return model(&rdr, &walker);

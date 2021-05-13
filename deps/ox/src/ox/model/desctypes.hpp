@@ -38,7 +38,7 @@ struct DescriptorField {
 
 	// only serialize type name if type has already been serialized
 	struct DescriptorType *type = nullptr;
-	FieldName fieldName;
+	String fieldName;
 	int subscriptLevels = 0;
 
 	// do not serialize the following
@@ -58,7 +58,7 @@ struct DescriptorField {
 		ownsType = false; // is copy, only owns type if move
 	}
 
-	constexpr DescriptorField(DescriptorType *type, const FieldName &fieldName, int subscriptLevels, const TypeName &typeName, bool ownsType) noexcept {
+	constexpr DescriptorField(DescriptorType *type, const String &fieldName, int subscriptLevels, const TypeName &typeName, bool ownsType) noexcept {
 		this->type = type;
 		this->fieldName = fieldName;
 		this->subscriptLevels = subscriptLevels;
@@ -115,16 +115,16 @@ struct DescriptorType {
 
 	DescriptorType() = default;
 
-	DescriptorType(TypeName tn, PrimitiveType t, int b): typeName(tn), primitiveType(t), length(b) {
+	DescriptorType(const TypeName &tn, PrimitiveType t, int b): typeName(tn), primitiveType(t), length(b) {
 	}
 
-	DescriptorType(TypeName tn, PrimitiveType t, FieldList fl): typeName(tn), primitiveType(t), fieldList(fl) {
+	DescriptorType(const TypeName &tn, PrimitiveType t, FieldList fl): typeName(tn), primitiveType(t), fieldList(fl) {
 	}
 };
 
 
 template<typename T>
-Error model(T *io, DescriptorType *type) {
+constexpr Error model(T *io, DescriptorType *type) noexcept {
 	io->template setTypeInfo<T>("net.drinkingtea.ox.DescriptorType", 5);
 	oxReturnError(io->field("typeName", &type->typeName));
 	oxReturnError(io->field("primitiveType", bit_cast<uint8_t*>(&type->primitiveType)));
@@ -135,8 +135,7 @@ Error model(T *io, DescriptorType *type) {
 }
 
 template<typename T>
-Error modelWrite(T *io, DescriptorField *field) {
-	auto err = OxError(0);
+Error modelWrite(T *io, DescriptorField *field) noexcept {
 	io->setTypeInfo("ox::DescriptorField", 4);
 	if (field->ownsType) {
 		BString<2> empty = "";
@@ -150,32 +149,31 @@ Error modelWrite(T *io, DescriptorField *field) {
 	// defaultValue is unused now, but leave placeholder for backwards compatibility
 	int DefaultValue = 0;
 	oxReturnError(io->field("defaultValue", &DefaultValue));
-	return err;
+	return OxError(0);
 }
 
 template<typename T>
-Error modelRead(T *io, DescriptorField *field) {
-	auto err = OxError(0);
+Error modelRead(T *io, DescriptorField *field) noexcept {
 	auto &typeStore = io->typeStore();
 	io->setTypeInfo("ox::DescriptorField", 4);
-	err |= io->field("typeName", &field->typeName);
+	oxReturnError(io->field("typeName", &field->typeName));
 	if (field->typeName == "") {
 		field->ownsType = true;
 		if (field->type == nullptr) {
 			field->type = new DescriptorType;
 		}
-		err |= io->field("type", field->type);
+		oxReturnError(io->field("type", field->type));
 		typeStore[field->type->typeName] = field->type;
 	} else {
 		// should be empty, so discard
 		DescriptorType t;
-		err |= io->field("type", &t);
+		oxReturnError(io->field("type", &t));
 		field->type = typeStore[field->typeName];
 	}
-	err |= io->field("fieldName", &field->fieldName);
+	oxReturnError(io->field("fieldName", &field->fieldName));
 	// defaultValue is unused now, but placeholder for backwards compatibility
-	err |= io->field("defaultValue", nullptr);
-	return err;
+	oxReturnError(io->field("defaultValue", nullptr));
+	return OxError(0);
 }
 
 using TypeStore = HashMap<String, DescriptorType*>;

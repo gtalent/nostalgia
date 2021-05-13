@@ -10,6 +10,7 @@
 
 #include <ox/std/byteswap.hpp>
 #include <ox/std/bstring.hpp>
+#include <ox/std/memory.hpp>
 #include <ox/std/string.hpp>
 #include <ox/std/trace.hpp>
 #include <ox/std/types.hpp>
@@ -35,16 +36,16 @@ struct preloadable<T, BoolWrapper<T::Preloadable>> {
 	static constexpr bool value = T::Preloadable;
 };
 
-}
-
 template<typename T>
-static constexpr int indirectionLevels(T) {
+static constexpr int indirectionLevels(T) noexcept {
 	return 0;
 }
 
 template<typename T>
-static constexpr int indirectionLevels(T *t) {
+static constexpr int indirectionLevels(T *t) noexcept {
 	return 1 + indirectionLevels(*t);
+}
+
 }
 
 class TypeDescWriter {
@@ -69,7 +70,7 @@ class TypeDescWriter {
 				return OxError(0);
 			}
 
-			static constexpr auto opType() {
+			static constexpr auto opType() noexcept {
 				return OpType::WriteDefinition;
 			}
 
@@ -80,70 +81,70 @@ class TypeDescWriter {
 		DescriptorType *m_type = nullptr;
 
 	public:
-		explicit TypeDescWriter(TypeStore *typeStore = nullptr);
+		explicit TypeDescWriter(TypeStore *typeStore = nullptr) noexcept;
 
-		~TypeDescWriter();
-
-		template<typename T>
-		Error field(const char *name, T *val, std::size_t valLen);
+		~TypeDescWriter() noexcept;
 
 		template<typename T>
-		Error field(const char *name, T val);
+		Error field(const char *name, T *val, std::size_t valLen) noexcept;
 
 		template<typename T>
-		Error field(const char *name, T *val);
+		Error field(const char *name, T val) noexcept;
+
+		template<typename T>
+		Error field(const char *name, T *val) noexcept;
 
 		template<typename T = std::nullptr_t>
-		void setTypeInfo(const char *name = T::TypeName, int fields = T::Fields);
+		void setTypeInfo(const char *name = T::TypeName, int fields = T::Fields) noexcept;
 
 		[[nodiscard]] DescriptorType *definition() noexcept {
 			return m_type;
 		}
 
-		static constexpr auto opType() {
+		static constexpr auto opType() noexcept {
 			return OpType::WriteDefinition;
 		}
 
 	private:
-		DescriptorType *type(int8_t *val, bool *alreadyExisted);
-		DescriptorType *type(int16_t *val, bool *alreadyExisted);
-		DescriptorType *type(int32_t *val, bool *alreadyExisted);
-		DescriptorType *type(int64_t *val, bool *alreadyExisted);
+		DescriptorType *type(int8_t *val, bool *alreadyExisted) noexcept;
+		DescriptorType *type(int16_t *val, bool *alreadyExisted) noexcept;
+		DescriptorType *type(int32_t *val, bool *alreadyExisted) noexcept;
+		DescriptorType *type(int64_t *val, bool *alreadyExisted) noexcept;
 
-		DescriptorType *type(uint8_t *val, bool *alreadyExisted);
-		DescriptorType *type(uint16_t *val, bool *alreadyExisted);
-		DescriptorType *type(uint32_t *val, bool *alreadyExisted);
-		DescriptorType *type(uint64_t *val, bool *alreadyExisted);
+		DescriptorType *type(uint8_t *val, bool *alreadyExisted) noexcept;
+		DescriptorType *type(uint16_t *val, bool *alreadyExisted) noexcept;
+		DescriptorType *type(uint32_t *val, bool *alreadyExisted) noexcept;
+		DescriptorType *type(uint64_t *val, bool *alreadyExisted) noexcept;
 
-		DescriptorType *type(bool *val, bool *alreadyExisted);
+		DescriptorType *type(bool *val, bool *alreadyExisted) noexcept;
 
-		DescriptorType *type(char *val, bool *alreadyExisted);
+		DescriptorType *type(char *val, bool *alreadyExisted) noexcept;
 
-		DescriptorType *type(SerStr val, bool *alreadyExisted);
+		DescriptorType *type(SerStr val, bool *alreadyExisted) noexcept;
 
-		DescriptorType *type(String *val, bool *alreadyExisted);
+		DescriptorType *type(String *val, bool *alreadyExisted) noexcept;
 
 		template<std::size_t sz>
-		DescriptorType *type(BString<sz> *val, bool *alreadyExisted);
+		DescriptorType *type(BString<sz> *val, bool *alreadyExisted) noexcept;
 
 		template<typename T>
-		DescriptorType *type(T *val, bool *alreadyExisted);
+		DescriptorType *type(T *val, bool *alreadyExisted) noexcept;
 
 		template<typename T>
-		DescriptorType *type(Vector<T> *val, bool *alreadyExisted);
+		DescriptorType *type(Vector<T> *val, bool *alreadyExisted) noexcept;
 
 		template<typename T>
-		DescriptorType *type(HashMap<String, T> *val, bool *alreadyExisted);
+		DescriptorType *type(HashMap<String, T> *val, bool *alreadyExisted) noexcept;
 
 		template<typename U>
-		DescriptorType *type(UnionView<U> val, bool *alreadyExisted);
+		DescriptorType *type(UnionView<U> val, bool *alreadyExisted) noexcept;
 
-		DescriptorType *getType(TypeName tn, PrimitiveType t, int b, bool *alreadyExisted);
+		DescriptorType *getType(const TypeName &tn, PrimitiveType t, int b, bool *alreadyExisted) noexcept;
 };
 
 // array handler
 template<typename T>
-Error TypeDescWriter::field(const char *name, T *val, std::size_t) {
+Error TypeDescWriter::field(const char *name, T *val, std::size_t) noexcept {
 	if (m_type) {
 		constexpr typename remove_pointer<decltype(val)>::type *p = nullptr;
 		bool alreadyExisted = false;
@@ -152,14 +153,14 @@ Error TypeDescWriter::field(const char *name, T *val, std::size_t) {
 		if (t == nullptr) {
 			type(p, &alreadyExisted);
 		}
-		m_type->fieldList.emplace_back(t, name, indirectionLevels(val), alreadyExisted ? t->typeName : "", !alreadyExisted);
+		m_type->fieldList.emplace_back(t, name, detail::indirectionLevels(val), alreadyExisted ? t->typeName : "", !alreadyExisted);
 		return OxError(0);
 	}
 	return OxError(1);
 }
 
 template<typename T>
-Error TypeDescWriter::field(const char *name, T val) {
+Error TypeDescWriter::field(const char *name, T val) noexcept {
 	if (m_type) {
 		bool alreadyExisted = false;
 		const auto t = type(val, &alreadyExisted);
@@ -171,7 +172,7 @@ Error TypeDescWriter::field(const char *name, T val) {
 }
 
 template<typename T>
-Error TypeDescWriter::field(const char *name, T *val) {
+Error TypeDescWriter::field(const char *name, T *val) noexcept {
 	if (m_type) {
 		bool alreadyExisted = false;
 		const auto t = type(val, &alreadyExisted);
@@ -183,12 +184,12 @@ Error TypeDescWriter::field(const char *name, T *val) {
 }
 
 template<std::size_t sz>
-DescriptorType *TypeDescWriter::type(BString<sz> *val, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(BString<sz> *val, bool *alreadyExisted) noexcept {
 	return type(SerStr(val), alreadyExisted);
 }
 
 template<typename T>
-DescriptorType *TypeDescWriter::type(T *val, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(T *val, bool *alreadyExisted) noexcept {
 	NameCatcher nc;
 	oxLogError(model(&nc, val));
 	if (m_typeStore->contains(nc.name)) {
@@ -203,22 +204,22 @@ DescriptorType *TypeDescWriter::type(T *val, bool *alreadyExisted) {
 }
 
 template<typename T>
-DescriptorType *TypeDescWriter::type(Vector<T> *val, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(Vector<T> *val, bool *alreadyExisted) noexcept {
 	return type(val->data(), alreadyExisted);
 }
 
 template<typename T>
-DescriptorType *TypeDescWriter::type(HashMap<String, T>*, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(HashMap<String, T>*, bool *alreadyExisted) noexcept {
 	return type(static_cast<T*>(nullptr), alreadyExisted);
 }
 
 template<typename U>
-DescriptorType *TypeDescWriter::type(UnionView<U> val, bool *alreadyExisted) {
+DescriptorType *TypeDescWriter::type(UnionView<U> val, bool *alreadyExisted) noexcept {
 	return type(val.get(), alreadyExisted);
 }
 
 template<typename T>
-void TypeDescWriter::setTypeInfo(const char *name, int) {
+void TypeDescWriter::setTypeInfo(const char *name, int) noexcept {
 	auto &t = m_typeStore->operator[](name);
 	if (!t) {
 		t = new DescriptorType;
@@ -234,21 +235,23 @@ void TypeDescWriter::setTypeInfo(const char *name, int) {
 }
 
 template<typename T>
-Result<DescriptorType*> buildTypeDef(T *val) {
+Result<UniquePtr<DescriptorType>> buildTypeDef(T *val) noexcept {
 	TypeDescWriter writer;
 	oxReturnError(model(&writer, val));
-	return writer.definition();
+	return UniquePtr<DescriptorType>{writer.definition()};
 }
 
 template<typename T>
-Error writeTypeDef(uint8_t *buff, std::size_t buffLen, T *val, std::size_t *sizeOut = nullptr) {
-	auto def = buildTypeDef(val);
-	auto err = def.error;
-	if (!err) {
-		oxReturnError(writeType(buff, buffLen, def.value, sizeOut));
-	}
-	delete def.value;
-	return err;
+Error writeTypeDef(uint8_t *buff, std::size_t buffLen, T *val, std::size_t *sizeOut = nullptr) noexcept {
+	oxRequire(def, buildTypeDef(val));
+	return writeType(buff, buffLen, def.get(), sizeOut);
+}
+
+template<typename T>
+Result<Buffer> writeTypeDef(T *val) noexcept {
+	Buffer buff(units::MB);
+	oxReturnError(writeTypeDef(buff.data(), buff.size(), val));
+	return move(buff);
 }
 
 }

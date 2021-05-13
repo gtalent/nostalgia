@@ -18,23 +18,23 @@ class TypeDescReader: public ReaderBase {
 		TypeStore m_typeStore;
 
 	public:
-		TypeDescReader(uint8_t *buff, std::size_t buffLen);
+		TypeDescReader(uint8_t *buff, std::size_t buffLen) noexcept;
 
-		const TypeStore &typeStore() const;
+		const TypeStore &typeStore() const noexcept;
 
 };
 
 template<typename ReaderBase>
-TypeDescReader<ReaderBase>::TypeDescReader(uint8_t *buff, std::size_t buffLen): ReaderBase(buff, buffLen) {
+TypeDescReader<ReaderBase>::TypeDescReader(uint8_t *buff, std::size_t buffLen) noexcept: ReaderBase(buff, buffLen) {
 }
 
 template<typename ReaderBase>
-const TypeStore &TypeDescReader<ReaderBase>::typeStore() const {
+const TypeStore &TypeDescReader<ReaderBase>::typeStore() const noexcept {
 	return m_typeStore;
 }
 
 template<typename ReaderBase, typename T>
-int readMCDef(uint8_t *buff, std::size_t buffLen, T *val) {
+int readMCDef(uint8_t *buff, std::size_t buffLen, T *val) noexcept {
 	TypeDescReader<ReaderBase> reader(buff, buffLen);
 	return model(&reader, val);
 }

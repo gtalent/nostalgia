@@ -199,7 +199,7 @@ const std::map<std::string_view, ox::Error(*)()> tests = {
 				oxAssert(ocErr, "Data generation failed");
 				auto type = ox::buildTypeDef(&testIn);
 				oxAssert(type.error, "Descriptor write failed");
-				oxReturnError(ox::walkModel<ox::OrganicClawReader>(type.value, oc.data(), oc.size(),
+				oxReturnError(ox::walkModel<ox::OrganicClawReader>(type.value.get(), oc.data(), oc.size(),
 					[](const ox::Vector<ox::FieldName>&, const ox::Vector<ox::TypeName>&, const ox::DescriptorField &f, ox::OrganicClawReader *rdr) -> ox::Error {
 						auto fieldName = f.fieldName.c_str();
 						switch (f.type->primitiveType) {
@@ -283,8 +283,6 @@ const std::map<std::string_view, ox::Error(*)()> tests = {
 						return OxError(0);
 					}
 				));
-				delete type.value;
-
 				return OxError(0);
 			}
 		},

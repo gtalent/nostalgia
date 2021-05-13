@@ -299,7 +299,7 @@ std::map<std::string, ox::Error(*)()> tests = {
 				oxAssert(ox::writeMC(dataBuff, dataBuffLen, &testIn), "Data generation failed");
 				auto type = ox::buildTypeDef(&testIn);
 				oxAssert(type.error, "Descriptor write failed");
-				oxReturnError(ox::walkModel<ox::MetalClawReader>(type.value, dataBuff, dataBuffLen,
+				oxReturnError(ox::walkModel<ox::MetalClawReader>(type.value.get(), dataBuff, dataBuffLen,
 					[](const ox::Vector<ox::FieldName>&, const ox::Vector<ox::TypeName>&, const ox::DescriptorField &f, ox::MetalClawReader *rdr) -> ox::Error {
 						//std::cout << f.fieldName.c_str() << '\n';
 						auto fieldName = f.fieldName.c_str();
@@ -385,7 +385,6 @@ std::map<std::string, ox::Error(*)()> tests = {
 						return OxError(0);
 					}
 				));
-				delete type.value;
 				return OxError(0);
 			}
 		},

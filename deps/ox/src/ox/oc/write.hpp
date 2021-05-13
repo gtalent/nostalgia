@@ -57,7 +57,7 @@ class OrganicClawWriter {
 		template<std::size_t L>
 		Error field(const char*, BString<L> *val);
 
-		Error field(const char*, String val);
+		Error field(const char*, String *val);
 
 		Error field(const char*, SerStr val);
 

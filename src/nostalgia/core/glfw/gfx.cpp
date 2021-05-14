@@ -6,13 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <array>
-
 #include <GLFW/glfw3.h>
 
-#include <ox/claw/read.hpp>
-
-#include <nostalgia/core/gfx.hpp>
 #include <nostalgia/core/userland/gfx.hpp>
 
 #include "core.hpp"

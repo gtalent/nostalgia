@@ -37,7 +37,7 @@ struct GbaTileMapTarget {
 	static constexpr auto TypeName = NostalgiaGraphic::TypeName;
 	static constexpr auto Fields = NostalgiaGraphic::Fields;
 	static constexpr auto TypeVersion = NostalgiaGraphic::TypeVersion;
-	volatile uint32_t *bgCtl = nullptr;
+	volatile uint16_t *bgCtl = nullptr;
 	ox::FileAddress defaultPalette;
 	GbaPaletteTarget pal;
 	volatile uint16_t *tileMap = nullptr;
@@ -132,7 +132,7 @@ void setBgStatus(Context*, unsigned bg, bool status) noexcept {
 }
 
 [[nodiscard]]
-constexpr volatile uint32_t &bgCtl(int bg) noexcept {
+constexpr volatile uint16_t &bgCtl(int bg) noexcept {
 	switch (bg) {
 		case 0:
 			return REG_BG0CTL;
@@ -244,7 +244,7 @@ void hideSprite(Context*, unsigned idx) noexcept {
 	oa.attr0 = 2 << 8;
 	oa.idx = idx;
 	// block until g_spriteUpdates is less than buffer len
-	if (g_spriteUpdates >= config::GbaSpriteBufferLen) {
+	if (g_spriteUpdates >= config::GbaSpriteBufferLen) [[unlikely]] {
 		nostalgia_core_vblankintrwait();
 	}
 	if constexpr(config::GbaEventLoopTimerBased) {
@@ -279,7 +279,7 @@ void setSprite(Context*,
 	oa.attr2 = static_cast<uint16_t>(tileIdx & ox::onMask<uint16_t>(8));
 	oa.idx = idx;
 	// block until g_spriteUpdates is less than buffer len
-	if (g_spriteUpdates >= config::GbaSpriteBufferLen) {
+	if (g_spriteUpdates >= config::GbaSpriteBufferLen) [[unlikely]] {
 		nostalgia_core_vblankintrwait();
 	}
 	if constexpr(config::GbaEventLoopTimerBased) {

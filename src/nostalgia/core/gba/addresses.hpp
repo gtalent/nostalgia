@@ -45,10 +45,10 @@ using interrupt_handler = void (*)();
 // background registers
 
 // background control registers
-#define REG_BG0CTL *reinterpret_cast<volatile uint32_t*>(0x04000008)
-#define REG_BG1CTL *reinterpret_cast<volatile uint32_t*>(0x0400000a)
-#define REG_BG2CTL *reinterpret_cast<volatile uint32_t*>(0x0400000c)
-#define REG_BG3CTL *reinterpret_cast<volatile uint32_t*>(0x0400000e)
+#define REG_BG0CTL *reinterpret_cast<volatile uint16_t*>(0x04000008)
+#define REG_BG1CTL *reinterpret_cast<volatile uint16_t*>(0x0400000a)
+#define REG_BG2CTL *reinterpret_cast<volatile uint16_t*>(0x0400000c)
+#define REG_BG3CTL *reinterpret_cast<volatile uint16_t*>(0x0400000e)
 
 // background horizontal scrolling registers
 #define REG_BG0HOFS *reinterpret_cast<volatile uint32_t*>(0x04000010)

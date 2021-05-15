@@ -17,6 +17,7 @@ struct GlfwImplData {
 	int64_t startTime = 0;
 	bool running = false;
 	event_handler eventHandler = nullptr;
+	uint64_t wakeupTime = 0;
 };
 
 }

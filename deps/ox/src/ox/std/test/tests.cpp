@@ -17,10 +17,12 @@ std::map<std::string, std::function<ox::Error()>> tests = {
 	{
 		"malloc",
 		[] {
-			ox::Vector<char> buff(ox::units::MB);
+			ox::Buffer buff(ox::units::MB);
 			ox::heapmgr::initHeap(&buff[0], &buff[buff.size()-1]);
-			oxAssert(ox::heapmgr::malloc(5) != nullptr, "malloc is broken");
-			oxAssert(ox::heapmgr::malloc(5) != nullptr, "malloc is broken");
+			auto a1 = ox::bit_cast<char*>(ox::heapmgr::malloc(5));
+			auto a2 = ox::bit_cast<char*>(ox::heapmgr::malloc(5));
+			oxAssert(a1 >= &buff.front().value && a1 < &buff.back().value, "malloc is broken");
+			oxAssert(a2 >= &buff.front().value && a2 < &buff.back().value && a2 > a1 + 5, "malloc is broken");
 			return OxError(0);
 		}
 	},
@@ -89,12 +91,13 @@ std::map<std::string, std::function<ox::Error()>> tests = {
 			oxAssert(v.size() == 0, "Initial Vector size not 0");
 			auto insertTest = [&v](int val, [[maybe_unused]] std::size_t size) {
 				v.push_back(val);
-				oxAssert(v.size() == size, "Vector size incorrect");
-				oxAssert(v[v.size() - 1] == val, "Vector value wrong");
+				oxReturnError(OxError(v.size() != size, "Vector size incorrect"));
+				oxReturnError(OxError(v[v.size() - 1] != val, "Vector value wrong"));
+				return OxError(0);
 			};
-			insertTest(42, 1);
-			insertTest(100, 2);
-			insertTest(102, 3);
+			oxAssert(insertTest(42, 1), "Vector insertion failed");
+			oxAssert(insertTest(100, 2), "Vector insertion failed");
+			oxAssert(insertTest(102, 3), "Vector insertion failed");
 			return OxError(0);
 		}
 	},

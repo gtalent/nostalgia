@@ -11,7 +11,7 @@
 
 #include "glutils.hpp"
 
-namespace nostalgia::core::renderer {
+namespace nostalgia::glutils {
 
 void deleteBuffer(GLuint b) noexcept {
 	glDeleteBuffers(1, &b);

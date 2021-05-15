@@ -9,6 +9,7 @@ find_package(glfw3 REQUIRED)
 target_link_libraries(
 	NostalgiaCore-GLFW PUBLIC
 		glfw::glfw
+		NostalgiaGlUtils
 		NostalgiaCore-Userspace
 )
 

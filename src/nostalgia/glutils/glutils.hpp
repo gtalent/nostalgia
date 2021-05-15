@@ -6,6 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <ox/std/defines.hpp>
+
 #define GL_GLEXT_PROTOTYPES 1
 #ifdef OX_OS_Darwin
 #define GL_SILENCE_DEPRECATION
@@ -14,7 +16,7 @@
 #include <GLES3/gl3.h>
 #endif
 
-namespace nostalgia::core::renderer {
+namespace nostalgia::glutils {
 
 struct Empty {};
 

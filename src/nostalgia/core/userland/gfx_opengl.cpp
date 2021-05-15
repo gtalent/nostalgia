@@ -11,10 +11,10 @@
 #include <ox/std/bit.hpp>
 #include <ox/std/fmt.hpp>
 
+#include <nostalgia/glutils/glutils.hpp>
+
 #include <nostalgia/core/config.hpp>
 #include <nostalgia/core/gfx.hpp>
-
-#include "glutils.hpp"
 
 namespace nostalgia::core {
 
@@ -30,10 +30,10 @@ constexpr auto BgVertexVboLength = BgVertexVboRows * BgVertexVboRowLength;
 constexpr auto BgVertexEboLength = 6;
 
 struct Background {
-	GLVertexArray vao;
-	GLBuffer vbo;
-	GLBuffer ebo;
-	GLTexture tex;
+	glutils::GLVertexArray vao;
+	glutils::GLBuffer vbo;
+	glutils::GLBuffer ebo;
+	glutils::GLTexture tex;
 	bool enabled = false;
 	bool updated = false;
 	std::array<float, TileCount * BgVertexVboLength> bgVertices = {};
@@ -41,7 +41,7 @@ struct Background {
 };
 
 struct GlImplData {
-	GLProgram bgShader;
+	glutils::GLProgram bgShader;
 	int64_t prevFpsCheckTime = 0;
 	uint64_t draws = 0;
 	std::array<Background, 4> backgrounds;
@@ -119,16 +119,16 @@ static void initBackgroundBufferObjects(Context *ctx, Background *bg) noexcept {
 	}
 }
 
-static GLVertexArray genVertexArrayObject() noexcept {
+static glutils::GLVertexArray genVertexArrayObject() noexcept {
 	GLuint vao = 0;
 	glGenVertexArrays(1, &vao);
-	return GLVertexArray(vao);
+	return glutils::GLVertexArray(vao);
 }
 
-static GLBuffer genBuffer() noexcept {
+static glutils::GLBuffer genBuffer() noexcept {
 	GLuint buff = 0;
 	glGenBuffers(1, &buff);
-	return GLBuffer(buff);
+	return glutils::GLBuffer(buff);
 }
 
 static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg) noexcept {
@@ -151,10 +151,10 @@ static void initBackgroundBufferset(Context *ctx, GLuint shader, Background *bg)
 	                      ox::bit_cast<void*>(2 * sizeof(float)));
 }
 
-static GLTexture loadTexture(GLsizei w, GLsizei h, void *pixels) noexcept {
+static glutils::GLTexture loadTexture(GLsizei w, GLsizei h, void *pixels) noexcept {
 	GLuint texId = 0;
 	glGenTextures(1, &texId);
-	GLTexture tex(texId);
+	glutils::GLTexture tex(texId);
 	tex.width = w;
 	tex.height = h;
 	glActiveTexture(GL_TEXTURE0);
@@ -208,7 +208,7 @@ static void drawBackgrounds(GlImplData *id) noexcept {
 ox::Error init(Context *ctx) noexcept {
 	const auto id = new GlImplData;
 	ctx->setRendererData(id);
-	oxReturnError(buildShaderProgram(bgvshad, bgfshad).moveTo(&id->bgShader));
+	oxReturnError(glutils::buildShaderProgram(bgvshad, bgfshad).moveTo(&id->bgShader));
 	for (auto &bg : id->backgrounds) {
 		initBackgroundBufferset(ctx, id->bgShader, &bg);
 	}

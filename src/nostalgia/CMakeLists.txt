@@ -20,6 +20,7 @@ if(NOSTALGIA_BUILD_PLAYER)
 endif()
 
 if(NOSTALGIA_BUILD_TYPE STREQUAL "Native")
+	add_subdirectory(glutils)
 	add_subdirectory(tools)
 	if(NOSTALGIA_BUILD_STUDIO)
 		add_subdirectory(studio)

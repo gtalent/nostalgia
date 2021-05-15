@@ -6,9 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <array>
-
-#include <ox/std/assert.hpp>
 #include <ox/std/bstring.hpp>
 #include <ox/std/trace.hpp>
 

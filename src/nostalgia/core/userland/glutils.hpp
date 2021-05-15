@@ -14,9 +14,6 @@
 #include <GLES3/gl3.h>
 #endif
 
-#include <ox/std/error.hpp>
-#include <ox/std/trace.hpp>
-
 namespace nostalgia::core::renderer {
 
 struct Empty {};

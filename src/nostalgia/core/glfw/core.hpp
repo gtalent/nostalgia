@@ -13,7 +13,7 @@
 namespace nostalgia::core {
 
 struct GlfwImplData {
-	class GLFWwindow *window = nullptr;
+	struct GLFWwindow *window = nullptr;
 	int64_t startTime = 0;
 	bool running = false;
 	event_handler eventHandler = nullptr;

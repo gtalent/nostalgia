@@ -1,6 +1,7 @@
 .clangd
 .current_build
 scripts/__pycache__
+deps/imgui/src
 compile_commands.json
 build
 .conanbuild

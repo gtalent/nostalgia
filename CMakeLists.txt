@@ -44,12 +44,19 @@ else()
 endif()
 
 add_subdirectory(deps/ox)
-include_directories(SYSTEM deps/ox/src)
+include_directories(
+	SYSTEM
+		deps/imgui/src
+		deps/ox/src
+)
 
 if(BUILDCORE_TARGET STREQUAL "gba")
 	add_subdirectory(deps/gbastartup)
-elseif(NOSTALGIA_BUILD_STUDIO)
-	add_subdirectory(deps/QDark)
+else()
+	if(NOSTALGIA_BUILD_STUDIO)
+		add_subdirectory(deps/QDark)
+	endif()
+	add_subdirectory(deps/imgui)
 endif()
 
 add_subdirectory(src)

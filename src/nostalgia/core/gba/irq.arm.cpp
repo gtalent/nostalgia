@@ -32,8 +32,8 @@ void nostalgia_core_isr_vblank() {
 	// copy g_spriteUpdates to allow it to use a register instead of reading
 	// from memory every iteration of the loop, needed because g_spriteUpdates
 	// is volatile
-	const auto updates = g_spriteUpdates;
-	for (uint16_t i = 0; i < updates; ++i) {
+	const unsigned updates = g_spriteUpdates;
+	for (unsigned i = 0; i < updates; ++i) {
 		const auto &oa = g_spriteBuffer[i];
 		MEM_OAM[oa.idx] = *ox::bit_cast<const uint64_t*>(&oa);
 	}

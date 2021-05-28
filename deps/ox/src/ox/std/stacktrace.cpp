@@ -11,17 +11,14 @@
 
 #include <execinfo.h>
 #include <dlfcn.h>
-#include <unistd.h>
 
 #if __has_include(<cxxabi.h>)
 #include <cxxabi.h>
 #endif
 #endif
 
-#include "error.hpp"
 #include "string.hpp"
 #include "trace.hpp"
-#include "units.hpp"
 #include "utility.hpp"
 #include "vector.hpp"
 

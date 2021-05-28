@@ -12,6 +12,7 @@ endif()
 
 target_compile_definitions(
 	OxTraceHook PUBLIC
+		$<$<BOOL:${OX_BARE_METAL}>:OX_BARE_METAL>
 		$<$<BOOL:${OX_USE_STDLIB}>:OX_USE_STDLIB>
 		$<$<BOOL:${OX_NODEBUG}>:OX_NODEBUG>
 )

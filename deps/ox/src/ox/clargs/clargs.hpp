@@ -9,10 +9,9 @@
 #pragma once
 
 #include <ox/std/hashmap.hpp>
+#include <ox/std/string.hpp>
 
 namespace ox {
-
-class String;
 
 class ClArgs {
 	private:

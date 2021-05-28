@@ -15,6 +15,7 @@
 #include "bstring.hpp"
 #include "fmt.hpp"
 #include "hashmap.hpp"
+#include "string.hpp"
 #include "units.hpp"
 
 extern "C" {
@@ -35,7 +36,7 @@ struct TraceMsg {
 	int line = 0;
 	uint64_t time = 0;
 	const char *ch = "";
-	BString<units::KB * 10> msg;
+	BasicString<100> msg;
 };
 
 template<typename T>
@@ -102,7 +103,53 @@ class OutStream {
 		}
 
 		template<typename T>
-		constexpr OutStream &operator<<(const T &v) noexcept {
+		constexpr OutStream &operator<<(const typename enable_if<is_integral_v<T>>::type &v) noexcept {
+			if (m_msg.msg.len()) {
+				m_msg.msg += m_delimiter;
+			}
+			if constexpr(T(-1) < 0) {
+				m_msg.msg += static_cast<int64_t>(v);
+			} else {
+				m_msg.msg += static_cast<uint64_t>(v);
+			}
+			return *this;
+		}
+
+		constexpr OutStream &operator<<(char *v) noexcept {
+			if (m_msg.msg.len()) {
+				m_msg.msg += m_delimiter;
+			}
+			m_msg.msg += v;
+			return *this;
+		}
+
+		constexpr OutStream &operator<<(const char *v) noexcept {
+			if (m_msg.msg.len()) {
+				m_msg.msg += m_delimiter;
+			}
+			m_msg.msg += v;
+			return *this;
+		}
+
+		template<std::size_t sz>
+		constexpr OutStream &operator<<(const BasicString<sz> &v) noexcept {
+			if (m_msg.msg.len()) {
+				m_msg.msg += m_delimiter;
+			}
+			m_msg.msg += v.c_str();
+			return *this;
+		}
+
+		template<std::size_t sz>
+		constexpr OutStream &operator<<(const BString<sz> &v) noexcept {
+			if (m_msg.msg.len()) {
+				m_msg.msg += m_delimiter;
+			}
+			m_msg.msg += v.c_str();
+			return *this;
+		}
+
+		constexpr OutStream &operator<<(char v) noexcept {
 			if (m_msg.msg.len()) {
 				m_msg.msg += m_delimiter;
 			}
@@ -156,7 +203,7 @@ class NullStream {
 
 };
 
-#ifdef DEBUG
+#if defined(DEBUG) && !defined(OX_BARE_METAL)
 using TraceStream = OutStream;
 #else
 using TraceStream = NullStream;

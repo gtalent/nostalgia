@@ -126,8 +126,8 @@ constexpr void oxIgnoreError(ox::Error) noexcept {}
 #define oxReturnError(x) if (const auto _ox_error = ox::detail::toError(x)) [[unlikely]] return _ox_error
 #define oxThrowError(x) if (const auto _ox_error = ox::detail::toError(x)) [[unlikely]] throw _ox_error
 #else
-#define oxReturnError(x) if (const auto _ox_error = ox::detail::toError(x)) return _ox_error
-#define oxThrowError(x) if (const auto _ox_error = ox::detail::toError(x)) throw _ox_error
+#define oxReturnError(err) if (const auto _ox_error = ox::detail::toError(err)) return _ox_error
+#define oxThrowError(err) if (const auto _ox_error = ox::detail::toError(err)) throw _ox_error
 #endif
 #define oxConcatImpl(a, b) a##b
 #define oxConcat(a, b) oxConcatImpl(a, b)

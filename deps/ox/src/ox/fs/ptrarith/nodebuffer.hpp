@@ -97,8 +97,6 @@ class OX_PACKED NodeBuffer {
 		Header m_header;
 
 	public:
-		NodeBuffer() noexcept;
-
 		NodeBuffer(const NodeBuffer &other, size_t size) noexcept;
 
 		explicit NodeBuffer(size_t size) noexcept;

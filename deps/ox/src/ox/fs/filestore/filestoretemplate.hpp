@@ -93,7 +93,7 @@ class FileStoreTemplate {
 
 		Error read(InodeId_t id, FsSize_t readStart, FsSize_t readSize, void *data, FsSize_t *size = nullptr) const;
 
-		const ptrarith::Ptr<uint8_t, std::size_t> read(InodeId_t id) const;
+		ptrarith::Ptr<uint8_t, std::size_t> read(InodeId_t id) const;
 
 		/**
 		 * Reads the "file" at the given id. You are responsible for freeing
@@ -402,7 +402,7 @@ Error FileStoreTemplate<size_t>::read(InodeId_t id, FsSize_t readStart,
 }
 
 template<typename size_t>
-const ptrarith::Ptr<uint8_t, std::size_t> FileStoreTemplate<size_t>::read(InodeId_t id) const {
+ptrarith::Ptr<uint8_t, std::size_t> FileStoreTemplate<size_t>::read(InodeId_t id) const {
 	auto item = find(id);
 	if (item.valid()) {
 		return item->data();

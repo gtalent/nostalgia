@@ -23,7 +23,7 @@ class OxFSFile {
 		QVector<OxFSFile*> m_childItems;
 
 	public:
-		OxFSFile(ox::FileSystem *fs, QString path, OxFSFile *parentItem = nullptr);
+		OxFSFile(ox::FileSystem *fs, const QString &path, OxFSFile *parentItem = nullptr);
 
 		~OxFSFile();
 
@@ -31,19 +31,25 @@ class OxFSFile {
 
 		OxFSFile *child(int row);
 
-		[[nodiscard]] int childCount() const;
+		[[nodiscard]]
+		int childCount() const;
 
-		[[nodiscard]] int columnCount() const;
+		[[nodiscard]]
+		int columnCount() const;
 
-		[[nodiscard]] QVariant data(int column) const;
+		[[nodiscard]]
+		QVariant data(int column) const;
 
-		[[nodiscard]] int row() const;
+		[[nodiscard]]
+		int row() const;
 
 		OxFSFile *parentItem();
 
-		[[nodiscard]] QString name() const;
+		[[nodiscard]]
+		QString name() const;
 
-		[[nodiscard]] QString path() const;
+		[[nodiscard]]
+		QString path() const;
 };
 
 class OxFSModel: public QAbstractItemModel {
@@ -75,7 +81,7 @@ class OxFSModel: public QAbstractItemModel {
 		[[nodiscard]] int columnCount(const QModelIndex &parent) const override;
 
 	public slots:
-		void updateFile(QString path);
+		void updateFile(const QString &path);
 
 };
 

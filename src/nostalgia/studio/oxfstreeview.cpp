@@ -16,13 +16,13 @@
 
 namespace nostalgia::studio {
 
-OxFSFile::OxFSFile(ox::FileSystem *fs, QString path, OxFSFile *parentItem) {
+OxFSFile::OxFSFile(ox::FileSystem *fs, const QString &path, OxFSFile *parentItem) {
 	m_path = path;
 	m_parentItem = parentItem;
 	// find children
 	oxRequireT(stat, fs->stat(static_cast<const char*>(m_path.toUtf8())));
 	QVector<QString> ls;
-	if (stat.fileType == ox::FileType_Directory) {
+	if (stat.fileType == ox::FileType::Directory) {
 		oxRequireT(names, fs->ls(m_path.toUtf8()));
 		for (const auto &name : names) {
 			if (name[0] != '.') {
@@ -33,14 +33,14 @@ OxFSFile::OxFSFile(ox::FileSystem *fs, QString path, OxFSFile *parentItem) {
 	}
 	auto p = m_path;
 	// make sure ends with path separator
-	if (fs->stat(p.toUtf8().data()).value.fileType == ox::FileType_Directory &&
+	if (fs->stat(p.toUtf8().data()).value.fileType == ox::FileType::Directory &&
 		 p.size() && p.back() != QDir::separator()) {
 		p += QDir::separator();
 	}
 	for (const auto &name : ls) {
 		if (name != "." && name != "..") {
-			const auto path = m_path.size() ? m_path + '/' + name : name;
-			const auto ch = new OxFSFile(fs, path, this);
+			const auto filePath = m_path.size() ? m_path + '/' + name : name;
+			const auto ch = new OxFSFile(fs, filePath, this);
 			m_childItems.push_back(ch);
 		}
 	}
@@ -54,7 +54,7 @@ void OxFSFile::appendChild(OxFSModel *model, QStringList pathItems, QString curr
 	if (!pathItems.empty()) {
 		const auto &target = pathItems[0];
 		currentPath += "/" + target;
-		int index = m_childItems.size();
+		int index = static_cast<int>(m_childItems.size());
 		for (int i = 0; i < m_childItems.size(); i++) {
 			if (m_childItems[i]->name() >= target) {
 				index = i;
@@ -82,7 +82,7 @@ OxFSFile *OxFSFile::child(int row) {
 }
 
 int OxFSFile::childCount() const {
-	return m_childItems.size();
+	return static_cast<int>(m_childItems.size());
 }
 
 int OxFSFile::columnCount() const {
@@ -95,7 +95,7 @@ QVariant OxFSFile::data(int) const {
 
 int OxFSFile::row() const {
 	if (m_parentItem) {
-		return m_parentItem->m_childItems.indexOf(const_cast<OxFSFile*>(this));
+		return static_cast<int>(m_parentItem->m_childItems.indexOf(const_cast<OxFSFile*>(this)));
 	} else {
 		return 0;
 	}
@@ -209,7 +209,7 @@ int OxFSModel::columnCount(const QModelIndex &parent) const {
 	}
 }
 
-void OxFSModel::updateFile(QString path) {
+void OxFSModel::updateFile(const QString &path) {
 	auto pathItems = path.split("/").mid(1);
 	m_rootItem->appendChild(this, pathItems, "");
 }

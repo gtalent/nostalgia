@@ -66,11 +66,13 @@ void Project::lsProcDir(QStringList *paths, QString path) const {
 		const auto fullPath = path + "/" + name.c_str();
 		oxRequireT(stat, m_fs->stat(fullPath.toUtf8().data()));
 		switch (stat.fileType) {
-			case ox::FileType_NormalFile:
+			case ox::FileType::NormalFile:
 				paths->push_back(fullPath);
 				break;
-			case ox::FileType_Directory:
+			case ox::FileType::Directory:
 				lsProcDir(paths, fullPath);
+				break;
+			case ox::FileType::None:
 				break;
 		}
 	}

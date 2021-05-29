@@ -40,7 +40,7 @@ static ox::Error transformClaw(ox::FileSystem *dest, const ox::String &path) noe
 	for (const auto &name : fileList) {
 		const auto filePath = path + name;
 		oxRequire(stat, dest->stat(filePath.c_str()));
-		if (stat.fileType == ox::FileType_Directory) {
+		if (stat.fileType == ox::FileType::Directory) {
 			const auto dir = path + name + '/';
 			oxReturnError(transformClaw(dest, dir));
 		} else {
@@ -83,7 +83,7 @@ static ox::Error copy(ox::FileSystem *src, ox::FileSystem *dest, const ox::Strin
 		}
 		oxOutf("reading {}\n", name);
 		oxRequire(stat, src->stat(currentFile.c_str()));
-		if (stat.fileType == ox::FileType_Directory) {
+		if (stat.fileType == ox::FileType::Directory) {
 			oxReturnError(dest->mkdir(currentFile.c_str(), true));
 			oxReturnError(copy(src, dest, currentFile + '/'));
 		} else {

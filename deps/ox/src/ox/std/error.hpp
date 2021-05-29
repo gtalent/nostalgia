@@ -19,6 +19,7 @@ namespace ox {
 
 using ErrorCode = uint16_t;
 
+
 struct [[nodiscard]] Error {
 	const char *msg = nullptr;
 	const char *file = nullptr;
@@ -127,7 +128,7 @@ constexpr void oxIgnoreError(ox::Error) noexcept {}
 #define oxThrowError(x) if (const auto _ox_error = ox::detail::toError(x)) [[unlikely]] throw _ox_error
 #else
 #define oxReturnError(err) if (const auto _ox_error = ox::detail::toError(err)) return _ox_error
-#define oxThrowError(err) if (const auto _ox_error = ox::detail::toError(err)) throw _ox_error
+#define oxThrowError(err) if (const auto _ox_error = ox::detail::toError(err)) throw ox::move(_ox_error)
 #endif
 #define oxConcatImpl(a, b) a##b
 #define oxConcat(a, b) oxConcatImpl(a, b)

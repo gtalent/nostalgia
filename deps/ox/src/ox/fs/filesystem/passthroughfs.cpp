@@ -119,7 +119,7 @@ Error PassThroughFS::resize(uint64_t, void*) noexcept {
 	return OxError(1, "resize is not supported by PassThroughFS");
 }
 
-Error PassThroughFS::write(const char *path, void *buffer, uint64_t size, uint8_t) noexcept {
+Error PassThroughFS::write(const char *path, void *buffer, uint64_t size, FileType) noexcept {
 	const auto p = (m_path / stripSlash(path));
 	try {
 		std::ofstream f(p, std::ios::binary);
@@ -131,7 +131,7 @@ Error PassThroughFS::write(const char *path, void *buffer, uint64_t size, uint8_
 	return OxError(0);
 }
 
-Error PassThroughFS::write(uint64_t, void*, uint64_t, uint8_t) noexcept {
+Error PassThroughFS::write(uint64_t, void*, uint64_t, FileType) noexcept {
 	// unsupported
 	return OxError(1, "write(uint64_t, void*, uint64_t, uint8_t) is not supported by PassThroughFS");
 }
@@ -144,10 +144,10 @@ Result<FileStat> PassThroughFS::stat(uint64_t) noexcept {
 Result<FileStat> PassThroughFS::stat(const char *path) noexcept {
 	std::error_code ec;
 	const auto p = m_path / stripSlash(path);
-	const uint8_t type = std::filesystem::is_directory(p, ec) ?
-		FileType_Directory : FileType_NormalFile;
+	const FileType type = std::filesystem::is_directory(p, ec) ?
+		FileType::Directory : FileType::NormalFile;
 	oxTrace("ox::fs::PassThroughFS::stat") << ec.message().c_str() << path;
-	const uint64_t size = type == FileType_Directory ? 0 : std::filesystem::file_size(p, ec);
+	const uint64_t size = type == FileType::Directory ? 0 : std::filesystem::file_size(p, ec);
 	oxTrace("ox::fs::PassThroughFS::stat") << ec.message().c_str() << path;
 	oxTrace("ox::fs::PassThroughFS::stat::size") << path << size;
 	oxReturnError(OxError(ec.value()));

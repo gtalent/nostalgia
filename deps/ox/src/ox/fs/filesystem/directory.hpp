@@ -133,7 +133,7 @@ template<typename FileStore, typename InodeId_t>
 Error Directory<FileStore, InodeId_t>::init() noexcept {
 	constexpr auto Size = sizeof(Buffer);
 	oxTrace("ox::fs::Directory::init") << "Initializing Directory with Inode ID:" << m_inodeId;
-	oxReturnError(m_fs.write(m_inodeId, nullptr, Size, FileType_Directory));
+	oxReturnError(m_fs.write(m_inodeId, nullptr, Size, static_cast<uint8_t>(FileType::Directory)));
 	auto buff = m_fs.read(m_inodeId).template to<Buffer>();
 	if (!buff.valid()) {
 		m_size = 0;
@@ -253,7 +253,7 @@ Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode,
 		oxTrace("ox::fs::Directory::write") << "Attempting to write Directory entry:" << name->data();
 		oxTrace("ox::fs::Directory::write") << "Attempting to write Directory to FileStore";
 		oxReturnError(val->init(inode, name->data(), val.size()));
-		return m_fs.write(m_inodeId, cpy, cpy->size(), FileType_Directory);
+		return m_fs.write(m_inodeId, cpy, cpy->size(), static_cast<uint8_t>(FileType::Directory));
 	}
 }
 

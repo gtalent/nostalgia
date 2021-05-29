@@ -32,7 +32,7 @@ class PassThroughFS: public FileSystem {
 	public:
 		PassThroughFS(const char *dirPath);
 
-		~PassThroughFS();
+		~PassThroughFS() override;
 
 		[[nodiscard]]
 		String basePath();
@@ -60,9 +60,9 @@ class PassThroughFS: public FileSystem {
 
 		Error resize(uint64_t size, void *buffer = nullptr) noexcept override;
 
-		Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept override;
+		Error write(const char *path, void *buffer, uint64_t size, FileType fileType = FileType::NormalFile) noexcept override;
 
-		Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept override;
+		Error write(uint64_t inode, void *buffer, uint64_t size, FileType fileType = FileType::NormalFile) noexcept override;
 
 		Result<FileStat> stat(uint64_t inode) noexcept override;
 

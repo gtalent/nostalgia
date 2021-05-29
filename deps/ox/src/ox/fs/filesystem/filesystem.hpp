@@ -23,7 +23,7 @@ class FileSystem {
 	public:
 		virtual ~FileSystem() noexcept = default;
 
-		virtual Error mkdir(const char *path, bool recursive = false) noexcept = 0;
+		virtual Error mkdir(const char *path, bool recursive) noexcept = 0;
 
 		/**
 		 * Moves an entry from one directory to another.
@@ -48,23 +48,24 @@ class FileSystem {
 
 		Error read(const FileAddress &addr, std::size_t readStart, std::size_t readSize, void *buffer, std::size_t *size) noexcept;
 
+		[[maybe_unused]]
 		Result<const char*> directAccess(const FileAddress &addr) noexcept;
 
 		Result<Vector<String>> ls(const String &dir) noexcept;
 
 		virtual Result<Vector<String>> ls(const char *dir) noexcept = 0;
 
-		virtual Error remove(const char *path, bool recursive = false) noexcept = 0;
+		virtual Error remove(const char *path, bool recursive) noexcept = 0;
 
 		Error remove(const FileAddress &addr, bool recursive = false) noexcept;
 
-		virtual Error resize(uint64_t size, void *buffer = nullptr) noexcept = 0;
+		virtual Error resize(uint64_t size, void *buffer) noexcept = 0;
 
-		virtual Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept = 0;
+		virtual Error write(const char *path, void *buffer, uint64_t size, FileType fileType) noexcept = 0;
 
-		virtual Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept = 0;
+		virtual Error write(uint64_t inode, void *buffer, uint64_t size, FileType fileType) noexcept = 0;
 
-		Error write(const FileAddress &addr, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept;
+		Error write(const FileAddress &addr, void *buffer, uint64_t size, FileType fileType = FileType::NormalFile) noexcept;
 
 		virtual Result<FileStat> stat(uint64_t inode) noexcept = 0;
 
@@ -110,15 +111,15 @@ class FileSystemTemplate: public FileSystem {
 	public:
 		FileSystemTemplate() noexcept = default;
 
-		FileSystemTemplate(void *buffer, uint64_t bufferSize, void(*freeBuffer)(char*) = [](char *buff) { delete buff; }) noexcept;
+		FileSystemTemplate(void *buffer, uint64_t bufferSize, void(*freeBuffer)(char*) = [](const char *buff) { delete buff; }) noexcept;
 
-		FileSystemTemplate(FileStore fs) noexcept;
+		explicit FileSystemTemplate(FileStore fs) noexcept;
 
-		~FileSystemTemplate() noexcept;
+		~FileSystemTemplate() noexcept override;
 
 		static Error format(void *buff, uint64_t buffSize) noexcept;
 
-		Error mkdir(const char *path, bool recursive = false) noexcept override;
+		Error mkdir(const char *path, bool recursive) noexcept override;
 
 		Error move(const char *src, const char *dest) noexcept override;
 
@@ -132,23 +133,23 @@ class FileSystemTemplate: public FileSystem {
 
 		Result<const char*> directAccess(uint64_t) noexcept override;
 
-		Result<Vector<String>> ls(const char *dir) noexcept override;
+		Result<Vector<String>> ls(const char *path) noexcept override;
 
 		template<typename F>
-		Error ls(const char *dir, F cb);
+		Error ls(const char *path, F cb);
 
-		Error remove(const char *path, bool recursive = false) noexcept override;
+		Error remove(const char *path, bool recursive) noexcept override;
 
 		/**
 		 * Resizes FileSystem to minimum possible size.
 		 */
 		Error resize() noexcept;
 
-		Error resize(uint64_t size, void *buffer = nullptr) noexcept override;
+		Error resize(uint64_t size, void *buffer) noexcept override;
 
-		Error write(const char *path, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept override;
+		Error write(const char *path, void *buffer, uint64_t size, FileType fileType) noexcept override;
 
-		Error write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType = FileType_NormalFile) noexcept override;
+		Error write(uint64_t inode, void *buffer, uint64_t size, FileType fileType) noexcept override;
 
 		Result<FileStat> stat(uint64_t inode) noexcept override;
 
@@ -164,6 +165,7 @@ class FileSystemTemplate: public FileSystem {
 
 		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) noexcept override;
 
+		[[nodiscard]]
 		bool valid() const noexcept override;
 
 	private:
@@ -220,7 +222,7 @@ Error FileSystemTemplate<FileStore, Directory>::format(void *buff, uint64_t buff
 
 template<typename FileStore, typename Directory>
 Error FileSystemTemplate<FileStore, Directory>::mkdir(const char *path, bool recursive) noexcept {
-	oxTrace("ox::fs::FileSystemTemplate::mkdir") << "path:" << path << "recursive:" << recursive;
+	oxTracef("ox::fs::FileSystemTemplate::mkdir", "path: {}, recursive: {}", path, recursive);
 	oxRequireM(rootDir, this->rootDir());
 	return rootDir.mkdir(path, recursive);
 }
@@ -295,7 +297,7 @@ Error FileSystemTemplate<FileStore, Directory>::remove(const char *path, bool re
 	Directory rootDir(m_fs, fd.rootDirInode);
 	oxRequire(inode, rootDir.find(path));
 	oxRequire(st, stat(inode));
-	if (st.fileType == FileType_NormalFile || recursive) {
+	if (st.fileType == FileType::NormalFile || recursive) {
 		if (auto err = rootDir.remove(path)) {
 			// removal failed, try putting the index back
 			oxLogError(rootDir.write(path, inode));
@@ -320,7 +322,7 @@ Error FileSystemTemplate<FileStore, Directory>::resize(uint64_t size, void *buff
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void *buffer, uint64_t size, uint8_t fileType) noexcept {
+Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void *buffer, uint64_t size, FileType fileType) noexcept {
 	auto [inode, err] = find(path);
 	if (err) {
 		oxRequire(generatedId, m_fs.generateInodeId());
@@ -333,8 +335,8 @@ Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void *bu
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::write(uint64_t inode, void *buffer, uint64_t size, uint8_t fileType) noexcept {
-	return m_fs.write(inode, buffer, size, fileType);
+Error FileSystemTemplate<FileStore, Directory>::write(uint64_t inode, void *buffer, uint64_t size, FileType fileType) noexcept {
+	return m_fs.write(inode, buffer, size, static_cast<uint8_t>(fileType));
 }
 
 template<typename FileStore, typename Directory>
@@ -344,7 +346,7 @@ Result<FileStat> FileSystemTemplate<FileStore, Directory>::stat(uint64_t inode) 
 	out.inode = s.inode;
 	out.links = s.links;
 	out.size = s.size;
-	out.fileType = s.fileType;
+	out.fileType = static_cast<FileType>(s.fileType);
 	return out;
 }
 

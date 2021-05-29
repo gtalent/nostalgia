@@ -12,22 +12,17 @@
 
 namespace ox {
 
-enum FsType {
-	OxFS_16 = 1,
-	OxFS_32 = 2,
-	OxFS_64 = 3
-};
-
-enum FileType {
-	FileType_NormalFile = 1,
-	FileType_Directory  = 2
+enum class FileType: uint8_t {
+	None = 0,
+	NormalFile = 1,
+	Directory  = 2
 };
 
 constexpr const char *toString(FileType t) {
 	switch (t) {
-		case FileType_NormalFile:
+		case FileType::NormalFile:
 			return "Normal File";
-		case FileType_Directory:
+		case FileType::Directory:
 			return "Directory";
 		default:
 			return "";
@@ -38,7 +33,7 @@ struct FileStat {
 	uint64_t inode = 0;
 	uint64_t links = 0;
 	uint64_t size = 0;
-	uint8_t  fileType = 0;
+	FileType fileType = FileType::None;
 };
 
 }

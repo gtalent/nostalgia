@@ -8,7 +8,6 @@
 
 #include <ox/claw/claw.hpp>
 #include <nostalgia/core/gfx.hpp>
-#include <nostalgia/core/gfx.hpp>
 
 #include "gfx.hpp"
 

@@ -39,6 +39,8 @@ ox::Error initGfx(Context *ctx) noexcept {
 	glfwSetWindowUserPointer(id->window, ctx);
 	glfwMakeContextCurrent(id->window);
 	oxReturnError(renderer::init(ctx));
+	oxReturnError(OxError(glfwInit() != 0));
+	ImGui::CreateContext();
 	ImGui_ImplGlfw_InitForOpenGL(id->window, true);
 	return OxError(0);
 }

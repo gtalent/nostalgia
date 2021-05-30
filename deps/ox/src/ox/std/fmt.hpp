@@ -35,8 +35,9 @@ constexpr const char *toCString(const BString<size> &s) noexcept {
     return s.c_str();
 }
 
-constexpr const char *toCString(const String &s) noexcept {
-	return s.c_str();
+template<std::size_t size>
+constexpr const char *toCString(const BasicString<size> &s) noexcept {
+    return s.c_str();
 }
 
 #if __has_include(<string>)

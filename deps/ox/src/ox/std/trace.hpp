@@ -102,20 +102,25 @@ class OutStream {
 			oxTraceHook(m_msg.file, m_msg.line, m_msg.ch, m_msg.msg.c_str());
 		}
 
-		template<typename T>
-		constexpr OutStream &operator<<(const typename enable_if<is_integral_v<T>>::type &v) noexcept {
-			if (m_msg.msg.len()) {
-				m_msg.msg += m_delimiter;
-			}
-			if constexpr(T(-1) < 0) {
-				m_msg.msg += static_cast<int64_t>(v);
-			} else {
-				m_msg.msg += static_cast<uint64_t>(v);
-			}
-			return *this;
-		}
+		constexpr OutStream &operator<<(short v) noexcept;
 
-		constexpr OutStream &operator<<(char *v) noexcept {
+		constexpr OutStream &operator<<(int v) noexcept;
+
+		constexpr OutStream &operator<<(long v) noexcept;
+
+		constexpr OutStream &operator<<(long long v) noexcept;
+
+		constexpr OutStream &operator<<(unsigned char v) noexcept;
+
+		constexpr OutStream &operator<<(unsigned short v) noexcept;
+
+		constexpr OutStream &operator<<(unsigned int v) noexcept;
+
+		constexpr OutStream &operator<<(unsigned long v) noexcept;
+
+		constexpr OutStream &operator<<(unsigned long long v) noexcept;
+
+		constexpr OutStream &operator<<(char v) noexcept {
 			if (m_msg.msg.len()) {
 				m_msg.msg += m_delimiter;
 			}
@@ -132,37 +137,17 @@ class OutStream {
 		}
 
 		template<std::size_t sz>
-		constexpr OutStream &operator<<(const BasicString<sz> &v) noexcept {
-			if (m_msg.msg.len()) {
-				m_msg.msg += m_delimiter;
-			}
-			m_msg.msg += v.c_str();
-			return *this;
+		constexpr OutStream &operator<<(const BString<sz> &v) noexcept {
+			return operator<<(v.c_str());
 		}
 
 		template<std::size_t sz>
-		constexpr OutStream &operator<<(const BString<sz> &v) noexcept {
-			if (m_msg.msg.len()) {
-				m_msg.msg += m_delimiter;
-			}
-			m_msg.msg += v.c_str();
-			return *this;
-		}
-
-		constexpr OutStream &operator<<(char v) noexcept {
-			if (m_msg.msg.len()) {
-				m_msg.msg += m_delimiter;
-			}
-			m_msg.msg += v;
-			return *this;
+		constexpr OutStream &operator<<(const BasicString<sz> &v) noexcept {
+			return operator<<(v.c_str());
 		}
 
 		constexpr OutStream &operator<<(const Error &err) noexcept {
-			if (m_msg.msg.len()) {
-				m_msg.msg += m_delimiter;
-			}
-			m_msg.msg += static_cast<int64_t>(err);
-			return *this;
+			return appendSignedInt(static_cast<int64_t>(err));
 		}
 
 		/**
@@ -173,7 +158,60 @@ class OutStream {
 			return *this;
 		}
 
+	private:
+		constexpr OutStream &appendSignedInt(int64_t v) noexcept {
+			if (m_msg.msg.len()) {
+				m_msg.msg += m_delimiter;
+			}
+			m_msg.msg += static_cast<int64_t>(v);
+			return *this;
+		}
+
+		constexpr OutStream &appendUnsignedInt(uint64_t v) noexcept {
+			if (m_msg.msg.len()) {
+				m_msg.msg += m_delimiter;
+			}
+			m_msg.msg += static_cast<int64_t>(v);
+			return *this;
+		}
+
 };
+
+constexpr OutStream &OutStream::operator<<(short v) noexcept {
+	return appendSignedInt(v);
+}
+
+constexpr OutStream &OutStream::operator<<(int v) noexcept {
+	return appendSignedInt(v);
+}
+
+constexpr OutStream &OutStream::operator<<(long v) noexcept {
+	return appendSignedInt(v);
+}
+
+constexpr OutStream &OutStream::operator<<(long long v) noexcept {
+	return appendSignedInt(v);
+}
+
+constexpr OutStream &OutStream::operator<<(unsigned char v) noexcept {
+	return appendUnsignedInt(v);
+}
+
+constexpr OutStream &OutStream::operator<<(unsigned short v) noexcept {
+	return appendUnsignedInt(v);
+}
+
+constexpr OutStream &OutStream::operator<<(unsigned int v) noexcept {
+	return appendUnsignedInt(v);
+}
+
+constexpr OutStream &OutStream::operator<<(unsigned long v) noexcept {
+	return appendUnsignedInt(v);
+}
+
+constexpr OutStream &OutStream::operator<<(unsigned long long v) noexcept {
+	return appendUnsignedInt(v);
+}
 
 
 class NullStream {

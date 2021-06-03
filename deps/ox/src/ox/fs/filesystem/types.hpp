@@ -18,7 +18,7 @@ enum class FileType: uint8_t {
 	Directory  = 2
 };
 
-constexpr const char *toString(FileType t) {
+constexpr const char *toString(FileType t) noexcept {
 	switch (t) {
 		case FileType::NormalFile:
 			return "Normal File";

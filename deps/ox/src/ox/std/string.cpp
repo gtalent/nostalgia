@@ -9,4 +9,7 @@
 #include "string.hpp"
 
 namespace ox {
+
+template class BasicString<0>;
+
 }

@@ -399,6 +399,8 @@ constexpr std::size_t BasicString<SmallStringSize>::len() const noexcept {
 	return length;
 }
 
+extern template class BasicString<0>;
+
 using String = BasicString<0>;
 
 }

@@ -226,16 +226,16 @@ class NullStream {
 		}
 #else
 		template<std::size_t fmtSegmentCnt, typename ...Args>
-		constexpr NullStream(const char*, int, const char*, detail::Fmt<fmtSegmentCnt>, Args...) {
+		constexpr NullStream(const char*, int, const char*, detail::Fmt<fmtSegmentCnt>, Args...) noexcept {
 		}
 #endif
 
 		template<typename T>
-		constexpr NullStream &operator<<(const T&) noexcept {
+		constexpr const NullStream &operator<<(const T&) const noexcept {
 			return *this;
 		}
 
-		constexpr NullStream &del(const char*) noexcept {
+		constexpr const NullStream &del(const char*) const noexcept {
 			return *this;
 		}
 

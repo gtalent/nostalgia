@@ -71,9 +71,13 @@ template<> struct is_integral<unsigned long long>: true_type {};
 template<typename T>
 constexpr bool is_integral_v = is_integral<T>::value;
 
+template<typename T> struct is_char: false_type {};
+template<> struct is_char<char>    : true_type {};
+template<typename T>
+constexpr bool is_char_v = is_char<T>::value;
+
 template<typename T> struct is_bool: false_type {};
 template<> struct is_bool<bool>    : true_type {};
-
 template<typename T>
 constexpr bool is_bool_v = is_bool<T>::value;
 

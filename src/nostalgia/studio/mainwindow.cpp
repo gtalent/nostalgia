@@ -79,7 +79,9 @@ MainWindow::~MainWindow() {
 
 void MainWindow::loadModules() {
 	for (auto p : BuiltinModules) {
-		loadModule(p());
+		auto module = p();
+		loadModule(module);
+		delete module;
 	}
 	for (auto dir : m_profile.modulesPath) {
 		QFileInfo dirInfo(m_profilePath);
@@ -106,6 +108,7 @@ void MainWindow::loadModule(QString modulePath) {
 	auto module = qobject_cast<Module*>(loader.instance());
 	if (module) {
 		loadModule(module);
+		delete module;
 	} else {
 		qInfo() << loader.errorString();
 	}
@@ -360,7 +363,7 @@ void MainWindow::openProject(QString projectPath) {
 			openFile(t, true);
 		} catch (const ox::Error &err) {
 			qInfo().nospace() << "Error opening tab: " << t << ", " << static_cast<int>(err) << ", " << err.file << ":" << err.line;
-			oxTracef("nostalgia::studio::MainWindow::openProject", "Error opening tab: {}, {}, {}:{}", static_cast<int>(err), static_cast<int>(err), err.file, err.line); 
+			oxTracef("nostalgia::studio::MainWindow::openProject", "Error opening tab: {}, {}, {}:{}", static_cast<int>(err), static_cast<int>(err), err.file, err.line);
 		} catch (...) {
 			qInfo() << "Error opening tab: " << t;
 			oxTracef("nostalgia::studio::MainWindow::openProject", "Error opening tab: {}", t);

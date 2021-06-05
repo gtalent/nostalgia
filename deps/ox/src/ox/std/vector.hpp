@@ -301,7 +301,7 @@ Vector<T, SmallVectorSize>::Vector(const Vector &other) {
 	m_cap = other.m_cap;
 	this->initItems(&m_items, other.m_cap);
 	for (std::size_t i = 0; i < m_size; ++i) {
-		m_items[i] = move(other.m_items[i]);
+		m_items[i] = other.m_items[i];
 	}
 }
 

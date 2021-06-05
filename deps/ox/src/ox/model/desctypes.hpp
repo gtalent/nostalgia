@@ -82,19 +82,24 @@ struct DescriptorField {
 
 	~DescriptorField();
 
-	const DescriptorField &operator=(DescriptorField &&other) noexcept {
+	const DescriptorField &operator=(const DescriptorField &other) noexcept {
 		type = other.type;
 		fieldName = other.fieldName;
 		subscriptLevels = other.subscriptLevels;
 		typeName = other.typeName;
 		ownsType = other.ownsType;
+		return *this;
+	}
 
+	const DescriptorField &operator=(DescriptorField &&other) noexcept {
+		type = move(other.type);
 		other.type = {};
-		other.fieldName = "";
+		fieldName = move(other.fieldName);
+		subscriptLevels = move(other.subscriptLevels);
 		other.subscriptLevels = {};
-		other.typeName = "";
+		typeName = move(other.typeName);
+		ownsType = move(other.ownsType);
 		other.ownsType = {};
-
 		return *this;
 	}
 

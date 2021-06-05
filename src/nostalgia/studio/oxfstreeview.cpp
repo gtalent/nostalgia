@@ -19,6 +19,9 @@ namespace nostalgia::studio {
 OxFSFile::OxFSFile(ox::FileSystem *fs, const QString &path, OxFSFile *parentItem) {
 	m_path = path;
 	m_parentItem = parentItem;
+	if (!fs) {
+		return;
+	}
 	// find children
 	oxRequireT(stat, fs->stat(static_cast<const char*>(m_path.toUtf8())));
 	QVector<QString> ls;

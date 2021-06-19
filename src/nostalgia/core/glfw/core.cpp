@@ -18,16 +18,25 @@ namespace nostalgia::core {
 
 void draw(Context *ctx) noexcept;
 
+static void handleKeyPress(Context *ctx, int key) {
+	const auto id = ctx->windowerData<GlfwImplData>();
+	switch (key) {
+		case GLFW_KEY_ESCAPE:
+		case GLFW_KEY_Q:
+			id->running = false;
+			break;
+		default:
+			break;
+	}
+}
+
 static void handleGlfwKeyEvent(GLFWwindow *window, int key, int, int action, int) {
 	const auto ctx = static_cast<Context*>(glfwGetWindowUserPointer(window));
-	const auto id = ctx->windowerData<GlfwImplData>();
 	switch (action) {
 		case GLFW_PRESS:
-			switch (key) {
-				case GLFW_KEY_Q:
-					id->running = false;
-					break;
-			}
+			handleKeyPress(ctx, key);
+			break;
+		default:
 			break;
 	}
 }

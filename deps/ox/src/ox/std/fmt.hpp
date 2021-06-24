@@ -32,12 +32,12 @@ constexpr const char *toCString(const char *s) noexcept {
 
 template<std::size_t size>
 constexpr const char *toCString(const BString<size> &s) noexcept {
-    return s.c_str();
+	return s.c_str();
 }
 
 template<std::size_t size>
 constexpr const char *toCString(const BasicString<size> &s) noexcept {
-    return s.c_str();
+	return s.c_str();
 }
 
 #if __has_include(<string>)

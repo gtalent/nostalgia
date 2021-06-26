@@ -43,7 +43,7 @@ ox::Error loadBgTileSheet(Context *ctx,
 	const unsigned bytesPerTile = tilesheet.bpp == 8 ? 64 : 32;
 	const auto tiles = tilesheet.pixels.size() / bytesPerTile;
 	constexpr int width = 8;
-	const int height = 8 * tiles;
+	const int height = 8 * static_cast<int>(tiles);
 	ox::Vector<uint32_t> pixels;
 	if (bytesPerTile == 64) { // 8 BPP
 		pixels.resize(tilesheet.pixels.size());
@@ -62,7 +62,7 @@ ox::Error loadBgTileSheet(Context *ctx,
 
 void puts(Context *ctx, int column, int row, const char *str) noexcept {
 	for (int i = 0; str[i]; ++i) {
-		setTile(ctx, 0, column + i, row, static_cast<uint8_t>(charMap[static_cast<int>(str[i])]));
+		setTile(ctx, 0, column + i, row, static_cast<uint8_t>(charMap[static_cast<uint8_t>(str[i])]));
 	}
 }
 

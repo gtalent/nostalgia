@@ -44,13 +44,15 @@ Error readClaw(const char *buff, std::size_t buffLen, T *val) {
 			MetalClawReader reader(bit_cast<uint8_t*>(header.data), buffLen);
 			return model(&reader, val);
 		}
-#ifdef OX_USE_STDLIB
 		case ClawFormat::Organic:
 		{
+#ifdef OX_USE_STDLIB
 			OrganicClawReader reader(bit_cast<uint8_t*>(header.data), buffLen);
 			return model(&reader, val);
-		}
+#else
+			break;
 #endif
+		}
 		case ClawFormat::None:
 			return OxError(1);
 	}

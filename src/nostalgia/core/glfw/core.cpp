@@ -32,12 +32,8 @@ static void handleKeyPress(Context *ctx, int key) {
 
 static void handleGlfwKeyEvent(GLFWwindow *window, int key, int, int action, int) {
 	const auto ctx = static_cast<Context*>(glfwGetWindowUserPointer(window));
-	switch (action) {
-		case GLFW_PRESS:
-			handleKeyPress(ctx, key);
-			break;
-		default:
-			break;
+	if (action == GLFW_PRESS) {
+		handleKeyPress(ctx, key);
 	}
 }
 

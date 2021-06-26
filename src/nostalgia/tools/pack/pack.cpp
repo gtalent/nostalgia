@@ -19,15 +19,25 @@ namespace nostalgia {
  * @return error
  * stub for now
  */
-static ox::Error pathToInode(ox::Buffer*) noexcept {
-	return OxError(0);
+static ox::Result<ox::Buffer> pathToInode(const ox::Buffer &buff) noexcept {
+	return ox::move(buff);
 }
 
 // just strip header for now...
-static ox::Error toMetalClaw(ox::Buffer *buff) noexcept {
-	oxRequire(mc, ox::stripClawHeader(ox::bit_cast<char*>(buff->data()), buff->size()));
-	buff->resize(mc.size());
-	memcpy(buff->data(), mc.data(), mc.size());
+static ox::Result<ox::Buffer> toMetalClaw(const ox::Buffer &buff) noexcept {
+	return ox::stripClawHeader(buff.data(), buff.size());
+}
+
+static ox::Error doTransformations(ox::FileSystem *dest, const ox::String &filePath) noexcept {
+	if (filePath.endsWith(".ng") || filePath.endsWith(".npal")) {
+		// load file
+		oxRequireM(buff, dest->read(filePath.c_str()));
+		// do transformations
+		oxReturnError(pathToInode(buff).moveTo(&buff));
+		oxReturnError(toMetalClaw(buff).moveTo(&buff));
+		// write file to dest
+		oxReturnError(dest->write(filePath.c_str(), buff.data(), buff.size()));
+	}
 	return OxError(0);
 }
 
@@ -44,17 +54,7 @@ static ox::Error transformClaw(ox::FileSystem *dest, const ox::String &path) noe
 			const auto dir = path + name + '/';
 			oxReturnError(transformClaw(dest, dir));
 		} else {
-			// do transforms
-			if (name.endsWith(".ng") || name.endsWith(".npal")) {
-				// load file
-				ox::Buffer buff(stat.size);
-				oxReturnError(dest->read(filePath.c_str(), buff.data(), buff.size()));
-				// do transformations
-				oxReturnError(pathToInode(&buff));
-				oxReturnError(toMetalClaw(&buff));
-				// write file to dest
-				oxReturnError(dest->write(filePath.c_str(), buff.data(), buff.size()));
-			}
+			oxReturnError(doTransformations(dest, filePath));
 		}
 	}
 	return OxError(0);
@@ -87,14 +87,13 @@ static ox::Error copy(ox::FileSystem *src, ox::FileSystem *dest, const ox::Strin
 			oxReturnError(dest->mkdir(currentFile.c_str(), true));
 			oxReturnError(copy(src, dest, currentFile + '/'));
 		} else {
-			ox::Buffer buff(stat.size);
 			// load file
-			oxReturnError(src->read(currentFile.c_str(), buff.data(), buff.size()));
+			oxRequireM(buff, src->read(currentFile.c_str()));
 			// write file to dest
 			oxOutf("writing {}\n", currentFile);
 			oxReturnError(dest->write(currentFile.c_str(), buff.data(), buff.size()));
 			oxReturnError(verifyFile(dest, currentFile, buff));
-			verificationPairs.emplace_back(currentFile, buff);
+			verificationPairs.emplace_back(currentFile, ox::move(buff));
 		}
 	}
 	// verify all at once in addition to right after the files are written

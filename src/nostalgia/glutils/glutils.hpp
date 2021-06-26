@@ -16,6 +16,8 @@
 #include <GLES3/gl3.h>
 #endif
 
+#include <ox/std/error.hpp>
+
 namespace nostalgia::glutils {
 
 struct Empty {};

@@ -60,9 +60,9 @@ class PassThroughFS: public FileSystem {
 
 		Error resize(uint64_t size, void *buffer = nullptr) noexcept override;
 
-		Error write(const char *path, void *buffer, uint64_t size, FileType fileType = FileType::NormalFile) noexcept override;
+		Error write(const char *path, const void *buffer, uint64_t size, FileType fileType = FileType::NormalFile) noexcept override;
 
-		Error write(uint64_t inode, void *buffer, uint64_t size, FileType fileType = FileType::NormalFile) noexcept override;
+		Error write(uint64_t inode, const void *buffer, uint64_t size, FileType fileType = FileType::NormalFile) noexcept override;
 
 		Result<FileStat> stat(uint64_t inode) noexcept override;
 
@@ -78,6 +78,7 @@ class PassThroughFS: public FileSystem {
 
 		Error walk(Error(*cb)(uint8_t, uint64_t, uint64_t)) noexcept override;
 
+		[[nodiscard]]
 		bool valid() const noexcept override;
 
 	private:

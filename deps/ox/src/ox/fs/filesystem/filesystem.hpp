@@ -61,11 +61,11 @@ class FileSystem {
 
 		virtual Error resize(uint64_t size, void *buffer) noexcept = 0;
 
-		virtual Error write(const char *path, void *buffer, uint64_t size, FileType fileType) noexcept = 0;
+		virtual Error write(const char *path, const void *buffer, uint64_t size, FileType fileType) noexcept = 0;
 
-		virtual Error write(uint64_t inode, void *buffer, uint64_t size, FileType fileType) noexcept = 0;
+		virtual Error write(uint64_t inode, const void *buffer, uint64_t size, FileType fileType) noexcept = 0;
 
-		Error write(const FileAddress &addr, void *buffer, uint64_t size, FileType fileType = FileType::NormalFile) noexcept;
+		Error write(const FileAddress &addr, const void *buffer, uint64_t size, FileType fileType = FileType::NormalFile) noexcept;
 
 		virtual Result<FileStat> stat(uint64_t inode) noexcept = 0;
 
@@ -147,9 +147,9 @@ class FileSystemTemplate: public FileSystem {
 
 		Error resize(uint64_t size, void *buffer) noexcept override;
 
-		Error write(const char *path, void *buffer, uint64_t size, FileType fileType) noexcept override;
+		Error write(const char *path, const void *buffer, uint64_t size, FileType fileType) noexcept override;
 
-		Error write(uint64_t inode, void *buffer, uint64_t size, FileType fileType) noexcept override;
+		Error write(uint64_t inode, const void *buffer, uint64_t size, FileType fileType) noexcept override;
 
 		Result<FileStat> stat(uint64_t inode) noexcept override;
 
@@ -322,7 +322,7 @@ Error FileSystemTemplate<FileStore, Directory>::resize(uint64_t size, void *buff
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void *buffer, uint64_t size, FileType fileType) noexcept {
+Error FileSystemTemplate<FileStore, Directory>::write(const char *path, const void *buffer, uint64_t size, FileType fileType) noexcept {
 	auto [inode, err] = find(path);
 	if (err) {
 		oxRequire(generatedId, m_fs.generateInodeId());
@@ -335,7 +335,7 @@ Error FileSystemTemplate<FileStore, Directory>::write(const char *path, void *bu
 }
 
 template<typename FileStore, typename Directory>
-Error FileSystemTemplate<FileStore, Directory>::write(uint64_t inode, void *buffer, uint64_t size, FileType fileType) noexcept {
+Error FileSystemTemplate<FileStore, Directory>::write(uint64_t inode, const void *buffer, uint64_t size, FileType fileType) noexcept {
 	return m_fs.write(inode, buffer, size, static_cast<uint8_t>(fileType));
 }
 

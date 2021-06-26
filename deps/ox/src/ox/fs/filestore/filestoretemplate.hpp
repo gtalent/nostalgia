@@ -85,7 +85,7 @@ class FileStoreTemplate {
 
 		Error decLinks(InodeId_t id);
 
-		Error write(InodeId_t id, void *data, FsSize_t dataLen, uint8_t fileType = 0);
+		Error write(InodeId_t id, const void *data, FsSize_t dataLen, uint8_t fileType = 0);
 
 		Error remove(InodeId_t id);
 
@@ -243,7 +243,7 @@ Error FileStoreTemplate<size_t>::decLinks(InodeId_t id) {
 }
 
 template<typename size_t>
-Error FileStoreTemplate<size_t>::write(InodeId_t id, void *data, FsSize_t dataSize, uint8_t fileType) {
+Error FileStoreTemplate<size_t>::write(InodeId_t id, const void *data, FsSize_t dataSize, uint8_t fileType) {
 	oxTrace("ox::fs::FileStoreTemplate::write") << "Attempting to write to inode" << id;
 	auto existing = find(id);
 	if (!canWrite(existing, dataSize)) {

@@ -119,11 +119,11 @@ Error PassThroughFS::resize(uint64_t, void*) noexcept {
 	return OxError(1, "resize is not supported by PassThroughFS");
 }
 
-Error PassThroughFS::write(const char *path, void *buffer, uint64_t size, FileType) noexcept {
+Error PassThroughFS::write(const char *path, const void *buffer, uint64_t size, FileType) noexcept {
 	const auto p = (m_path / stripSlash(path));
 	try {
 		std::ofstream f(p, std::ios::binary);
-		f.write(static_cast<char*>(buffer), size);
+		f.write(static_cast<const char*>(buffer), size);
 	} catch (const std::fstream::failure &f) {
 		oxTracef("ox::fs::PassThroughFS::read::error", "Write of {} failed: {}", path, f.what());
 		return OxError(1);
@@ -131,7 +131,7 @@ Error PassThroughFS::write(const char *path, void *buffer, uint64_t size, FileTy
 	return OxError(0);
 }
 
-Error PassThroughFS::write(uint64_t, void*, uint64_t, FileType) noexcept {
+Error PassThroughFS::write(uint64_t, const void*, uint64_t, FileType) noexcept {
 	// unsupported
 	return OxError(1, "write(uint64_t, void*, uint64_t, uint8_t) is not supported by PassThroughFS");
 }

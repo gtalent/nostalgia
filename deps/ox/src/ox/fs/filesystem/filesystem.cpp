@@ -72,7 +72,7 @@ Error FileSystem::remove(const FileAddress &addr, bool recursive) noexcept {
 	}
 }
 
-Error FileSystem::write(const FileAddress &addr, void *buffer, uint64_t size, FileType fileType) noexcept {
+Error FileSystem::write(const FileAddress &addr, const void *buffer, uint64_t size, FileType fileType) noexcept {
 	switch (addr.type()) {
 		case FileAddressType::Inode:
 			return write(addr.getInode().value, buffer, size, fileType);

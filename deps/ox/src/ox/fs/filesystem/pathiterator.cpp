@@ -61,11 +61,11 @@ Error PathIterator::fileName(char *out, std::size_t outSize) {
 Error PathIterator::get(char *pathOut, std::size_t pathOutSize) {
 	std::size_t size = 0;
 	if (m_iterator >= m_maxSize) {
-		oxTrace("ox::fs::PathIterator::get") << "m_iterator >= m_maxSize";
+		oxTracef("ox::fs::PathIterator::get", "m_iterator ({}) >= m_maxSize ({})", m_iterator, m_maxSize);
 		return OxError(1);
 	}
 	if (!ox_strlen(&m_path[m_iterator])) {
-		oxTrace("ox::fs::PathIterator::get") << "!ox_strlen(&m_path[m_iterator])";
+		oxTrace("ox::fs::PathIterator::get", "!ox_strlen(&m_path[m_iterator])");
 		return OxError(1);
 	}
 	auto start = m_iterator;

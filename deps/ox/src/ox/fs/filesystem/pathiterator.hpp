@@ -61,12 +61,16 @@ class PathIterator {
 		 */
 		Result<std::size_t> nextSize() const;
 
+		[[nodiscard]]
 		bool hasNext() const;
 
+		[[nodiscard]]
 		bool valid() const;
 
-		[[nodiscard]] PathIterator next() const;
+		[[nodiscard]]
+		PathIterator next() const;
 
+		[[nodiscard]]
 		const char *fullPath() const;
 
 };

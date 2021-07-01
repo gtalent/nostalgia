@@ -31,7 +31,7 @@ Error PassThroughFS::mkdir(const char *path, bool recursive) noexcept {
 	bool success = false;
 	const auto p = m_path / stripSlash(path);
 	const auto u8p = p.u8string();
-	oxTrace("ox::fs::PassThroughFS::mkdir") << u8p.c_str();
+	oxTrace("ox::fs::PassThroughFS::mkdir", u8p.c_str());
 	if (recursive) {
 		std::error_code ec;
 		const auto isDir = std::filesystem::is_directory(p, ec);
@@ -65,7 +65,7 @@ Error PassThroughFS::read(const char *path, void *buffer, std::size_t buffSize) 
 		const std::size_t size = file.tellg();
 		file.seekg(0, std::ios::beg);
 		if (size > buffSize) {
-			oxTrace("ox::fs::PassThroughFS::read::error") << "Read failed: Buffer too small:" << path;
+			oxTracef("ox::fs::PassThroughFS::read::error", "Read failed: Buffer too small: {}", path);
 			return OxError(1);
 		}
 		file.read(static_cast<char*>(buffer), buffSize);
@@ -146,10 +146,10 @@ Result<FileStat> PassThroughFS::stat(const char *path) noexcept {
 	const auto p = m_path / stripSlash(path);
 	const FileType type = std::filesystem::is_directory(p, ec) ?
 		FileType::Directory : FileType::NormalFile;
-	oxTrace("ox::fs::PassThroughFS::stat") << ec.message().c_str() << path;
+	oxTracef("ox::fs::PassThroughFS::stat", "{} {}", ec.message().c_str(), path);
 	const uint64_t size = type == FileType::Directory ? 0 : std::filesystem::file_size(p, ec);
-	oxTrace("ox::fs::PassThroughFS::stat") << ec.message().c_str() << path;
-	oxTrace("ox::fs::PassThroughFS::stat::size") << path << size;
+	oxTracef("ox::fs::PassThroughFS::stat", "{} {}", ec.message().c_str(), path);
+	oxTracef("ox::fs::PassThroughFS::stat::size", "{} {}", path, size);
 	oxReturnError(OxError(ec.value()));
 	return FileStat{0, 0, size, type};
 }

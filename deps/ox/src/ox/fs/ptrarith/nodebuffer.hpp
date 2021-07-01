@@ -180,7 +180,7 @@ NodeBuffer<size_t, Item>::NodeBuffer(size_t size) noexcept {
 
 template<typename size_t, typename Item>
 NodeBuffer<size_t, Item>::NodeBuffer(const NodeBuffer &other, size_t size) noexcept {
-	oxTrace("ox::ptrarith::NodeBuffer::copy") << "other.m_header.firstItem:" << other.m_header.firstItem;
+	oxTracef("ox::ptrarith::NodeBuffer::copy", "other.m_header.firstItem: {}", other.m_header.firstItem.get());
 	auto data = reinterpret_cast<uint8_t*>(this) + sizeof(*this);
 	ox_memset(data, 0, size - sizeof(*this));
 	ox_memcpy(this, &other, size);
@@ -268,7 +268,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t 
 
 template<typename size_t, typename Item>
 typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size_t size) noexcept {
-	oxTrace("ox::ptrarith::NodeBuffer::malloc") << "Size:" << size;
+	oxTracef("ox::ptrarith::NodeBuffer::malloc", "Size: {}", size);
 	size_t fullSize = size + sizeof(Item);
 	if (m_header.size - m_header.bytesUsed >= fullSize) {
 		auto last = lastItem();
@@ -278,18 +278,18 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 		} else {
 			// there is no first item, so this must be the first item
 			if (!m_header.firstItem) {
-				oxTrace("ox::ptrarith::NodeBuffer::malloc") << "No first item, initializing.";
+				oxTrace("ox::ptrarith::NodeBuffer::malloc", "No first item, initializing.");
 				m_header.firstItem = sizeof(m_header);
 				addr = m_header.firstItem;
 			} else {
-				oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "NodeBuffer is in invalid state.";
+				oxTrace("ox::ptrarith::NodeBuffer::malloc::fail", "NodeBuffer is in invalid state.");
 				return nullptr;
 			}
 		}
 		oxTracef("ox::ptrarith::NodeBuffer::malloc", "buffer size: {}; addr: {}; fullSize: {}", m_header.size.get(), addr, fullSize);
 		auto out = ItemPtr(this, m_header.size, addr, fullSize);
 		if (!out.valid()) {
-			oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "Unknown";
+			oxTrace("ox::ptrarith::NodeBuffer::malloc::fail", "Unknown");
 			return nullptr;
 		}
 		ox_memset(out, 0, fullSize);
@@ -302,7 +302,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 		if (first.valid()) {
 			first->prev = out.offset();
 		} else {
-			oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "NodeBuffer malloc failed due to invalid first element pointer.";
+			oxTrace("ox::ptrarith::NodeBuffer::malloc::fail", "NodeBuffer malloc failed due to invalid first element pointer.");
 			return nullptr;
 		}
 
@@ -312,22 +312,22 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 		} else { // check to see if this is the first allocation
 			if (out.offset() != first.offset()) {
 				// if this is not the first allocation, there should be an oldLast
-				oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "NodeBuffer malloc failed due to invalid last element pointer.";
+				oxTrace("ox::ptrarith::NodeBuffer::malloc::fail", "NodeBuffer malloc failed due to invalid last element pointer.");
 				return nullptr;
 			}
 			out->prev = out.offset();
 		}
 		m_header.bytesUsed += out.size();
-		oxTrace("ox::ptrarith::NodeBuffer::malloc") << "Offset:" << out.offset();
+		oxTracef("ox::ptrarith::NodeBuffer::malloc", "Offset: {}", out.offset());
 		return out;
 	}
-	oxTrace("ox::ptrarith::NodeBuffer::malloc::fail") << "Insufficient space:" << fullSize << "needed," << available() << "available";
+	oxTracef("ox::ptrarith::NodeBuffer::malloc::fail", "Insufficient space: {} needed, {} available", fullSize, available());
 	return nullptr;
 }
 
 template<typename size_t, typename Item>
 Error NodeBuffer<size_t, Item>::free(ItemPtr item) noexcept {
-	oxTrace("ox::ptrarith::NodeBuffer::free") << "offset:" << item.offset();
+	oxTracef("ox::ptrarith::NodeBuffer::free", "offset: {}", item.offset());
 	auto prev = this->prev(item);
 	auto next = this->next(item);
 	if (prev.valid() && next.valid()) {
@@ -339,16 +339,16 @@ Error NodeBuffer<size_t, Item>::free(ItemPtr item) noexcept {
 			}
 		} else {
 			// only one item, null out first
-			oxTrace("ox::ptrarith::NodeBuffer::free") << "Nulling out firstItem.";
+			oxTrace("ox::ptrarith::NodeBuffer::free", "Nulling out firstItem.");
 			m_header.firstItem = 0;
 		}
 	} else {
 		if (!prev.valid()) {
-			oxTrace("ox::ptrarith::NodeBuffer::free::fail") << "NodeBuffer free failed due to invalid prev element pointer:" << prev.offset();
+			oxTracef("ox::ptrarith::NodeBuffer::free::fail", "NodeBuffer free failed due to invalid prev element pointer: {}", prev.offset());
 			return OxError(1);
 		}
 		if (!next.valid()) {
-			oxTrace("ox::ptrarith::NodeBuffer::free::fail") << "NodeBuffer free failed due to invalid next element pointer:" << next.offset();
+			oxTracef("ox::ptrarith::NodeBuffer::free::fail", "NodeBuffer free failed due to invalid next element pointer: {}", next.offset());
 			return OxError(1);
 		}
 	}

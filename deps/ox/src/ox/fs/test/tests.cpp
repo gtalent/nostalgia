@@ -20,6 +20,7 @@
 template<typename T>
 struct OX_PACKED NodeType: public ox::ptrarith::Item<T> {
 	public:
+		[[nodiscard]]
 		size_t fullSize() const {
 			return this->size() + sizeof(*this);
 		}
@@ -239,12 +240,12 @@ int main(int argc, const char **args) {
 	int retval = -1;
 	if (argc > 1) {
 		std::string_view testName = args[1];
-		std::string_view testArg = "";
+		std::string_view testArg;
 		if (args[2]) {
 			testArg = args[2];
 		}
 		if (tests.find(testName) != tests.end()) {
-			retval = tests.at(testName)(testArg);
+			retval = static_cast<int>(tests.at(testName)(testArg));
 		}
 	}
 	return retval;

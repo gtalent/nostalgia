@@ -58,9 +58,9 @@ class FileAddress {
 
 		~FileAddress() noexcept;
 
-		const FileAddress &operator=(const FileAddress &other) noexcept;
+		FileAddress &operator=(const FileAddress &other) noexcept;
 
-		const FileAddress &operator=(FileAddress &&other) noexcept;
+		FileAddress &operator=(FileAddress &&other) noexcept;
 
 		[[nodiscard]]
 		constexpr FileAddressType type() const noexcept {

@@ -49,7 +49,7 @@ FileAddress::~FileAddress() noexcept {
 	cleanup();
 }
 
-const FileAddress &FileAddress::operator=(const FileAddress &other) noexcept {
+FileAddress &FileAddress::operator=(const FileAddress &other) noexcept {
 	cleanup();
 	m_type = other.m_type;
 	switch (m_type) {
@@ -70,7 +70,7 @@ const FileAddress &FileAddress::operator=(const FileAddress &other) noexcept {
 	return *this;
 }
 
-const FileAddress &FileAddress::operator=(FileAddress &&other) noexcept {
+FileAddress &FileAddress::operator=(FileAddress &&other) noexcept {
 	cleanup();
 	m_type = other.m_type;
 	memcpy(this, &other, sizeof(*this));

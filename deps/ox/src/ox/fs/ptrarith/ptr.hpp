@@ -29,7 +29,7 @@ class [[nodiscard]] Ptr {
 
 		constexpr Ptr(std::nullptr_t) noexcept;
 
-		constexpr Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize = sizeof(T), size_t itemTypeSize = sizeof(T)) noexcept;
+		constexpr Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize = sizeof(T), size_t itemTypeSize = sizeof(T), bool prevalidated = false) noexcept;
 
 		[[nodiscard]]
 		constexpr bool valid() const noexcept;
@@ -77,6 +77,8 @@ class [[nodiscard]] Ptr {
 		template<typename SubT>
 		constexpr const Ptr<SubT, size_t, minOffset> to() const noexcept;
 
+		constexpr Result<Ptr<T, size_t, minOffset>> validate() const noexcept;
+
 };
 
 template<typename T, typename size_t, size_t minOffset>
@@ -84,7 +86,7 @@ constexpr Ptr<T, size_t, minOffset>::Ptr(std::nullptr_t) noexcept {
 }
 
 template<typename T, typename size_t, size_t minOffset>
-constexpr Ptr<T, size_t, minOffset>::Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize, size_t itemTypeSize) noexcept {
+constexpr Ptr<T, size_t, minOffset>::Ptr(void *dataStart, size_t dataSize, size_t itemStart, size_t itemSize, size_t itemTypeSize, bool prevalidated) noexcept {
 	// do some sanity checks before assuming this is valid
 	if (itemSize >= itemTypeSize &&
 	    dataStart &&
@@ -94,6 +96,7 @@ constexpr Ptr<T, size_t, minOffset>::Ptr(void *dataStart, size_t dataSize, size_
 		m_dataSize = dataSize;
 		m_itemOffset = itemStart;
 		m_itemSize = itemSize;
+		m_validated = prevalidated;
 	}
 }
 
@@ -205,7 +208,7 @@ constexpr const Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(s
 template<typename T, typename size_t, size_t minOffset>
 template<typename SubT>
 constexpr const Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset) const noexcept {
-	oxTrace("ox::fs::Ptr::subPtr") << m_itemOffset << this->size() << offset << m_itemSize << (m_itemSize - offset);
+	oxTracef("ox::fs::Ptr::subPtr", "{} {} {} {} {}", m_itemOffset, this->size(), offset, m_itemSize, (m_itemSize - offset));
 	return subPtr<SubT>(offset, m_itemSize - offset);
 }
 
@@ -218,7 +221,8 @@ constexpr Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t 
 template<typename T, typename size_t, size_t minOffset>
 template<typename SubT>
 constexpr Ptr<SubT, size_t, sizeof(T)> Ptr<T, size_t, minOffset>::subPtr(size_t offset) noexcept {
-	oxTrace("ox::fs::Ptr::subPtr") << m_itemOffset << this->size() << offset << m_itemSize << (m_itemSize - offset);
+	oxTracef("ox::fs::Ptr::subPtr", "{} {} {} {} {}", m_itemOffset, this->size(), offset, m_itemSize, (m_itemSize - offset));
+	return subPtr<SubT>(offset, m_itemSize - offset);
 	return subPtr<SubT>(offset, m_itemSize - offset);
 }
 
@@ -226,6 +230,14 @@ template<typename T, typename size_t, size_t minOffset>
 template<typename SubT>
 constexpr const Ptr<SubT, size_t, minOffset> Ptr<T, size_t, minOffset>::to() const noexcept {
 	return Ptr<SubT, size_t, minOffset>(m_dataStart, m_dataSize, m_itemOffset, m_itemSize);
+}
+
+template<typename T, typename size_t, size_t minOffset>
+constexpr Result<Ptr<T, size_t, minOffset>> Ptr<T, size_t, minOffset>::validate() const noexcept {
+	 if (valid()) {
+	 	return *this;
+	 }
+	 return OxError(1);
 }
 
 }

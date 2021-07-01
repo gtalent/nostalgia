@@ -209,11 +209,11 @@ Error FileSystemTemplate<FileStore, Directory>::format(void *buff, uint64_t buff
 
 	FileSystemData fd;
 	fd.rootDirInode = rootDirInode;
-	oxTrace("ox::fs::FileSystemTemplate::format") << "rootDirInode:" << fd.rootDirInode;
+	oxTracef("ox::fs::FileSystemTemplate::format", "rootDirInode: {}", fd.rootDirInode.get());
 	oxReturnError(fs.write(InodeFsData, &fd, sizeof(fd)));
 
 	if (!fs.read(fd.rootDirInode).valid()) {
-		oxTrace("ox::fs::FileSystemTemplate::format::error") << "FileSystemTemplate::format did not correctly create root directory";
+		oxTrace("ox::fs::FileSystemTemplate::format::error", "FileSystemTemplate::format did not correctly create root directory");
 		return OxError(1);
 	}
 
@@ -285,7 +285,7 @@ Result<Vector<String>> FileSystemTemplate<FileStore, Directory>::ls(const char *
 template<typename FileStore, typename Directory>
 template<typename F>
 Error FileSystemTemplate<FileStore, Directory>::ls(const char *path, F cb) {
-	oxTrace("ox::fs::FileSystemTemplate::ls") << "path:" << path;
+	oxTracef("ox::fs::FileSystemTemplate::ls", "path: {}", path);
 	oxRequire(s, stat(path));
 	Directory dir(m_fs, s.inode);
 	return dir.ls(cb);
@@ -304,7 +304,7 @@ Error FileSystemTemplate<FileStore, Directory>::remove(const char *path, bool re
 			return err;
 		}
 	} else {
-		oxTrace("FileSystemTemplate::remove::fail") << "Tried to remove directory without recursive setting.";
+		oxTrace("FileSystemTemplate::remove::fail", "Tried to remove directory without recursive setting.");
 		return OxError(1);
 	}
 	return OxError(0);

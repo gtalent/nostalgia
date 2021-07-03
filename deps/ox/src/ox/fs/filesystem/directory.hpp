@@ -62,10 +62,12 @@ struct OX_PACKED DirectoryEntry {
 		/**
 		 * @return the size of the data + the size of the Item type
 		 */
+		[[nodiscard]]
 		InodeId_t fullSize() const {
 			return m_bufferSize;
 		}
 
+		[[nodiscard]]
 		InodeId_t size() const {
 			return fullSize() - sizeof(*this);
 		}
@@ -106,9 +108,9 @@ class Directory {
 		/**
 		 * @param parents indicates the operation should create non-existent directories in the path, like mkdir -p
 		 */
-		Error write(PathIterator it, InodeId_t inode, FileName *nameBuff = nullptr) noexcept;
+		Error write(PathIterator path, InodeId_t inode, FileName *nameBuff = nullptr) noexcept;
 
-		Error remove(PathIterator it, FileName *nameBuff = nullptr) noexcept;
+		Error remove(PathIterator path, FileName *nameBuff = nullptr) noexcept;
 
 		template<typename F>
 		Error ls(F cb) noexcept;
@@ -240,7 +242,7 @@ Error Directory<FileStore, InodeId_t>::write(PathIterator path, InodeId_t inode,
 
 		// TODO: look for old version of this entry and delete it
 		oxReturnError(cpy->setSize(newSize));
-		auto val = cpy->malloc(entryDataSize);
+		auto val = cpy->malloc(entryDataSize).value;
 		if (!val.valid()) {
 			oxTrace("ox::fs::Directory::write::fail", "Could not allocate memory for new directory entry");
 			return OxError(1, "Could not allocate memory for new directory entry");

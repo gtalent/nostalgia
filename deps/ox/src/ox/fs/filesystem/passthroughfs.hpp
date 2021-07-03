@@ -30,7 +30,7 @@ class PassThroughFS: public FileSystem {
 		std::filesystem::path m_path;
 
 	public:
-		PassThroughFS(const char *dirPath);
+		explicit PassThroughFS(const char *dirPath);
 
 		~PassThroughFS() override;
 

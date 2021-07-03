@@ -35,8 +35,8 @@ const std::map<std::string_view, std::function<ox::Error(std::string_view)>> tes
 				ox::Vector<char> buff(5 * ox::units::MB);
 				auto buffer = new (buff.data()) ox::ptrarith::NodeBuffer<BuffPtr_t, NodeType<BuffPtr_t>>(buff.size());
 				using String = ox::BString<6>;
-				auto a1 = buffer->malloc(sizeof(String));
-				auto a2 = buffer->malloc(sizeof(String));
+				auto a1 = buffer->malloc(sizeof(String)).value;
+				auto a2 = buffer->malloc(sizeof(String)).value;
 				oxAssert(a1.valid(), "Allocation 1 failed.");
 				oxAssert(a2.valid(), "Allocation 2 failed.");
 				auto s1Buff = buffer->dataOf<String>(a1);
@@ -158,8 +158,8 @@ const std::map<std::string_view, std::function<ox::Error(std::string_view)>> tes
 			[](std::string_view) {
 				constexpr auto buffLen = 5000;
 				auto list = new (ox_alloca(buffLen)) ox::ptrarith::NodeBuffer<uint32_t, ox::FileStoreItem<uint32_t>>(buffLen);
-				oxAssert(list->malloc(50).valid(), "NodeBuffer::insert: malloc 1 failed");
-				oxAssert(list->malloc(50).valid(), "NodeBuffer::insert: malloc 2 failed");
+				oxAssert(list->malloc(50).value.valid(), "NodeBuffer::insert: malloc 1 failed");
+				oxAssert(list->malloc(50).value.valid(), "NodeBuffer::insert: malloc 2 failed");
 				auto first = list->firstItem();
 				oxAssert(first.valid(), "NodeBuffer::insert: Could not access first item");
 				oxAssert(first->size() == 50, "NodeBuffer::insert: First item size invalid");

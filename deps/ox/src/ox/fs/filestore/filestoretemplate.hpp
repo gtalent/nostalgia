@@ -63,7 +63,6 @@ class FileStoreTemplate {
 		using Buffer = ptrarith::NodeBuffer<size_t, FileStoreItem<size_t>>;
 
 		static constexpr InodeId_t ReservedInodeEnd = 100;
-		static constexpr auto MaxInode = MaxValue<size_t> / 2;
 
 		struct OX_PACKED FileStoreData {
 			LittleEndian<size_t> rootNode = 0;
@@ -203,16 +202,18 @@ FileStoreTemplate<size_t>::FileStoreTemplate(void *buff, size_t buffSize) {
 template<typename size_t>
 Error FileStoreTemplate<size_t>::format(void *buffer, size_t bufferSize) {
 	auto nb = new (buffer) Buffer(bufferSize);
-	auto fsData = nb->malloc(sizeof(FileStoreData));
-	if (fsData.valid()) {
-		auto data = nb->template dataOf<FileStoreData>(fsData);
-		if (data.valid()) {
-			new (data) FileStoreData;
-			return OxError(0);
-		}
+	auto fsData = nb->malloc(sizeof(FileStoreData)).value;
+	if (!fsData.valid()) {
+		oxTrace("ox::fs::FileStoreTemplate::format::fail", "Could not read data section of FileStoreData");
+		return OxError(1, "Could not read data section of FileStoreData");
 	}
-	oxTrace("ox::fs::FileStoreTemplate::format::fail", "Could not read data section of FileStoreData");
-	return OxError(1, "Could not read data section of FileStoreData");
+	auto data = nb->template dataOf<FileStoreData>(fsData);
+	if (!data.valid()) {
+		oxTrace("ox::fs::FileStoreTemplate::format::fail", "Could not read data section of FileStoreData");
+		return OxError(1, "Could not read data section of FileStoreData");
+	}
+	new (data) FileStoreData;
+	return OxError(0);
 }
 
 template<typename size_t>
@@ -261,12 +262,12 @@ Error FileStoreTemplate<size_t>::write(InodeId_t id, const void *data, FsSize_t 
 			existing = nullptr;
 		}
 		// write the given data
-		auto dest = m_buffer->malloc(dataSize);
+		auto dest = m_buffer->malloc(dataSize).value;
 		// if first malloc failed, compact and try again
 		if (!dest.valid()) {
 			oxTrace("ox::fs::FileStoreTemplate::write", "Allocation failed, compacting");
 			oxReturnError(compact());
-			dest = m_buffer->malloc(dataSize);
+			dest = m_buffer->malloc(dataSize).value;
 		}
 		if (dest.valid()) {
 			oxTrace("ox::fs::FileStoreTemplate::write", "Memory allocated");
@@ -414,7 +415,7 @@ Error FileStoreTemplate<size_t>::resize(std::size_t size, void *newBuff) {
 
 template<typename size_t>
 Result<StatInfo> FileStoreTemplate<size_t>::stat(InodeId_t id) {
-	oxRequireM(inode, find(id).validate());
+	oxRequire(inode, find(id).validate());
 	return StatInfo {
 		id,
 		inode->links,

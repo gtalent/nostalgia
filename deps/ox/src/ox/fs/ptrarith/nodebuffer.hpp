@@ -129,12 +129,12 @@ class OX_PACKED NodeBuffer {
 
 		ItemPtr ptr(size_t offset) noexcept;
 
-		ItemPtr malloc(size_t size) noexcept;
+		Result<ItemPtr> malloc(size_t size) noexcept;
 
 		Error free(ItemPtr item) noexcept;
 
 		[[nodiscard]]
-		bool valid(size_t maxSize) noexcept;
+		bool valid(size_t maxSize) const noexcept;
 
 		/**
 		 * Set size, capacity.
@@ -152,7 +152,7 @@ class OX_PACKED NodeBuffer {
 		 * @return the bytes still available in this NodeBuffer
 		 */
 		[[nodiscard]]
-		size_t available() noexcept;
+		size_t available() const noexcept;
 
 		/**
 		 * @return the actual number a bytes need to store the given number of
@@ -267,7 +267,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::ptr(size_t 
 }
 
 template<typename size_t, typename Item>
-typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size_t size) noexcept {
+Result<typename NodeBuffer<size_t, Item>::ItemPtr> NodeBuffer<size_t, Item>::malloc(size_t size) noexcept {
 	oxTracef("ox::ptrarith::NodeBuffer::malloc", "Size: {}", size);
 	size_t fullSize = size + sizeof(Item);
 	if (m_header.size - m_header.bytesUsed >= fullSize) {
@@ -283,14 +283,14 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 				addr = m_header.firstItem;
 			} else {
 				oxTrace("ox::ptrarith::NodeBuffer::malloc::fail", "NodeBuffer is in invalid state.");
-				return nullptr;
+				return OxError(1, "NodeBuffer is in invalid state.");
 			}
 		}
 		oxTracef("ox::ptrarith::NodeBuffer::malloc", "buffer size: {}; addr: {}; fullSize: {}", m_header.size.get(), addr, fullSize);
 		auto out = ItemPtr(this, m_header.size, addr, fullSize);
 		if (!out.valid()) {
 			oxTrace("ox::ptrarith::NodeBuffer::malloc::fail", "Unknown");
-			return nullptr;
+			return OxError(1, "NodeBuffer::malloc: unknown failure");
 		}
 		ox_memset(out, 0, fullSize);
 		new (out) Item;
@@ -303,7 +303,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 			first->prev = out.offset();
 		} else {
 			oxTrace("ox::ptrarith::NodeBuffer::malloc::fail", "NodeBuffer malloc failed due to invalid first element pointer.");
-			return nullptr;
+			return OxError(1, "NodeBuffer malloc failed due to invalid first element pointer.");
 		}
 
 		if (oldLast.valid()) {
@@ -313,7 +313,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 			if (out.offset() != first.offset()) {
 				// if this is not the first allocation, there should be an oldLast
 				oxTrace("ox::ptrarith::NodeBuffer::malloc::fail", "NodeBuffer malloc failed due to invalid last element pointer.");
-				return nullptr;
+				return OxError(1, "NodeBuffer malloc failed due to invalid last element pointer.");
 			}
 			out->prev = out.offset();
 		}
@@ -322,7 +322,7 @@ typename NodeBuffer<size_t, Item>::ItemPtr NodeBuffer<size_t, Item>::malloc(size
 		return out;
 	}
 	oxTracef("ox::ptrarith::NodeBuffer::malloc::fail", "Insufficient space: {} needed, {} available", fullSize, available());
-	return nullptr;
+	return OxError(1);
 }
 
 template<typename size_t, typename Item>
@@ -379,12 +379,12 @@ constexpr size_t NodeBuffer<size_t, Item>::size() const noexcept {
 }
 
 template<typename size_t, typename Item>
-bool NodeBuffer<size_t, Item>::valid(size_t maxSize) noexcept {
+bool NodeBuffer<size_t, Item>::valid(size_t maxSize) const noexcept {
 	return m_header.size <= maxSize;
 }
 
 template<typename size_t, typename Item>
-size_t NodeBuffer<size_t, Item>::available() noexcept {
+size_t NodeBuffer<size_t, Item>::available() const noexcept {
 	return m_header.size - m_header.bytesUsed;
 }
 

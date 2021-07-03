@@ -23,6 +23,7 @@ add_library(
 		buffer.cpp
 		buildinfo.cpp
 		byteswap.cpp
+		defer.hpp
 		fmt.cpp
 		heapmgr.cpp
 		memops.cpp

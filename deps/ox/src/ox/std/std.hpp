@@ -12,6 +12,7 @@
 #include "bit.hpp"
 #include "bstring.hpp"
 #include "byteswap.hpp"
+#include "defer.hpp"
 #include "defines.hpp"
 #include "error.hpp"
 #include "fmt.hpp"

@@ -104,10 +104,10 @@ class BasicString {
 		BasicString substr(std::size_t pos) const noexcept;
 
 		[[nodiscard]]
-		bool endsWith(const char *other) const noexcept;
+		bool endsWith(const char *ending) const noexcept;
 
 		[[nodiscard]]
-		bool endsWith(const BasicString &other) const noexcept;
+		bool endsWith(const BasicString &ending) const noexcept;
 
 		[[nodiscard]]
 		constexpr const char *data() const noexcept {
@@ -199,7 +199,7 @@ BasicString<SmallStringSize> &BasicString<SmallStringSize>::operator=(const char
 
 template<std::size_t SmallStringSize>
 BasicString<SmallStringSize> &BasicString<SmallStringSize>::operator=(char *str) noexcept {
-	return *this = static_cast<const char*>(str);
+	return *this = const_cast<const char*>(str);
 }
 
 template<std::size_t SmallStringSize>

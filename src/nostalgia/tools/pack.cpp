@@ -13,7 +13,7 @@
 
 #include "pack/pack.hpp"
 
-static ox::Error writeFileBuff(const ox::String &path, const ox::Vector<char> &buff) noexcept {
+static ox::Error writeFileBuff(const ox::String &path, const ox::Buffer &buff) noexcept {
 	try {
 		std::ofstream f(path.c_str(), std::ios::binary);
 		f.write(buff.data(), static_cast<intptr_t>(buff.size()));
@@ -35,7 +35,7 @@ static ox::Error run(const ox::ClArgs &args) noexcept {
 		oxErr("\033[31;1;1merror:\033[0m must specify a destination ROM file\n");
 		return OxError(1, "must specify a destination ROM file");
 	}
-	ox::Vector<char> buff(32 * ox::units::MB);
+	ox::Buffer buff(32 * ox::units::MB);
 	oxReturnError(ox::FileSystem32::format(buff.data(), buff.size()));
 	ox::PassThroughFS src(argSrc.c_str());
 	ox::FileSystem32 dst(ox::FileStore32(buff.data(), buff.size()));

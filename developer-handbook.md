@@ -154,6 +154,10 @@ In addition to ```ox::Error``` there is also the template ```ox::Result<T>```.
 error information, which allows the returning of a value and an error without
 resorting to output parameters.
 
+If a function returns an ```ox::Error``` or ```ox::Result``` it should be
+declared as ```noexcept``` and all exceptions should be translated to an
+```ox::Error```.
+
 ```ox::Result``` can be used as follows:
 
 ```cpp

@@ -8,10 +8,13 @@
 
 #include <array>
 
+#include <nostalgia/glutils/glutils.hpp>
+
+#define IMGUI_IMPL_OPENGL_ES3
+#include <imgui_impl_opengl3.h>
+
 #include <ox/std/bit.hpp>
 #include <ox/std/fmt.hpp>
-
-#include <nostalgia/glutils/glutils.hpp>
 
 #include <nostalgia/core/config.hpp>
 #include <nostalgia/core/gfx.hpp>
@@ -48,7 +51,7 @@ struct GlImplData {
 };
 
 constexpr const GLchar *bgvshad = R"(
-	#version 150
+	{}
 	in vec2 vTexCoord;
 	in vec2 position;
 	out vec2 fTexCoord;
@@ -59,7 +62,7 @@ constexpr const GLchar *bgvshad = R"(
 	})";
 
 constexpr const GLchar *bgfshad = R"(
-	#version 150
+	{}
 	out vec4 outColor;
 	in vec2 fTexCoord;
 	uniform sampler2D image;
@@ -114,7 +117,7 @@ static void initBackgroundBufferObjects(Context *ctx, Background *bg) noexcept {
 			const auto i = bgVertexRow(x, y);
 			auto vbo = &bg->bgVertices[i * BgVertexVboLength];
 			auto ebo = &bg->bgElements[i * BgVertexEboLength];
-			setTileBufferObject(ctx, i * BgVertexVboRows, x, y, 0, vbo, ebo);
+			setTileBufferObject(ctx, i * BgVertexVboRows, static_cast<float>(x), static_cast<float>(y), 0, vbo, ebo);
 		}
 	}
 }
@@ -191,7 +194,7 @@ static void drawBackground(Background *bg) noexcept {
 			renderer::sendVbo(*bg);
 		}
 		glBindTexture(GL_TEXTURE_2D, bg->tex);
-		glDrawElements(GL_TRIANGLES, bg->bgElements.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(bg->bgElements.size()), GL_UNSIGNED_INT, nullptr);
 	}
 }
 
@@ -206,12 +209,16 @@ static void drawBackgrounds(GlImplData *id) noexcept {
 }
 
 ox::Error init(Context *ctx) noexcept {
+	constexpr auto GlslVersion = "#version 150";
 	const auto id = new GlImplData;
 	ctx->setRendererData(id);
-	oxReturnError(glutils::buildShaderProgram(bgvshad, bgfshad).moveTo(&id->bgShader));
+	const auto vshad = ox::sfmt(bgvshad, GlslVersion);
+	const auto fshad = ox::sfmt(bgfshad, GlslVersion);
+	oxReturnError(glutils::buildShaderProgram(vshad.c_str(), fshad.c_str()).moveTo(&id->bgShader));
 	for (auto &bg : id->backgrounds) {
 		initBackgroundBufferset(ctx, id->bgShader, &bg);
 	}
+	ImGui_ImplOpenGL3_Init(GlslVersion);
 	return OxError(0);
 }
 
@@ -298,7 +305,7 @@ void setTile(Context *ctx, int layer, int column, int row, uint8_t tile) noexcep
 	auto &bg = id->backgrounds[z];
 	auto vbo = &bg.bgVertices[i * renderer::BgVertexVboLength];
 	auto ebo = &bg.bgElements[i * renderer::BgVertexEboLength];
-	renderer::setTileBufferObject(ctx, i * renderer::BgVertexVboRows, x, y, tile, vbo, ebo);
+	renderer::setTileBufferObject(ctx, i * renderer::BgVertexVboRows, static_cast<float>(x), static_cast<float>(y), tile, vbo, ebo);
 	bg.updated = true;
 }
 

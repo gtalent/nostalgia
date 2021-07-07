@@ -8,7 +8,6 @@
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
-#include <imgui_impl_glfw.h>
 
 #include <nostalgia/core/userland/gfx.hpp>
 
@@ -38,10 +37,10 @@ ox::Error initGfx(Context *ctx) noexcept {
 	}
 	glfwSetWindowUserPointer(id->window, ctx);
 	glfwMakeContextCurrent(id->window);
-	oxReturnError(renderer::init(ctx));
-	oxReturnError(OxError(glfwInit() != 0));
+	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGui_ImplGlfw_InitForOpenGL(id->window, true);
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	oxReturnError(renderer::init(ctx));
 	return OxError(0);
 }
 

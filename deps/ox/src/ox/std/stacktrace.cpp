@@ -26,20 +26,20 @@ namespace ox {
 
 #if defined(OX_USE_STDLIB) && __has_include(<unistd.h>)
 [[nodiscard]]
-static String symbolicate([[maybe_unused]]const char **frames, [[maybe_unused]]std::size_t symbolsLen, [[maybe_unused]]const char *linePrefix) {
+static Vector<String> symbolicate([[maybe_unused]]const char **frames, [[maybe_unused]]std::size_t symbolsLen, [[maybe_unused]]const char *linePrefix) {
 #if __has_include(<cxxabi.h>)
-	String out;
+	Vector<String> out;
 	for (auto i = 0u; i < symbolsLen; ++i) {
 		Dl_info info;
 		if (dladdr(frames[i], &info) && info.dli_sname) {
 			int status = -1;
 			const auto name = abi::__cxa_demangle(info.dli_sname, nullptr, 0, &status);
 			if (status == 0) {
-				out += sfmt("\t{}: {}\n", i, name);
+				out.emplace_back(sfmt("{}: {}", i, name));
 				continue;
 			}
 		}
-		out += sfmt("\t{}\n", frames[i]);
+		out.emplace_back(sfmt("{}", frames[i]));
 	}
 	return move(out);
 #else // __has_include(<cxxabi.h>)
@@ -56,7 +56,10 @@ void printStackTrace([[maybe_unused]]unsigned shave) noexcept {
 		const auto symbols = backtrace_symbols(frames.data() + shave, frames.size() - shave);
 		const auto symbolicatedStacktrace = symbolicate(bit_cast<const char**>(frames.data() + shave), frames.size() - shave, "\t");
 		free(symbols);
-		oxErrf("Stacktrace:\n{}", symbolicatedStacktrace);
+		oxErr("Stacktrace:\n");
+		for (const auto &s : symbolicatedStacktrace) {
+			oxErrf("\t{}\n", s);
+		}
 	}
 #endif
 }

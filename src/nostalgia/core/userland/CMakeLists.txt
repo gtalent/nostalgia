@@ -9,8 +9,11 @@ if(NOT MSVC)
 	target_compile_options(NostalgiaCore-Userspace PRIVATE -Wsign-conversion)
 endif()
 
+find_package(imgui REQUIRED)
+
 target_link_libraries(
 	NostalgiaCore-Userspace PUBLIC
+		imgui::imgui
 		OxClaw
 		OxFS
 		OxStd

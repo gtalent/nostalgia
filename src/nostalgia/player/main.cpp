@@ -13,7 +13,7 @@
 static ox::Error run(int argc, const char **argv) noexcept {
 	ox::trace::init();
 	if (argc < 2) {
-		oxErrf("Please provide path to project directory or OxFS file.");
+		oxErr("Please provide path to project directory or OxFS file.");
 		return OxError(1);
 	}
 	const auto path = argv[1];

@@ -47,8 +47,6 @@ if(NOT MSVC)
 	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsign-conversion")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-variable")
-	# disable warnings
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments")
 	# release build options
 	if (CMAKE_BUILD_TYPE STREQUAL "Release")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")

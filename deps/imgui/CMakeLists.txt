@@ -12,6 +12,11 @@ if(APPLE)
 		imgui-glfw PRIVATE
 			IMGUI_IMPL_OPENGL_LOADER_CUSTOM="OpenGL/gl3.h"
 	)
+else()
+	target_compile_definitions(
+		imgui-glfw PRIVATE
+			IMGUI_IMPL_OPENGL_LOADER_CUSTOM="GLES3/gl3.h"
+	)
 endif()
 
 target_link_libraries(
